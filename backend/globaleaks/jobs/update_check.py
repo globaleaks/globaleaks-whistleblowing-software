@@ -1,3 +1,5 @@
+import re
+
 from packaging.version import parse as parse_version
 from twisted.internet.defer import inlineCallbacks
 
@@ -13,8 +15,6 @@ from globaleaks.utils.agent import get_page
 from globaleaks.utils.log import log
 
 DEB_PACKAGE_URL = b'https://deb.globaleaks.org/trixie/Packages'
-
-import re
 
 def get_latest_version(packages_file):
     # Split the Packages file into individual package entries

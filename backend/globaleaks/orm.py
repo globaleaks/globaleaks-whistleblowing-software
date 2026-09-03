@@ -1,4 +1,4 @@
-import random
+import secrets
 import time
 import sqlite3
 
@@ -12,9 +12,12 @@ from twisted.internet.threads import deferToThreadPool
 from globaleaks.models import AuditLog
 
 
-_ORM_DEBUG = False
-_ORM_DB_URI = "sqlite:///:memory:"
-_ORM_THREAD_POOL = None
+_ORM = {
+    'debug': False,
+    'db_uri': "sqlite:///:memory:",
+    'thread_pool': None
+}
+
 _ORM_TRANSACTION_RETRIES = 20
 
 
@@ -32,19 +35,18 @@ def make_db_uri(db_file):
 
 
 def set_db_uri(db_uri):
-    global _ORM_DB_URI
-    _ORM_DB_URI = db_uri
+    _ORM['db_uri'] = db_uri
 
 
 def get_db_uri():
-    return _ORM_DB_URI
+    return _ORM['db_uri']
 
 
 def get_engine(db_uri=None, foreign_keys=True, orm_lockdown=True):
     if db_uri is None:
         db_uri = get_db_uri()
 
-    engine = create_engine(db_uri, connect_args={'timeout': 30}, echo=_ORM_DEBUG)
+    engine = create_engine(db_uri, connect_args={'timeout': 30}, echo=_ORM['debug'])
 
     def authorizer_callback(action, table, column, sql_location, ignore):
         if action in [SQLITE_DELETE,
@@ -94,17 +96,15 @@ def get_session(db_uri=None, foreign_keys=True):
 
 
 def enable_orm_debug():
-    global _ORM_DEBUG
-    _ORM_DEBUG = True
+    _ORM['debug'] = True
 
 
 def set_thread_pool(thread_pool):
-    global _ORM_THREAD_POOL
-    _ORM_THREAD_POOL = thread_pool
+    _ORM['thread_pool'] = thread_pool
 
 
 def get_thread_pool():
-    return _ORM_THREAD_POOL
+    return _ORM['thread_pool']
 
 
 def db_add(session, model_class, model_fields):
@@ -198,7 +198,7 @@ class transact:
                     if retries >= _ORM_TRANSACTION_RETRIES:
                         raise Exception("Transaction failed with too many retries")
 
-                    time.sleep(0.2 * random.uniform(1, 2 ** retries))  # noqa: S311 - non-crypto backoff jitter
+                    time.sleep(0.2 * secrets.SystemRandom().uniform(1, 2 ** retries))
                 except Exception:
                     session.rollback()
                     raise

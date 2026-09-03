@@ -22,7 +22,7 @@ from globaleaks.utils.utility import datetime_now, deferred_sleep
 
 
 def gen_cache_key(*args):
-    return '-'.join(['{}'.format(arg) for arg in args])
+    return '-'.join([f'{arg}' for arg in args])
 
 
 def _to_datetime(val):
@@ -338,7 +338,7 @@ class MailGenerator:
             .filter(models.User.id == models.ReceiverTip.receiver_id,
                     models.ReceiverTip.internaltip_id == models.InternalTip.id,
                     models.InternalTip.status == 'opened',
-                    models.InternalTip.expiration_date != None,
+                    models.InternalTip.expiration_date.isnot(None),
                     models.InternalTip.expiration_date > now_dt,
                     models.InternalTip.expiration_date <= now_dt + timedelta(days=max_threshold)) \
             .order_by(models.InternalTip.expiration_date)
@@ -386,8 +386,9 @@ class MailGenerator:
             entries = payload['entries']
 
             try:
-                serialized_user = serialize_user(session, user, user.language)
-            except:
+                serialized_user = user_serialize_user(session, user, user.language)
+            except Exception as e:
+                log.err("Unable to serialize user %s for the expiration reminder: %s", user.id, e)
                 continue
 
             tips_serialized = []
@@ -431,7 +432,8 @@ class MailGenerator:
             }
             try:
                 self.process_mail_creation(session, tid, data)
-            except:
+            except Exception as e:
+                log.err("Unable to create the expiration reminder for user %s: %s", user.id, e)
                 continue
 
             user.last_expiration_reminder_date = now_dt

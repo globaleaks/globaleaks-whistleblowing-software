@@ -48,7 +48,7 @@ class TestORM(helpers.TestGL):
     def test_transact_decorate_function(self):
         @transact
         def transaction(session):
-            self.assertTrue(getattr(session, 'query'))
+            self.assertTrue(session.query)
 
         return transaction()
 

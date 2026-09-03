@@ -6,11 +6,11 @@ from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
+from globaleaks.handlers.user import reset_password
 from globaleaks.tests import helpers
 
 
 class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
-    from globaleaks.handlers.user import reset_password
     _handler = reset_password.PasswordResetHandler
 
     @inlineCallbacks
@@ -129,7 +129,6 @@ class TestProtectedPasswordReset(helpers.TestHandlerWithPopulatedDB):
     # present and can be set.
     initialize_test_database_using_archived_db = False
 
-    from globaleaks.handlers.user import reset_password
     _handler = reset_password.PasswordResetHandler
 
     @inlineCallbacks

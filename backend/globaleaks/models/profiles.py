@@ -14,7 +14,7 @@ def load_profile(session, tid, name):
     :param name: The name of the profile to be used
     """
     path = os.path.join(Settings.client_path, 'data/profiles')
-    profile = os.path.join(path, '{}.json'.format(name))
+    profile = os.path.join(path, f'{name}.json')
     directory_traversal_check(path, profile)
     prof = read_json_file(profile)
 

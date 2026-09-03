@@ -1,6 +1,5 @@
-from unittest.mock import patch
 
-from twisted.internet.defer import inlineCallbacks, succeed
+from twisted.internet.defer import inlineCallbacks
 
 
 from globaleaks import models
@@ -9,7 +8,6 @@ from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import transact
-from globaleaks.rest import errors
 from globaleaks.tests import helpers
 from globaleaks.tests.helpers import VALID_SALT
 from globaleaks.utils.crypto import GCE

@@ -86,10 +86,11 @@ def extract_bearer_token(request):
     """
     try:
         auth_header = request.getHeader('Authorization')
-        if auth_header and auth_header.startswith('Bearer '):
-            return auth_header[len('Bearer '):].strip()
-    except:
-        pass
+    except Exception:
+        return None
+
+    if auth_header and auth_header.startswith('Bearer '):
+        return auth_header[len('Bearer '):].strip()
 
     return None
 
@@ -107,7 +108,7 @@ def rsa_public_key(key):
     return rsa.RSAPublicNumbers(e, n).public_key()
 
 
-class OIDCAuth(object):
+class OIDCAuth:
     """
     Verifier for the OIDC ID tokens issued by the IdP configured on each tenant
     """
@@ -134,7 +135,7 @@ class OIDCAuth(object):
         validate_endpoint(url)
 
         # Imported here as the state imports this module at load time
-        from globaleaks.state import State
+        from globaleaks.state import State  # noqa: PLC0415
 
         headers = {'User-Agent': ['Twisted Web Client']}
 
@@ -164,7 +165,7 @@ class OIDCAuth(object):
         validate_endpoint(url)
 
         # Imported here as the state imports this module at load time
-        from globaleaks.state import State
+        from globaleaks.state import State  # noqa: PLC0415
 
         headers = {'User-Agent': ['Twisted Web Client'],
                    'Content-Type': ['application/x-www-form-urlencoded']}

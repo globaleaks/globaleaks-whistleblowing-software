@@ -238,7 +238,7 @@ def get_excludes(backup_path):
     target_path = os.path.realpath(backup_path)
 
     if target_path == working_path:
-        raise Exception("backup_path must not be the working directory itself")
+        raise ValueError("backup_path must not be the working directory itself")
 
     if target_path.startswith(working_path + os.sep):
         excludes.append('/' + os.path.relpath(target_path, working_path))

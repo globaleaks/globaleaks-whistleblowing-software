@@ -8,7 +8,7 @@ from globaleaks.tests import helpers
 
 # special guest:
 
-stuff = u"³²¼½¬¼³²"
+stuff = "³²¼½¬¼³²"
 
 
 @transact

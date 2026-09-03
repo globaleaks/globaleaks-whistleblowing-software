@@ -3,9 +3,8 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks import models
 from globaleaks.handlers.recipient import insertion
 from globaleaks.orm import transact
-from globaleaks.rest import errors
 from globaleaks.tests import helpers
-from globaleaks.utils.crypto import Base64Encoder, GCE, sha256
+from globaleaks.utils.crypto import Base64Encoder
 
 
 # The key the client derives from the digits it composes: what reaches the

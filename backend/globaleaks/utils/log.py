@@ -73,17 +73,7 @@ def logFormatter(timestamp, request):
         client_ip = request.client_ip
         client_ua = request.client_ua
 
-    return (u'%(vhost)s %(ip)s - - %(timestamp)s "%(method)s %(uri)s %(clientproto)s" %(code)s %(length)d %(duration)dms - "%(user_agent)s"' % dict(
-            vhost=_escape(request.hostname),
-            timestamp=timestamp,
-            duration=duration,
-            ip=_escape(client_ip),
-            method=_escape(request.method),
-            uri=_escape(request.uri),
-            clientproto=_escape(request.clientproto),
-            code=request.code,
-            length=request.sentLength,
-            user_agent=_escape(client_ua)))
+    return f'{_escape(request.hostname)} {_escape(client_ip)} - - {timestamp} "{_escape(request.method)} {_escape(request.uri)} {_escape(request.clientproto)}" {request.code} {int(request.sentLength):d} {int(duration):d}ms - "{_escape(client_ua)}"'
 
 
 class LogObserver(txlog.FileLogObserver):
@@ -135,7 +125,7 @@ class Logger:
         msg = escape_string(msg)
 
         tid = kwargs.get('tid')
-        p = '[%s]' % prefix if tid is None else '[%s] [%d]' % (prefix, tid)
+        p = f'[{prefix}]' if tid is None else f'[{prefix}] [{tid}]'
 
         print(p, msg)
 

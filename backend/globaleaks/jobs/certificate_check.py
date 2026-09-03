@@ -1,4 +1,4 @@
-import random
+import secrets
 import time
 
 from datetime import datetime, timedelta
@@ -66,14 +66,14 @@ class CertificateCheck(DailyJob):
     def operation(self):
         # Randomize the execution of certificates checks and renewals
         # https://letsencrypt.org/docs/faq/#why-should-my-let-s-encrypt-acme-client-run-at-a-random-time
-        yield deferred_sleep(random.randint(1, 3) * 3600 + random.randint(900, 2700))  # noqa: S311 - non-crypto renewal-time randomization per Let's Encrypt guidance
+        yield deferred_sleep((1 + secrets.randbelow(3)) * 3600 + 900 + secrets.randbelow(1801))
 
         # Update start time in relation to delayed daily random start
         self.start_time = int(time.time() * 1000)
 
         now = datetime.now()
 
-        for tid in self.state.tenants.keys():
+        for tid in self.state.tenants:
             if not self.state.tenants[tid].cache['https_enabled']:
                 continue
 
@@ -85,11 +85,10 @@ class CertificateCheck(DailyJob):
                 if tls_config:
                     self.state.snimap.unload(tid)
                     self.state.snimap.load(tid, tls_config)
-                else:
-                    # Send an email to the admin cause this requires user intervention
-                    if now > expiration_date - timedelta(self.notify_expr_within) and \
-                        not self.state.tenants[tid].cache.notification.enable_notification_emails_admin:
-                        yield self.certificate_mail_creation('https_certificate_renewal_failure', tid, expiration_date)
+                # Send an email to the admin cause this requires user intervention
+                elif now > expiration_date - timedelta(self.notify_expr_within) and \
+                    not self.state.tenants[tid].cache.notification.enable_notification_emails_admin:
+                    yield self.certificate_mail_creation('https_certificate_renewal_failure', tid, expiration_date)
 
             # Regular certificates expiration checks
             elif now > expiration_date - timedelta(self.notify_expr_within):

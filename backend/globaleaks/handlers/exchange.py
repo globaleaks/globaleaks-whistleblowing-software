@@ -813,11 +813,11 @@ def db_create_exchange_report(session, tid, user_session, type, request, languag
         'source_internaltip_id': source_itip.id if source_itip is not None else ''
     }
 
-    db_log(session, tid=tid, type='report_%s_created' % itip.type,
+    db_log(session, tid=tid, type=f'report_{itip.type}_created',
            user_id=user_session.user_id, object_id=itip.id, data=log_data)
 
     if target_tid != tid:
-        db_log(session, tid=target_tid, type='report_%s_received' % itip.type,
+        db_log(session, tid=target_tid, type=f'report_{itip.type}_received',
                user_id=None, object_id=itip.id, data=log_data)
 
     return {
