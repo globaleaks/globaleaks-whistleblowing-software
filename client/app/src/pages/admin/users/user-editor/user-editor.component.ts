@@ -200,7 +200,7 @@ export class UserEditorComponent implements OnInit {
   }
 
   getUserRoleOrProfileLabel(user: any): string {
-    const roleMap: { [key: string]: string } = {
+    const roleMap: Record<string, string> = {
       'admin': 'Admin',
       'analyst': 'Analyst',
       'auditor': 'Auditor',
@@ -218,26 +218,14 @@ export class UserEditorComponent implements OnInit {
   getUserDisplayName(user:any) {
     const profileName = this.getUserProfile(user.profile_id)!.name;
 
-    let roleDisplay = '';
-    switch (user.role) {
-      case 'admin':
-        roleDisplay = 'Admin';
-        break;
-      case 'receiver':
-        roleDisplay = 'Recipient';
-        break;
-      case 'custodian':
-        roleDisplay = 'Custodian';
-        break;
-      case 'analyst':
-        roleDisplay = 'Analyst';
-        break;
-      case 'auditor':
-        roleDisplay = 'Auditor';
-        break;
-      default:
-        roleDisplay = '';
-    }
+    const roleNames: Record<string, string> = {
+      admin: 'Admin',
+      receiver: 'Recipient',
+      custodian: 'Custodian',
+      analyst: 'Analyst',
+      auditor: 'Auditor'
+    };
+    const roleDisplay = roleNames[user.role] || '';
 
     return user.id !== user.profile_id ? `${profileName} (${roleDisplay})` : roleDisplay;
   }

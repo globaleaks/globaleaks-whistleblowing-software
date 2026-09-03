@@ -74,7 +74,7 @@ export class AuthenticationService {
 
       this.requireUsername = res.type === "binding";
       this.loginData.loginUsername = res.username || "";
-    } catch (_) {
+    } catch {
       this.requireUsername = true;
     }
   }

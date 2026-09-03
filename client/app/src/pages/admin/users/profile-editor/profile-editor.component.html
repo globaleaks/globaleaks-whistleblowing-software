@@ -1,4 +1,4 @@
-<src-collapsible-card [expanded]="editing" (toggle)="toggleEditing()">
+<src-collapsible-card [expanded]="editing" (toggled)="toggleEditing()">
   <span cardTitle>
     <span>{{ profile.name }}</span>
     @if (!profile.in_use) {

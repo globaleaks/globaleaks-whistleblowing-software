@@ -87,7 +87,7 @@ export class SupportTab1Component implements OnInit {
             .sort((a, b) => a.id - b.id);
           this.updateTenantOptions();
         },
-        error: () => {}
+        error: () => { /* reported by the interceptor */ }
       });
     }
   }
@@ -105,7 +105,7 @@ export class SupportTab1Component implements OnInit {
         this.table.setItems(this.requests);
         this.focusRequest();
       },
-      error: () => {}
+      error: () => { /* reported by the interceptor */ }
     });
   }
 
@@ -253,7 +253,7 @@ export class SupportTab1Component implements OnInit {
           !message.author_id && message.new ? {...message, new: false} : message
         );
       },
-      error: () => {}
+      error: () => { /* reported by the interceptor */ }
     });
   }
 
@@ -279,7 +279,7 @@ export class SupportTab1Component implements OnInit {
         this.table.refresh();
         this.replyDrafts[request.id] = "";
       },
-      error: () => {}
+      error: () => { /* reported by the interceptor */ }
     });
   }
 
