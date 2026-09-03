@@ -117,7 +117,7 @@ export class IdpService {
     let route = this.oauthService.state;
     try {
       route = decodeURIComponent(route);
-    } catch (_) {
+    } catch {
       route = "/login";
     }
 

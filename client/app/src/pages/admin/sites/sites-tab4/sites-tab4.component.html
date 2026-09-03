@@ -4,7 +4,7 @@
 <hr>
 <app-paginated-interface [items]="invites" [itemsPerPage]="20" [orderBy]="'creation_date'" [orderDesc]="true">
   <ng-template #content let-item="item" let-index="index">
-    <src-collapsible-card data-cy="invite-row" cardClass="config-item reveal" [expanded]="expandedRegistration === item.id" [titleColumns]="6" (toggle)="toggleRegistration(item)">
+    <src-collapsible-card data-cy="invite-row" cardClass="config-item reveal" [expanded]="expandedRegistration === item.id" [titleColumns]="6" (toggled)="toggleRegistration(item)">
       <ng-container cardTitle>
           <div>
             <span>{{item.organization_name || '-'}}</span>

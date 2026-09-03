@@ -1,4 +1,4 @@
-<src-collapsible-card [expanded]="editing" (toggle)="toggleEditing()" [chevron]="false">
+<src-collapsible-card [expanded]="editing" (toggled)="toggleEditing()" [chevron]="false">
   <ng-container cardTitle>
       <span>{{ templateData.label }}</span>
       @if (templateData.default) {
