@@ -123,7 +123,7 @@ export class SignupComponent implements OnInit {
 
     try {
       this.signup = {...this.signup, ...JSON.parse(stored)};
-    } catch (_) {
+    } catch {
       window.sessionStorage.removeItem(this.getStorageKey());
     }
   }
@@ -189,10 +189,9 @@ export class SignupComponent implements OnInit {
     const param = JSON.stringify(this.signup);
     const idToken = this.oauthService.getIdToken();
     const headers = idToken ? new HttpHeaders({Authorization: `Bearer ${idToken}`}) : undefined;
-    this.httpService.requestSignup(param, headers).subscribe
-    (
+    this.httpService.requestSignup(param, headers).subscribe(
       {
-        next: _ => {
+        next: () => {
           this.clearSignup();
           this.step += 1;
         }

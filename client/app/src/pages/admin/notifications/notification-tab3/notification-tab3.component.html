@@ -1,4 +1,4 @@
-<src-collapsible-card data-cy="smtp1" [expanded]="smtp1Expanded" (toggle)="smtp1Expanded = !smtp1Expanded">
+<src-collapsible-card data-cy="smtp1" [expanded]="smtp1Expanded" (toggled)="smtp1Expanded = !smtp1Expanded">
   <span cardTitle>{{'SMTP' | translate }} #1</span>
   @if (smtp1Expanded) {
     <div class="editor">
@@ -64,7 +64,7 @@
     </div>
   }
 </src-collapsible-card>
-<src-collapsible-card data-cy="smtp2" [expanded]="smtp2Expanded" (toggle)="smtp2Expanded = !smtp2Expanded">
+<src-collapsible-card data-cy="smtp2" [expanded]="smtp2Expanded" (toggled)="smtp2Expanded = !smtp2Expanded">
   <span cardTitle>{{'SMTP' | translate }} #2</span>
   @if (smtp2Expanded) {
     <div class="editor">

@@ -88,9 +88,7 @@ export class StatisticalReportsTabComponent implements OnInit {
   }
 
   /** The columns of the table, for the detail that spans them all */
-  get columnCount(): number {
-    return 4;
-  }
+  readonly columnCount = 4;
 
   private templateLabel(templateId: string): string {
     return this.templatesData.find(template => template.id === templateId)?.label || "";

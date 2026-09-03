@@ -23,7 +23,7 @@ const expandPanel = (selector: string) => {
 };
 
 describe("globaleaks process", function () {
-  let receipts: any = [];
+  const receipts: any = [];
 
   const perform_submission = (n: number) => {
     return pages.WhistleblowerPage.performSubmission(n).then((receipt) => {
@@ -96,7 +96,7 @@ describe("globaleaks process", function () {
     cy.takeScreenshot("recipient/report_comments", "#TipCommentsBox");
     cy.takeScreenshot("recipient/report_uploads", "#TipUploadBox");
 
-    cy.get(".TipInfoID").invoke("text").then((_) => {
+    cy.get(".TipInfoID").invoke("text").then(() => {
       cy.contains("summary").should("exist");
 
       cy.get("[name='tip.label']").type("Important");

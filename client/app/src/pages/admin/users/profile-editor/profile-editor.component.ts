@@ -85,14 +85,12 @@ export class ProfileEditorComponent implements OnInit {
     this.editing = !this.editing;
   }
 
-  saveProfile(userData: UserProfile ) {
-    const user = userData;
+  saveProfile(userData: UserProfile) {
     return this.utilsService.updateAdminUserProfile(userData.id, userData).subscribe({
       next:()=>{
         this.sendDataToParent();
       },
-      error:()=>{
-      }
+      error: () => { /* reported by the interceptor */ }
     });
   }
 
@@ -113,7 +111,7 @@ export class ProfileEditorComponent implements OnInit {
 
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
-        return this.utilsService.deleteAdminUserProfile(arg.id).subscribe(_ => {
+        return this.utilsService.deleteAdminUserProfile(arg.id).subscribe(() => {
           this.deleted.emit(arg.id);
         });
       };

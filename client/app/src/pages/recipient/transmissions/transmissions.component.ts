@@ -93,7 +93,7 @@ export class TransmissionsComponent implements OnInit {
     modalRef.componentInstance.title = "Transmit report";
     modalRef.result.then(
       () => this.load(),
-      () => {}
+      () => { /* dismissed */ }
     );
   }
 }
