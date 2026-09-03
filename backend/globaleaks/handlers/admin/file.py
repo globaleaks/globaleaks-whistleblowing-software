@@ -80,7 +80,7 @@ def get_file_id_by_name(session, tid, name):
 def delete_file_if_existing(session, tid, id_or_name):
     file_obj = db_get_file_by_id_or_name(session, tid, id_or_name)
     if not file_obj:
-        return
+        return None
 
     path = os.path.join(State.settings.files_path, file_obj.id)
     directory_traversal_check(State.settings.files_path, path)
@@ -117,10 +117,9 @@ class FileInstance(BaseHandler):
                not self.session.has_permission('can_upload_files'):
                 raise errors.InvalidAuthentication
 
-        else:
-            if name not in ['logo'] or \
-                    not self.session.has_permission('can_manage_settings'):
-                raise errors.InvalidAuthentication
+        elif name not in ['logo'] or \
+                not self.session.has_permission('can_manage_settings'):
+            raise errors.InvalidAuthentication
 
     @inlineCallbacks
     def post(self, name):

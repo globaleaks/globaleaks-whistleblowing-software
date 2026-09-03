@@ -29,3 +29,5 @@ class OperationHandler(BaseHandler):
         func = self.operation_descriptors().get(request['operation'], None)
         if func:
             return func(self, request['args'], *args, **kwargs)
+
+        return None

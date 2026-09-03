@@ -10,7 +10,6 @@ import re
 import secrets
 
 from functools import lru_cache
-from typing import List, Tuple
 from urllib.parse import urlparse
 
 from globaleaks import jobs
@@ -238,7 +237,7 @@ def expand_language(lang: str):
     ]
 
 @lru_cache(maxsize=512)
-def parse_accept_language(raw_header: str) -> List[str]:
+def parse_accept_language(raw_header: str) -> list[str]:
     """
     Parse Accept-Language according to RFC.
     Returns language tags ordered by preference.
@@ -246,7 +245,7 @@ def parse_accept_language(raw_header: str) -> List[str]:
     if not raw_header:
         return []
 
-    parsed: List[Tuple[str, float, int]] = []
+    parsed: list[tuple[str, float, int]] = []
 
     for index, item in enumerate(raw_header.split(',')):
         parts = item.strip().split(';')
@@ -280,15 +279,15 @@ def idp_origin_from_issuer(issuer):
     try:
         parsed = urlparse(issuer)
         if parsed.scheme in ('http', 'https') and parsed.netloc:
-            origin = "%s://%s" % (parsed.scheme, parsed.netloc)
+            origin = f"{parsed.scheme}://{parsed.netloc}"
             # Defense in depth: never emit an origin bearing a character that
             # could break out of the Content-Security-Policy directive it is
             # concatenated into (validated on input, re-checked here for values
             # possibly stored before the validator existed).
             if re.match(r'^https?://[0-9a-zA-Z\-.:]+$', origin):
                 return origin.encode()
-    except:
-        pass
+    except Exception:
+        return None
 
     return None
 
@@ -370,10 +369,7 @@ class APIResourceWrapper(Resource):
                     operations = set(handler.operation_descriptors(handler))
                     mapped = set(handler.operation_permissions)
                     if operations != mapped:
-                        raise Exception("%s: operations %s are not gated, permissions %s gate nothing"
-                                        % (handler.__name__,
-                                           sorted(operations - mapped),
-                                           sorted(mapped - operations)))
+                        raise Exception(f"{handler.__name__}: operations {sorted(operations - mapped)} are not gated, permissions {sorted(mapped - operations)} gate nothing")
 
                 for m in ['delete', 'get', 'put', 'post']:
                     # head and options method are intentionally not considered here
@@ -401,20 +397,10 @@ class APIResourceWrapper(Resource):
         return self.registry.search(path)
 
     def should_redirect_https(self, request):
-        if request.isSecure() or \
-                request.hostname.endswith(b'.onion') or \
-                b'acme-challenge' in request.path:
-            return False
-
-        return True
+        return not (request.isSecure() or request.hostname.endswith(b'.onion') or b'acme-challenge' in request.path)
 
     def should_redirect_tor(self, request):
-        if request.client_using_tor and \
-           State.tenants[request.tid].cache.onionnames and \
-           request.hostname != State.tenants[request.tid].cache.onionnames[0]:
-            return True
-
-        return False
+        return bool(request.client_using_tor and State.tenants[request.tid].cache.onionnames and request.hostname != State.tenants[request.tid].cache.onionnames[0])
 
     def redirect_https(self, request, hostname=None):
         if hostname is None:
@@ -582,10 +568,8 @@ class APIResourceWrapper(Resource):
                 try:
                     request.oidc_token = State.oidcauth.verify_token(bearer_token, issuer, client_id)
                 except Exception as e:
-                    try:
+                    with contextlib.suppress(Exception):
                         db_log(None, tid=request.tid, type='idp_malfunction', object_id=None, details=str(e))
-                    except Exception:
-                        pass
                     request.oidc_token = None
 
         if self.should_redirect_tor(request):
@@ -615,7 +599,7 @@ class APIResourceWrapper(Resource):
             request.setResponseCode(200)
             return b''
 
-        if method not in self.method_map.keys() or not hasattr(handler, method):
+        if method not in self.method_map or not hasattr(handler, method):
             self.handle_exception(errors.MethodNotImplemented, request)
             return b''
 

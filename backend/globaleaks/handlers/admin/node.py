@@ -1,9 +1,8 @@
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.state import State
 
 from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
-from globaleaks.db.appdata import load_appdata
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
 from globaleaks.models.enums import EnumStateFile
@@ -13,6 +12,7 @@ from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.fs import read_file
 from globaleaks.utils.log import log
+from globaleaks.handlers.admin.user_profile import db_resolve_default_user_profile
 
 
 def db_update_enabled_languages(session, tid, languages, default_language):
@@ -34,7 +34,7 @@ def db_update_enabled_languages(session, tid, languages, default_language):
 
     for lang_code in languages:
         if lang_code not in LANGUAGES_SUPPORTED_CODES:
-            raise errors.InputValidationError("Invalid lang code: %s" % lang_code)
+            raise errors.InputValidationError(f"Invalid lang code: {lang_code}")
 
         if lang_code not in cur_enabled_langs:
             # The texts of a language enabled afterwards are inherited from the
@@ -74,7 +74,7 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
         'https_possible': tid == 1 or root_config.get_val('reachable_via_web'),
         'encryption_possible': tid == 1 or root_config.get_val('encryption'),
         'escrow': config.get_val('crypto_escrow_pub_key') != '',
-        'logo': True if logo else False
+        'logo': bool(logo)
     })
 
     if 'version' in ret:
@@ -100,7 +100,7 @@ def db_reset_antivirus_verification(session, tid):
 
 
 def clear_queued_antivirus_scans_for_tenant(session, tid):
-    from globaleaks.state import State
+    from globaleaks.state import State  # noqa: PLC0415
 
     queued_file_ids = {file_id for file_id, _ in State.antivirus_files}
     if not queued_file_ids:
@@ -160,12 +160,9 @@ def db_update_node(session, tid, user_session, request, language):
 
     # Accounts provisioned on the first authentication take the default profile of the tenant, which
     # is therefore required
-    if config.get_val('idp') and config.get_val('idp_provisioning'):
-        # Imported here as the profiles import the serialization of the node
-        from globaleaks.handlers.admin.user_profile import db_resolve_default_user_profile
-
-        if not db_resolve_default_user_profile(session, tid)[0]:
-            raise errors.InputValidationError('The provisioning of the users requires a default user profile')
+    if config.get_val('idp') and config.get_val('idp_provisioning') and \
+            not db_resolve_default_user_profile(session, tid)[0]:
+        raise errors.InputValidationError('The provisioning of the users requires a default user profile')
 
     # The identities bound to the users are unique only within the identity
     # provider that issued them and are therefore reset when it is changed
@@ -221,7 +218,7 @@ class NodeInstance(BaseHandler):
                        self.request.language,
                        config_desc=config[0])
 
-        ret["is_profile"] = True if self.request.tid > 1000001 else False
+        ret["is_profile"] = self.request.tid > 1000001
 
         if ret.get("backup_enabled"):
             backup_job = State.jobs_status.get("Backup", None)
@@ -256,7 +253,7 @@ class NodeInstance(BaseHandler):
         # running job rather than leaving it looping as a no-op.
         if self.request.tid == 1 and 'backup_enabled' in request:
             # Imported lazily: the jobs package imports this module at load time.
-            from globaleaks.jobs.job import reschedule_job, stop_job
+            from globaleaks.jobs.job import reschedule_job, stop_job  # noqa: PLC0415
             if request['backup_enabled']:
                 # Re-arm rather than start: the job is already running since
                 # startup, so this is what makes a changed backup time/period

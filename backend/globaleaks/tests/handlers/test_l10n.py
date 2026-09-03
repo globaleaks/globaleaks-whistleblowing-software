@@ -14,19 +14,19 @@ class TestL10NHandler(helpers.TestHandler):
     @inlineCallbacks
     def test_get(self):
         handler = self.request()
-        response = yield handler.get(u'unexistent')
+        response = yield handler.get('unexistent')
         self.assertEqual(response, {})
 
         handler = self.request()
-        response = yield handler.get(lang=u'en')
+        response = yield handler.get(lang='en')
         self.assertNotIn('12345', response)
 
         self._handler = admin_l10n.AdminL10NHandler
         handler = self.request(custom_texts, role='admin')
-        yield handler.put(lang=u'en')
+        yield handler.put(lang='en')
 
         self._handler = l10n.L10NHandler
         handler = self.request()
-        response = yield handler.get(lang=u'en')
+        response = yield handler.get(lang='en')
         self.assertIn('12345', response)
         self.assertEqual('54321', response['12345'])

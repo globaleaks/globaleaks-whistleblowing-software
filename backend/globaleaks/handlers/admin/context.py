@@ -14,6 +14,7 @@ from globaleaks.models.config import DEFAULT_PROFILE_ID, \
     db_get_profile_children
 from globaleaks.orm import db_add, db_del, db_get, transact
 from globaleaks.rest import requests, errors
+from globaleaks.handlers.admin.user_profile import db_local_context_of
 
 
 # The configuration a derived channel inherits from its template
@@ -183,7 +184,6 @@ def db_associate_context_profiles(session, context, profile_ids):
     :param context: The channel
     :param profile_ids: The user profiles whose users receive on the channel
     """
-    from globaleaks.handlers.admin.user_profile import db_local_context_of
 
     if profile_ids is None:
         return

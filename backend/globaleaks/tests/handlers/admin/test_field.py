@@ -88,7 +88,7 @@ class TestFieldInstance(helpers.TestHandler):
         updated_sample_field = helpers.get_dummy_field()
         updated_sample_field['instance'] = 'instance'
         updated_sample_field['step_id'] = yield get_id_of_first_step_of_questionnaire('default')
-        updated_sample_field.update(type=u'inputbox', options=[], x=3, y=3)
+        updated_sample_field.update(type='inputbox', options=[], x=3, y=3)
 
         handler = self.request(updated_sample_field, role='admin')
         response = yield handler.put(field['id'])
