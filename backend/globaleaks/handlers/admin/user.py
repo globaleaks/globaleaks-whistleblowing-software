@@ -6,7 +6,7 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin.operation import set_tmp_key
-from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, db_create_user_profile, db_detach_user_from_profile_contexts, db_enforce_administrable, db_enforce_assignable_profile, db_enforce_grantable, db_update_user_profile, sync_permissions
+from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, db_create_user_profile, db_detach_user_from_profile_contexts, db_enforce_administrable, db_enforce_assignable_profile, db_enforce_grantable, sync_permissions
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_reconcile_support_user_access, \
                                          decrypt_tenant_support_private_key, \
@@ -16,7 +16,7 @@ from globaleaks.handlers.user import db_reconcile_statistical_key, \
                                      serialize_user, \
                                      user_permissions
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
-from globaleaks.models import config, Config, UserProfile, fill_localized_keys
+from globaleaks.models import fill_localized_keys
 from globaleaks.models.config import db_get_protected_users
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests

@@ -42,7 +42,7 @@ class TestFileAnalysis(unittest.TestCase):
 
         for reason, answer, content, expected in cases:
             self.assertEqual((yield self.scanned(answer, content)), expected,
-                             "%s is not reported as %s" % (reason, expected))
+                             f"{reason} is not reported as {expected}")
 
     @defer.inlineCallbacks
     def test_a_scanner_that_does_not_answer_leaves_the_file_unjudged(self):
@@ -93,8 +93,7 @@ class TestFileState(unittest.TestCase):
 
         for reason, state, date, expected in cases:
             self.assertEqual(antivirus.needs_antivirus_recheck(state, date), expected,
-                             "%s: the file %s scanned again"
-                             % (reason, "is not" if expected else "is"))
+                             "{}: the file {} scanned again".format(reason, "is not" if expected else "is"))
 
     def test_a_verdict_without_a_timezone_is_read_as_universal_time(self):
         # The dates the database gives back carry no timezone: read as local
@@ -121,7 +120,7 @@ class TestCsvSanitization(unittest.TestCase):
             value = trigger + 'cmd|/c calc'
 
             self.assertEqual(antivirus.csv_sanitize_cell(value), "'" + value,
-                             "a cell opening with %r is not neutralized" % trigger)
+                             f"a cell opening with {trigger!r} is not neutralized")
 
     def test_an_ordinary_cell_is_left_as_it_is(self):
         for value in ['report.pdf', 'a name with spaces.txt', '2026-08-31', '']:

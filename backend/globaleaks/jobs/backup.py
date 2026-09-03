@@ -37,7 +37,7 @@ def launch_rsync(source, destination, excludes=None, link_dest=None):
     def check(result):
         _, err, code = result
         if code != 0:
-            raise Exception("rsync exited with %d: %s" % (code, err.decode(errors='replace').strip()))
+            raise Exception(f"rsync exited with {code}: {err.decode(errors='replace').strip()}")
 
     return d.addCallback(check)
 
@@ -99,7 +99,7 @@ def get_rsync_excludes(backup_path):
     target_path = os.path.realpath(backup_path)
 
     if target_path == working_path:
-        raise Exception("backup_path must not be the working directory itself")
+        raise ValueError("backup_path must not be the working directory itself")
 
     if target_path.startswith(working_path + os.sep):
         excludes.append('/' + os.path.relpath(target_path, working_path))

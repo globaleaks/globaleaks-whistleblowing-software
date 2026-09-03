@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks
 
-import globaleaks.handlers.auth.token
+import globaleaks.handlers.auth.token  # noqa: F401
 from globaleaks.handlers.admin.user import db_create_user
 from globaleaks.handlers.admin.user_profile import db_resolve_default_user_profile
 from globaleaks.handlers.base import connection_check, BaseHandler
@@ -23,6 +23,7 @@ from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.log import log
 from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.utility import datetime_now
+from globaleaks.db import refresh_tenant_cache
 
 
 def db_receipt_auth_is_legacy(session, tid):
@@ -114,7 +115,7 @@ def db_provision_idp_user(session, tid, claims, username):
     user_desc['role'] = role
     user_desc['profile_id'] = profile_id
     user_desc['idp_id'] = claims['sub']
-    user_desc['password'] = ''
+    user_desc['password'] = ''  # nosec B105
     user_desc['pgp_key_remove'] = False
     user_desc = user_desc | user_permissions
 
@@ -511,7 +512,7 @@ class AuthenticationHandler(BaseHandler):
             # primary session id.
             session.properties['authtoken'] = True
             return {
-                'redirect': 'https://%s/#/login?token=%s' % (State.tenants[tid].cache.hostname, session.id)
+                'redirect': f'https://{State.tenants[tid].cache.hostname}/#/login?token={session.id}'
             }
 
         return session.serialize()
@@ -595,11 +596,11 @@ class SessionHandler(BaseHandler):
         """
         request = self.validate_request(self.request.content.read(), requests.SessionUpdateDesc)
 
-        if State.tenants[self.request.tid].cache.idp:
-            # With an identity provider configured the renewal requires a valid token for the
-            # identity bound to the account
-            if not self.request.oidc_token or self.request.oidc_token.get('sub') != self.session.idp_id:
-                raise errors.InvalidAuthentication
+        # With an identity provider configured the renewal requires a valid token for the
+        # identity bound to the account
+        if State.tenants[self.request.tid].cache.idp and \
+                (not self.request.oidc_token or self.request.oidc_token.get('sub') != self.session.idp_id):
+            raise errors.InvalidAuthentication
 
         try:
             self.session.token.validate(request['token'].encode().split(b":")[1])
@@ -643,7 +644,6 @@ class TenantAuthSwitchHandler(BaseHandler):
         # the address handed back names the site instead of nothing.
         if not State.tenants.get(tid) or not State.tenants[tid].cache.uuid:
             # Local import: the database module reaches the handlers
-            from globaleaks.db import refresh_tenant_cache
             yield refresh_tenant_cache(tid)
 
         session = Sessions.new(tid,
@@ -661,7 +661,7 @@ class TenantAuthSwitchHandler(BaseHandler):
         session.properties['management_session'] = True
         session.properties['authtoken'] = True
 
-        return {'redirect': '/t/%s/#/login?token=%s' % (State.tenants[tid].cache.uuid, session.id)}
+        return {'redirect': f'/t/{State.tenants[tid].cache.uuid}/#/login?token={session.id}'}
 
 
 class RoleAuthSwitchHandler(BaseHandler):
@@ -693,4 +693,4 @@ class RoleAuthSwitchHandler(BaseHandler):
         # Spent through the token login, which binds the session to the key of the client
         session.properties['authtoken'] = True
 
-        return {'redirect': '/#/login?token=%s' % (session.id)}
+        return {'redirect': f'/#/login?token={session.id}'}

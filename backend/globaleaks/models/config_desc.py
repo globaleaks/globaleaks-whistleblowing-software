@@ -1,7 +1,7 @@
 
 from globaleaks import __version__, DATABASE_VERSION
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.utility import datetime_never, uuid4
+from globaleaks.utils.utility import uuid4
 
 
 class Item:
@@ -27,14 +27,6 @@ class Int(Item):
 
 class Bool(Item):
     _type = bool
-
-class List(Item):
-    _type = list
-
-    def __init__(self, *args, **kwargs):
-        if 'default' not in kwargs:
-            kwargs['default'] = []
-        Item.__init__(self, *args, **kwargs)
 
 class List(Item):
     _type = list

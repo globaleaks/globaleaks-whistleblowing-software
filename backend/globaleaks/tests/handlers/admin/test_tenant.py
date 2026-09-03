@@ -30,7 +30,7 @@ class TestTenantCollection(helpers.TestHandlerWithPopulatedDB):
         n = 3
 
         for i in range(n):
-            yield tenant.create(get_dummy_tenant_desc('subdomain-%d' % i))
+            yield tenant.create(get_dummy_tenant_desc(f'subdomain-{i}'))
 
         handler = self.request(role='admin')
         response = yield handler.get()
@@ -40,8 +40,8 @@ class TestTenantCollection(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_post(self):
         r = {}
-        for i in range(0, 3):
-            handler = self.request(get_dummy_tenant_desc('subdomain-%d' % i), role='admin')
+        for i in range(3):
+            handler = self.request(get_dummy_tenant_desc(f'subdomain-{i}'), role='admin')
             t = yield handler.post()
             r[i] = yield tw(config.db_get_config_variable, t['id'], 'receipt_salt')
 

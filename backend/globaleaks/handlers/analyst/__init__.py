@@ -116,9 +116,9 @@ def _parse_filter_date(value, field_name):
         try:
             return datetime.fromisoformat(text.replace('Z', '+00:00')).replace(tzinfo=None)
         except ValueError:
-            raise errors.InputValidationError("Invalid %s format" % field_name)
+            raise errors.InputValidationError(f"Invalid {field_name} format")
 
-    raise errors.InputValidationError("Invalid %s type" % field_name)
+    raise errors.InputValidationError(f"Invalid {field_name} type")
 
 
 def _context_name_candidates(context_name):
@@ -303,7 +303,7 @@ def db_get_metric_catalog(session, tid, language='en'):
 
     return {
         'question_template_dropdown_metrics': [{
-            'id': 'question_template_dropdown_%s' % question['template_id'],
+            'id': 'question_template_dropdown_{}'.format(question['template_id']),
             'template_id': question['template_id'],
             'title': question['title'] or question['template_id'],
             'options': question['options']
@@ -366,7 +366,7 @@ def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, la
             if template_id not in template_metrics:
                 continue
 
-            template_answer_key = 'template:%s' % template_id
+            template_answer_key = f'template:{template_id}'
             if key_is_field_mapping and template_answer_key in stat_answers_dict:
                 continue
 
@@ -404,7 +404,7 @@ def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, la
             })
 
         dropdown_metrics.append({
-            'id': 'question_template_dropdown_%s' % template_id,
+            'id': f'question_template_dropdown_{template_id}',
             'template_id': template_id,
             'title': metric_data['title'] or template_id,
             'total_answers': total_answers,

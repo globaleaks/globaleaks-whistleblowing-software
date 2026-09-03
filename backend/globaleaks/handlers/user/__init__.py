@@ -1,6 +1,8 @@
 # Handlers dealing with user preferences
 from nacl.encoding import Base64Encoder
+from nacl.exceptions import CryptoError
 
+import globaleaks.handlers.user.validate_email  # noqa: F401
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import get_localized_values
@@ -12,6 +14,7 @@ from globaleaks.utils.crypto import GCE, generateRandomKey, sha256
 from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.pgp import PGPContext
 from globaleaks.utils.utility import datetime_now, datetime_null
+from globaleaks.handlers.admin.notification import db_get_notification
 
 
 # Roles that are always granted access to the statistical key
@@ -47,8 +50,6 @@ def db_reconcile_statistical_key(session, tid, user, cc):
 
     db_grant_statistical_key(session, tid, stat_prv_key)
 
-import globaleaks.handlers.user.validate_email
-from nacl.exceptions import CryptoError
 
 user_permissions = ObjectDict({
     'can_manage_settings': False,
@@ -140,7 +141,7 @@ def serialize_user(session, user, language):
         'encryption': user.crypto_pub_key != '',
         'salt': user.salt,
         'escrow': user.crypto_escrow_prv_key != '',
-        'two_factor': user.two_factor_secret != '',
+        'two_factor': bool(user.two_factor_secret),
         'idp_binding': user.idp_id != '',
         'clicked_recovery_key': user.clicked_recovery_key,
         'accepted_privacy_policy': user.accepted_privacy_policy,
@@ -151,8 +152,7 @@ def serialize_user(session, user, language):
         'profile': serialize_user_profile(session, profile)
     }
 
-    if State.tenants[user.tid].cache.two_factor and \
-      user.two_factor_secret == '':
+    if State.tenants[user.tid].cache.two_factor and not user.two_factor_secret:
         ret['require_two_factor'] = True
 
     return get_localized_values(ret, user, user.localized_keys, language)
@@ -217,8 +217,7 @@ def db_user_update_user(session, tid, user_session, request):
     :param request: A user request data
     :return: A user model
     """
-    from globaleaks.handlers.admin.notification import db_get_notification
-    from globaleaks.handlers.admin.node import db_admin_serialize_node
+    from globaleaks.handlers.admin.node import db_admin_serialize_node  # noqa: PLC0415
 
     user = db_get(session,
                   models.User,

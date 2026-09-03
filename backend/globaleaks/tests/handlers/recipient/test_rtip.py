@@ -1,11 +1,10 @@
 import time
 from datetime import datetime
 from types import SimpleNamespace
-from unittest.mock import patch
 from uuid import uuid4
 from sqlalchemy.orm.exc import NoResultFound
 from twisted.internet import reactor, task
-from twisted.internet.defer import DeferredLock, inlineCallbacks, succeed
+from twisted.internet.defer import DeferredLock, inlineCallbacks
 from twisted.trial import unittest
 
 from globaleaks import models
@@ -191,7 +190,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         count = yield self.get_model_count(models.ReceiverTip)
 
         # Perform two cycles of revoke ensuring the second cycle results in a nop
-        for cycle in range(0, 1):
+        for cycle in range(1):
             rtip_descs = yield self.get_rtips()
             for rtip_desc in rtip_descs:
                 # Decrement should happen only during the first cycle
@@ -212,7 +211,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
                 yield self.test_model_count(models.ReceiverTip, count)
 
         # Perform two cycles of grant ensuring the second cycle results in a nop
-        for cycle in range(0, 1):
+        for cycle in range(1):
             for rtip_desc in rtip_descs:
                 # Increment should happen only during the first cycle
                 if cycle == 0:
@@ -495,7 +494,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
 
         for rtip_desc in rtip_descs:
             handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-            yield self.assertFailure(handler.delete(u"unexistent_tip"), NoResultFound)
+            yield self.assertFailure(handler.delete("unexistent_tip"), NoResultFound)
 
     @inlineCallbacks
     def test_delete_existent_tip_by_existent_and_logged_but_wrong_receiver(self):

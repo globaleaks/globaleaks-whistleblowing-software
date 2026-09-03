@@ -9,7 +9,7 @@ from nacl.exceptions import CryptoError
 from nacl.secret import SecretBox
 from nacl.utils import random as nacl_random
 
-import globaleaks.utils.crypto as crypto
+from globaleaks.utils import crypto
 
 from globaleaks.settings import Settings
 from globaleaks.tests import helpers

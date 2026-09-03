@@ -10,7 +10,7 @@ class TestRedirectCollection(helpers.TestHandlerWithPopulatedDB):
     def test_get(self):
         n = 3
 
-        for i in range(n):
+        for _ in range(n):
             yield self._create_redirect()
 
         handler = self.request(role='admin')

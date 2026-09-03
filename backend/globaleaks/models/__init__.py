@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 
 from globaleaks.models import config_desc
 from globaleaks.models.enums import EnumFieldAttrType, EnumFieldInstance, \
-    EnumFieldOptionScoreType, EnumExchangeOwner, EnumExchangeType, EnumStateFile, \
+    EnumFieldOptionScoreType, EnumExchangeType, EnumStateFile, \
     EnumSupportRequestStatus, EnumUserRole, EnumUserStatus, EnumVisibility
 from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
     Column, DateTime, Enum, ForeignKeyConstraint, Integer, UnicodeText, \
@@ -153,24 +153,24 @@ class Model:
             return
 
         if 'id' in values and values['id']:
-            setattr(self, 'id', values['id'])
+            self.id = values['id']
 
         if 'tid' in values and values['tid']:
-            setattr(self, 'tid', values['tid'])
+            self.tid = values['tid']
 
-        for k in getattr(self, 'unicode_keys'):
+        for k in self.unicode_keys:
             if k in values and values[k] is not None:
                 setattr(self, k, values[k])
 
-        for k in getattr(self, 'int_keys'):
+        for k in self.int_keys:
             if k in values and values[k] is not None:
                 setattr(self, k, int(values[k]))
 
-        for k in getattr(self, 'datetime_keys'):
+        for k in self.datetime_keys:
             if k in values and values[k] is not None:
                 setattr(self, k, values[k])
 
-        for k in getattr(self, 'bool_keys'):
+        for k in self.bool_keys:
             if k in values and values[k] is not None:
                 if values[k] == 'true':
                     value = True
@@ -180,7 +180,7 @@ class Model:
                     value = bool(values[k])
                 setattr(self, k, value)
 
-        for k in getattr(self, 'localized_keys'):
+        for k in self.localized_keys:
             if k in values and values[k] is not None:
                 value = values[k]
                 previous = copy.deepcopy(getattr(self, k))
@@ -191,11 +191,11 @@ class Model:
 
                 setattr(self, k, value)
 
-        for k in getattr(self, 'json_keys'):
+        for k in self.json_keys:
             if k in values and values[k] is not None:
                 setattr(self, k, values[k])
 
-        for k in getattr(self, 'optional_references'):
+        for k in self.optional_references:
             if k in values:
                 if values[k]:
                     setattr(self, k, values[k])
@@ -206,7 +206,7 @@ class Model:
         if isinstance(value, bytes):
             value = value.decode()
 
-        return super(Model, self).__setattr__(name, value)
+        return super().__setattr__(name, value)
 
     def dict(self, language=None):
         """
@@ -226,11 +226,10 @@ class Model:
 
                 elif k in self.date_keys:
                     ret[k] = value
+            elif self.__table__.columns[k].default and not callable(self.__table__.columns[k].default.arg):
+                ret[k] = self.__table__.columns[k].default.arg
             else:
-                if self.__table__.columns[k].default and not callable(self.__table__.columns[k].default.arg):
-                    ret[k] = self.__table__.columns[k].default.arg
-                else:
-                    ret[k] = ''
+                ret[k] = ''
 
         for k in self.list_keys:
             ret[k] = []
@@ -320,7 +319,7 @@ class _Config(Model):
             val = int(datetime.timestamp(val))
 
         if not isinstance(val, desc._type):
-            raise ValueError("Cannot assign %s with %s" % (self, type(val)))
+            raise ValueError(f"Cannot assign {self} with {type(val)}")
 
         if self.value != val:
             if self.value is not None:
@@ -527,7 +526,7 @@ class _FieldAttr(Model):
                 CheckConstraint(self.type.in_(EnumFieldAttrType.keys())))
 
     def update(self, values=None):
-        super(_FieldAttr, self).update(values)
+        super().update(values)
 
         if values is None:
             return
@@ -535,7 +534,7 @@ class _FieldAttr(Model):
         value = values['value']
 
         if self.type == 'localized':
-            previous = getattr(self, 'value')
+            previous = self.value
             if previous and isinstance(previous, dict):
                 previous = copy.deepcopy(previous)
                 previous.update(value)

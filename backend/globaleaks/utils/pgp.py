@@ -24,7 +24,7 @@ class PGPContext:
             self.gnupg = GPG(gnupghome=self.tempdir.name, options=['--trust-model', 'always'])
             self.gnupg.encoding = "UTF-8"
         except Exception as excep:
-            log.err("Unable to instance GnuPGP: %s" % excep)
+            log.err(f"Unable to instance GnuPGP: {excep}")
             raise
 
         try:

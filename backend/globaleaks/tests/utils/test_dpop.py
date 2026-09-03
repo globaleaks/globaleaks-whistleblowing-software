@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import base64
 import hashlib
 import json
@@ -112,7 +111,7 @@ class TestDPoPHelpers(unittest.TestCase):
 
     def test_jwk_thumbprint_matches_rfc7638(self):
         jwk = public_jwk(make_key())
-        canonical = '{"crv":"P-256","kty":"EC","x":"%s","y":"%s"}' % (jwk['x'], jwk['y'])
+        canonical = '{{"crv":"P-256","kty":"EC","x":"{}","y":"{}"}}'.format(jwk['x'], jwk['y'])
         expected = _b64url(hashlib.sha256(canonical.encode()).digest())
         self.assertEqual(dpop.jwk_thumbprint(jwk), expected)
 

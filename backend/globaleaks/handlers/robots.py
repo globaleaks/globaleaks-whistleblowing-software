@@ -21,6 +21,6 @@ class RobotstxtHandler(BaseHandler):
         data = "User-agent: *\n"
         data += "Allow: /$\n"
         data += "Disallow: *\n"
-        data += "Sitemap: https://%s/sitemap.xml" % self.state.tenants[self.request.tid].cache.hostname
+        data += f"Sitemap: https://{self.state.tenants[self.request.tid].cache.hostname}/sitemap.xml"
 
         return data
