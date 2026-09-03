@@ -1,9 +1,9 @@
 export {};
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
-    interface Chainable<Subject = any> {
-      // @ts-ignore
+    interface Chainable {
       login_admin: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
       login_user: (username?: string, password?: string, url?: string, firstlogin?: boolean, home?: string) => void;
       login_analyst: (username?: string, password?: string, url?: string, firstlogin?: boolean) => void;
@@ -51,21 +51,20 @@ Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
   password = password === undefined ? Cypress.env("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
-  let finalURL = "";
+  let finalURL: string;
 
   cy.visit(url);
 
   cy.get("[name=\"username\"]").type(username);
 
-  // @ts-ignore
-  cy.get("[name=\"password\"]").type(password);
+  cy.get("[name=\"password\"]").type(password as string);
   cy.get("#login-button").click();
 
   if (firstlogin) {
     finalURL = "/actions/forcedpasswordchange";
     cy.waitForUrl(finalURL);
   } else {
-    cy.url().should("include", "#/login").then((_) => {
+    cy.url().should("include", "#/login").then(() => {
       cy.url().should("not.include", "#/login").then((currentURL) => {
         const hashPart = currentURL.split("#")[1];
         finalURL = hashPart === "login" ? "/admin/home" : hashPart;
@@ -84,8 +83,7 @@ Cypress.Commands.add("login_user", (username, password, url, firstlogin, home) =
 
   cy.visit(url);
   cy.get("[name=\"username\"]").type(username);
-  // @ts-ignore
-  cy.get("[name=\"password\"]").type(password);
+  cy.get("[name=\"password\"]").type(password as string);
   cy.get("#login-button").click();
 
   if (!firstlogin) {
@@ -120,8 +118,7 @@ Cypress.Commands.add("login_receiver", (username, password, url, firstlogin) => 
   cy.visit(url);
   cy.get("[name=\"username\"]").type(username);
 
-  // @ts-ignore
-  cy.get("[name=\"password\"]").type(password);
+  cy.get("[name=\"password\"]").type(password as string);
   cy.get("#login-button").click();
 
   if (!firstlogin) {
@@ -147,7 +144,7 @@ Cypress.Commands.add("login_whistleblower", (receipt) => {
 Cypress.Commands.add("logout", () => {
   cy.get('#LogoutLink').should('be.visible').click();
   cy.url().should((url) => {
-    expect(url.includes("#/login") || url.startsWith("about:blank")).to.be.true;
+    expect(url.includes("#/login") || url.startsWith("about:blank")).to.equal(true);
   });
 });
 
@@ -156,21 +153,20 @@ Cypress.Commands.add("simple_login_admin", (username, password, url, firstlogin)
   password = password === undefined ? Cypress.env("user_password") : password;
   url = url === undefined ? "#/admin" : url;
 
-  let finalURL = "";
+  let finalURL: string;
 
   cy.visit(url);
 
   cy.get("[name=\"username\"]").type(username);
 
-  // @ts-ignore
-  cy.get("[name=\"password\"]").type(password);
+  cy.get("[name=\"password\"]").type(password as string);
   cy.get("#login-button").click();
 
   if (firstlogin) {
     finalURL = "/actions/forcedpasswordchange";
     cy.waitForUrl(finalURL);
   } else {
-    cy.url().should("include", "#/admin").then((_) => {
+    cy.url().should("include", "#/admin").then(() => {
       cy.url().should("not.include", "#/login").then((currentURL) => {
         const hashPart = currentURL.split("#")[1];
         finalURL = hashPart === "login" ? "/admin/home" : hashPart;
@@ -180,7 +176,6 @@ Cypress.Commands.add("simple_login_admin", (username, password, url, firstlogin)
 });
 
 Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlogin) => {
-  username = username === undefined ? "Recipient" : username;
   password = password === undefined ? Cypress.env("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
@@ -190,9 +185,7 @@ Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlog
   cy.get('ng-select[name="authentication.loginData.loginUsername"]').click();
   cy.get('.ng-option').first().click();
 
-  // @ts-ignore
-
-  cy.get("[name=\"password\"]").type(password);
+  cy.get("[name=\"password\"]").type(password as string);
   cy.get("#login-button").click();
 
   if (!firstlogin) {
