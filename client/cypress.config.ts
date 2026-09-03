@@ -28,7 +28,11 @@ export default defineConfig({
       "Voice",
       "Group of questions"
     ],
-    "takeScreenshots": true
+    "takeScreenshots": true,
+    // The manual uses no narrow capture and the accessibility scan is a check of
+    // its own: both are available, neither is paid for on every screenshot.
+    "mobileScreenshots": false,
+    "a11yOnScreenshots": false
   },
   e2e: {
     setupNodeEvents(on, config) {
@@ -43,8 +47,18 @@ export default defineConfig({
 
       on("before:browser:launch", (browser, launchOptions) => {
         if (browser.family === "chromium") {
-          launchOptions.args.push("--window-size=1920,1080");
+          // The window is far taller than any page the manual photographs.
+          // Cypress cannot grow the viewport beyond the window: a taller page
+          // kept its scrollbar and was rendered shrunk to fit and then blown
+          // back up to the requested size, which is what made the images of the
+          // long pages look coarse. With room to spare the page is rendered at
+          // its own size and captured one to one.
+          launchOptions.args.push("--window-size=1920,4000");
           launchOptions.args.push("--force-device-scale-factor=1");
+          // No scrollbars in the captures: they are furniture of the window,
+          // not of the interface the manual describes, and they were showing up
+          // along the right and the bottom edge of most images.
+          launchOptions.args.push("--hide-scrollbars");
         }
         return launchOptions;
       });
@@ -53,13 +67,23 @@ export default defineConfig({
         if (details.path.includes("failed")) return;
 
         const language = config.env.language;
+
+        // The name of a screenshot carries its own folders: "admin/foo" for the
+        // desktop capture and "mobile/admin/foo" for the mobile one. Keeping
+        // only the last two segments of the path collapsed the two onto the same
+        // destination, so the mobile capture overwrote the desktop one and the
+        // documentation ended up illustrated at 375px. The destination is
+        // therefore everything below the folder of the spec.
+        const specRoot = path.join(config.screenshotsFolder, details.specName);
+        const relative = path.relative(specRoot, details.path).replace(/\.png$/, "");
+        const name = relative.startsWith("..")
+          ? details.path.replace(".png", "").split("/").slice(-2).join("/")
+          : relative;
+
         const destPath = path.resolve(
           __dirname,
           "../documentation/images",
-          details.path.replace(".png", "").split("/").slice(-2).join("/") +
-            "." +
-            language +
-            ".png"
+          name + "." + language + ".png"
         );
         const destDir = path.dirname(destPath);
         if (!fs.existsSync(destDir)) fs.mkdirSync(destDir, { recursive: true });
