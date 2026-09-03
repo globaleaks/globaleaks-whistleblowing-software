@@ -4,10 +4,10 @@
 
 .reveal {
   opacity: 0.3;
-  animation: fadeIn 0.3s forwards;
+  animation: fade-in 0.3s forwards;
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   to {
     opacity: 1;
   }
@@ -47,13 +47,6 @@ textarea:focus {
 #FooterBox {
   background-color: #f5f7fa;
   text-align: center;
-}
-
-#FooterBox a,
-#FooterBox a:hover,
-#FooterBox a:active,
-#FooterBox a:focus {
-  font-weight: bold;
 }
 
 
@@ -170,7 +163,6 @@ table tr td {
   white-space: nowrap;
 }
 
-
 .filter-selected {
   color: #3679BB;
 }
@@ -242,6 +234,10 @@ h6 {
   color: #3679BB;
 }
 
+th:not(:first-child, :nth-last-child(-n+4)) {
+  cursor: pointer;
+}
+
 .table thead th {
   border-top: 0;
 }
@@ -271,19 +267,6 @@ h6 {
 
 .mb-auto {
   margin-bottom: auto;
-}
-
-#sidebar a.active,
-#sidebar a:active.active,
-#sidebar a:hover.active,
-#sidebar a:focus.active {
-  border-bottom: 1px solid #c8d1e0;
-  width: max-content;
-}
-
-#sidebar a {
-  display: block;
-  margin-bottom: 0.5em;
 }
 
 #ContentBox {
@@ -515,12 +498,30 @@ h6 {
   font-size: 1.4rem;
 }
 
-#TipList table {
-  table-layout: auto;
+/* The whole row of an expandable table opens the detail it carries */
+tr.expandable-row {
+  cursor: pointer;
 }
 
-th:not(:first-child, :nth-last-child(-n+4)) {
-  cursor: pointer;
+/* The detail expanded under a row sits in a framed box, and the row it
+   belongs to loses the border towards it, so that the two read as one */
+tr.expandable-row-open > td {
+  border-bottom-width: 0;
+}
+
+tr.expandable-detail > td {
+  padding: 0 1em 1.25em 1.5em;
+}
+
+/* The detail is read, not opened: the highlight the table gives to the rows
+   that answer to the pointer stops at the row that carries it */
+.table-hover > tbody > tr.expandable-detail:hover > * {
+  --bs-table-color-state: initial;
+  --bs-table-bg-state: initial;
+}
+
+#TipList table {
+  table-layout: auto;
 }
 
 #TipList th,
@@ -634,6 +635,7 @@ p:last-child {
 
 #WhistleblowerSubmitBox {
   margin-bottom: 2em;
+  text-align: center;
 }
 
 .question legend {
@@ -647,6 +649,11 @@ p:last-child {
 
 #WhistleblowerLoginBox {
   width: fit-content;
+  padding: 1em;
+  text-align: center;
+  color: #1d1f2a;
+  background-color: #fff;
+  border-radius: 5px;
 }
 
 #HeaderBox #WhistleblowerLoginBox {
@@ -656,11 +663,6 @@ p:last-child {
 #ContentBox #WhistleblowerLoginBox {
   display: flex !important;
   margin: 0 auto;
-}
-
-#WhistleblowerSubmitBox,
-#WhistleblowerLoginBox {
-  text-align: center;
 }
 
 .description {
@@ -786,7 +788,6 @@ p:last-child {
   opacity: 0;
 }
 
-
 #TitleBox {
   font-size: 1.6rem;
   font-weight: bold;
@@ -795,6 +796,9 @@ p:last-child {
 
 #LoginStatusBox {
   font-weight: 700;
+  color: #1d1f2a;
+  background-color: #fff;
+  border-radius: 5px;
 }
 
 .col-auto {
@@ -815,17 +819,6 @@ p:last-child {
   line-height: 2.2rem;
   padding: 0 1em;
   width: max-content;
-}
-
-#LoginStatusBox,
-#WhistleblowerLoginBox {
-  color: #1d1f2a;
-  background-color: #fff;
-  border-radius: 5px;
-}
-
-#WhistleblowerLoginBox {
-  padding: 1em;
 }
 
 #MessagesConsoleBox {
@@ -909,28 +902,6 @@ text.axis-worktime {
   max-width: 80rem;
   overflow: auto;
   white-space: pre-wrap;
-}
-
-/* The whole row of an expandable table opens the detail it carries */
-tr.expandable-row {
-  cursor: pointer;
-}
-
-/* The detail expanded under a row sits in a framed box, and the row it
-   belongs to loses the border towards it, so that the two read as one */
-tr.expandable-row-open > td {
-  border-bottom-width: 0;
-}
-
-tr.expandable-detail > td {
-  padding: 0 1em 1.25em 1.5em;
-}
-
-/* The detail is read, not opened: the highlight the table gives to the rows
-   that answer to the pointer stops at the row that carries it */
-.table-hover > tbody > tr.expandable-detail:hover > * {
-  --bs-table-color-state: initial;
-  --bs-table-bg-state: initial;
 }
 
 .expandable-box {
@@ -1088,10 +1059,6 @@ input[type="email"] {
   width: max-content;
 }
 
-.was-validated .tos-agreement-input:valid~.form-check-label {
-  color: #2866a2;
-}
-
 .editorHeader {
   cursor: pointer;
 }
@@ -1148,15 +1115,41 @@ i.fa-solid.fa-chevron-right {
   animation: blink 1s infinite;
 }
 
-.was-validated .form-check-input:valid ~ .form-check-label, .form-check-input.is-valid ~ .form-check-label {
+.form-check-input {
+  appearance: auto;
+}
+
+/* A switch is drawn by Bootstrap as a track with a sliding knob through a
+   background image, which requires the native rendering to be suppressed: the
+   rule above restores it for ordinary checkboxes and would flatten the switch
+   back into a checkbox. On/off is shown in the colors of the brand, blue when
+   on and red when off; the state is also carried by the adjacent text label,
+   so it is never conveyed by color alone */
+.form-switch .form-check-input {
+  appearance: none;
+  background-color: #DE1B1B;
+  border-color: #DE1B1B;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:checked {
+  background-color: #205782;
+  border-color: #205782;
+}
+
+.form-check-input.is-valid ~ .form-check-label, .was-validated .form-check-input:valid ~ .form-check-label {
   color: #2866a2;
 }
 
-.was-validated .form-check-input:valid, .form-check-input.is-valid {
+.was-validated .tos-agreement-input:valid ~ .form-check-label {
+  color: #2866a2;
+}
+
+.form-check-input.is-valid, .was-validated .form-check-input:valid {
   border-color: #0d6efd;
 }
 
-.was-validated .form-check-input:valid:checked, .form-check-input.is-valid:checked {
+.form-check-input.is-valid:checked, .was-validated .form-check-input:valid:checked {
   background-color: #0d6efd;
 }
 
@@ -1191,6 +1184,10 @@ i.fa-solid.fa-chevron-right {
   top: auto;
   height: 1px;
   overflow: hidden;
+}
+
+#FooterBox a {
+  font-weight: bold;
 }
 
 #Skip a:focus {
@@ -1263,29 +1260,6 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
 
 .tooltip {
   position: absolute;
-}
-
-.form-check-input {
-  appearance: auto;
-}
-
-/* A switch is drawn by Bootstrap as a track with a sliding knob through a
-   background image, which requires the native rendering to be suppressed: the
-   rule above restores it for ordinary checkboxes and would flatten the switch
-   back into a checkbox. On/off is shown in the colors of the brand, blue when
-   on and red when off; the state is also carried by the adjacent text label,
-   so it is never conveyed by color alone */
-.form-switch .form-check-input {
-  appearance: none;
-  -webkit-appearance: none;
-  background-color: #DE1B1B;
-  border-color: #DE1B1B;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
-}
-
-.form-switch .form-check-input:checked {
-  background-color: #205782;
-  border-color: #205782;
 }
 
 .visually-hidden:not(:focus, :active) {
