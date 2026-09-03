@@ -54,7 +54,10 @@ export default defineConfig({
           // long pages look coarse. With room to spare the page is rendered at
           // its own size and captured one to one.
           launchOptions.args.push("--window-size=1920,4000");
-          launchOptions.args.push("--force-device-scale-factor=1");
+          // Two device pixels per CSS pixel: the manuals shrink a 1920px page to
+          // the width of a sheet, and at one pixel per pixel the text of the
+          // interface came out soft on paper.
+          launchOptions.args.push("--force-device-scale-factor=2");
           // No scrollbars in the captures: they are furniture of the window,
           // not of the interface the manual describes, and they were showing up
           // along the right and the bottom edge of most images.
