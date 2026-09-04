@@ -11,18 +11,18 @@
         <div class="col-md-6">
           <form ngForm="newTenantForm" #newTenantForm="ngForm" class="addTenant" novalidate>
             <div class="form-group">
-              <label>
+              <label for="new-tenant-name">
                 <span>{{'Name'|translate}}</span>
                 <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
               </label>
               <div>
-                <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120" type="text" required />
+                <input id="new-tenant-name" name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120" type="text" required />
               </div>
             </div>
             @if (siteProfiles.length) {
               <div class="form-group">
-                <label>{{ 'Profile:' | translate }}</label>
-                <select name="profile" class="form-select-custom" [(ngModel)]="newTenant.profile" required>
+                <label for="new-tenant-profile">{{ 'Profile:' | translate }}</label>
+                <select id="new-tenant-profile" name="profile" class="form-select-custom" [(ngModel)]="newTenant.profile" required>
                   <option value="default">DEFAULT</option>
                   @for (tenant of siteProfiles; track tenant) {
                     @if (tenant.active) {

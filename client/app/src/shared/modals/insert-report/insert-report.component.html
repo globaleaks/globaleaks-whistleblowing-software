@@ -35,7 +35,7 @@
             @for (step of questionnaire.steps | orderBy:'order'; track step; let index = $index) {
               <li class="nav-item" role="presentation">
                 @if (step.enabled) {
-                  <a id="insertion-step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)" [attr.aria-selected]="navigation === index" [attr.aria-controls]="'insertion-step-' + index" role="tab">
+                  <a id="insertion-step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)" (keydown.enter)="goToStep(index)" tabindex="0" [attr.aria-selected]="navigation === index" [attr.aria-controls]="'insertion-step-' + index" role="tab">
                     <span>{{ index + 1 }} - {{ step.label }}</span>
                   </a>
                 }
