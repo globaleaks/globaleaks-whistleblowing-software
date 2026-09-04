@@ -112,6 +112,148 @@ describe("admin add, configure and delete questionnaires", () => {
     cy.logout();
   });
 
+  // Every property a question offers is written through its editor: each type of question template
+  // is opened, its properties are filled and saved
+  it("should edit the properties of every type of question", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/questionnaires");
+    cy.get('[data-cy="question_templates"]').click();
+
+    // The box of the template whose title is exactly the label, opened for editing
+    const edit = (label: string, fn: () => void) => {
+      cy.get(".fieldBox").filter((_, el) => {
+        const title = el.querySelector(".editorHeader [role='button'] > span");
+        return title !== null && (title.textContent || "").trim() === label;
+      }).first().as("box");
+      cy.get("@box").find(".editorHeader [role='button']").first().click();
+      cy.get("@box").find("[data-action='save']").should("be.visible");
+      cy.get("@box").within(fn);
+      cy.get("@box").find("[data-action='save']").first().click();
+      cy.get("@box").find("[data-action='save']").should("not.exist");
+    };
+
+    const tick = (label: string) => {
+      cy.contains(".form-group", label).find("input[type='checkbox']").first().check({force: true});
+    };
+
+    const pickADay = (which: "first" | "last") => {
+      cy.get("ngb-datepicker .ngb-dp-day:not(.disabled):not(.hidden)")[which]().click();
+    };
+
+    edit("Single-line text input", () => {
+      cy.get("input[id^='field-hint-']").clear().type("A hint");
+      cy.get("textarea[id^='field-description-']").clear().type("A description");
+      cy.get("input[id^='field-placeholder-']").clear().type("A placeholder");
+      tick("Mandatory");
+      tick("Preview");
+      cy.get("input[id^='field-width-']").clear().type("6");
+      cy.get("input[id^='field-min-len-']").clear().type("1");
+      cy.get("input[id^='field-max-len-']").clear().type("100");
+    });
+
+    edit("Multi-line text input", () => {
+      cy.get("select[id^='field-type-']").select("textarea");
+    });
+
+    edit("Selection box", () => {
+      tick("Display options alphabetically");
+      cy.get("button[name='addOption']").click();
+      cy.get("button[name='addOption']").click();
+      cy.get("input[name='option.label']").eq(0).type("Second");
+      cy.get("input[name='option.label']").eq(1).type("First");
+      cy.get(".field-option").eq(1).find(".fa-chevron-up").click();
+      cy.get(".field-option").eq(0).find(".fa-chevron-down").click();
+      cy.get("input[name='option.label']").eq(0).should("have.value", "Second");
+    });
+
+    edit("Multiple choice input", () => {
+      cy.get("select[id^='field-type-multi-']").select("multichoice");
+      tick("Include in statistical reports");
+    });
+
+    edit("Attachment", () => {
+      tick("Accept multiple file uploads");
+    });
+
+    edit("Terms of service", () => {
+      cy.get("textarea[id^='field-tos-text-']").clear().type("The terms");
+      cy.get("input[id^='field-checkbox-label-']").clear().type("I agree");
+      tick("Attachment");
+      cy.get("input[id^='field-attachment-text-']").clear().type("The policy");
+      cy.get("input[id^='field-attachment-url-']").clear().type("https://example.org/policy");
+    });
+
+    edit("Date", () => {
+      cy.get("input[id^='field-min-date-']").siblings("button").first().click();
+      pickADay("first");
+      cy.get("input[id^='field-min-date-']").siblings("span").find("button").click();
+      cy.get("input[id^='field-max-date-']").siblings("button").first().click();
+      pickADay("last");
+    });
+
+    edit("Voice", () => {
+      cy.get("input[id^='field-max-len-']").clear().type("120");
+    });
+
+    edit("Group of questions", () => {
+      tick("Accept multiple answers");
+      tick("Add multimedia content");
+      cy.get("select[id^='field-multimedia-type-']").select("video");
+      cy.get("input[id^='field-multimedia-url-']").clear().type("https://example.org/video.mp4");
+
+      cy.contains("button", "Add new question").click();
+      cy.get("input[name='new_field.label']").first().type("Inner question");
+      cy.get("select[name='new_field.type']").first().select("Single-line text input");
+      cy.get("#add-field-btn").first().click();
+      cy.contains(".fieldBox", "Inner question").should("be.visible");
+
+      cy.contains("button", "Add question from template").click();
+      cy.get("#field-template-select").select("Single-line text input");
+      cy.get(".add-field-from-template #add-field-btn").click();
+
+      // The questions of the group move around one another
+      cy.get(".fieldBox [data-action='move-down']").first().click();
+      cy.get(".fieldBox [data-action='move-up']").first().click();
+      cy.get(".fieldBox [data-action='move-right']").first().click();
+      cy.get(".fieldBox [data-action='move-left']").first().click();
+      cy.get(".fieldBox [data-action='export']").first().click();
+    });
+
+    cy.logout();
+  });
+
+  // The steps of a questionnaire are described, ordered and shown upon a given answer
+  it("should edit the steps of a questionnaire", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/questionnaires");
+
+    add_questionnaires("Questionnaire 3");
+    cy.contains("Questionnaire 3").click();
+    add_step("First step");
+    add_step("Second step");
+
+    cy.contains("First step").click();
+    add_question("Checkbox", 4);
+
+    cy.contains(".step", "Second step").as("step");
+    cy.get("@step").find(".editorHeader [role='button']").first().click();
+    cy.get("@step").within(() => {
+      cy.get("textarea[id^='step-description-']").clear().type("The second step of the questionnaire");
+      cy.get("[data-action='save']").click();
+    });
+
+    // the steps swap places on request
+    cy.get("@step").find("[data-action='move-up']").click();
+    cy.get(".step").first().should("contain", "Second step");
+    cy.get(".step").first().find("[data-action='move-down']").click();
+    cy.get(".step").first().should("contain", "First step");
+
+    cy.contains("Questionnaire 3").click();
+    cy.get(".questionnaire [data-action='delete']").last().click();
+    cy.get("#modal-action-ok").click();
+    cy.logout();
+  });
+
   it("should import custom questionnaire file", () => {
     cy.login_admin();
 

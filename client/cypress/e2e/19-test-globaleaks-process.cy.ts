@@ -572,7 +572,7 @@ describe("report audit log", () => {
 
     cy.get(".TipInfoRecipientCount").first().should("be.visible");
     cy.takeScreenshot("recipient/tips_recipients_count");
-    cy.get(".TipInfoRecipientCount span").first().trigger("mouseenter");
+    cy.get(".TipInfoRecipientCount .sortable").first().trigger("mouseenter");
     cy.takeScreenshot("recipient/tips_recipients_count_detail", "#TipList");
 
     cy.logout();
