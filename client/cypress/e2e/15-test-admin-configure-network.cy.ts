@@ -56,6 +56,22 @@ describe("admin configure network", () => {
     cy.logout();
   });
 
+  // Every role can be restricted to given addresses: the restriction is switched on, written and
+  // switched off again, so that the suite keeps reaching the platform
+  it("should restrict the access of the roles to given addresses", () => {
+    cy.get('[data-cy="access_control"]').click();
+
+    for (const role of ["analyst", "custodian", "receiver", "transmitter"]) {
+      cy.get(`#ip-filter-${role}`).should("not.exist");
+      cy.get(`#ip-filter-${role}-enable`).check();
+      cy.get(`#ip-filter-${role}`).clear().type("127.0.0.1,::1,192.0.2.0/24");
+      cy.get(`#ip-filter-${role}-enable`).uncheck().should("not.be.checked");
+    }
+
+    cy.get("#AccessControlSave").click();
+    cy.logout();
+  });
+
   it("should configure url redirects", () => {
     cy.get('[data-cy="url_redirects"]').first().click();
     cy.get('[name="path1"]').should("not.exist");

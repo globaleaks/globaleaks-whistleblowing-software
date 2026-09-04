@@ -61,6 +61,40 @@ describe("preferences of the account", () => {
     cy.logout();
   });
 
+  // A recipient reads the preferences in another language, encrypts the notifications with a PGP
+  // key of theirs and then takes the key away
+  it("should let a recipient choose the language and provide a PGP key", () => {
+    cy.login_receiver();
+    cy.visit("/#/recipient/preferences");
+    cy.get("#PreferencesForm").should("be.visible");
+
+    cy.get("#pref-language-select").select("it");
+    cy.get("#pref-language-select").select("en");
+
+    cy.get("#EditPGP").should("be.visible");
+    cy.get("#customFile").selectFile({
+      contents: "../backend/globaleaks/tests/data/gpg/VALID_PGP_KEY1_PUB",
+      fileName: "key.asc",
+      mimeType: "application/pgp-keys"
+    }, {force: true});
+
+    cy.intercept("PUT", "**/api/user/preferences").as("savePreferences");
+    cy.get("#EditPGP button[type='submit']").click();
+    cy.wait("@savePreferences").its("response.statusCode").should("be.within", 200, 299);
+
+    // the key is read back through its fingerprint, and removed on request
+    cy.visit("/#/recipient/home");
+    cy.visit("/#/recipient/preferences");
+    cy.get("#pref-pgp-remove-checkbox").should("exist").check();
+    cy.get("#EditPGP button[type='submit']").click();
+    cy.wait("@savePreferences").its("response.statusCode").should("be.within", 200, 299);
+
+    cy.visit("/#/recipient/home");
+    cy.visit("/#/recipient/preferences");
+    cy.get("#customFile").should("exist");
+    cy.logout();
+  });
+
   it("should give the account its name back", () => {
     cy.login_admin();
     cy.visit("/#/admin/preferences");
