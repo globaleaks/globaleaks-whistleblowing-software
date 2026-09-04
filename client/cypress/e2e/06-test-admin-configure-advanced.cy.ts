@@ -84,6 +84,18 @@ describe("admin enable scoring system", () => {
   });
 });
 
+describe("admin enable the PGP encryption of the notifications", () => {
+  it("should enable PGP", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/settings");
+    cy.get("form[name='contentForm']").should("be.visible");
+    cy.openTab("advanced");
+    cy.get("input[name='node.dataModel.pgp']").check();
+    cy.get("#save").click();
+    cy.logout();
+  });
+});
+
 describe("admin add and remove disclaimer", function () {
   it("should add disclaimer", function () {
     cy.login_admin();
