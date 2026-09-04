@@ -225,7 +225,10 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
     if (locator) {
       cy.viewport(1280, 1024);
       cy.wait(50);
-      return cy.get(locator).should("be.visible").screenshot("../" + filename, {overwrite: true});
+      // A modal is photographed with the backdrop around it, so that its border and its
+      // rounded corners are seen: a capture cut on the box shows a bare white rectangle
+      const padding = /modal/.test(locator) ? 16 : 0;
+      return cy.get(locator).should("be.visible").screenshot("../" + filename, {overwrite: true, padding});
     }
 
     cy.wait(50);
