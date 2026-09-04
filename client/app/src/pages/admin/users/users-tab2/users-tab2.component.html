@@ -5,11 +5,11 @@
       <span>{{ 'Add' | translate }}</span>
     </button>
     <span>
-      <input type="file" hidden #keyUploadInput (change)="importProfile(keyUploadInput)" />
-      <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-outline-secondary">
-        <i class="fa-solid fa-upload"></i>
+      <input id="import-user-profile-file" type="file" hidden #keyUploadInput (change)="importProfile(keyUploadInput)" />
+      <button type="button" id="keyUpload" class="btn btn-outline-secondary" (click)="keyUploadInput.click()">
+        <i class="fa-solid fa-upload" aria-hidden="true"></i>
         <span>{{ 'Import' | translate }}</span>
-      </label>
+      </button>
     </span>
   </ng-template>
   <ng-template #addForm>

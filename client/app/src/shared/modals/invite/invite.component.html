@@ -4,16 +4,16 @@
 <div class="modal-body">
   <form #inviteForm="ngForm" novalidate>
     <div class="form-group mb-3">
-      <label>{{'Organization name'|translate}}</label>
-      <input class="form-control" data-cy="invite-organization-name" name="organization_name" [(ngModel)]="invite.organization_name" required>
+      <label for="invite-organization-name">{{'Organization name'|translate}}</label>
+      <input id="invite-organization-name" class="form-control" data-cy="invite-organization-name" name="organization_name" [(ngModel)]="invite.organization_name" required>
     </div>
     <div class="form-group mb-3">
-      <label>{{'Email'|translate}}</label>
-      <input type="email" class="form-control" data-cy="invite-email" name="email" [(ngModel)]="invite.email" [pattern]="Constants.emailRegexp" required>
+      <label for="invite-email">{{'Email'|translate}}</label>
+      <input id="invite-email" type="email" class="form-control" data-cy="invite-email" name="email" [(ngModel)]="invite.email" [pattern]="Constants.emailRegexp" required>
     </div>
     <div class="form-group mb-3">
-      <label>{{'Template'|translate}}</label>
-      <textarea class="form-control" data-cy="invite-mail-template" name="mail_template" [(ngModel)]="invite.mail_template" rows="12"></textarea>
+      <label for="invite-mail-template">{{'Template'|translate}}</label>
+      <textarea id="invite-mail-template" class="form-control" data-cy="invite-mail-template" name="mail_template" [(ngModel)]="invite.mail_template" rows="12"></textarea>
     </div>
   </form>
 </div>

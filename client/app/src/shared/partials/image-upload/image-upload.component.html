@@ -2,9 +2,17 @@
   <div id="projectImageLoader" class="image-upload">
     <ng-container #flowAdvanced="flow" flowDrop [flowConfig]="flowConfig"></ng-container>
     <input #uploader id="projectImageLoader" (change)="onFileSelected(uploader.files)" type="file" flowButton [style.display]="'none'" [flowAttributes]="{ accept: 'image/*' }" />
-    <!-- The pencil, at the top left, loads a picture also in place of the one there is; the cross, at
-         the top right while there is a picture, takes it away -->
-    <div class="image-upload-frame">
+    @if (!imageUploadModel[imageUploadModelAttr]) {
+      <button type="button" class="change-picture-button text-primary icon-action" ngbTooltip="{{'Edit' | translate}}" [attr.aria-label]="'Edit' | translate" (click)="triggerFileInputClick()">
+        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+      </button>
+    }
+    @if (imageUploadModel[imageUploadModelAttr] || imageUploadObj.files.length) {
+      <button type="button" class="change-picture-button text-danger icon-action" ngbTooltip="{{'Delete' | translate}}" [attr.aria-label]="'Delete' | translate" (click)="deletePicture()">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    }
+    <div>
       @if (filemodel) {
         <img class="logo-image" alt="image" src="s/{{imageUploadId}}?timestamp={{getCurrentTimestamp()}}" />
       } @else {
