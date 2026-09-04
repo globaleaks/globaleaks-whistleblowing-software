@@ -51,13 +51,13 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label>{{'Name'|translate}}</label>
-            <input name="name" class="form-control" [(ngModel)]="tenant.name" type="text" required>
+            <label for="tenant-profile-name-{{tenant.id}}">{{'Name'|translate}}</label>
+            <input id="tenant-profile-name-{{tenant.id}}" name="name" class="form-control" [(ngModel)]="tenant.name" type="text" required>
           </div>
           <div class="form-group">
-            <label>
+            <span class="form-label">
               <span>{{'Creation date:'|translate}}</span> {{tenant.creation_date | date:'dd-MM-yyyy'}}
-            </label>
+            </span>
           </div>
         </div>
       </div>

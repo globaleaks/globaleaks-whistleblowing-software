@@ -8,8 +8,8 @@
       <a href="{{appDataService.public.node.user_privacy_policy_url}}" target="_blank">{{ 'Download copy of the Privacy Policy' | translate }}</a>
     }
     <div class="form-check">
-      <input name="tos2" class="form-check-input" type="checkbox" [(ngModel)]="accept" required />
-      <label class="form-check-label">{{ "I've read and accept the Privacy Policy" | translate }}</label>
+      <input id="accept-privacy-policy" name="tos2" class="form-check-input" type="checkbox" [(ngModel)]="accept" required />
+      <label for="accept-privacy-policy" class="form-check-label">{{ "I've read and accept the Privacy Policy" | translate }}</label>
     </div>
   </div>
 </div>

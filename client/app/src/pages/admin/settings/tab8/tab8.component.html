@@ -164,7 +164,7 @@
     }
     @if (!nodeResolver.dataModel.disable_privacy_badge && nodeResolver.dataModel.enable_custom_privacy_badge) {
       <div class="form-group">
-        <label>{{ 'Custom privacy panel' | translate }}</label>
+        <span class="form-label">{{ 'Custom privacy panel' | translate }}</span>
         <div>
           <label for="custom-privacy-badge-text" class="visually-hidden">{{ 'Custom privacy panel text' | translate }}</label>
           <textarea id="custom-privacy-badge-text" class="form-control" [(ngModel)]="nodeResolver.dataModel.custom_privacy_badge_text" type="text"></textarea>
@@ -187,7 +187,7 @@
     }
     @if (nodeResolver.dataModel.root_tenant) {
       <div class="form-group">
-        <label>{{ 'Anomaly detection thresholds' | translate }}</label>
+        <span class="form-label">{{ 'Anomaly detection thresholds' | translate }}</span>
         <table class="table-responsive">
           <thead>
             <tr>
@@ -199,10 +199,10 @@
           <tbody>
             <tr>
               <td>
-                <label>
+                <span class="form-label">
                   <span>{{ 'Available disk space' | translate }}</span>
                   <span>(<span>{{ 'megabytes' | translate }}</span>)</span>
-                </label>
+                </span>
               </td>
               <td>
                 <label for="threshold-disk-mb-low" class="visually-hidden">{{ 'Low threshold (megabytes)' | translate }}</label>
@@ -215,10 +215,10 @@
             </tr>
             <tr>
               <td>
-                <label>
+                <span class="form-label">
                   <span>{{ 'Available disk space' | translate }}</span>
                   <span>(<span>{{ 'percentage' | translate }}</span>)</span>
-                </label>
+                </span>
               </td>
               <td>
                 <label for="threshold-disk-pct-low" class="visually-hidden">{{ 'Low threshold (percentage)' | translate }}</label>

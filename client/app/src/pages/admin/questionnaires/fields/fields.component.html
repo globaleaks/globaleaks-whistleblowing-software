@@ -144,8 +144,8 @@
           }
           @if (field().type !== 'fieldgroup') {
             <div class="form-group">
-              <input name="field.required" [(ngModel)]="field().required" type="checkbox">
-              <label>{{ 'Mandatory' | translate }}</label>
+              <input id="field-required-{{field().id}}" name="field.required" [(ngModel)]="field().required" type="checkbox">
+              <label for="field-required-{{field().id}}">{{ 'Mandatory' | translate }}</label>
             </div>
           }
           @if ((field().type === 'fieldgroup' || field().type === 'fileupload') && field().template_id === '') {
@@ -153,12 +153,12 @@
               <div>
                 @switch (typeSwitch(field().type)) {
                   @case ('fileupload') {
-                    <input [(ngModel)]="field().multi_entry" type="checkbox">
-                    <label>{{ 'Accept multiple file uploads' | translate }}</label>
+                    <input id="field-multi-entry-{{field().id}}" [(ngModel)]="field().multi_entry" type="checkbox">
+                    <label for="field-multi-entry-{{field().id}}">{{ 'Accept multiple file uploads' | translate }}</label>
                   }
                   @default {
-                    <input [(ngModel)]="field().multi_entry" type="checkbox">
-                    <label>{{ 'Accept multiple answers' | translate }}</label>
+                    <input id="field-multi-entry-{{field().id}}" [(ngModel)]="field().multi_entry" type="checkbox">
+                    <label for="field-multi-entry-{{field().id}}">{{ 'Accept multiple answers' | translate }}</label>
                   }
                 }
               </div>
@@ -166,18 +166,18 @@
         }
         @if (fieldIsMarkableSubjectToPreview) {
           <div class="form-group">
-            <input [(ngModel)]="field().preview" type="checkbox">
-            <label>{{ 'Preview' | translate }}</label>
+            <input id="field-preview-{{field().id}}" [(ngModel)]="field().preview" type="checkbox">
+            <label for="field-preview-{{field().id}}">{{ 'Preview' | translate }}</label>
           </div>
         }
         @if (type() === 'template' && ['inputbox', 'selectbox', 'checkbox', 'multichoice'].indexOf(field().type) !== -1) {
           <div class="form-group">
-            <input [(ngModel)]="field().statistical" type="checkbox">
-            <label>{{ 'Include in statistical reports' | translate }}</label>
+            <input id="field-statistical-{{field().id}}" [(ngModel)]="field().statistical" type="checkbox">
+            <label for="field-statistical-{{field().id}}">{{ 'Include in statistical reports' | translate }}</label>
           </div>
         }
         <div class="form-group">
-          <label>
+          <label for="field-width-{{field().id}}">
             <span>{{ 'Width' | translate }}</span>
             <span>(</span><span>{{ '0 = auto' | translate }}</span><span>)</span>
           </label>
@@ -238,8 +238,8 @@
               <input id="field-checkbox-label-{{field().id}}" [(ngModel)]="field().attrs.checkbox_label.value" type="text" class="form-control" />
             </div>
             <div class="form-group">
-              <input [(ngModel)]="field().attrs.attachment.value" type="checkbox" />
-              <label>{{ 'Attachment' | translate }}</label>
+              <input id="field-attachment-{{field().id}}" [(ngModel)]="field().attrs.attachment.value" type="checkbox" />
+              <label for="field-attachment-{{field().id}}">{{ 'Attachment' | translate }}</label>
             </div>
             @if (field().attrs.attachment.value) {
               <div class="nested">
@@ -258,8 +258,8 @@
         @if (field().type === 'fieldgroup') {
           <div>
             <div class="form-group">
-              <input [(ngModel)]="field().attrs.multimedia.value" type="checkbox">
-              <label>{{ 'Add multimedia content' | translate }}</label>
+              <input id="field-multimedia-{{field().id}}" [(ngModel)]="field().attrs.multimedia.value" type="checkbox">
+              <label for="field-multimedia-{{field().id}}">{{ 'Add multimedia content' | translate }}</label>
               @if (field().attrs.multimedia.value) {
                 <div class="nested">
                   <div class="form-group">
@@ -283,8 +283,8 @@
           @if (field().type === 'checkbox' || field().type === 'selectbox' || field().type === 'multichoice') {
             <div>
               <div class="form-group">
-                <input [(ngModel)]="field().attrs.display_alphabetically.value" type="checkbox" [disabled]="!field().editable">
-                <label>{{ 'Display options alphabetically' | translate }}</label>
+                <input id="field-display-alphabetically-{{field().id}}" [(ngModel)]="field().attrs.display_alphabetically.value" type="checkbox" [disabled]="!field().editable">
+                <label for="field-display-alphabetically-{{field().id}}">{{ 'Display options alphabetically' | translate }}</label>
               </div>
             </div>
           }
@@ -293,7 +293,7 @@
               <div class="form-group">
                 <label for="field-min-date-{{field().id}}" class="visually-hidden">{{ 'Minimum date' | translate }}</label>
                 <input id="field-min-date-{{field().id}}" class="form-control" placeholder="yyyy-mm-dd" name="minDate" [(ngModel)]="field().attrs.min_date.value" ngbDatepicker #minDate="ngbDatepicker" (click)="toggleMinDate() ; minDate.toggle()" />
-                <label>{{ 'Earliest selectable date' | translate }}:</label>
+                <label for="field-min-date-{{field().id}}">{{ 'Earliest selectable date' | translate }}:</label>
                 @if (field().attrs.min_date.value) {
                   <span>
                     <span>{{minDateFormat(field().attrs.min_date.value) | date:'dd-MM-yyyy'}}</span>
@@ -311,7 +311,7 @@
               <div class="form-group">
                 <label for="field-max-date-{{field().id}}" class="visually-hidden">{{ 'Maximum date' | translate }}</label>
                 <input id="field-max-date-{{field().id}}" class="form-control" placeholder="yyyy-mm-dd" name="dp" [(ngModel)]="field().attrs.max_date.value" ngbDatepicker #d="ngbDatepicker" (click)="toggleMaxDate() ; d.toggle()" />
-                <label>{{ 'Latest selectable date' | translate }}:</label>
+                <label for="field-max-date-{{field().id}}">{{ 'Latest selectable date' | translate }}:</label>
                 @if (field().attrs.max_date.value) {
                   <span>
                     <span>{{maxDateFormat(field().attrs.max_date.value) | date:'dd-MM-yyyy' }}</span>
@@ -339,8 +339,8 @@
           @case ('whistleblower_identity') {
             <div>
               <div class="form-group">
-                <input [(ngModel)]="field().required" type="checkbox">
-                <label>{{ 'Mandatory' | translate }}</label>
+                <input id="field-required-{{field().id}}" [(ngModel)]="field().required" type="checkbox">
+                <label for="field-required-{{field().id}}">{{ 'Mandatory' | translate }}</label>
               </div>
               @if (!field().required) {
                 <div>
@@ -361,13 +361,13 @@
   <div class="row">
     <div class="col-md-12">
       <div class="form-group">
-        <label>
+        <span class="form-label">
           <span>{{ 'Trigger conditions' | translate }}</span>
           <button class="btn btn-sm btn-primary show-add-question-btn" (click)="toggleAddTrigger()">
             <i class="fas fa-plus"></i>
             <span>{{ 'Add' | translate }}</span>
           </button>
-        </label>
+        </span>
         @if (showAddTrigger) {
           <div>
             <div class="form-group">
@@ -393,8 +393,8 @@
             }
             @if (new_trigger.field) {
               <div class="form-group">
-                <input [(ngModel)]="new_trigger.sufficient" type="checkbox">
-                <label>{{ 'Sufficient' | translate }}</label>
+                <input id="field-new-trigger-sufficient-{{field().id}}" [(ngModel)]="new_trigger.sufficient" type="checkbox">
+                <label for="field-new-trigger-sufficient-{{field().id}}">{{ 'Sufficient' | translate }}</label>
               </div>
             }
             <div class="form-group">

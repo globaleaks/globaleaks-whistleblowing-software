@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-6">
     <div class="form-group">
-      <label>{{ 'Logo' | translate }}</label>
+      <span class="form-label">{{ 'Logo' | translate }}</span>
       <div appImageUpload [imageUploadModel]="nodeResolver.dataModel" [imageUploadModelAttr]="'logo'" [imageUploadId]="'logo'"></div>
     </div>
     <div class="form-group">
@@ -35,7 +35,7 @@
       </div>
     }
     @if (authenticationService.session?.role === 'admin') {
-      <label>{{ 'Button' | translate }}</label>
+      <span class="form-label">{{ 'Button' | translate }}</span>
       <div class="ms-4">
         <div class="form-group">
           <label for="whistleblowing-button-input">{{ 'Text' | translate }}</label>

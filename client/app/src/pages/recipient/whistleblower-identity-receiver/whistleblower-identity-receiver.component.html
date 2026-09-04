@@ -4,15 +4,15 @@
       @if (tipService.tip.iar && tipService.tip.iar.reply !== 'authorized') {
         <div>
           <div>
-            <label>{{"Access to the reporting person's identity has been requested to the custodian." | translate}}</label>
+            <span class="form-label">{{"Access to the reporting person's identity has been requested to the custodian." | translate}}</span>
           </div>
           <div>
-            <label>{{'Date of the request' | translate}}</label>
+            <span class="form-label">{{'Date of the request' | translate}}</span>
             <span>:</span>
             <span>{{tipService.tip.iar.request_date | date:'dd-MM-yyyy HH:mm'}}</span>
           </div>
           <div>
-            <label>{{'Request status' | translate}}</label>
+            <span class="form-label">{{'Request status' | translate}}</span>
             <span>:</span>
             <span>
               @switch (tipService.tip.iar.reply) {
@@ -24,11 +24,11 @@
                 }
               }
             </span>
-            <div><label>{{'Motivation' | translate}}</label>:<span> {{tipService.tip.iar.request_motivation}}</span></div>
+            <div><span class="form-label">{{'Motivation' | translate}}</span>:<span> {{tipService.tip.iar.request_motivation}}</span></div>
           </div>
           @if (tipService.tip.iar && tipService.tip.iar.reply === 'denied') {
             <div>
-              <label>{{'Reply motivation' | translate}}</label>: <span>{{tipService.tip.iar.reply_motivation}}</span>
+              <span class="form-label">{{'Reply motivation' | translate}}</span>: <span>{{tipService.tip.iar.reply_motivation}}</span>
             </div>
           }
         </div>

@@ -55,7 +55,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>
+          <span class="form-label">
             <span>{{ 'Recipients' | translate }}</span>
             @if (canConfigure()) {
               <button class="btn btn-sm btn-primary add-receiver-btn" (click)="toggleSelect()">
@@ -63,7 +63,7 @@
                 <span>{{ 'Add' | translate }}</span>
               </button>
             }
-          </label>
+          </span>
           <div id="ReceiverContextAdder" class="row">
             @if (showSelect) {
               <div class="col-md-12">
@@ -105,7 +105,7 @@
           <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
         </div>
         <div class="form-group">
-          <label>
+          <label for="context-tip-timetolive">
             <span>{{ 'Data retention policy' | translate }}</span> ({{ 'days' | translate }}) </label>
             <div [class.is-invalid]="editContext().form.get('timetolive')?.errors?.['invalid']">
               <input id="context-tip-timetolive" class="form-control" name="timetolive" [(ngModel)]="contextResolver().tip_timetolive" type="number" min="0" max="3650" [disabled]="!canConfigure()" />
@@ -201,7 +201,7 @@
                   </div>
                   @if (nodeData.enable_scoring_system) {
                     <div>
-                      <label>{{ 'Scoring system options' | translate }}</label>
+                      <span class="form-label">{{ 'Scoring system options' | translate }}</span>
                       <div class="form-group well">
                         <table class="table table-bordered">
                           <thead>
