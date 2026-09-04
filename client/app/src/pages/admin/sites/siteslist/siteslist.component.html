@@ -49,9 +49,9 @@
             <input id="tenant-subdomain-{{tenant().id}}" name="subdomain" class="form-control" [(ngModel)]="tenant().subdomain" type="text" maxlength="40" required>
           </div>
           <div class="form-group">
-            <label>
+            <span class="form-label">
               <span>{{'Creation date:'|translate}}</span> {{tenant().creation_date | date:'dd-MM-yyyy'}}
-            </label>
+            </span>
           </div>
         </div>
       </div>
