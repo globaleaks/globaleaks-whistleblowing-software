@@ -38,7 +38,7 @@
             @for (step of questionnaire.steps | orderBy:'order'; track step; let index = $index) {
               <li class="nav-item" role="presentation">
                 @if (step.enabled) {
-                  <a id="transmit-step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)" [attr.aria-selected]="navigation === index" [attr.aria-controls]="'transmit-step-' + index" role="tab">
+                  <a id="transmit-step-{{index}}-link" class="nav-link title" [ngClass]="{active: navigation === index}" (click)="goToStep(index)" (keydown.enter)="goToStep(index)" tabindex="0" [attr.aria-selected]="navigation === index" [attr.aria-controls]="'transmit-step-' + index" role="tab">
                     <span>{{ index + 1 }} - {{ step.label }}</span>
                   </a>
                 }
@@ -55,7 +55,7 @@
                     @if (step.description) {
                       <div class="description">{{ step.description }}</div>
                     }
-                    <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload($event)" [uploads]="uploads" [answers]="answers" [step]="step" [index]="index"></src-form>
+                    <src-form [fileUploadUrl]="file_upload_url" (notifyFileUpload)="onFileUpload()" [uploads]="uploads" [answers]="answers" [step]="step" [index]="index"></src-form>
                   </div>
                 </div>
               }

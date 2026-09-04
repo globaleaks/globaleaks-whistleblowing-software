@@ -26,7 +26,7 @@
             </div>
           }
           <div class="form-group">
-            <label>{{ 'Email address' | translate }}</label>
+            <label for="new-user-email">{{ 'Email address' | translate }}</label>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
             <div>
               <input id="new-user-email" class="form-control" [(ngModel)]="new_user.email" #email="ngModel" name="email" [pattern]="Constants.emailRegexp" [class.is-invalid]="email.invalid && (email.dirty || email.touched)" type="email" required />
@@ -68,8 +68,8 @@
             </div>
           }
           <div class="form-group">
-            <input class="form-check-input" [(ngModel)]="new_user.send_activation_link" type="checkbox" />
-            <label>{{ 'Send activation link' | translate }}</label>
+            <input id="new-user-send-activation-link" class="form-check-input" [(ngModel)]="new_user.send_activation_link" type="checkbox" />
+            <label for="new-user-send-activation-link">{{ 'Send activation link' | translate }}</label>
           </div>
           <div class="form-group">
             <button id="add-btn" class="btn btn-primary" [disabled]="newUser.invalid" (click)="addUser(); toggleAddUser()" type="submit">

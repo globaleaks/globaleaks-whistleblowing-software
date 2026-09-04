@@ -38,8 +38,8 @@
     @if (templateData.editable) {
       <div>
         <div class="form-group">
-          <label>{{ 'Label' | translate }}</label>
-          <input type="text" class="form-control" [(ngModel)]="templateData.label" name="label" />
+          <label for="template-label-{{templateData.id}}">{{ 'Label' | translate }}</label>
+          <input id="template-label-{{templateData.id}}" type="text" class="form-control" [(ngModel)]="templateData.label" name="label" />
         </div>
       </div>
     }
