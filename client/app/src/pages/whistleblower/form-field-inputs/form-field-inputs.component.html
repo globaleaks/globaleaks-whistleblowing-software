@@ -21,9 +21,9 @@
             @if (entries.length > 1) {
               <div class="field-answer-entry-label clearfix">
                 <span class="float-start">
-                  <label class="text-muted">
+                  <span class="text-muted">
                     <span>#{{entryIndex + 1}}</span>
-                  </label>
+                  </span>
                 </span>
                 <span class="float-end">
                   <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)" (keydown.enter)="utilsService.deleteFromList(entries, entry)" tabindex="0" role="button">
@@ -67,9 +67,9 @@
             @if (entries.length > 1) {
               <div class="field-answer-entry-label clearfix">
                 <span class="float-start">
-                  <label class="text-muted">
+                  <span class="text-muted">
                     <span>#{{entryIndex + 1}}</span>
-                  </label>
+                  </span>
                 </span>
                 <span class="float-end">
                   <span class="text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)" (keydown.enter)="utilsService.deleteFromList(entries, entry)" tabindex="0" role="button">

@@ -28,13 +28,13 @@
     </div>
     <div class="row">
       <div class="form-group col-md-12">
-        <label>
+        <span class="form-label">
           <span>{{ 'Trigger conditions' | translate }}</span>
           <button class="btn btn-sm btn-primary show-add-trigger-btn" (click)="toggleAddTrigger()">
             <i class="fas fa-plus"></i>
             <span>{{ 'Add' | translate }}</span>
           </button>
-        </label>
+        </span>
         @if (showAddTrigger) {
           <div class="col-md-12">
             <div class="form-group">
