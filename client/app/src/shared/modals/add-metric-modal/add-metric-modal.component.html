@@ -22,24 +22,24 @@
     <div class="display-section">
       <div class="display-types">
         @if (isDisplayTypeCompatible('number')) {
-          <div class="btn btn-outline-secondary" data-cy="display-type-number" [ngClass]="{'active': selectedDisplayType === 'number'}" (click)="selectDisplayType('number')">
-            <div>{{ 'Number' | translate }}</div>
-          </div>
+          <button type="button" class="btn btn-outline-secondary" data-cy="display-type-number" [ngClass]="{'active': selectedDisplayType === 'number'}" (click)="selectDisplayType('number')">
+            <span>{{ 'Number' | translate }}</span>
+          </button>
         }
         @if (isDisplayTypeCompatible('percentage')) {
-          <div class="btn btn-outline-secondary" data-cy="display-type-percentage" [ngClass]="{'active': selectedDisplayType === 'percentage'}" (click)="selectDisplayType('percentage')">
-            <div>{{ 'Percentage' | translate }}</div>
-          </div>
+          <button type="button" class="btn btn-outline-secondary" data-cy="display-type-percentage" [ngClass]="{'active': selectedDisplayType === 'percentage'}" (click)="selectDisplayType('percentage')">
+            <span>{{ 'Percentage' | translate }}</span>
+          </button>
         }
         @if (isDisplayTypeCompatible('bar')) {
-          <div class="btn btn-outline-secondary" data-cy="display-type-bar" [ngClass]="{'active': selectedDisplayType === 'bar'}" (click)="selectDisplayType('bar')">
-            <div>{{ 'Bar Chart' | translate }}</div>
-          </div>
+          <button type="button" class="btn btn-outline-secondary" data-cy="display-type-bar" [ngClass]="{'active': selectedDisplayType === 'bar'}" (click)="selectDisplayType('bar')">
+            <span>{{ 'Bar Chart' | translate }}</span>
+          </button>
         }
         @if (isDisplayTypeCompatible('pie')) {
-          <div class="btn btn-outline-secondary" data-cy="display-type-pie" [ngClass]="{'active': selectedDisplayType === 'pie'}" (click)="selectDisplayType('pie')">
-            <div>{{ 'Pie Chart' | translate }}</div>
-          </div>
+          <button type="button" class="btn btn-outline-secondary" data-cy="display-type-pie" [ngClass]="{'active': selectedDisplayType === 'pie'}" (click)="selectDisplayType('pie')">
+            <span>{{ 'Pie Chart' | translate }}</span>
+          </button>
         }
       </div>
     </div>

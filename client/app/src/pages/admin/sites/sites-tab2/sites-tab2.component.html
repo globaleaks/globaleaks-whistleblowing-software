@@ -5,8 +5,8 @@
       <span>{{'Add'|translate}}</span>
     </button>
     <span class="custom-file">
-      <input type="file" hidden #keyUploadInput (change)="importTenant(keyUploadInput)" />
-      <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-outline-secondary">
+      <input id="import-tenant-profile-file" type="file" hidden #keyUploadInput (change)="importTenant(keyUploadInput)" />
+      <label for="import-tenant-profile-file" id="keyUpload" class="btn btn-outline-secondary">
         <i class="fa-solid fa-upload"></i>
         <span>{{'Import' | translate}}</span>
       </label>
@@ -18,12 +18,12 @@
         <div class="col-md-6">
           <form ngForm="newTenantForm" #newTenantForm="ngForm" class="addTenant" novalidate>
             <div class="form-group">
-              <label>
+              <label for="new-tenant-profile-name">
                 <span>{{'Name'|translate}}</span>
                 <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
               </label>
               <div>
-                <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120"
+                <input id="new-tenant-profile-name" name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120"
                   type="text" required />
               </div>
             </div>

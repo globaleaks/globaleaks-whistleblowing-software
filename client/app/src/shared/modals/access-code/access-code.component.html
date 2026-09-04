@@ -3,7 +3,7 @@
   <button type="button" class="btn-close" (click)="dismiss()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
 </div>
 <div class="modal-body">
-  <span class="form-inline" ngbTooltip="{{ 'Copy to clipboard' | translate }}" (click)="utilsService.copyToClipboard(code)">
+  <span class="form-inline" role="presentation" ngbTooltip="{{ 'Copy to clipboard' | translate }}" (click)="utilsService.copyToClipboard(code)">
     <div class="form-group d-block mx-auto receipt-input">
       <div class="input-group">
         <input id="AccessCode" class="form-control text-center" type="text" maxlength="19" size="19" [value]="formattedCode" readonly [attr.aria-label]="'Access code' | translate">

@@ -1,4 +1,4 @@
-<label>{{'SMTP' | translate }} #1</label>
+<span class="form-label">{{'SMTP' | translate }} #1</span>
 <br />
 <br />
 <div class="nested">
@@ -67,7 +67,7 @@
 </div>
 <br />
 <br />
-<label>{{'SMTP' | translate }} #2</label>
+<span class="form-label">{{'SMTP' | translate }} #2</span>
 <br />
 <br />
 <div class="nested">
@@ -141,9 +141,9 @@
               @for (template of notificationResolver.dataModel.smtp2_template_types; track template; let index = $index) {
                 <li>
                   <span>{{ template | translate }}</span>
-                  <span (click)="removeTemplate(index)" ngbTooltip="{{'Remove' | translate}}">
+                  <button type="button" class="icon-action" (click)="removeTemplate(index)" ngbTooltip="{{'Remove' | translate}}">
                     <i class="fas fa-xmark"></i>
-                  </span>
+                  </button>
                 </li>
               }
             </ul>

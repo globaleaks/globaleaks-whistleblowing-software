@@ -59,9 +59,9 @@
           </div>
           @if (getUserID() !== user().id) {
             <div class="form-group">
-              <label>{{ 'Password' | translate }}</label>
+              <span class="form-label">{{ 'Password' | translate }}</span>
               <div [class.disabled]="user().encryption && !preferenceData.escrow">
-                <span class="btn btn-outline-secondary" id="send_reset_link" (click)="resetUserPassword(user())">
+                <button type="button" class="btn btn-outline-secondary" id="send_reset_link" (click)="resetUserPassword(user())">
                   <i class="fas fa-arrows-rotate"></i>
                   @if (user().last_login === '1970-01-01T00:00:00Z') {
                     <span>{{ 'Send activation link' | translate }}</span>
@@ -69,11 +69,11 @@
                   @if (user().last_login !== '1970-01-01T00:00:00Z') {
                     <span>{{ 'Send reset link' | translate }}</span>
                   }
-                </span>
-                <span class="btn btn-outline-secondary" id="set_password" (click)="setPassword(user())">
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="set_password" (click)="setPassword(user())">
                   <i class="fas fa-pen-to-square"></i>
                   <span>{{ 'Reset password' | translate }}</span>
-                </span>
+                </button>
               </div>
             </div>
           }
@@ -93,18 +93,18 @@
          </div>
           @if (user().two_factor) {
             <div class="form-group">
-              <span class="btn btn-danger" (click)="disable2FA(user())">
+              <button type="button" class="btn btn-danger" (click)="disable2FA(user())">
                 <i class="fas fa-ban"></i>
                 <span>{{ 'Disable two factor authentication' | translate }}</span>
-              </span>
+              </button>
            </div>
           }
           @if (user().idp_binding) {
             <div class="form-group">
-              <span class="btn btn-danger" (click)="resetIdpBinding(user())">
+              <button type="button" class="btn btn-danger" (click)="resetIdpBinding(user())">
                 <i class="fas fa-ban"></i>
                 <span>{{ 'Reset the identity bound to this user' | translate }}</span>
-              </span>
+              </button>
            </div>
           }
           <div class="form-group">
@@ -123,8 +123,8 @@
           </div>
           @if (user().role === 'receiver') {
             <div class="form-group">
-              <input class="form-check-input" [(ngModel)]="user().forcefully_selected" type="checkbox" [disabled]="user().id !== user().profile_id">
-              <label [class.text-gray]="user().id !== user().profile_id">{{ 'Forcefully selected' | translate }}</label>
+              <input id="user-forcefully-selected" class="form-check-input" [(ngModel)]="user().forcefully_selected" type="checkbox" [disabled]="user().id !== user().profile_id">
+              <label for="user-forcefully-selected" [class.text-gray]="user().id !== user().profile_id">{{ 'Forcefully selected' | translate }}</label>
            </div>
           }
         </div>
@@ -135,7 +135,7 @@
             @if (user().pgp_key_fingerprint) {
               <div class="form-group">
                 <div class="form-group">
-                  <label>{{ 'Details of the PGP key:' | translate }}</label>
+                  <span class="form-label">{{ 'Details of the PGP key:' | translate }}</span>
                   <p>
                     <span>{{ 'Fingerprint' | translate }}</span>: <span>{{ user().pgp_key_fingerprint }}</span>
                   </p>
@@ -153,7 +153,7 @@
             @if (user().pgp_key_fingerprint === '') {
               <div class="form-group">
                 <div class="position-relative">
-                  <label>{{ 'Set up encryption by providing a PGP public key' | translate }}</label>
+                  <span class="form-label">{{ 'Set up encryption by providing a PGP public key' | translate }}</span>
                   <div>
                     <input #uploader id="customFile" type="file" [style.display]="'none'" class="custom-file-input" (change)="loadPublicKeyFile(uploader.files, user())" />
                     <label class="btn btn-sm btn-outline-secondary" for="customFile">
@@ -171,10 +171,10 @@
         <div class="col-md-12">
           @if (filteredProfiles.length) {
             <div class="form-group">
-              <label>{{ 'Profile' | translate }}</label>
+              <label for="user-profile">{{ 'Profile' | translate }}</label>
               <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
               <div>
-                <select name="role" class="form-select-custom" [(ngModel)]="user().profile_id" [class.text-gray]="getUserID() === user().id" [disabled]="getUserID() === user().id" (change)="onUserProfileChange()" required>
+                <select id="user-profile" name="role" class="form-select-custom" [(ngModel)]="user().profile_id" [class.text-gray]="getUserID() === user().id" [disabled]="getUserID() === user().id" (change)="onUserProfileChange()" required>
                   <option [value]="user().id">-</option>
                   @for (profile of filteredProfiles; track profile) {
                     <option [value]="profile.id">{{ profile.name | translate }}</option>
@@ -185,10 +185,10 @@
           }
           @if (user().id === user().profile_id) {
             <div class="form-group">
-              <label>{{ 'Role' | translate }}</label>
+              <label for="user-role">{{ 'Role' | translate }}</label>
               <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
                 <div>
-                  <select name="role" class="form-select-custom" [(ngModel)]="user().role" [disabled]="getUserID() === user().id" required>
+                  <select id="user-role" name="role" class="form-select-custom" [(ngModel)]="user().role" [disabled]="getUserID() === user().id" required>
                     <option value="admin">{{ 'Admin' | translate }}</option>
                     <option value="analyst">{{ 'Analyst' | translate }}</option>
                     <option value="auditor">{{ 'Auditor' | translate }}</option>
@@ -204,7 +204,7 @@
       @if (user().profile_id === user().id && permissionGroups.length) {
         <div class="row">
           <div class="col-md-12">
-            <label class="mb-2">{{ 'Permissions' | translate }}</label>
+            <div class="mb-2">{{ 'Permissions' | translate }}</div>
             <div class="selection-list permission-groups">
               @for (group of permissionGroups; track group.role) {
                 <div class="permission-group">
@@ -212,8 +212,8 @@
                   <div class="permission-group-items">
                     @for (perm of group.permissions; track perm.key) {
                       <div class="form-group">
-                        <input class="form-check-input" [name]="perm.key" [(ngModel)]="user().profile.permissions[perm.key]" type="checkbox" [disabled]="user().id !== user().profile_id" />
-                        <label [class.text-gray]="user().id !== user().profile_id">{{ perm.label | translate }}</label>
+                        <input id="user-permission-{{perm.key}}" class="form-check-input" [name]="perm.key" [(ngModel)]="user().profile.permissions[perm.key]" type="checkbox" [disabled]="user().id !== user().profile_id" />
+                        <label for="user-permission-{{perm.key}}" [class.text-gray]="user().id !== user().profile_id">{{ perm.label | translate }}</label>
                       </div>
                     }
                   </div>

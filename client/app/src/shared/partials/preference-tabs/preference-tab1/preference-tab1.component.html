@@ -7,15 +7,16 @@
       </div>
     }
     <div id="Username">
-      <label>
-        <span>{{'Username'|translate}}</span>: </label> {{preferenceResolver.dataModel.username}}
+      <span class="form-label">
+        <span>{{'Username'|translate}}</span>: </span> {{preferenceResolver.dataModel.username}}
       </div>
         <div id="Role">
-          <label>
+          <label for="default-role-select">
             <span>{{'Default Role'|translate}}</span>:
           </label>
           @if (preferenceResolver.dataModel.profile.roles && preferenceResolver.dataModel.profile.roles.length > 1) {
            <ng-select
+             labelForId="default-role-select"
              [items]="roleOptions"
              bindLabel="role"
              bindValue="value"
@@ -93,14 +94,14 @@
               }
               @if (preferenceResolver.dataModel.description) {
                 <div>
-                  <label>{{'Description'|translate}}</label> {{preferenceResolver.dataModel.description}}
+                  <span class="form-label">{{'Description'|translate}}</span> {{preferenceResolver.dataModel.description}}
                 </div>
               }
               @if (authenticationService.session.role === 'receiver' && appDataService.public.contexts.length > 1) {
                 <div id="Contexts">
-                  <label>
+                  <span class="form-label">
                     <span>{{'Channels'|translate}}</span>
-                  </label>
+                  </span>
                   <ul>
                     @for (context_id of preferenceResolver.dataModel.contexts; track context_id) {
                       <li>{{appDataService.contexts_by_id[context_id].name}}</li>
@@ -135,7 +136,7 @@
                   @if (preferenceResolver.dataModel.pgp_key_fingerprint) {
                     <div>
                       <div class="form-group">
-                        <label>{{'Details of the PGP key:'|translate}}</label>
+                        <span class="form-label">{{'Details of the PGP key:'|translate}}</span>
                         <div>
                           <span>{{'Fingerprint'|translate}}</span>: <span>{{preferenceResolver.dataModel.pgp_key_fingerprint}}</span>
                         </div>
@@ -152,7 +153,7 @@
                   @if (!preferenceResolver.dataModel.pgp_key_fingerprint) {
                     <div>
                       <div class="position-relative">
-                        <label>{{'Set up encryption by providing a PGP public key'|translate}}</label>
+                        <span class="form-label">{{'Set up encryption by providing a PGP public key'|translate}}</span>
                         <div>
                           <input #uploader id="customFile" type="file" [style.display]="'none'" class="custom-file-input" (change)="loadPublicKeyFile(uploader.files)" />
                           <label class="btn btn-sm btn-outline-secondary" for="customFile">

@@ -1,5 +1,5 @@
 @if (sortBy) {
-  <span class="sortable" (click)="state.toggleSort(sortBy)">
+  <button type="button" class="sortable icon-action" (click)="state.toggleSort(sortBy)">
     <ng-container *ngTemplateOutlet="name"></ng-container>
     @if (state.orderBy !== sortBy) {
       <i class="fas fa-sort text-muted ms-1" aria-hidden="true"></i>
@@ -8,7 +8,7 @@
     } @else {
       <i class="fas fa-sort-up ms-1" aria-hidden="true"></i>
     }
-  </span>
+  </button>
 } @else {
   <ng-container *ngTemplateOutlet="name"></ng-container>
 }
@@ -19,17 +19,17 @@
   <span [class.visually-hidden]="labelHidden">{{ label }}</span>
 </ng-template>
 @if (filterType === 'select') {
-  <span class="dropdown-multi-select-container ms-1" (click)="$event.stopPropagation()">
-    <i class="fas fa-filter" [attr.id]="'filter-' + filter" [ngClass]="{ 'filter-active': state.isFiltered(filter) }" (click)="state.toggleFilter(filter);$event.stopPropagation();"></i>
-    <span [class.d-none]="state.openFilter !== filter" (click)="$event.stopPropagation()">
+  <span class="dropdown-multi-select-container ms-1" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+    <button type="button" class="icon-action" [attr.id]="'filter-' + filter" [ngClass]="{ 'filter-active': state.isFiltered(filter) }" (click)="state.toggleFilter(filter);$event.stopPropagation();"><i class="fas fa-filter" aria-hidden="true"></i></button>
+    <span [class.d-none]="state.openFilter !== filter" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
       <ng-multiselect-dropdown [class.dropdown-visible]="state.openFilter === filter" [settings]="dropdownSettings" [data]="options" [ngModel]="state.selections[filter]" (ngModelChange)="state.setSelection(filter, $event)"></ng-multiselect-dropdown>
     </span>
   </span>
 }
 @if (filterType === 'daterange') {
-  <span class="ngb-datepicker-container ms-1" (click)="$event.stopPropagation()">
-    <i class="fas fa-calendar" [attr.id]="'filter-' + filter" [ngClass]="{ 'filter-active': state.isFiltered(filter) }" (click)="state.toggleFilter(filter);$event.stopPropagation();"></i>
-    <div [hidden]="state.openFilter !== filter" (click)="$event.stopPropagation()">
+  <span class="ngb-datepicker-container ms-1" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+    <button type="button" class="icon-action" [attr.id]="'filter-' + filter" [ngClass]="{ 'filter-active': state.isFiltered(filter) }" (click)="state.toggleFilter(filter);$event.stopPropagation();"><i class="fas fa-calendar" aria-hidden="true"></i></button>
+    <div [hidden]="state.openFilter !== filter" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
       <src-date-selector class="position-absolute d-block" [currentDates]="null" (emitDateSelection)="state.setRange(filter, $event)"></src-date-selector>
     </div>
   </span>

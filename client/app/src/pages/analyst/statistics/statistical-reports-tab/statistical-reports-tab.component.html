@@ -13,7 +13,7 @@
     <div class="row">
       <div ngForm="newReport" #newReport="ngForm" class="addReport col-md-6">
         <div class="form-group">
-          <label>
+          <label for="new-report-label">
             <span>{{ 'Label' | translate }}</span>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           </label>
@@ -22,7 +22,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label>
+          <label for="new-report-template-id">
             <span>{{ 'Template' | translate }}</span>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           </label>
@@ -36,7 +36,7 @@
         </div>
         <div class="form-group">
           <div id="ReportObservationFilter" class="statistics-filter-bar d-flex flex-wrap align-items-center gap-2">
-            <span class="ngb-datepicker-container" (click)="$event.stopPropagation()">
+            <span class="ngb-datepicker-container" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               <button data-cy="filter_date_button" type="button" class="btn btn-sm btn-outline-secondary"
                 [ngClass]="{'filter-active': dateFilter}" (click)="datePicker=!datePicker; closeOtherDropdowns('date')"
                 ngbTooltip="{{ dateFilter ? ((dateFilter.fromDate | date:'dd-MM-yyyy') + ' - ' + (dateFilter.toDate | date:'dd-MM-yyyy')) : ('Date range' | translate) }}">
@@ -47,13 +47,13 @@
                   <span>{{ 'Date range' | translate }}</span>
                 }
               </button>
-              <div [hidden]="!datePicker" (click)="$event.stopPropagation()">
+              <div [hidden]="!datePicker" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
                 <src-date-selector class="position-absolute d-block" [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)">
                 </src-date-selector>
               </div>
             </span>
 
-            <span class="dropdown-multi-select-container" (click)="$event.stopPropagation()">
+            <span class="dropdown-multi-select-container" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               <button type="button" class="btn btn-sm btn-outline-secondary" [ngClass]="{'filter-active': channelFilterActive}"
                 (click)="toggleChannelFilter(); closeOtherDropdowns('channel')" ngbTooltip="{{ getFilterTooltip() }}">
                 <i class="fas fa-filter me-1"></i>
@@ -62,7 +62,7 @@
                   <span class="badge bg-primary ms-1">{{ channelDropdownModel.length }}</span>
                 }
               </button>
-              <span [class.d-none]="!channelDropdownVisible" (click)="$event.stopPropagation()">
+              <span [class.d-none]="!channelDropdownVisible" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
                 <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="channelDropdownSettings" [data]="channelDropdownData" [(ngModel)]="channelDropdownModel" [ngModelOptions]="{standalone: true}" (onSelect)="onChannelFilterChange()" (onDeSelect)="onChannelFilterChange()">
                 </ng-multiselect-dropdown>
               </span>

@@ -3,7 +3,7 @@
   <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
 </div>
 <div class="modal-body">
-  <label>{{'Motivation'}}</label>
+  <label for="motivation">{{'Motivation'}}</label>
   <span class="text-danger"  ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
   <textarea class="form-control" id="motivation" [(ngModel)]="reply_motivation"></textarea>
 </div>

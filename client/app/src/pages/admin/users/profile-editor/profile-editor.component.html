@@ -22,10 +22,10 @@
       <div class="row">
         <div class="col-md-12">
           <div class="form-group">
-            <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Name' | translate }}</label>
+            <label for="profile-name-{{profile.id}}" [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ 'Name' | translate }}</label>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
             <div>
-              <input class="form-control" name="name" [(ngModel)]="profile.name" type="text" [disabled]="nodeData.tid !== profile.tid" required />
+              <input id="profile-name-{{profile.id}}" class="form-control" name="name" [(ngModel)]="profile.name" type="text" [disabled]="nodeData.tid !== profile.tid" required />
             </div>
           </div>
 
@@ -47,7 +47,7 @@
       @if (permissionGroups.length) {
         <div class="row">
           <div class="col-md-12">
-            <label class="mb-2">{{ 'Permissions' | translate }}</label>
+            <div class="mb-2">{{ 'Permissions' | translate }}</div>
             <div class="selection-list permission-groups">
               @for (group of permissionGroups; track group.role) {
                 <div class="permission-group">
@@ -55,8 +55,8 @@
                   <div class="permission-group-items">
                     @for (perm of group.permissions; track perm.key) {
                       <div class="form-group">
-                        <input class="form-check-input" [name]="perm.key" [(ngModel)]="profile.permissions[perm.key]" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
-                        <label [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ perm.label | translate }}</label>
+                        <input id="profile-{{profile.id}}-permission-{{perm.key}}" class="form-check-input" [name]="perm.key" [(ngModel)]="profile.permissions[perm.key]" type="checkbox" [disabled]="nodeData.tid !== profile.tid" />
+                        <label for="profile-{{profile.id}}-permission-{{perm.key}}" [ngClass]="{'text-gray': nodeData.tid !== profile.tid}">{{ perm.label | translate }}</label>
                       </div>
                     }
                   </div>

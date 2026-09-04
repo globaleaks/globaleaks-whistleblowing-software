@@ -5,8 +5,8 @@
       <span>{{ 'Add' | translate }}</span>
     </button>
     <span class="custom-file">
-      <input type="file" hidden #keyUploadInput (change)="importProfile(keyUploadInput)" />
-      <label id="keyUpload" (click)="keyUploadInput.click()" class="btn btn-outline-secondary">
+      <input id="import-user-profile-file" type="file" hidden #keyUploadInput (change)="importProfile(keyUploadInput)" />
+      <label for="import-user-profile-file" id="keyUpload" class="btn btn-outline-secondary">
         <i class="fas fa-upload"></i>
         <span>{{ 'Import' | translate }}</span>
       </label>

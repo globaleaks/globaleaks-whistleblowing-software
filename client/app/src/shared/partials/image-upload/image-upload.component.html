@@ -8,9 +8,9 @@
       </label>
     }
     @if (imageUploadModel[imageUploadModelAttr] || imageUploadObj.files.length) {
-      <label [attr.id]="'projectImageLoader'" class="change-picture-button text-danger" (click)="deletePicture()" ngbTooltip="{{'Delete' | translate}}" (keydown.enter)="deletePicture()" tabindex="0" role="button">
+      <button type="button" [attr.id]="'projectImageLoader'" class="change-picture-button text-danger icon-action" (click)="deletePicture()" ngbTooltip="{{'Delete' | translate}}">
         <i class="fas fa-xmark"></i>
-      </label>
+      </button>
     }
     <div class="embed-responsive embed-responsive-16by9">
       @if (filemodel) {
