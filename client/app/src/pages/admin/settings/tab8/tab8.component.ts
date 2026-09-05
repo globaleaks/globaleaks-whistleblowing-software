@@ -87,7 +87,7 @@ export class Tab8Component implements OnInit {
       this.utilsService.runAdminOperation("enable_encryption", {}, false).subscribe(() => {
         this.authenticationService.logout();
       });
-    });
+    }, () => { /* dismissed */ });
   }
 
   toggleEscrow(escrow: { checked: boolean }) {

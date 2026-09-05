@@ -419,7 +419,7 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
     }
 
     if (this.audioContext && this.audioContext.state !== 'closed') {
-      this.audioContext.close();
+      void this.audioContext.close();
       this.audioContext = null;
     }
   }
@@ -459,7 +459,7 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
       // privacy (it removes location-identifying background sound), not for voice anonymity.
       navigator.mediaDevices.getUserMedia({audio: {autoGainControl: false, echoCancellation: false, noiseSuppression: true}})
         .then((stream) => {
-          this.startRecording(fileId, stream).then(() => this.renderScheduler.schedule());
+          void this.startRecording(fileId, stream).then(() => this.renderScheduler.schedule());
         })
         .catch(() => {
           this.activeButton = null;
@@ -559,7 +559,7 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
       }
 
       if (this.audioContext && this.audioContext.state !== 'closed') {
-        this.audioContext.close();
+        void this.audioContext.close();
         this.audioContext = null;
       }
       observer.next();
@@ -620,7 +620,7 @@ export class VoiceRecorderComponent implements OnInit, OnDestroy {
     this.seconds = 0;
     this.audioPlayer = null;
     if (this.audioContext && this.audioContext.state !== 'closed') {
-      this.audioContext.close();
+      void this.audioContext.close();
       this.audioContext = null;
     }
     this.initAudioContext()

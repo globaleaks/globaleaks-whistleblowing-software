@@ -124,7 +124,7 @@ export class IdpService {
     this.oauthService.state = "";
     route = this.getReturnRoute(route);
     if (route.startsWith("/signup") && this.router.url !== route) {
-      this.router.navigateByUrl(route, {replaceUrl: true}).then();
+      void this.router.navigateByUrl(route, {replaceUrl: true});
     }
   }
 

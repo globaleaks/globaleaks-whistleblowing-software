@@ -112,7 +112,7 @@ export class AuthenticationService {
 
   private performLogout() {
     if (this.appDataService.public.node.idp) {
-      this.idpService.restartLogin();
+      void this.idpService.restartLogin();
       return;
     }
     const tenantBasePath = this.getTenantBasePath();
@@ -132,7 +132,7 @@ export class AuthenticationService {
     this.httpService.requestResetLogin(param).subscribe(
       {
         next: () => {
-          this.router.navigate(["/login/passwordreset/requested"]).then();
+          void this.router.navigate(["/login/passwordreset/requested"]);
         }
       }
     );
@@ -187,7 +187,7 @@ export class AuthenticationService {
             if (response.redirect) {
               response.redirect = this.sanitizer.sanitize(SecurityContext.URL, response.redirect) || '';
               if (response.redirect) {
-                this.router.navigate([response.redirect]).then();
+                void this.router.navigate([response.redirect]);
               }
             }
 
@@ -234,7 +234,7 @@ export class AuthenticationService {
                 // A receipt was provided: a report exists and is the page to
                 // reach
                 this.titleService.setPage("tippage");
-                this.router.navigate(['/']);
+                void this.router.navigate(['/']);
               }
             } else {
               if (!callback) {
@@ -244,9 +244,9 @@ export class AuthenticationService {
                   // A confined session must reach the forced page directly: the
                   // role landing route runs sibling resolvers that the backend
                   // now rejects, which would otherwise tear down the session.
-                  this.router.navigate(['/action/forcedpasswordchange']).then();
+                  void this.router.navigate(['/action/forcedpasswordchange']);
                 } else if (this.session.properties.require_two_factor) {
-                  this.router.navigate(['/action/forcedtwofactor']).then();
+                  void this.router.navigate(['/action/forcedtwofactor']);
                 } else {
                 let redirect = this.activatedRoute.snapshot.queryParams['redirect'] || '/';
                 redirect = decodeURIComponent(redirect);
@@ -259,10 +259,10 @@ export class AuthenticationService {
                   if (redirect.startsWith("/") && !redirect.startsWith("//")) {
                     // The destination may carry its own query string: it is
                     // navigated as a url and not as a single path segment
-                    this.router.navigateByUrl(redirect);
+                    void this.router.navigateByUrl(redirect);
                   }
                 } else {
-                this.router.navigate([this.session.homepage], {
+                void this.router.navigate([this.session.homepage], {
                     queryParams: this.activatedRoute.snapshot.queryParams,
                     queryParamsHandling: "merge"
                   }).then();

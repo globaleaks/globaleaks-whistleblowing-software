@@ -62,7 +62,7 @@ export class TipsComponent implements OnInit {
 
   ngOnInit() {
     if (!this.RTips.dataModel) {
-      this.router.navigate(["/recipient/home"]).then();
+      void this.router.navigate(["/recipient/home"]);
     } else {
       // Reports may reference contexts that are hidden from the public listing;
       // resolve any missing ones so their metadata is available for display.

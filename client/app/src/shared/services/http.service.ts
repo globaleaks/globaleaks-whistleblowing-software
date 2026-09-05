@@ -629,8 +629,8 @@ export class HttpService {
     // page shows the state the operation produced.
     return request.pipe(tap(() => {
       const currentUrl = this.router.url;
-      this.router.navigateByUrl("routing", {skipLocationChange: true, replaceUrl: true}).then(() => {
-        this.router.navigate([currentUrl]).then();
+      void this.router.navigateByUrl("routing", {skipLocationChange: true, replaceUrl: true}).then(() => {
+        void this.router.navigate([currentUrl]);
       });
     }));
   }
