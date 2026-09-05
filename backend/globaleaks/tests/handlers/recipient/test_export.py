@@ -22,7 +22,7 @@ def mask_internalfile(session, itip_id, ifile_id):
 
 @transact
 def set_redaction_privileges(session, user_id, value):
-    user = session.query(models.User).get(user_id)
+    user = session.get(models.User, user_id)
     user.can_mask_information = value
     user.can_redact_information = value
 
