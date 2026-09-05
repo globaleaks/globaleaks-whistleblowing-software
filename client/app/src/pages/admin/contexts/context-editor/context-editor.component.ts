@@ -76,7 +76,7 @@ export class ContextEditorComponent implements OnInit {
   canConfigure(): boolean {
     return !this.isExchangeChannel() ||
            this.nodeResolver.dataModel.root_tenant ||
-           !!this.authenticationService.session.properties.management_session;
+           !!this.authenticationService.session?.properties.management_session;
   }
 
   readonly questionnairesData = computed(() => this.selectablesResolver.dataModel.questionnaires);

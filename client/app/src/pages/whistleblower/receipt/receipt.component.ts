@@ -33,8 +33,11 @@ export class ReceiptComponent implements OnInit, OnDestroy {
     this.embedded = !!this.receipt;
 
     if (!this.embedded) {
-      this.receipt = this.authenticationService.session.receipt;
-      this.authenticationService.session.receipt = undefined;
+      const session = this.authenticationService.session;
+      if (session) {
+        this.receipt = session.receipt ?? "";
+        session.receipt = undefined;
+      }
     }
 
     this.receiptId = this.receipt.substring(0, 4) + " " + this.receipt.substring(4, 8) + " " + this.receipt.substring(8, 12) + " " + this.receipt.substring(12, 16);

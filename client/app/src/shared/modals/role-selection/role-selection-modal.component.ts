@@ -26,10 +26,10 @@ export class RoleSelectionModalComponent implements OnInit {
   selectableRoles: { value: string; role: string }[] = [];
 
   ngOnInit(): void {
-    this.selectedRole.value = this.authenticationService.session.role;
+    this.selectedRole.value = this.authenticationService.session?.role ?? "";
 
     this.selectableRoles = this.roles.filter(
-      r => r.value !== this.authenticationService.session.role
+      r => r.value !== this.authenticationService.session?.role
     );
   }
 

@@ -14,6 +14,6 @@ export class RedirectsResolver extends ResourceResolver<redirectResolverModel[]>
   }
 
   protected allowed(): boolean {
-    return this.authenticationService.session.role === "admin";
+    return this.authenticationService.session?.role === "admin";
   }
 }
