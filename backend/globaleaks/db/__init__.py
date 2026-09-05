@@ -260,15 +260,13 @@ def update_cache(tid, cfg):
         tenant_cache[cfg.var_name] = cfg.value
 
 
-def db_refresh_tenant_cache(session, to_refresh=None):
-    active_tids = set([tid[0] for tid in session.query(models.Tenant.id)])#.filter(models.Tenant.active.is_(True))])
+def db_unload_tenants(tids):
+    """
+    Remove from the state the tenants that have been disabled
 
-    cached_tids = set(State.tenants.keys())
-
-    disabled_tids = cached_tids - active_tids
-
-    # Remove tenants that have been disabled
-    for tid in disabled_tids:
+    :param tids: The tenants disabled
+    """
+    for tid in tids:
         if tid not in State.tenants:
             continue
 
@@ -287,58 +285,81 @@ def db_refresh_tenant_cache(session, to_refresh=None):
 
         del State.tenants[tid]
 
+
+def db_get_tids_to_refresh(session, to_refresh, active_tids):
+    """
+    Return the tenants a change touches the cache of: every tenant, the tenant changed with its
+    profile, or the profile changed with the tenants using it
+
+    :param session: An ORM session
+    :param to_refresh: The tenant changed, None for every tenant
+    :param active_tids: The tenants that exist
+    :return: The tenants to refresh
+    """
     if to_refresh is None or to_refresh == 1:
-        tids = active_tids
-    elif to_refresh in active_tids:
-        tids = [to_refresh]
-        if to_refresh < DEFAULT_PROFILE_ID:
-            pid = db_get_pid(session, to_refresh)
-            if pid is not None and pid != to_refresh:
-                tids.append(pid)
+        return active_tids
 
-        else:
-            matching_tids = [tid for tid in db_get_profile_children(session, to_refresh)
-                             if tid in active_tids and tid != to_refresh]
+    if to_refresh not in active_tids:
+        return []
 
-            tids.extend(matching_tids)
+    tids = [to_refresh]
 
-            # Invalidate every tenant using the updated profile
-            for tid in matching_tids:
-                Cache.invalidate(tid)
-    else:
-        tids = []
+    if to_refresh < DEFAULT_PROFILE_ID:
+        pid = db_get_pid(session, to_refresh)
+        if pid is not None and pid != to_refresh:
+            tids.append(pid)
 
-    if not tids:
-        return
+        return tids
 
-    tids = sorted(tids)
+    matching_tids = [tid for tid in db_get_profile_children(session, to_refresh)
+                     if tid in active_tids and tid != to_refresh]
 
-    pids = {}
+    tids.extend(matching_tids)
 
-    for tid in tids:
-        if tid not in State.tenants:
-            State.tenants[tid] = TenantState()
+    # Invalidate every tenant using the updated profile
+    for tid in matching_tids:
+        Cache.invalidate(tid)
 
-        pids[tid] = db_get_pid(session, tid) or DEFAULT_PROFILE_ID
+    return tids
 
-        tenant_cache = State.tenants[tid].cache
-        tenant_cache['ptid'] = pids[tid]
 
-        tenant_cache['redirects'] = {}
-        tenant_cache['custodian'] = False
-        tenant_cache['microphone'] = False
-        tenant_cache['notification'] = ObjectDict()
-        tenant_cache['notification'].admin_list = []
-        tenant_cache['hostnames'] = []
-        tenant_cache['onionnames'] = []
-        tenant_cache['languages_enabled'] = []
+def db_reset_tenant_cache(session, tid):
+    """
+    Give a tenant a blank cache
 
-    root_tenant_cache = State.tenants[1].cache
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :return: The profile of the tenant
+    """
+    if tid not in State.tenants:
+        State.tenants[tid] = TenantState()
 
-    for tid, lang in session.query(models.EnabledLanguage.tid, models.EnabledLanguage.name)\
-                            .filter(models.EnabledLanguage.tid.in_(tids)):
-        State.tenants[tid].cache['languages_enabled'].append(lang)
+    pid = db_get_pid(session, tid) or DEFAULT_PROFILE_ID
 
+    tenant_cache = State.tenants[tid].cache
+    tenant_cache['ptid'] = pid
+
+    tenant_cache['redirects'] = {}
+    tenant_cache['custodian'] = False
+    tenant_cache['microphone'] = False
+    tenant_cache['notification'] = ObjectDict()
+    tenant_cache['notification'].admin_list = []
+    tenant_cache['hostnames'] = []
+    tenant_cache['onionnames'] = []
+    tenant_cache['languages_enabled'] = []
+
+    return pid
+
+
+def db_load_tenant_configs(session, tids, pids):
+    """
+    Load the configuration of some tenants; every configuration variable is resolved following
+    the inheritance chain default profile < tenant profile < tenant
+
+    :param session: An ORM session
+    :param tids: The tenants
+    :param pids: The profile of each tenant
+    """
     configs = defaultdict(dict)
 
     lookup_tids = set(tids) | set(pids.values()) | {DEFAULT_PROFILE_ID}
@@ -346,8 +367,6 @@ def db_refresh_tenant_cache(session, to_refresh=None):
     for cfg in session.query(Config).filter(Config.tid.in_(lookup_tids)):
         configs[cfg.tid][cfg.var_name] = cfg
 
-    # Every configuration variable is resolved following the inheritance chain
-    # default profile < tenant profile < tenant
     for tid in tids:
         resolved = dict(configs[DEFAULT_PROFILE_ID])
         resolved.update(configs[pids[tid]])
@@ -356,6 +375,15 @@ def db_refresh_tenant_cache(session, to_refresh=None):
         for cfg in resolved.values():
             update_cache(tid, cfg)
 
+
+def db_load_tenant_users(session, tids):
+    """
+    Note on some tenants the administrators to notify, the presence of a custodian and the use of
+    the voice
+
+    :param session: An ORM session
+    :param tids: The tenants
+    """
     query = (session.query(models.User.tid, models.User.mail_address, models.User.pgp_key_public)
             .join(models.UserProfileRole, models.User.profile_id == models.UserProfileRole.profile_id)
             .filter(models.UserProfileRole.role == 'admin',
@@ -378,33 +406,71 @@ def db_refresh_tenant_cache(session, to_refresh=None):
     for tid in db_get_tenants_using_voice(session, tids):
         State.tenants[tid].cache['microphone'] = True
 
+
+def load_tenant_names(tid, root_tenant_cache):
+    """
+    Register the names a tenant is reached by: its hostname and its onion service, and the ones
+    derived from its subdomain
+
+    :param tid: A tenant ID
+    :param root_tenant_cache: The cache of the root tenant
+    """
+    tenant_cache = State.tenants[tid].cache
+
+    State.tenant_uuid_id_map[tenant_cache.uuid] = tid
+
+    if tenant_cache.hostname and tenant_cache.reachable_via_web:
+        tenant_cache.hostnames.append(tenant_cache.hostname.encode())
+
+    if tenant_cache.onionservice:
+        tenant_cache.onionnames.append(tenant_cache.onionservice.encode())
+
+    if tenant_cache.subdomain:
+        State.tenant_subdomain_id_map[tenant_cache.subdomain] = tid
+
+        if not tenant_cache.onionservice and root_tenant_cache.onionservice:
+            tenant_cache.onionservice = tenant_cache.subdomain + '.' + root_tenant_cache.onionservice
+
+        if root_tenant_cache.rootdomain and tenant_cache.reachable_via_web:
+            tenant_cache.hostnames.append(f'{tenant_cache.subdomain}.{root_tenant_cache.rootdomain}'.encode())
+
+        if root_tenant_cache.onionservice:
+            tenant_cache.onionnames.append(f'{tenant_cache.subdomain}.{root_tenant_cache.onionservice}'.encode())
+
+    State.tenant_hostname_id_map.update({h: tid for h in tenant_cache.hostnames + tenant_cache.onionnames})
+
+
+def db_refresh_tenant_cache(session, to_refresh=None):
+    active_tids = set([tid[0] for tid in session.query(models.Tenant.id)])#.filter(models.Tenant.active.is_(True))])
+
+    cached_tids = set(State.tenants.keys())
+
+    # Remove tenants that have been disabled
+    db_unload_tenants(cached_tids - active_tids)
+
+    tids = db_get_tids_to_refresh(session, to_refresh, active_tids)
+    if not tids:
+        return
+
+    tids = sorted(tids)
+
+    pids = {tid: db_reset_tenant_cache(session, tid) for tid in tids}
+
+    root_tenant_cache = State.tenants[1].cache
+
+    for tid, lang in session.query(models.EnabledLanguage.tid, models.EnabledLanguage.name)\
+                            .filter(models.EnabledLanguage.tid.in_(tids)):
+        State.tenants[tid].cache['languages_enabled'].append(lang)
+
+    db_load_tenant_configs(session, tids, pids)
+
+    db_load_tenant_users(session, tids)
+
     for redirect in session.query(models.Redirect).filter(models.Redirect.tid.in_(tids)):
         State.tenants[redirect.tid].cache['redirects'][redirect.path1] = redirect.path2
 
     for tid in tids:
-        tenant_cache = State.tenants[tid].cache
-
-        State.tenant_uuid_id_map[tenant_cache.uuid] = tid
-
-        if tenant_cache.hostname and tenant_cache.reachable_via_web:
-            tenant_cache.hostnames.append(tenant_cache.hostname.encode())
-
-        if tenant_cache.onionservice:
-            tenant_cache.onionnames.append(tenant_cache.onionservice.encode())
-
-        if tenant_cache.subdomain:
-            State.tenant_subdomain_id_map[tenant_cache.subdomain] = tid
-
-            if not tenant_cache.onionservice and root_tenant_cache.onionservice:
-                tenant_cache.onionservice = tenant_cache.subdomain + '.' + root_tenant_cache.onionservice
-
-            if root_tenant_cache.rootdomain and tenant_cache.reachable_via_web:
-                tenant_cache.hostnames.append(f'{tenant_cache.subdomain}.{root_tenant_cache.rootdomain}'.encode())
-
-            if root_tenant_cache.onionservice:
-                tenant_cache.onionnames.append(f'{tenant_cache.subdomain}.{root_tenant_cache.onionservice}'.encode())
-
-        State.tenant_hostname_id_map.update({h: tid for h in tenant_cache.hostnames + tenant_cache.onionnames})
+        load_tenant_names(tid, root_tenant_cache)
 
     if State.tor:
         State.tor.load_all_onion_services()
