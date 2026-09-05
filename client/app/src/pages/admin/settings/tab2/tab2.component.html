@@ -30,6 +30,12 @@
         @if (customFiles.length) {
           <div class="table-responsive">
             <table class="table" id="fileList">
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'Filename' | translate }}</th>
+                  <th scope="col">{{ 'Actions' | translate }}</th>
+                </tr>
+              </thead>
               <tbody id="fileListBody">
                 @for (file of customFiles | orderBy:'name'; track file) {
                   <tr>
