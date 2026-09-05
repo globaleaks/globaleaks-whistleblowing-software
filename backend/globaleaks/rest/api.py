@@ -369,7 +369,7 @@ class APIResourceWrapper(Resource):
                     operations = set(handler.operation_descriptors(handler))
                     mapped = set(handler.operation_permissions)
                     if operations != mapped:
-                        raise Exception(f"{handler.__name__}: operations {sorted(operations - mapped)} are not gated, permissions {sorted(mapped - operations)} gate nothing")
+                        raise RuntimeError(f"{handler.__name__}: operations {sorted(operations - mapped)} are not gated, permissions {sorted(mapped - operations)} gate nothing")
 
                 for m in ['delete', 'get', 'put', 'post']:
                     # head and options method are intentionally not considered here

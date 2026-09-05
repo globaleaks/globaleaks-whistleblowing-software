@@ -196,7 +196,7 @@ class transact:
                     retries += 1
 
                     if retries >= _ORM_TRANSACTION_RETRIES:
-                        raise Exception("Transaction failed with too many retries")
+                        raise RuntimeError("Transaction failed with too many retries")
 
                     time.sleep(0.2 * secrets.SystemRandom().uniform(1, 2 ** retries))
                 except Exception:

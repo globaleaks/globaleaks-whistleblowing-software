@@ -116,11 +116,11 @@ class Tor(Service):
             restart_deferred.callback(None)
 
         if not os.path.exists(self.state.settings.tor_control):
-            startup_errback(Exception(f'Tor control port not open on {self.state.settings.tor_control}; waiting for Tor to become available'))
+            startup_errback(RuntimeError(f'Tor control port not open on {self.state.settings.tor_control}; waiting for Tor to become available'))
             return deferred_sleep(1)
 
         if not os.access(self.state.settings.tor_control, os.R_OK):
-            startup_errback(Exception(f'Unable to access {self.state.settings.tor_control}; manual permission recheck needed'))
+            startup_errback(PermissionError(f'Unable to access {self.state.settings.tor_control}; manual permission recheck needed'))
             return deferred_sleep(1)
 
         def connect(_):
