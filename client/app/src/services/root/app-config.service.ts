@@ -35,7 +35,6 @@ export class AppConfigService {
   private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
   private readonly themeService = inject(ThemeService);
   private readonly translationLoader = inject(TranslateLoader);
-  private isRunning = false;
 
   public sidebar = "";
 
