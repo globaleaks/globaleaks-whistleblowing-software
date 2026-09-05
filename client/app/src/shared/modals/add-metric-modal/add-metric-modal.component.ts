@@ -60,8 +60,9 @@ export class AddMetricModalComponent implements OnInit {
 
     this.selectedMetricId = normalizedMetricId;
     const compatibleTypes = this.getCompatibleDisplayTypes();
-    if (compatibleTypes.length > 0) {
-      this.selectedDisplayType = compatibleTypes[0];
+    const first = compatibleTypes[0];
+    if (first !== undefined) {
+      this.selectedDisplayType = first;
     }
   }
 

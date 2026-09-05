@@ -26,8 +26,8 @@ export class AdminFileComponent {
   readonly uploaderInput = viewChild.required<ElementRef<HTMLInputElement>>("uploader");
 
   onFileSelected(files: FileList | null, filetype: string) {
-    if (files && files.length > 0) {
-      const file = files[0];
+    const file = files?.[0];
+    if (file) {
       const flowJsInstance = this.utilsService.getFlowInstance({
         target: "api/admin/files/" + filetype,
         singleFile: true,
