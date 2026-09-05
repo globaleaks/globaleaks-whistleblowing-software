@@ -211,6 +211,104 @@ def login_whistleblower(session, tid, receipt, client_using_tor, dpop_jkt=''):
     return session
 
 
+def db_resolve_login_user(session, tid, username, idp_subject):
+    """
+    Resolve the account that logs in: an account already bound to the identity is resolved by it;
+    the username only binds a new one
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param username: A provided username
+    :param idp_subject: The subject of the token issued by the identity provider
+    :return: The account, or None
+    """
+    query = session.query(User) \
+                   .options(joinedload(User.profile).joinedload(UserProfile.permissions),
+                            joinedload(User.profile).joinedload(UserProfile.roles)) \
+                   .filter(User.enabled.is_(True), User.tid == tid)
+
+    tenant_cache = State.tenants[tid].cache if tid in State.tenants else None
+
+    user = None
+    if tenant_cache is not None and tenant_cache.idp and idp_subject:
+        user = query.filter(User.idp_id == idp_subject).one_or_none()
+
+    if user is not None:
+        return user
+
+    if tenant_cache is not None and tenant_cache.simplified_login:
+        return query.filter(or_(User.id == username, User.username == username)).one_or_none()
+
+    return query.filter(User.username == username).one_or_none()
+
+
+def db_check_password(session, tid, user, password):
+    """
+    Check the password of an account, failing the login on a mismatch
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user: The account
+    :param password: A provided password
+    :return: The key derived from the password
+    """
+    try:
+        if len(user.hash) == 64:
+            key = Base64Encoder.decode(password.encode())
+            hash = sha256(key).decode()
+        else:
+            key, hash = GCE.calculate_key_and_hash(password, user.salt)
+    except Exception:
+        db_login_failure(session, tid, 0, user_id=user.id)
+
+    if not password or not GCE.check_equality(hash, user.hash):
+        db_login_failure(session, tid, 0, user_id=user.id)
+
+    return key
+
+
+def db_unlock_private_key(session, tid, user, key):
+    """
+    Unlock the private key of an account; an account holding none on a site that encrypts is given
+    one and has to change its password
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user: The account
+    :param key: The key derived from the password
+    :return: The private key, empty when the account holds none
+    """
+    if user.crypto_prv_key:
+        return GCE.symmetric_decrypt(key, Base64Encoder.decode(user.crypto_prv_key))
+
+    if State.tenants[tid].cache.encryption or \
+       ConfigFactory(session, tid).get_val('crypto_support_pub_key'):
+        crypto_prv_key, _ = GCE.generate_keypair()
+
+        user.password_change_needed = True
+
+        return crypto_prv_key
+
+    return ''
+
+
+def db_propagate_login_keys(session, tid, user, crypto_prv_key):
+    """
+    A logging-in holder propagates the statistical key to any admin/analyst still missing it
+    (covers activation-link and legacy accounts), and the support key alike
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user: The account
+    :param crypto_prv_key: The private key of the account
+    """
+    if State.tenants[tid].cache.encryption and crypto_prv_key and user.crypto_global_stat_prv_key:
+        db_reconcile_statistical_key(session, tid, user, crypto_prv_key)
+
+    if crypto_prv_key and user.crypto_support_prv_key:
+        db_reconcile_support_key(session, tid, user, crypto_prv_key)
+
+
 @transact
 def login(session, tid, username, password, authcode, client_using_tor, client_ip, dpop_jkt='', idp_subject=None):
 
@@ -227,22 +325,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     :param idp_subject: The subject of the token issued by the identity provider
     :return: Returns a user session in case of success
     """
-    query = session.query(User) \
-                   .options(joinedload(User.profile).joinedload(UserProfile.permissions),
-                            joinedload(User.profile).joinedload(UserProfile.roles)) \
-                   .filter(User.enabled.is_(True), User.tid == tid)
-
-    user = None
-
-    # An account already bound to the identity is resolved by it; the username only binds a new one
-    if tid in State.tenants and State.tenants[tid].cache.idp and idp_subject:
-        user = query.filter(User.idp_id == idp_subject).one_or_none()
-
-    if user is None:
-        if tid in State.tenants and State.tenants[tid].cache.simplified_login:
-            user = query.filter(or_(User.id == username, User.username == username)).one_or_none()
-        else:
-            user = query.filter(User.username == username).one_or_none()
+    user = db_resolve_login_user(session, tid, username, idp_subject)
 
     if user is None:
         db_login_failure(session, tid, 0)
@@ -254,18 +337,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
     connection_check(tid, user.role, client_ip, client_using_tor)
 
-    try:
-        if len(user.hash) == 64:
-            key = Base64Encoder.decode(password.encode())
-            hash = sha256(key).decode()
-        else:
-            key, hash = GCE.calculate_key_and_hash(password, user.salt)
-    except Exception:
-        db_login_failure(session, tid, 0, user_id=user.id)
-
-    if not password or not GCE.check_equality(hash, user.hash):
-        db_login_failure(session, tid, 0, user_id=user.id)
-
+    key = db_check_password(session, tid, user, password)
 
     if user.two_factor_secret:
         if authcode == '':
@@ -281,14 +353,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
     if len(user.hash) != 64:
         user.password_change_needed = True
 
-    crypto_prv_key = ''
-    if user.crypto_prv_key:
-        crypto_prv_key = GCE.symmetric_decrypt(key, Base64Encoder.decode(user.crypto_prv_key))
-    elif State.tenants[tid].cache.encryption or \
-         ConfigFactory(session, tid).get_val('crypto_support_pub_key'):
-        crypto_prv_key, _ = GCE.generate_keypair()
-
-        user.password_change_needed = True
+    crypto_prv_key = db_unlock_private_key(session, tid, user, key)
 
     if State.tenants[tid].cache.password_change_period > 0 and \
        user.password_change_date < datetime_now() - timedelta(days=State.tenants[tid].cache.password_change_period):
@@ -296,13 +361,7 @@ def login(session, tid, username, password, authcode, client_using_tor, client_i
 
     user.last_login = datetime_now()
 
-    # A logging-in holder propagates the statistical key to any admin/analyst
-    # still missing it (covers activation-link and legacy accounts)
-    if State.tenants[tid].cache.encryption and crypto_prv_key and user.crypto_global_stat_prv_key:
-        db_reconcile_statistical_key(session, tid, user, crypto_prv_key)
-
-    if crypto_prv_key and user.crypto_support_prv_key:
-        db_reconcile_support_key(session, tid, user, crypto_prv_key)
+    db_propagate_login_keys(session, tid, user, crypto_prv_key)
 
     db_log(session, tid=tid, type='login', user_id=user.id)
 
@@ -386,6 +445,34 @@ def login_idp(session, tid, claims, client_using_tor, client_ip, dpop_jkt=''):
     return user_session
 
 
+def db_idp_auth_type(session, tid, idp_claims):
+    """
+    Resolve the authentication type of an identity: resolved by the identity and asked for the
+    password alone; an unbound identity is bound through the username and the credentials
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param idp_claims: The claims of the token issued by the identity provider
+    :return: The authentication type to be performed by the client
+    """
+    user = session.query(User).filter(User.tid == tid, User.idp_id == idp_claims.get('sub')).one_or_none()
+
+    if user is None:
+        if State.tenants[tid].cache.idp_provisioning and db_idp_username(session, tid, idp_claims):
+            return {'type': 'provisioning'}
+
+        return {'type': 'binding'}
+
+    # Setup not completed: resumed instead of asking for a password never set
+    if not user.hash:
+        return {'type': 'provisioning'}
+
+    if len(user.hash) == 64:
+        return {'type': 'key', 'salt': user.salt, 'username': user.username}
+
+    return {'type': 'password', 'username': user.username}
+
+
 @transact
 def get_auth_type(session, tid, username, idp_claims=None):
     """
@@ -397,43 +484,27 @@ def get_auth_type(session, tid, username, idp_claims=None):
     :param idp_claims: The claims of the token issued by the identity provider
     :return: The authentication type to be performed by the client
     """
-    salt = ConfigFactory(session, tid).get_val('receipt_salt')
-
     if idp_claims:
-        # Resolved by the identity and asked for the password alone; an unbound identity is bound
-        # through the username and the credentials
-        user = session.query(User).filter(User.tid == tid, User.idp_id == idp_claims.get('sub')).one_or_none()
+        return db_idp_auth_type(session, tid, idp_claims)
 
-        if user is None:
-            if State.tenants[tid].cache.idp_provisioning and db_idp_username(session, tid, idp_claims):
-                return {'type': 'provisioning'}
-
-            return {'type': 'binding'}
-
-        # Setup not completed: resumed instead of asking for a password never set
-        if not user.hash:
-            return {'type': 'provisioning'}
-
-        if len(user.hash) == 64:
-            return {'type': 'key', 'salt': user.salt, 'username': user.username}
-
-        return {'type': 'password', 'username': user.username}
+    salt = ConfigFactory(session, tid).get_val('receipt_salt')
 
     if not username: # whistleblower
         if not db_receipt_auth_is_legacy(session, tid):
             return {'type': 'key', 'salt': salt}
 
-    else:
-        user = session.query(User).filter(User.tid == tid, or_(User.username == username, User.id == username)).one_or_none()
+        return {'type': 'password'}
 
-        # Always calculate the user salt to not disclose if the user exists or not
-        salt = GCE.generate_salt(salt + ":" + username)
+    user = session.query(User).filter(User.tid == tid, or_(User.username == username, User.id == username)).one_or_none()
 
-        salt = salt if not user else user.salt
+    # Always calculate the user salt to not disclose if the user exists or not
+    salt = GCE.generate_salt(salt + ":" + username)
 
-        # Presented as any other account, so that the accounts still to be set up are not disclosed
-        if not user or not user.hash or len(user.hash) == 64:
-            return {'type': 'key', 'salt': salt}
+    salt = salt if not user else user.salt
+
+    # Presented as any other account, so that the accounts still to be set up are not disclosed
+    if not user or not user.hash or len(user.hash) == 64:
+        return {'type': 'key', 'salt': salt}
 
     return {'type': 'password'}
 
