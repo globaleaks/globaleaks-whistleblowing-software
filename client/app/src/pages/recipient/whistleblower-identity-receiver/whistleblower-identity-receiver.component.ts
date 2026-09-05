@@ -21,9 +21,9 @@ import {TranslateModule} from "@ngx-translate/core";
 export class WhistleBlowerIdentityReceiverComponent {
   protected tipService = inject(ReceiverTipService);
   protected utilsService = inject(UtilsService);
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
-  private utils = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly utils = inject(UtilsService);
 
   readonly redactOperationTitle = input<string>();
   readonly redactMode = input<boolean>();

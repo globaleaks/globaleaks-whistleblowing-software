@@ -8,7 +8,7 @@ import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
   providedIn: "root"
 })
 export class JobResolver extends ResourceResolver<jobResolverModel[]> {
-  private authenticationService = inject(AuthenticationService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   constructor() {
     // The jobs are read on the area of the role in session: the administrator

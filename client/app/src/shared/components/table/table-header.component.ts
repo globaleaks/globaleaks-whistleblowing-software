@@ -21,7 +21,7 @@ import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dro
   imports: [DateRangeSelectorComponent, FormsModule, NgClass, NgMultiSelectDropDownModule, NgTemplateOutlet, TranslateModule]
 })
 export class TableHeaderComponent {
-  private translateService = inject(TranslateService);
+  private readonly translateService = inject(TranslateService);
 
   @Input({required: true}) state!: TableState<any>;
   @Input() label = "";

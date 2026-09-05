@@ -10,8 +10,8 @@ import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-mod
   providedIn: "root"
 })
 export class AuditLogResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: auditlogResolverModel = new auditlogResolverModel();
 

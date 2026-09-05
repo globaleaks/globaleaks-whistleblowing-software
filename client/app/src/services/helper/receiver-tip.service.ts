@@ -11,8 +11,8 @@ import {of} from 'rxjs';
   providedIn: "root"
 })
 export class ReceiverTipService {
-  private httpService = inject(HttpService);
-  private appDataService = inject(AppDataService);
+  private readonly httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
   protected utils = inject(UtilsService);
 
   tip: RecieverTipData = new RecieverTipData();

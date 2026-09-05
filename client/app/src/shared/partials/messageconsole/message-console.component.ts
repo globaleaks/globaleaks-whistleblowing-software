@@ -11,7 +11,7 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [TranslateModule]
 })
 export class MessageConsoleComponent implements AfterViewChecked {
-  private cdr = inject(ChangeDetectorRef);
+  private readonly cdr = inject(ChangeDetectorRef);
   appDataService = inject(AppDataService);
 
   private timeoutId: any;

@@ -21,10 +21,10 @@ export class SessionActivityService implements OnDestroy {
 
   private static readonly ACTIVITY_EVENTS = ["mousemove", "mousedown", "keydown", "wheel", "touchstart", "touchmove", "scroll"];
 
-  private document = inject(DOCUMENT);
-  private authenticationService = inject(AuthenticationService);
-  private cryptoService = inject(CryptoService);
-  private httpService = inject(HttpService);
+  private readonly document = inject(DOCUMENT);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly httpService = inject(HttpService);
 
   private lastActivity = Date.now();
   private timer: ReturnType<typeof setInterval> | null = null;

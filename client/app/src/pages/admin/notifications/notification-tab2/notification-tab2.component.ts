@@ -13,8 +13,8 @@ import {UtilsService} from "@app/shared/services/utils.service";
     imports: [TranslatePipe, FormsModule]
 })
 export class NotificationTab2Component {
-  private notificationResolver = inject(NotificationsResolver);
-  private utilsService = inject(UtilsService);
+  private readonly notificationResolver = inject(NotificationsResolver);
+  private readonly utilsService = inject(UtilsService);
 
   readonly notificationForm = input.required<NgForm>();
   template: string;

@@ -18,19 +18,19 @@ import {IdpService} from "@app/services/root/idp.service";
   providedIn: "root"
 })
 export class AppConfigService {
-  private renderScheduler = inject(RenderSchedulerService);
-  private location = inject(Location);
-  private titleService = inject(TitleService);
+  private readonly renderScheduler = inject(RenderSchedulerService);
+  private readonly location = inject(Location);
+  private readonly titleService = inject(TitleService);
   authenticationService = inject(AuthenticationService);
-  private translationService = inject(TranslationService);
-  private utilsService = inject(UtilsService);
-  private router = inject(Router);
-  private activatedRoute = inject(ActivatedRoute);
-  private httpService = inject(HttpService);
-  private appDataService = inject(AppDataService);
-  private idpService = inject(IdpService);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
-  private isRunning = false;
+  private readonly translationService = inject(TranslationService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly idpService = inject(IdpService);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly isRunning = false;
 
   public sidebar = "";
 

@@ -32,9 +32,9 @@ interface Transmission {
   imports: [DatePipe, RouterLink, NgbTooltipModule, TranslateModule]
 })
 export class TransmissionsComponent implements OnInit {
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
-  private utils = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly utils = inject(UtilsService);
 
   transmissions: Transmission[] = [];
   available = false;

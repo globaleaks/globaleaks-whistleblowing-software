@@ -7,7 +7,7 @@ import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
   providedIn: "root"
 })
 export class NotificationsResolver extends ResourceResolver<notificationResolverModel> {
-  private authenticationService = inject(AuthenticationService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   constructor() {
     super("api/admin/notification", new notificationResolverModel());

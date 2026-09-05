@@ -14,11 +14,11 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
     imports: [FormsModule, TranslateModule]
 })
 export class ConfirmationWithPasswordComponent {
-  private activeModal = inject(NgbActiveModal);
-  private cryptoService = inject(CryptoService);
-  private preferencesService = inject(PreferenceResolver);
-  private appDataService = inject(AppDataService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly preferencesService = inject(PreferenceResolver);
+  private readonly appDataService = inject(AppDataService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   secret: string;
   error = false;

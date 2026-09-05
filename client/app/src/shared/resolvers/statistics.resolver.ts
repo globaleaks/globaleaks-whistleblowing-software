@@ -7,7 +7,7 @@ import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
   providedIn: "root"
 })
 export class StatisticsResolver extends ResourceResolver<statisticsResolverModel> {
-  private authenticationService = inject(AuthenticationService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   constructor() {
     super("api/analyst/stats", new statisticsResolverModel());
