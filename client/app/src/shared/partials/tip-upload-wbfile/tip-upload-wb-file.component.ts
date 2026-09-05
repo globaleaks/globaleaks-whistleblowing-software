@@ -2,7 +2,6 @@ import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-pane
 import {Component, ElementRef, ChangeDetectorRef, inject, input, viewChild, output} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
-import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {FlowFile} from "@flowjs/flow.js";
@@ -22,7 +21,6 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 })
 export class TipUploadWbFileComponent {
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
   protected tipService = inject(ReceiverTipService);

@@ -8,7 +8,6 @@ import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmatio
 import {TriggerReceiverComponent} from "@app/shared/modals/trigger-receiver/trigger-receiver.component";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
@@ -37,7 +36,6 @@ export class FieldsComponent implements OnInit {
   private readonly utilsService = inject(UtilsService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly fieldTemplates = inject(FieldTemplatesResolver);
-  private readonly fieldUtilities = inject(FieldUtilitiesService);
 
   readonly editField = input.required<NgForm>();
   readonly field = input.required<Children | Step | Field>();
