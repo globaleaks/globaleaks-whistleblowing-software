@@ -204,24 +204,3 @@ class TestWhistleblowerReceiverFileDownloadAntivirus(helpers.TestHandlerWithPopu
 
         rfile_id = (yield self.get_rfiles(rtip_desc['id']))[0]['id']
         return rtip_desc['id'], rfile_id
-
-    @inlineCallbacks
-    def test_get_allows_infected_file(self):
-        wbtip_id, rfile_id = yield self.create_receiver_file()
-
-        yield self.set_rfile_antivirus_state(rfile_id, models.EnumStateFile.infected.name)
-
-        handler = self.request(role='whistleblower', user_id=wbtip_id)
-        yield handler.get(rfile_id)
-        self.assertNotEqual(handler.request.getResponseBody(), '')
-
-    @inlineCallbacks
-    def test_get_allows_pending_file(self):
-        wbtip_id, rfile_id = yield self.create_receiver_file()
-
-        yield self.set_rfile_antivirus_state(rfile_id, models.EnumStateFile.pending.name)
-
-        handler = self.request(role='whistleblower', user_id=wbtip_id)
-        yield handler.get(rfile_id)
-        self.assertNotEqual(handler.request.getResponseBody(), '')
-

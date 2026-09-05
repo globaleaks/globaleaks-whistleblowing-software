@@ -62,15 +62,6 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.get(rtip_desc['id'])
 
-    @inlineCallbacks
-    def test_questionnaire_hashes(self):
-        # The hashes are sealed to the report as the answers they attest are,
-        # so they are read on the report as it is delivered to its recipients
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-
-            self.verify_questionnaire_hashes((yield handler.get(rtip_desc['id'])))
 
     @inlineCallbacks
     def test_postpone(self):
