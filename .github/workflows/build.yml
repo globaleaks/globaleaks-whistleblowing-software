@@ -6,13 +6,12 @@ on:
   workflow_dispatch:
     inputs:
       target_distribution:
-        description: 'Target distribution (bookworm, bullseye, jammy, noble, resolute, trixie)'
+        description: 'Target distribution (bookworm, jammy, noble, resolute, trixie)'
         required: false
         default: trixie
         type: choice
         options:
           - bookworm
-          - bullseye
           - jammy
           - noble
           - resolute
@@ -28,7 +27,7 @@ jobs:
       contents: read
     strategy:
       matrix:
-        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bookworm", "bullseye", "jammy", "noble", "resolute", "trixie"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}
+        distribution: ${{ fromJson(github.event.inputs.target_distribution == 'all' && '["bookworm", "jammy", "noble", "resolute", "trixie"]' || format('["{0}"]', github.event.inputs.target_distribution || 'trixie')) }}
     steps:
       - name: Check out repository code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -67,7 +66,7 @@ jobs:
           DEB=$(ls build/${TARGET_DISTRIBUTION}/globaleaks_*.deb | head -1)
           echo "Testing package under systemd: $DEB"
           case "$TARGET_DISTRIBUTION" in
-            bookworm|bullseye|trixie) IMAGE="debian:${TARGET_DISTRIBUTION}" ;;
+            bookworm|trixie) IMAGE="debian:${TARGET_DISTRIBUTION}" ;;
             *)                        IMAGE="ubuntu:${TARGET_DISTRIBUTION}" ;;
           esac
 
