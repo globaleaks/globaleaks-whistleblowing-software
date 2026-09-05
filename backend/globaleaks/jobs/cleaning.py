@@ -71,9 +71,9 @@ class Cleaning(DailyJob):
         # delete expired change email tokens
         session.query(models.User) \
                .filter(models.User.change_email_date <= datetime_now() - timedelta(hours=72)) \
-               .update({'change_email_date': datetime_never(),
-                        'change_email_token': None,  # nosec B105
-                        'change_email_address': ''})
+               .update({models.User.change_email_date: datetime_never(),
+                        models.User.change_email_token: None,
+                        models.User.change_email_address: ''})
 
     def perform_secure_deletion_of_files(self, path, valid_files):
         # Delete the customization files not associated to the database
