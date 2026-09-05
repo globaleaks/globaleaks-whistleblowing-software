@@ -221,22 +221,14 @@ class ConfigFactory:
         # A protected key belongs to the site alone and is read on its own row:
         # it is never dropped in favour of the value the profile holds
         config = {} if var_name in protected_keys else self.get_cfg(var_name)
-        if config:
+
+        # The value the site would inherit: from its profile, or from the default profile
+        inherited = config.get(self.pid) if self.pid in config else config.get(DEFAULT_PROFILE_ID)
+        if inherited is not None and inherited.value == value:
             if self.tid in config:
-                if self.pid in config:
-                    if config[self.pid].value == value:
-                        self.session.delete(config[self.tid])
-                        return
+                self.session.delete(config[self.tid])
 
-                elif DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value:
-                    self.session.delete(config[self.tid])
-                    return
-            elif self.pid in config:
-                if config[self.pid].value == value:
-                    return
-
-            elif DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value:
-                return
+            return
 
         self.session.merge(Config({'tid': self.tid, 'var_name': var_name, 'value': value}))
 
@@ -250,30 +242,62 @@ class ConfigFactory:
             if entry.var_name not in protected_keys and entry.var_name in t_result and t_result[entry.var_name] == entry.value or entry.var_name not in t_result and entry.var_name in d_result and d_result[entry.var_name].value == entry.value:
                 self.remove_val(entry.tid, entry.var_name)
 
+    @staticmethod
+    def inherited_value(k, p_result, d_result):
+        """
+        Return the value a site inherits for a variable: from its profile, or from the default
+        profile
+
+        :return: Whether a value is inherited, and the value
+        """
+        if k in p_result:
+            return True, p_result[k].value
+
+        if k in d_result:
+            return True, d_result[k].value
+
+        return False, None
+
+    def update_inherited_var(self, k, v, value, t_result, p_result, d_result):
+        """
+        Only the default profile owns every variable; the other tenants resolve the missing ones
+        from their profile: the row of the site is dropped when its value returns to the inherited
+        one, and written when it departs from it
+        """
+        # An emptied field returns to the inherited value; False and 0 are held against the
+        # profile
+        reset = value is None or value in ('', [])
+
+        inherited, inherited_value = self.inherited_value(k, p_result, d_result)
+        matches = inherited and value == inherited_value
+
+        if k not in t_result:
+            if not reset and not matches:
+                self.session.add(Config({'tid': self.tid, 'var_name': k, 'value': value}))
+
+            return
+
+        if not reset and not matches:
+            v.set_v(value)
+            t_result[k] = value
+            return
+
+        if k not in protected_keys:
+            self.remove_val(self.tid, k)
+            del t_result[k]
+
     def update(self, filter_name, data):
         result, t_result, p_result, d_result = self.get_all(filter_name)
         for k, v in result.items():
-            if k in data:
-                # An emptied field returns to the inherited value; False and 0 are held against the
-                # profile
-                reset = data[k] is None or data[k] == '' or data[k] == []
+            if k not in data:
+                continue
 
-                # Only the default profile owns every variable; the other tenants resolve the
-                # missing ones from their profile
-                if self.tid != DEFAULT_PROFILE_ID:
-                    if k in t_result:
-                        if reset or (k in p_result and data[k] == p_result[k].value) or (k not in p_result and k in d_result and data[k] == d_result[k].value):
-                            if k not in protected_keys:
-                                self.remove_val(self.tid, k)
-                                del t_result[k]
-                        else:
-                            v.set_v(data[k])
-                            t_result[k] = data[k]
-                    elif not reset and ((k in p_result and data[k] != p_result[k].value) or (k not in p_result and data[k] != d_result[k].value)):
-                        self.session.add(Config({'tid': self.tid, 'var_name': k, 'value': data[k]}))
-                else:
-                    t_result[k] = data[k]
-                    v.set_v(data[k])
+            if self.tid == DEFAULT_PROFILE_ID:
+                t_result[k] = data[k]
+                v.set_v(data[k])
+                continue
+
+            self.update_inherited_var(k, v, data[k], t_result, p_result, d_result)
 
         # The default profile has children too: the sites that name no other profile
         if self.tid >= DEFAULT_PROFILE_ID:
