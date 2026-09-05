@@ -13,9 +13,9 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [Enable2fa, TranslateModule]
 })
 export class Enable2faComponent {
-  private preferenceResolver = inject(PreferenceResolver);
-  private activeModal = inject(NgbActiveModal);
-  private utilsService = inject(UtilsService);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly utilsService = inject(UtilsService);
   protected twoFactorAuthData = inject(TwoFactorAuthData);
 
 

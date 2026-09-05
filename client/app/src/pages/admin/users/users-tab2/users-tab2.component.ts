@@ -22,11 +22,11 @@ import {TranslateModule} from "@ngx-translate/core";
   templateUrl: './users-tab2.component.html',
 })
 export class UsersTab2Component implements OnInit {
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
   protected nodeResolver = inject(NodeResolver);
-  private tenantsResolver = inject(TenantsResolver);
+  private readonly tenantsResolver = inject(TenantsResolver);
   protected utilsService = inject(UtilsService);
-  private http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   showAddProfile = false;
   tenantData: tenantResolverModel;

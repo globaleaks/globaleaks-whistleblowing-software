@@ -17,8 +17,8 @@ import {TranslateModule} from "@ngx-translate/core";
 ],
 })
 export class AcceptAgreementComponent implements OnInit {
-  private activeModal = inject(NgbActiveModal);
-  private preference = inject(PreferenceResolver);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly preference = inject(PreferenceResolver);
   appDataService = inject(AppDataService);
 
   confirmFunction: () => void;

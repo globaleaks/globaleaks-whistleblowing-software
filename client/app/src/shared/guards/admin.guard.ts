@@ -9,10 +9,10 @@ import {UtilsService} from "@app/shared/services/utils.service";
   providedIn: "root"
 })
 export class AdminGuard {
-  private activatedRoute = inject(ActivatedRoute);
-  private utilsService = inject(UtilsService);
-  private router = inject(Router);
-  private appConfigService = inject(AppConfigService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly utilsService = inject(UtilsService);
+  private readonly router = inject(Router);
+  private readonly appConfigService = inject(AppConfigService);
   authenticationService = inject(AuthenticationService);
 
 

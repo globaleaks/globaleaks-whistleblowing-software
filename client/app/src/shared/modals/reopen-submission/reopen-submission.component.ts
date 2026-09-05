@@ -15,8 +15,8 @@ import {TranslateModule} from "@ngx-translate/core";
     ],
 })
 export class ReopenSubmissionComponent {
-  private modalService = inject(NgbModal);
-  private activeModal = inject(NgbActiveModal);
+  private readonly modalService = inject(NgbModal);
+  private readonly activeModal = inject(NgbActiveModal);
 
   confirmFunction: () => void;
     confirm() {

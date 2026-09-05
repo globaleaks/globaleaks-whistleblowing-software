@@ -10,9 +10,9 @@ import {map} from "rxjs/operators";
   providedIn: "root"
 })
 export class WbTipResolver {
-  private authenticationService = inject(AuthenticationService);
-  private httpService = inject(HttpService);
-  private appDataService = inject(AppDataService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
 
 
   dataModel?: WbTipData;

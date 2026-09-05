@@ -10,8 +10,8 @@ import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
   providedIn: "root"
 })
 export class PreferenceResolver extends ResourceResolver<preferenceResolverModel> {
-  private router = inject(Router);
-  private authenticationService = inject(AuthenticationService);
+  private readonly router = inject(Router);
+  private readonly authenticationService = inject(AuthenticationService);
 
   constructor() {
     super("api/user/preferences", new preferenceResolverModel());

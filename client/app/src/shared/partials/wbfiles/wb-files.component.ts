@@ -21,9 +21,9 @@ import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
     imports: [DatePipe, NgbTooltipModule, TranslateModule, ByteFmtPipe]
 })
 export class WbFilesComponent {
-  private appDataService = inject(AppDataService);
-  private cryptoService = inject(CryptoService);
-  private httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly httpService = inject(HttpService);
   protected authenticationService = inject(AuthenticationService);
   protected maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);

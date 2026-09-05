@@ -7,7 +7,7 @@ import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
   providedIn: "root"
 })
 export class TenantsResolver extends ResourceResolver<tenantResolverModel> {
-  private authenticationService = inject(AuthenticationService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   constructor() {
     super("api/admin/tenants", new tenantResolverModel());

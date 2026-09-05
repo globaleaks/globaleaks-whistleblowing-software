@@ -9,9 +9,9 @@ import {UtilsService} from "@app/shared/services/utils.service";
   providedIn: "root"
 })
 export class ReceiverGuard {
-  private utilsService = inject(UtilsService);
-  private appConfigService = inject(AppConfigService);
-  private router = inject(Router);
+  private readonly utilsService = inject(UtilsService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly router = inject(Router);
   authenticationService = inject(AuthenticationService);
 
 
