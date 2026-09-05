@@ -1,9 +1,9 @@
-<a routerLink="/custodian/home" routerLinkActive="active" id="custodian_home" [attr.aria-current]="isActive('/custodian/home') ? 'page' : 'false'">
+<a routerLink="/custodian/home" routerLinkActive="active" ariaCurrentWhenActive="page" id="custodian_home">
   <i class="fas fa-house"></i>
   <span>{{'Home' | translate}}</span>
 </a>
 @if (!nodeResolver.dataModel.is_profile) {
-  <a routerLink="/custodian/requests" routerLinkActive="active" id="custodian_requests" [attr.aria-current]="isActive('/custodian/requests') ? 'page' : 'false'">
+  <a routerLink="/custodian/requests" routerLinkActive="active" ariaCurrentWhenActive="page" id="custodian_requests">
     <i class="fa fa-inbox"></i>
     <span>{{'Requests' | translate}}</span>
   </a>

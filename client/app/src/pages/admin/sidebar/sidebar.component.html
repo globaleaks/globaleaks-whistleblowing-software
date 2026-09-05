@@ -1,69 +1,69 @@
-<a routerLink="/admin/home" routerLinkActive="active" id="admin_home" [attr.aria-current]="isActive('/admin/home') ? 'page' : 'false'">
+<a routerLink="/admin/home" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_home">
   <i class="fas fa-house"></i>
   <span>{{'Home'|translate}}</span>
 </a>
 @if (permissions.can_manage_settings) {
-  <a routerLink="/admin/settings" routerLinkActive="active" id="admin_settings" [attr.aria-current]="isActive('/admin/settings') ? 'page' : 'false'">
+  <a routerLink="/admin/settings" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_settings">
     <i class="fas fa-sliders"></i>
     <span>{{'Settings'|translate}}</span>
   </a>
 }
 @if (permissions.can_manage_users || permissions.can_manage_user_profiles) {
-  <a routerLink="/admin/users" routerLinkActive="active" id="admin_users" [attr.aria-current]="isActive('/admin/users') ? 'page' : 'false'">
+  <a routerLink="/admin/users" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_users">
     <i class="fas fa-users"></i>
     <span>{{'Users'|translate}}</span>
   </a>
 }
 @if (permissions.can_manage_questionnaires) {
-  <a routerLink="/admin/questionnaires" routerLinkActive="active" id="admin_questionnaires" [attr.aria-current]="isActive('/admin/questionnaires') ? 'page' : 'false'">
+  <a routerLink="/admin/questionnaires" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_questionnaires">
     <i class="fas fa-circle-question"></i>
     <span>{{'Questionnaires'|translate}}</span>
   </a>
 }
 @if (permissions.can_manage_channels) {
-  <a routerLink="/admin/channels" routerLinkActive="active" id="admin_channels" [attr.aria-current]="isActive('/admin/channels') ? 'page' : 'false'">
+  <a routerLink="/admin/channels" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_channels">
     <i class="fas fa-inbox"></i>
     <span>{{'Channels'|translate}}</span>
   </a>
 }
 @if (permissions.can_manage_case_management && !nodeResolver.dataModel.is_profile) {
-  <a routerLink="/admin/casemanagement" routerLinkActive="active" id="admin_case_management" [attr.aria-current]="isActive('/admin/casemanagement') ? 'page' : 'false'">
+  <a routerLink="/admin/casemanagement" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_case_management">
     <i class="fas fa-bars-progress"></i>
     <span>{{'Case management'|translate}}</span>
   </a>
 }
 @if (permissions.can_configure_statistical_report_templates) {
-  <a routerLink="/admin/statistics" routerLinkActive="active" id="admin_statistics" [attr.aria-current]="isActive('/admin/statistics') ? 'page' : 'false'">
+  <a routerLink="/admin/statistics" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_statistics">
     <i class="fas fa-chart-pie"></i>
     <span>{{'Statistics'|translate}}</span>
   </a>
 }
 @if (permissions.can_manage_notifications && !nodeResolver.dataModel.is_profile) {
-  <a routerLink="/admin/notifications" routerLinkActive="active" id="admin_notifications" [attr.aria-current]="isActive('/admin/notifications') ? 'page' : 'false'">
+  <a routerLink="/admin/notifications" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_notifications">
     <i class="fas fa-envelope"></i>
     <span>{{'Notifications'|translate}}</span>
   </a>
 }
 @if (permissions.can_manage_network && (nodeResolver.dataModel.root_tenant || authenticationService.session.properties.management_session) && !nodeResolver.dataModel.is_profile) {
-  <a routerLink="/admin/network" routerLinkActive="active" id="admin_network" [attr.aria-current]="isActive('/admin/network') ? 'page' : 'false'">
+  <a routerLink="/admin/network" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_network">
     <i class="fas fa-network-wired"></i>
     <span>{{'Network'|translate}}</span>
   </a>
 }
 @if (permissions.can_manage_sites && nodeResolver.dataModel.root_tenant && !nodeResolver.dataModel.is_profile) {
-  <a routerLink="/admin/sites" routerLinkActive="active" id="admin_sites" [attr.aria-current]="isActive('/admin/sites') ? 'page' : 'false'">
+  <a routerLink="/admin/sites" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_sites">
     <i class="fas fa-sitemap"></i>
     <span>{{'Sites'|translate}}</span>
   </a>
 }
 @if (permissions.can_manage_auditlog && !nodeResolver.dataModel.is_profile) {
-  <a routerLink="/admin/auditlog" routerLinkActive="active" id="admin_audit_log" [attr.aria-current]="isActive('/admin/auditlog') ? 'page' : 'false'">
+  <a routerLink="/admin/auditlog" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_audit_log">
     <i class="fas fa-clipboard-list"></i>
     <span>{{'Audit log'|translate}}</span>
   </a>
 }
 @if (permissions.can_manage_support && !nodeResolver.dataModel.is_profile) {
-  <a routerLink="/admin/support" routerLinkActive="active" id="admin_support" [attr.aria-current]="isActive('/admin/support') ? 'page' : 'false'">
+  <a routerLink="/admin/support" routerLinkActive="active" ariaCurrentWhenActive="page" id="admin_support">
     <i class="fas fa-life-ring"></i>
     <span>{{'Support'|translate}}</span>
   </a>
