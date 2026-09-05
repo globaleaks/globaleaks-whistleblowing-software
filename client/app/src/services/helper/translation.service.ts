@@ -2,7 +2,6 @@ import {BehaviorSubject} from 'rxjs';
 import {Injectable, inject} from "@angular/core";
 import {TranslateService} from "@ngx-translate/core";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {AppDataService} from "@app/app-data.service";
 
 @Injectable({
   providedIn: "root",
@@ -10,7 +9,6 @@ import {AppDataService} from "@app/app-data.service";
 export class TranslationService {
   private readonly utilsService = inject(UtilsService);
   protected translate = inject(TranslateService);
-  private readonly appDataService = inject(AppDataService);
 
   language = "";
 
