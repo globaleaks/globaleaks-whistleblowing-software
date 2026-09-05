@@ -856,7 +856,7 @@ class TestGL(unittest.TestCase):
                         .filter(models.InternalTip.tid == 1):
             x = serializers.serialize_wbtip(session, i, 'en')
             x['receivers_ids'] = list(zip(*session.query(models.ReceiverTip.receiver_id)
-                                           .filter(models.ReceiverTip.internaltip_id == i.id)))[0]
+                                           .filter(models.ReceiverTip.internaltip_id == i.id), strict=True))[0]
             ret.append(x)
 
         return ret
