@@ -10,7 +10,7 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [RouterLink, RouterLinkActive, TranslateModule]
 })
 export class AnalystSidebarComponent {
-  private router = inject(Router);
+  private readonly router = inject(Router);
 
 
   isActive(route: string): boolean {

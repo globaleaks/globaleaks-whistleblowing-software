@@ -20,8 +20,8 @@ import {CryptoService} from "@app/shared/services/crypto.service";
 })
 export class PasswordChangeComponent {
   rootDataService = inject(AppDataService);
-  private authenticationService = inject(AuthenticationService);
-  private router = inject(Router);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly router = inject(Router);
   httpService = inject(HttpService);
   appDataService = inject(AppDataService);
   preferencesService = inject(PreferenceResolver);

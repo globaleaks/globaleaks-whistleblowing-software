@@ -16,10 +16,10 @@ import {FilterPipe} from "@app/shared/pipes/filter.pipe";
     imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgLabelTemplateDirective, NgOptionTemplateDirective, TranslateModule, FilterPipe]
 })
 export class TriggerReceiverComponent implements OnInit {
-  private utilsService = inject(UtilsService);
-  private selectables = inject(SelectablesResolver);
-  private activeModal = inject(NgbActiveModal);
-  private modalService = inject(NgbModal);
+  private readonly utilsService = inject(UtilsService);
+  private readonly selectables = inject(SelectablesResolver);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly modalService = inject(NgbModal);
 
 
   arg: Option;

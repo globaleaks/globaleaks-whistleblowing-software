@@ -30,16 +30,16 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, DatePipe, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule]
 })
 export class TippageComponent implements OnInit {
-  private renderScheduler = inject(RenderSchedulerService);
-  private modalService = inject(NgbModal);
-  private fieldUtilities = inject(FieldUtilitiesService);
-  private appConfigService = inject(AppConfigService);
-  private wbTipResolver = inject(WbTipResolver);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly renderScheduler = inject(RenderSchedulerService);
+  private readonly modalService = inject(NgbModal);
+  private readonly fieldUtilities = inject(FieldUtilitiesService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly wbTipResolver = inject(WbTipResolver);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
-  private activatedRoute = inject(ActivatedRoute);
-  private httpService = inject(HttpService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
   protected wbTipService = inject(WbtipService);
 
   fileUploadUrl: string;

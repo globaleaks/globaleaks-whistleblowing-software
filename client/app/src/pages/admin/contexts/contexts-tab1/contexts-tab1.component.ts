@@ -28,7 +28,7 @@ export class ContextsTab1Component implements OnInit {
   protected node = inject(NodeResolver);
   protected contexts = inject(ContextsResolver);
   protected utilsService = inject(UtilsService);
-  private activatedRoute = inject(ActivatedRoute);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   showAddContext = false;
   new_context: { name: string; } = {name: ""};

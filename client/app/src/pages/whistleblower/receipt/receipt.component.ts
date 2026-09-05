@@ -14,7 +14,7 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, NgbTooltipModule, TranslateModule]
 })
 export class ReceiptComponent implements OnInit, OnDestroy {
-  private appConfigService = inject(AppConfigService);
+  private readonly appConfigService = inject(AppConfigService);
   protected utilsService = inject(UtilsService);
   protected authenticationService = inject(AuthenticationService);
   protected appDataService = inject(AppDataService);

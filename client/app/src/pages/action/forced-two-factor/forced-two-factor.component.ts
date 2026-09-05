@@ -15,10 +15,10 @@ import {TranslateModule} from "@ngx-translate/core";
 })
 export class ForcedTwoFactorComponent {
   protected twoFactorAuthData = inject(TwoFactorAuthData);
-  private httpService = inject(HttpService);
-  private preferenceResolver = inject(PreferenceResolver);
-  private authenticationService = inject(AuthenticationService);
-  private router = inject(Router);
+  private readonly httpService = inject(HttpService);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly router = inject(Router);
 
   constructor() {
     this.twoFactorAuthData.totp.secret = ""

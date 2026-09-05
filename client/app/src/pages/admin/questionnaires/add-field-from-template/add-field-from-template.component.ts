@@ -15,8 +15,8 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, TranslateModule]
 })
 export class AddFieldFromTemplateComponent implements OnInit {
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
 
   readonly fieldTemplatesData = input<fieldtemplatesResolverModel[]>();
   readonly step = input.required<Step>();

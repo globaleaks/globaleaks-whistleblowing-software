@@ -12,10 +12,10 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
     imports: [RouterLink, RouterLinkActive, TranslateModule]
 })
 export class ReceiptSidebarComponent {
-  private router = inject(Router);
+  private readonly router = inject(Router);
   protected preferenceResolver = inject(PreferenceResolver);
   protected nodeResolver = inject(NodeResolver);
-  private authenticationService = inject(AuthenticationService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   message: string;
 

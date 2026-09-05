@@ -10,7 +10,7 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
     imports: [RouterLink, RouterLinkActive, TranslateModule]
 })
 export class CustodianSidebarComponent {
-  private router = inject(Router);
+  private readonly router = inject(Router);
   protected nodeResolver = inject(NodeResolver);
 
   isActive(route: string): boolean {

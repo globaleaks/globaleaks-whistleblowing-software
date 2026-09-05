@@ -21,11 +21,11 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     imports: [NgbTooltipModule, AdminFileComponent, OrderByPipe, TranslateModule]
 })
 export class Tab2Component implements OnInit {
-  private appConfigService = inject(AppConfigService);
-  private preferenceResolver = inject(PreferenceResolver);
-  private utilsService = inject(UtilsService);
-  private nodeResolver = inject(NodeResolver);
-  private authenticationService = inject(AuthenticationService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly utilsService = inject(UtilsService);
+  private readonly nodeResolver = inject(NodeResolver);
+  private readonly authenticationService = inject(AuthenticationService);
 
   readonly contentForm = input<NgForm>();
   readonly flowAdvanced = viewChild<FlowConfig>("flowAdvanced");

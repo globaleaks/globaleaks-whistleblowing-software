@@ -13,7 +13,7 @@ import {UtilsService} from "@app/shared/services/utils.service";
 })
 export class NotificationTab1Component {
   protected notificationResolver = inject(NotificationsResolver);
-  private utilsService = inject(UtilsService);
+  private readonly utilsService = inject(UtilsService);
 
   readonly notificationForm = input.required<NgForm>();
 

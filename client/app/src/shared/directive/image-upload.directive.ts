@@ -9,8 +9,8 @@ import {ImageUploadComponent} from "@app/shared/partials/image-upload/image-uplo
     standalone: true,
 })
 export class ImageUploadDirective implements OnInit {
-  private viewContainerRef = inject(ViewContainerRef);
-  private componentFactoryResolver = inject(ComponentFactoryResolver);
+  private readonly viewContainerRef = inject(ViewContainerRef);
+  private readonly componentFactoryResolver = inject(ComponentFactoryResolver);
 
   readonly imageUploadModel = input.required<contextResolverModel | nodeResolverModel | User>();
   readonly imageUploadModelAttr = input.required<string>();

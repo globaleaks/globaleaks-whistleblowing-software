@@ -14,9 +14,9 @@ import {FormsModule} from "@angular/forms";
     imports: [TranslatePipe, FormsModule]
 })
 export class HttpsCsrGenComponent {
-  private authenticationService = inject(AuthenticationService);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
 
   readonly fileResources = input<FileResources>();
   protected readonly Constants = Constants;

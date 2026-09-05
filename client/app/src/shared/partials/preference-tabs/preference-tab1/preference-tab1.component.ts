@@ -28,15 +28,15 @@ import {NgSelectComponent} from "@ng-select/ng-select";
     imports: [FormsModule, NgSelectComponent, DatePipe, TranslateModule]
 })
 export class PreferenceTab1Component implements OnInit {
-  private cdr = inject(ChangeDetectorRef);
+  private readonly cdr = inject(ChangeDetectorRef);
   protected appConfigService = inject(AppConfigService);
-  private translateService = inject(TranslateService);
-  private httpService = inject(HttpService);
-  private twoFactorAuthData = inject(TwoFactorAuthData);
-  private modalService = inject(NgbModal);
+  private readonly translateService = inject(TranslateService);
+  private readonly httpService = inject(HttpService);
+  private readonly twoFactorAuthData = inject(TwoFactorAuthData);
+  private readonly modalService = inject(NgbModal);
   appDataService = inject(AppDataService);
   protected preferenceResolver = inject(PreferenceResolver);
-  private utilsService = inject(UtilsService);
+  private readonly utilsService = inject(UtilsService);
   protected authenticationService = inject(AuthenticationService);
 
 

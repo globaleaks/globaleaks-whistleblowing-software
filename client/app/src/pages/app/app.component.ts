@@ -49,20 +49,20 @@ window.GL = {
     imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, AuditorSidebarComponent, MessageConsoleComponent, DemoComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule]
 })
 export class AppComponent implements AfterViewInit, OnInit {
-  private renderScheduler = inject(RenderSchedulerService);
-  private document = inject<Document>(DOCUMENT);
-  private renderer = inject(Renderer2);
+  private readonly renderScheduler = inject(RenderSchedulerService);
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly renderer = inject(Renderer2);
   protected browserCheckService = inject(BrowserCheckService);
-  private router = inject(Router);
+  private readonly router = inject(Router);
   protected translate = inject(TranslateService);
   protected appConfig = inject(AppConfigService);
   protected appDataService = inject(AppDataService);
   protected utilsService = inject(UtilsService);
   protected authenticationService = inject(AuthenticationService);
-  private sessionActivity = inject(SessionActivityService);
-  private bodyDomObserver = inject(BodyDomObserverService);
-  private TrustedTypesService = inject(TrustedTypesService);
-  private wbTipResolver = inject(WbTipResolver);
+  private readonly sessionActivity = inject(SessionActivityService);
+  private readonly bodyDomObserver = inject(BodyDomObserverService);
+  private readonly TrustedTypesService = inject(TrustedTypesService);
+  private readonly wbTipResolver = inject(WbTipResolver);
 
   showSidebar = true;
   isNavCollapsed = true;

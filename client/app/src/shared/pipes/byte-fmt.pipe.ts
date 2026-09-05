@@ -6,7 +6,7 @@ import {Pipe, PipeTransform} from "@angular/core";
 })
 export class ByteFmtPipe implements PipeTransform {
 
-  private compared: [{ str: string; val: number; }];
+  private readonly compared: [{ str: string; val: number; }];
   isNumber = (value: string | number): boolean => typeof value === "number";
   convertToDecimal = (num: number, decimal: number): number => {
     return Math.round(num * Math.pow(10, decimal)) / (Math.pow(10, decimal));

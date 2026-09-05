@@ -18,8 +18,8 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, QuestionnairesListComponent, TranslateModule]
 })
 export class MainComponent {
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
   protected questionnairesResolver = inject(QuestionnairesResolver);
 
   readonly questionnairesData = computed(() => this.questionnairesResolver.resource.value());

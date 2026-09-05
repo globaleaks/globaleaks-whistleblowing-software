@@ -7,8 +7,8 @@ import {Observable, of} from "rxjs";
   providedIn: "root"
 })
 export class WhistleblowerLoginResolver {
-  private appDataService = inject(AppDataService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly authenticationService = inject(AuthenticationService);
 
 
   resolve(): Observable<boolean> {

@@ -17,8 +17,8 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, TranslateModule]
 })
 export class AddFieldComponent {
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
 
   readonly step = input<Step>();
   readonly fields = input<fieldtemplatesResolverModel[]>();

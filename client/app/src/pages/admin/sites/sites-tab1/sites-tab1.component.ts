@@ -16,8 +16,8 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, SiteslistComponent, TranslateModule]
 })
 export class SitesTab1Component implements OnInit {
-  private httpService = inject(HttpService);
-  private activatedRoute = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   newTenant: { name: string, active: boolean, profile: string, subdomain: string, is_profile: boolean} = {
     name: "",

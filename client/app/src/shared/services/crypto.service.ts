@@ -8,7 +8,7 @@ import {switchMap} from "rxjs/operators";
 })
 export class CryptoService {
   private worker: Worker;
-  private pendingRequests = new Map<string, { resolve: (result: any) => void, reject: (error: any) => void }>();
+  private readonly pendingRequests = new Map<string, { resolve: (result: any) => void, reject: (error: any) => void }>();
   private messageId = 0;
 
   initializeWorker() {

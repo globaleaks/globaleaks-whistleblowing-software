@@ -9,8 +9,8 @@ import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistica
   providedIn: "root"
 })
 export class StatisticalTemplatesResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: statisticalTemplateResolverModel[] = [];
 

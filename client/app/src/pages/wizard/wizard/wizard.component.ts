@@ -24,16 +24,16 @@ import {CryptoService} from "@app/shared/services/crypto.service";
     imports: [FormsModule, NgbTooltipModule, ProfileComponent, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule]
 })
 export class WizardComponent implements OnInit {
-  private titleService = inject(TitleService);
-  private translationService = inject(TranslationService);
-  private router = inject(Router);
-  private http = inject(HttpClient);
-  private authenticationService = inject(AuthenticationService);
-  private httpService = inject(HttpService);
+  private readonly titleService = inject(TitleService);
+  private readonly translationService = inject(TranslationService);
+  private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
   protected appDataService = inject(AppDataService);
   protected appConfigService = inject(AppConfigService);
-  private utilsService = inject(UtilsService);
-  private cryptoService = inject(CryptoService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly cryptoService = inject(CryptoService);
 
   step = 1;
   emailRegexp = Constants.emailRegexp;

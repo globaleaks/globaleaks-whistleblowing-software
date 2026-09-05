@@ -22,10 +22,10 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, StepsComponent, TranslateModule, ListItemComponent]
 })
 export class QuestionnairesListComponent {
-  private authenticationService = inject(AuthenticationService);
-  private modalService = inject(NgbModal);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
 
   readonly questionnaire = input.required<questionnaireResolverModel>();
   readonly questionnaires = input<questionnaireResolverModel[]>();

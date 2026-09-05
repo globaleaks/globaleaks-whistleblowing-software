@@ -5,7 +5,7 @@ import {FieldUtilitiesService} from "@app/shared/services/field-utilities.servic
   providedIn: 'root'
 })
 export class TipService {
-  private fieldUtilities = inject(FieldUtilitiesService);
+  private readonly fieldUtilities = inject(FieldUtilitiesService);
 
   filterNotTriggeredField(tip: any, parent: any, field: any, answers: any, partOfIdentityQuestion: boolean): void {
     let i;

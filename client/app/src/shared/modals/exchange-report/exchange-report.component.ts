@@ -46,10 +46,10 @@ interface ExchangeTarget {
   imports: [FormsModule, NgClass, NgFormChangeDirective, FormComponent, TranslateModule, OrderByPipe]
 })
 export class ExchangeReportComponent implements OnInit, OnDestroy {
-  private cdr = inject(ChangeDetectorRef);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
-  private http = inject(HttpClient);
-  private router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
   protected activeModal = inject(NgbActiveModal);
   protected utilsService = inject(UtilsService);
   protected whistleblowerSubmissionService = inject(WhistleblowerSubmissionService);

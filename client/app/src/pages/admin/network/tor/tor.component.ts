@@ -15,8 +15,8 @@ import {FormsModule} from "@angular/forms";
 })
 export class TorComponent implements OnInit {
   protected nodeResolver = inject(NodeResolver);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
 
   torOnionResetInProgress = false;
   networkData: networkResolverModel;

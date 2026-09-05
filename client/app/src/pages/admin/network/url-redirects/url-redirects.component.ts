@@ -13,7 +13,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [TranslatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent]
 })
 export class UrlRedirectsComponent implements OnInit {
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
 
   redirectData: redirectResolverModel[] = [];
   showAddRedirect = false;

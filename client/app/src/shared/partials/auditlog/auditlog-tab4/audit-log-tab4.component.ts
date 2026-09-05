@@ -14,8 +14,8 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [DatePipe, PaginatedInterfaceComponent, TranslateModule]
 })
 export class AuditLogTab4Component {
-  private utilsService = inject(UtilsService);
-  private jobResolver = inject(JobResolver);
+  private readonly utilsService = inject(UtilsService);
+  private readonly jobResolver = inject(JobResolver);
 
   readonly jobs = computed(() => this.jobResolver.resource.value());
 
