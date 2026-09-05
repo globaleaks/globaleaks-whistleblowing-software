@@ -1,7 +1,7 @@
 import {Injectable, OutputEmitterRef, inject} from "@angular/core";
 import Flow from "@flowjs/flow.js";
 import {TranslateService} from "@ngx-translate/core";
-import {Router} from "@angular/router";
+import {RouteReuseStrategy, Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {RequestSupportComponent} from "@app/shared/modals/request-support/request-support.component";
 import {HttpService} from "@app/shared/services/http.service";
@@ -48,6 +48,7 @@ export class UtilsService {
   private readonly modalService = inject(NgbModal);
   private readonly preferenceResolver = inject(PreferenceResolver);
   private readonly router = inject(Router);
+  private readonly routeReuseStrategy = inject(RouteReuseStrategy);
 
   supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
 
@@ -210,7 +211,7 @@ export class UtilsService {
   }
 
   reloadComponent() {
-    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+    this.routeReuseStrategy.shouldReuseRoute = function () {
       return false;
     };
 
