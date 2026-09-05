@@ -490,7 +490,7 @@ def db_redact_comment(session, tid, user_id, itip_id, redaction, redaction_data,
 
     content = redact_content(currentMaskedContent.get('content'), new_permanent_redaction)
 
-    comment = session.query(models.Comment).get(redaction_data['reference_id'])
+    comment = session.get(models.Comment, redaction_data['reference_id'])
     comment.content = Base64Encoder.encode(GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, content)).decode()
 
 
@@ -1287,7 +1287,7 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
     """
     user, rtip, itip = db_access_rtip(session, tid, user_id, redaction_data['internaltip_id'])
 
-    redaction = session.query(models.Redaction).get(redaction_id)
+    redaction = session.get(models.Redaction, redaction_id)
 
     operation = redaction_data['operation']
     content_type = redaction_data['content_type']
