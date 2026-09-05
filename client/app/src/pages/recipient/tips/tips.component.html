@@ -33,7 +33,7 @@
       <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
         <ng-template #header>
           <tr>
-            <th>
+            <th scope="col">
               @if (selectedTips.length !== RTips.dataModel.length ) {
                 <button type="button" class="icon-action" id="tip-action-select-all" (click)="selectAll()" ngbTooltip="{{'Select all' | translate}}">
                   <i class="fas fa-square"></i>
@@ -45,20 +45,20 @@
                 </button>
              }
             </th>
-            <th appTableHeader [state]="table" [label]="'Important' | translate" icon="fa-star" [labelHidden]="true" sortBy="important"></th>
-            <th appTableHeader [state]="table" [label]="'Reminder date' | translate" icon="fa-bell" [labelHidden]="true" sortBy="reminder_date"></th>
-            <th appTableHeader class="TipInfoContext" [state]="table" [label]="'Channel' | translate" icon="fa-inbox" sortBy="context_name" filter="context_name" [options]="channelOptions"></th>
-            <th appTableHeader class="TipInfoID" [state]="table" [label]="'ID' | translate" icon="fa-hashtag" [labelHidden]="true" sortBy="channel_progressive_sort_key"></th>
-            <th appTableHeader class="TipInfoLabel" [state]="table" [label]="'Label' | translate" icon="fa-tag" sortBy="label"></th>
-            <th appTableHeader class="TipInfoStatus" [state]="table" [label]="'Status' | translate" icon="fa-circle-dot" sortBy="submissionStatusStr" filter="submissionStatusStr" [options]="statusOptions"></th>
-            <th appTableHeader class="TipInfoSubmissionDate" [state]="table" [label]="'Report date' | translate" icon="fa-clock" sortBy="creation_date" filter="creation_date"></th>
-            <th appTableHeader class="TipInfoUpdateDate" [state]="table" [label]="'Last update' | translate" icon="fa-clock" sortBy="update_date" filter="update_date"></th>
-            <th appTableHeader class="TipInfoExpirationDate" [state]="table" [label]="'Expiration date' | translate" icon="fa-hourglass" sortBy="expiration_date" filter="expiration_date"></th>
-            <th appTableHeader class="TipInfoReadReceipt" [state]="table" [label]="'Read receipt' | translate" icon="fa-envelope-circle-check" [labelHidden]="true"></th>
-            <th appTableHeader class="TipInfoIdentity" [state]="table" [label]="'Identity' | translate" icon="fa-user" [labelHidden]="true"></th>
-            <th appTableHeader class="TipInfoRecipientCount" [state]="table" [label]="'Recipients' | translate" icon="fa-users" [labelHidden]="true" sortBy="receiver_count"></th>
+            <th scope="col" appTableHeader [state]="table" [label]="'Important' | translate" icon="fa-star" [labelHidden]="true" sortBy="important"></th>
+            <th scope="col" appTableHeader [state]="table" [label]="'Reminder date' | translate" icon="fa-bell" [labelHidden]="true" sortBy="reminder_date"></th>
+            <th scope="col" appTableHeader class="TipInfoContext" [state]="table" [label]="'Channel' | translate" icon="fa-inbox" sortBy="context_name" filter="context_name" [options]="channelOptions"></th>
+            <th scope="col" appTableHeader class="TipInfoID" [state]="table" [label]="'ID' | translate" icon="fa-hashtag" [labelHidden]="true" sortBy="channel_progressive_sort_key"></th>
+            <th scope="col" appTableHeader class="TipInfoLabel" [state]="table" [label]="'Label' | translate" icon="fa-tag" sortBy="label"></th>
+            <th scope="col" appTableHeader class="TipInfoStatus" [state]="table" [label]="'Status' | translate" icon="fa-circle-dot" sortBy="submissionStatusStr" filter="submissionStatusStr" [options]="statusOptions"></th>
+            <th scope="col" appTableHeader class="TipInfoSubmissionDate" [state]="table" [label]="'Report date' | translate" icon="fa-clock" sortBy="creation_date" filter="creation_date"></th>
+            <th scope="col" appTableHeader class="TipInfoUpdateDate" [state]="table" [label]="'Last update' | translate" icon="fa-clock" sortBy="update_date" filter="update_date"></th>
+            <th scope="col" appTableHeader class="TipInfoExpirationDate" [state]="table" [label]="'Expiration date' | translate" icon="fa-hourglass" sortBy="expiration_date" filter="expiration_date"></th>
+            <th scope="col" appTableHeader class="TipInfoReadReceipt" [state]="table" [label]="'Read receipt' | translate" icon="fa-envelope-circle-check" [labelHidden]="true"></th>
+            <th scope="col" appTableHeader class="TipInfoIdentity" [state]="table" [label]="'Identity' | translate" icon="fa-user" [labelHidden]="true"></th>
+            <th scope="col" appTableHeader class="TipInfoRecipientCount" [state]="table" [label]="'Recipients' | translate" icon="fa-users" [labelHidden]="true" sortBy="receiver_count"></th>
             @if (appDataService.public.node.enable_scoring_system) {
-              <th appTableHeader class="TipInfoScore" [state]="table" [label]="'Score' | translate" icon="fa-ranking-star" sortBy="score" filter="score" [options]="scoreOptions"></th>
+              <th scope="col" appTableHeader class="TipInfoScore" [state]="table" [label]="'Score' | translate" icon="fa-ranking-star" sortBy="score" filter="score" [options]="scoreOptions"></th>
             }
           </tr>
         </ng-template>

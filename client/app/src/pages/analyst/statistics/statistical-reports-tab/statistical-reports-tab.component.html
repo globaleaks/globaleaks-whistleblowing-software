@@ -88,10 +88,10 @@
     </ng-template>
     <ng-template #header>
       <tr>
-        <th appTableHeader [state]="table" [label]="'Creation date' | translate" sortBy="creation_date" filter="creation_date"></th>
-        <th appTableHeader [state]="table" [label]="'Title' | translate" sortBy="label"></th>
-        <th appTableHeader [state]="table" [label]="'Template' | translate" sortBy="template" filter="template" [options]="templateOptions"></th>
-        <th></th>
+        <th scope="col" appTableHeader [state]="table" [label]="'Creation date' | translate" sortBy="creation_date" filter="creation_date"></th>
+        <th scope="col" appTableHeader [state]="table" [label]="'Title' | translate" sortBy="label"></th>
+        <th scope="col" appTableHeader [state]="table" [label]="'Template' | translate" sortBy="template" filter="template" [options]="templateOptions"></th>
+        <th scope="col"></th>
       </tr>
     </ng-template>
     <ng-template #content let-row="item" let-index="index">
