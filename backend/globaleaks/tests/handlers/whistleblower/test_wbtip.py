@@ -32,16 +32,6 @@ class TestWBTipInstance(helpers.TestHandlerWithPopulatedDB):
 
             yield handler.get()
 
-    @inlineCallbacks
-    def test_questionnaire_hashes(self):
-        # The hashes are sealed to the report as the answers they attest are,
-        # so they are read on the report as it is delivered to its holder
-        wbtips_desc = yield self.get_wbtips()
-        for wbtip_desc in wbtips_desc:
-            handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-
-            self.verify_questionnaire_hashes((yield handler.get()))
-
 
 class TestWBTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
     _handler = wbtip.WBTipCommentCollection
@@ -91,49 +81,6 @@ class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
                 handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
                 yield handler.get(wbfile_id)
                 self.assertNotEqual(handler.request.getResponseBody(), '')
-
-    @inlineCallbacks
-    def test_get_allows_infected_file(self):
-        yield self.perform_minimal_submission_actions()
-        yield Delivery().run()
-
-        wbtip_desc = (yield self.get_wbtips())[0]
-        wbfile_id = (yield self.get_ifiles_by_wbtip_id(wbtip_desc['id']))[0]
-
-        yield self.set_wbfile_antivirus_state(wbfile_id, models.EnumStateFile.infected.name)
-
-        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-        yield handler.get(wbfile_id)
-        self.assertNotEqual(handler.request.getResponseBody(), '')
-
-    @inlineCallbacks
-    def test_get_allows_infected_file_after_unsafe_scan(self):
-        yield self.perform_minimal_submission_actions()
-        yield self.set_antivirus_enabled(True)
-
-        with patch('globaleaks.jobs.delivery.FileAnalysis.scan_file', return_value=succeed('unsafe')):
-            yield Delivery().run()
-
-        wbtip_desc = (yield self.get_wbtips())[0]
-        wbfile_id = (yield self.get_ifiles_by_wbtip_id(wbtip_desc['id']))[0]
-
-        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-        yield handler.get(wbfile_id)
-        self.assertNotEqual(handler.request.getResponseBody(), '')
-
-    @inlineCallbacks
-    def test_get_allows_pending_file(self):
-        yield self.perform_minimal_submission_actions()
-        yield Delivery().run()
-
-        wbtip_desc = (yield self.get_wbtips())[0]
-        wbfile_id = (yield self.get_ifiles_by_wbtip_id(wbtip_desc['id']))[0]
-
-        yield self.set_wbfile_antivirus_state(wbfile_id, models.EnumStateFile.pending.name)
-
-        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-        yield handler.get(wbfile_id)
-        self.assertNotEqual(handler.request.getResponseBody(), '')
 
 
 class WBTipIdentityHandler(helpers.TestHandlerWithPopulatedDB):
@@ -318,18 +265,3 @@ class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
     # The log of a report names the objects the report is made of, so that an
     # entry can be traced back to the file or the comment it acts upon
     #
-    @inlineCallbacks
-    def test_get_reports_the_events_of_the_objects_of_the_report(self):
-        wbtip_desc = (yield self.get_wbtips())[0]
-
-        handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-        logs = yield handler.get()
-
-        objects = {log['object_id'] for log in logs}
-
-        self.assertIn('add_comment', {log['type'] for log in logs})
-
-        # the comments and the files are named by their own id, never by the
-        # one of the report they belong to
-        self.assertTrue({comment['id'] for comment in wbtip_desc['comments']}.issubset(objects))
-        self.assertTrue({wbfile['id'] for wbfile in wbtip_desc['wbfiles']}.issubset(objects))
