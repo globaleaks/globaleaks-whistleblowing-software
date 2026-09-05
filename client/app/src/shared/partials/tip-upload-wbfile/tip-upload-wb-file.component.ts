@@ -37,8 +37,8 @@ export class TipUploadWbFileComponent {
   errorFile: FlowFile | null;
 
   onFileSelected(files: FileList | null) {
-    if (files && files.length > 0) {
-      const file = files[0];
+    const file = files?.[0];
+    if (file) {
       const flowJsInstance = this.utilsService.getFlowInstance({
         target: "api/recipient/rtips/" + this.tip().id + "/rfiles",
         singleFile: true,
