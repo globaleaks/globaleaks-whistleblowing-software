@@ -81,7 +81,7 @@
       </span>
       @if (expandedRequestId === request.id) {
         <div class="mt-3 pt-3 border-top">
-          <src-support-thread [request]="request" viewer="user" [(draft)]="replyDrafts[request.id]" (send)="sendFollowup(request, $event)"></src-support-thread>
+          <src-support-thread [request]="request" viewer="user" [draft]="replyDrafts[request.id] ?? ''" (draftChange)="replyDrafts[request.id] = $event" (send)="sendFollowup(request, $event)"></src-support-thread>
         </div>
       }
     </src-collapsible-card>
