@@ -24,7 +24,7 @@
             </span>
           }
         </span>
-        @if (authentication.session?.role !== 'whistleblower' && !authentication.session?.properties.management_session) {
+        @if (authentication.session?.role !== 'whistleblower' && !authentication.session?.properties?.management_session) {
           <span id="PreferencesLinkBox">
             <a id="PreferencesLink" [href]="'#'+authentication.session?.preferencespage" ngbTooltip="{{'Preferences' | translate}}" [attr.aria-label]="'Preferences' | translate">
               <i class="fas fa-user"></i>
