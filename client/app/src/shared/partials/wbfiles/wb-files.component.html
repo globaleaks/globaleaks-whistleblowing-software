@@ -77,7 +77,7 @@
       @if (receivers_by_id()[wbFile().author_id]) {
         <span>
           <span>{{ 'From' | translate }}</span>:
-          <span>{{ receivers_by_id()[wbFile().author_id].name }}</span>
+          <span>{{ receivers_by_id()[wbFile().author_id]?.name }}</span>
         </span>
       }
 

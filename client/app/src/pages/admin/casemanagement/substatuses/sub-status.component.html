@@ -42,7 +42,7 @@
   <div class="row">
     @for (substatus of submissionsStatus().substatuses; track substatus; let index = $index; let first = $first; let last = $last) {
       <div class="col-md-12">
-        <src-list-item class="substatus" [(editing)]="subStatusEditing[index]" [saveDisabled]="!substatus.label.length" (save)="saveSubmissionsSubStatus(substatus)" (deleted)="deleteSubSubmissionStatus(substatus)">
+        <src-list-item class="substatus" [editing]="subStatusEditing[index] ?? false" (editingChange)="subStatusEditing[index] = $event" [saveDisabled]="!substatus.label.length" (save)="saveSubmissionsSubStatus(substatus)" (deleted)="deleteSubSubmissionStatus(substatus)">
           <ng-container title>
             <span class="substatusLabel">{{substatus.label}}</span>
           </ng-container>
