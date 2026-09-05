@@ -8,6 +8,7 @@ from globaleaks.handlers.support import db_reconcile_support_user_access, \
 from globaleaks.handlers.user import serialize_user_profile, \
                                      user_permissions
 from globaleaks.models import config, UserProfile
+from globaleaks.models.config import DEFAULT_PROFILE_ID
 from globaleaks.orm import db_get, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.sessions import Sessions
@@ -275,7 +276,14 @@ def db_resolve_default_user_profile(session, tid):
 
     # Profile reference: create the user with the role and profile
     # of the referenced user profile
-    profile = session.query(models.UserProfile).filter(models.UserProfile.id == default_user_profile).one_or_none()
+    tids = {tid, DEFAULT_PROFILE_ID}
+    pid = config.db_get_pid(session, tid)
+    if pid:
+        tids.add(pid)
+
+    profile = session.query(models.UserProfile) \
+                     .filter(models.UserProfile.id == default_user_profile,
+                             models.UserProfile.tid.in_(tids)).one_or_none()
     if profile is None:
         raise errors.InputValidationError
 
@@ -312,7 +320,7 @@ def delete_user_profile(session, tid, profile_id):
     profile = session.query(models.UserProfile).filter(models.UserProfile.tid == tid, models.UserProfile.id == profile_id).first()
 
     if not profile:
-        raise ValueError
+        raise errors.ResourceNotFound
 
     if session.query(models.User).filter(models.User.profile_id == profile_id).first():
         raise errors.ForbiddenOperation
