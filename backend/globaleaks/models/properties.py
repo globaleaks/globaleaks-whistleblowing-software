@@ -5,10 +5,7 @@ from sqlalchemy import Column, CheckConstraint, ForeignKeyConstraint, UniqueCons
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import Boolean, DateTime, Integer, LargeBinary, UnicodeText
 
-try:
-    from sqlalchemy.orm import declarative_base, declared_attr
-except ImportError:
-    from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.orm import declarative_base, declared_attr
 
 from globaleaks.utils.utility import uuid4
 # pylint: enable=unused-import
