@@ -1187,6 +1187,52 @@ def set_reminder(session, tid, user_id, itip_id, reminder_date):
     db_set_reminder(session, itip, reminder_date)
 
 
+def db_decide_request(session, tid, user_id, itip, value):
+    """
+    Authorize or deny a request: decided by the recipients of the receiving site only; the issuing
+    site follows the outcome and the recipient that composed the request never grants it
+
+    :param session: An ORM session
+    :param tid: A tenant ID of the user performing the operation
+    :param user_id: A user ID of the user performing the operation
+    :param itip: The request
+    :param value: Whether the request is authorized
+    """
+    if itip.type != 'request' or tid != itip.tid or \
+            user_id == itip.operator_id:
+        raise errors.ForbiddenOperation
+
+    request_data = session.query(models.InternalTipData) \
+                          .filter(models.InternalTipData.internaltip_id == itip.id,
+                                  models.InternalTipData.key == 'request') \
+                          .one_or_none()
+    if request_data is None:
+        raise errors.InputValidationError("Missing request metadata")
+
+    try:
+        source_tid = int(request_data.value.get('source_tid'))
+    except (TypeError, ValueError):
+        raise errors.InputValidationError("Invalid request source")
+
+    # The authorization enables a single report; the request stays a request
+    itip.allow_transmission = bool(value)
+    itip.update_date = datetime_now()
+
+    # Denying closes the request and frees the issuer to file another; authorizing reopens it
+    db_update_submission_status(session, tid, user_id, itip,
+                                'opened' if itip.allow_transmission else 'closed')
+
+    log_type = 'report_request_authorized' if itip.allow_transmission else \
+        'report_request_denied'
+
+    db_log(session, tid=tid, type=log_type,
+           user_id=user_id, object_id=itip.id, data={'source_tid': source_tid})
+
+    if source_tid != tid:
+        db_log(session, tid=source_tid, type=log_type,
+               user_id=None, object_id=itip.id, data={'authorizing_tid': tid})
+
+
 @transact
 def set_internaltip_variable(session, tid, user_id, itip_id, key, value):
     """
@@ -1202,41 +1248,7 @@ def set_internaltip_variable(session, tid, user_id, itip_id, key, value):
     user, _, itip = db_access_rtip(session, tid, user_id, itip_id)
 
     if key == 'allow_transmission':
-        # Authorized by the recipients of the receiving site only; the issuing site follows the
-        # outcome and the recipient that composed the request never grants it
-        if itip.type != 'request' or tid != itip.tid or \
-                user_id == itip.operator_id:
-            raise errors.ForbiddenOperation
-
-        request_data = session.query(models.InternalTipData) \
-                              .filter(models.InternalTipData.internaltip_id == itip.id,
-                                      models.InternalTipData.key == 'request') \
-                              .one_or_none()
-        if request_data is None:
-            raise errors.InputValidationError("Missing request metadata")
-
-        try:
-            source_tid = int(request_data.value.get('source_tid'))
-        except (TypeError, ValueError):
-            raise errors.InputValidationError("Invalid request source")
-
-        # The authorization enables a single report; the request stays a request
-        itip.allow_transmission = bool(value)
-        itip.update_date = datetime_now()
-
-        # Denying closes the request and frees the issuer to file another; authorizing reopens it
-        db_update_submission_status(session, tid, user_id, itip,
-                                    'opened' if itip.allow_transmission else 'closed')
-
-        log_type = 'report_request_authorized' if itip.allow_transmission else \
-            'report_request_denied'
-
-        db_log(session, tid=tid, type=log_type,
-               user_id=user_id, object_id=itip.id, data={'source_tid': source_tid})
-
-        if source_tid != tid:
-            db_log(session, tid=source_tid, type=log_type,
-                   user_id=None, object_id=itip.id, data={'authorizing_tid': tid})
+        db_decide_request(session, tid, user_id, itip, value)
         return
 
     if key in ('label', 'important'):
