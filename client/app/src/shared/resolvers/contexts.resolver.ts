@@ -14,6 +14,6 @@ export class ContextsResolver extends ResourceResolver<contextResolverModel[]> {
   }
 
   protected allowed(): boolean {
-    return this.authenticationService.session.role === "admin";
+    return this.authenticationService.session?.role === "admin";
   }
 }

@@ -117,7 +117,7 @@ export class TipAuditLogComponent implements OnInit {
 
   loadAuditLogData() {
     // Determine which API endpoint to use based on user role
-    const userRole = this.authenticationService.session.role;
+    const userRole = this.authenticationService.session?.role;
 
     if (userRole === 'receiver' && this.tipId) {
       // Use recipient audit log API

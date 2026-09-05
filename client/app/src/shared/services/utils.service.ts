@@ -177,7 +177,7 @@ export class UtilsService {
 
   view(authenticationService: AuthenticationService, url: string, _: string, callback: (blob: Blob) => void): void {
     const headers = new HttpHeaders({
-      "x-session": authenticationService.session.id
+      "x-session": authenticationService.session?.id ?? ""
     });
 
     this.httpService.requestBlobResource(url, headers).subscribe(
@@ -456,7 +456,7 @@ export class UtilsService {
 
   saveAs(authenticationService: AuthenticationService, filename: any, url: string): void {
     const headers = new HttpHeaders({
-      "X-Session": authenticationService.session.id
+      "X-Session": authenticationService.session?.id ?? ""
     });
 
     this.httpService.requestBlobResource(url, headers).subscribe(
@@ -867,7 +867,7 @@ export class UtilsService {
         next: token => {
           this.cryptoService.proofOfWork(token).subscribe(
               (ans) => {
-               const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
+               const url = this.authenticationService.session?.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
                 window.open(url + file.id + "?token=" + token.id + ":" + ans);
                 this.appDataService.updateShowLoadingPanel(false);
               }
@@ -925,7 +925,7 @@ export class UtilsService {
         });
       },
       headers:(_file: any, chunk: any) => {
-        const headers: Record<string, string> = {"X-Session": this.authenticationService.session.id};
+        const headers: Record<string, string> = {"X-Session": this.authenticationService.session?.id ?? ""};
         if (chunk && chunk.dpopProof) {
           headers["DPoP"] = chunk.dpopProof;
         }
