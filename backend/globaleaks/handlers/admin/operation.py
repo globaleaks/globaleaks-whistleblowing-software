@@ -139,14 +139,14 @@ def toggle_escrow(session, tid, user_session):
 
         if tid == 1:
             user.crypto_escrow_bkp1_key = crypto_escrow_bkp_key
-            session.query(models.User).filter(models.User.id != user_session.user_id).update({'password_change_needed': True}, synchronize_session=False)  # nosec B105
+            session.query(models.User).filter(models.User.id != user_session.user_id).update({models.User.password_change_needed: True}, synchronize_session=False)
         else:
             user.crypto_escrow_bkp2_key = crypto_escrow_bkp_key
             root_config_escrow = root_config.get_val('crypto_escrow_pub_key')
             if root_config_escrow:
                 config.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_config_escrow, crypto_escrow_prv_key)))
 
-            session.query(models.User).filter(models.User.tid == tid, models.User.id != user_session.user_id).update({'password_change_needed': True}, synchronize_session=False)  # nosec B105
+            session.query(models.User).filter(models.User.tid == tid, models.User.id != user_session.user_id).update({models.User.password_change_needed: True}, synchronize_session=False)
 
     else:
         # Only protected users may dismantle key escrow. When protected users
@@ -336,26 +336,32 @@ class AdminOperationHandler(OperationHandler):
     check_roles = 'admin'
     invalidate_cache = True
 
-    # Each operation is gated on the permission of its area, not on a class-wide one
-    operation_permissions = {
-        'enable_encryption': 'can_manage_settings',
-        'reset_submissions': 'can_manage_settings',
-        'reset_backups': 'can_manage_settings',
-        'toggle_escrow': 'can_manage_settings',
-        'toggle_user_escrow': 'can_manage_settings',
-        'validate_idp': 'can_manage_settings',
-        'set_hostname': 'can_manage_network',
-        'reset_onion_private_key': 'can_manage_network',
-        'test_mail': 'can_manage_notifications',
-        'reset_templates': 'can_manage_notifications',
-        'set_user_password': 'can_manage_users',  # nosec B105
-        'send_password_reset_email': 'can_manage_users',  # nosec B105
-        'disable_2fa': 'can_manage_users',
-        'reset_idp_binding': 'can_manage_users',
-        'enable_user_permission_file_upload': 'can_manage_users',
-        'disable_user_permission_file_upload': 'can_manage_users',
-        'set_default_statistical_template': 'can_configure_statistical_report_templates'
+    # Each operation is gated on the permission of its area, not on a class-wide one: the
+    # operations are grouped under the permission gating them, and the map the base handler
+    # reads is derived from the grouping
+    permission_operations = {
+        'can_manage_settings': ['enable_encryption',
+                                'reset_submissions',
+                                'reset_backups',
+                                'toggle_escrow',
+                                'toggle_user_escrow',
+                                'validate_idp'],
+        'can_manage_network': ['set_hostname',
+                               'reset_onion_private_key'],
+        'can_manage_notifications': ['test_mail',
+                                     'reset_templates'],
+        'can_manage_users': ['set_user_password',
+                             'send_password_reset_email',
+                             'disable_2fa',
+                             'reset_idp_binding',
+                             'enable_user_permission_file_upload',
+                             'disable_user_permission_file_upload'],
+        'can_configure_statistical_report_templates': ['set_default_statistical_template']
     }
+
+    operation_permissions = {operation: permission
+                             for permission, operations in permission_operations.items()
+                             for operation in operations}
 
     require_confirmation = [
         'enable_encryption',
