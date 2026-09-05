@@ -477,39 +477,27 @@ def initialize_config(session, tid, data):
             session.add(Config({'tid': tid, 'var_name': name, 'value': value}))
 
 
-def load_defaults(session, appdata):
-    # The variables no longer defined by the application are dropped at every
-    # update, so that the migrations do not need to retire them
-    session.query(Config).filter(Config.var_name.notin_(list(ConfigDescriptor.keys()))).delete(synchronize_session=False)
-
-    l10n_keys = list({key for keys in ConfigL10NFilters.values() for key in keys})
-    session.query(ConfigL10N).filter(ConfigL10N.var_name.notin_(l10n_keys)).delete(synchronize_session=False)
-
-    session.query(Config).filter(Config.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
-    session.query(ConfigL10N).filter(ConfigL10N.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
-
-    keys = ConfigDescriptor.keys()
-    for key in keys:
-        session.add(Config({'tid': DEFAULT_PROFILE_ID, 'var_name': key, 'value': get_default(ConfigDescriptor[key].default)}))
-
+def _load_default_texts(session, appdata):
+    """
+    Load on the default profile the texts of the node and of the notification templates, in every
+    language supported; a template the translation has not reached holds its source language,
+    served instead of an empty text
+    """
     for lang in LANGUAGES_SUPPORTED_CODES:
         for d in ['node', 'notification']:
-            keys = ConfigL10NFilters[d]
+            data = appdata['templates'] if d == 'notification' else appdata[d]
 
-            if d == 'notification':
-                data = appdata['templates']
-            else:
-                data = appdata[d]
-
-            for k in keys:
-                # A template the translation has not reached holds its source language, served
-                # instead of an empty text
+            for k in ConfigL10NFilters[d]:
                 value = data.get(k, {}).get(lang) or data.get(k, {}).get('en', '')
                 if value:
                     session.add(ConfigL10N({'tid': DEFAULT_PROFILE_ID, 'lang': lang, 'var_name': k, 'value': value}))
 
-    session.flush()
 
+def _drop_inherited_values(session):
+    """
+    Drop from the tenants the values they hold equal to the default, or empty: they resolve them
+    from the default profile
+    """
     subquery = session.query(
         Config.var_name,
         Config.value
@@ -526,6 +514,27 @@ def load_defaults(session, appdata):
     )
 
     session.execute(stmt.execution_options(synchronize_session=False))
+
+
+def load_defaults(session, appdata):
+    # The variables no longer defined by the application are dropped at every
+    # update, so that the migrations do not need to retire them
+    session.query(Config).filter(Config.var_name.notin_(list(ConfigDescriptor.keys()))).delete(synchronize_session=False)
+
+    l10n_keys = list({key for keys in ConfigL10NFilters.values() for key in keys})
+    session.query(ConfigL10N).filter(ConfigL10N.var_name.notin_(l10n_keys)).delete(synchronize_session=False)
+
+    session.query(Config).filter(Config.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
+    session.query(ConfigL10N).filter(ConfigL10N.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
+
+    for key in ConfigDescriptor:
+        session.add(Config({'tid': DEFAULT_PROFILE_ID, 'var_name': key, 'value': get_default(ConfigDescriptor[key].default)}))
+
+    _load_default_texts(session, appdata)
+
+    session.flush()
+
+    _drop_inherited_values(session)
 
     subquery = session.query(
         ConfigL10N.var_name,

@@ -75,56 +75,90 @@ def _extract_entry_answer_value(field_type, entry):
     return entry.get('value')
 
 
-def extract_statistical_data(session, tid:int, answers:dict):
-    def collect_answer_entries(answer_map):
-        collected = {}
-        if not isinstance(answer_map, dict):
-            return collected
+def _collect_answer_entries(answer_map):
+    """
+    Collect the first entry of every field answered, at any depth
 
-        for field_id, entries in answer_map.items():
-            if not re.match(requests.uuid_regexp, field_id) or not isinstance(entries, list) or not entries:
-                continue
-
-            first_entry = entries[0]
-            if isinstance(first_entry, dict):
-                collected[field_id] = first_entry
-
-                nested = collect_answer_entries(first_entry)
-                if nested:
-                    collected.update(nested)
-
+    :param answer_map: The answers of a questionnaire
+    :return: The first entry of each field, by field id
+    """
+    collected = {}
+    if not isinstance(answer_map, dict):
         return collected
 
-    answer_entries = collect_answer_entries(answers)
-    answer_field_ids = list(answer_entries.keys())
-    if not answer_field_ids:
+    for field_id, entries in answer_map.items():
+        if not re.match(requests.uuid_regexp, field_id) or not isinstance(entries, list) or not entries:
+            continue
+
+        first_entry = entries[0]
+        if isinstance(first_entry, dict):
+            collected[field_id] = first_entry
+            collected.update(_collect_answer_entries(first_entry))
+
+    return collected
+
+
+def _db_get_statistical_fields(session, tid, field_ids):
+    """
+    Describe some fields by what makes them statistical: their own flag and, for a choice
+    referencing a template, the flag of the template
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param field_ids: The fields
+    :return: The description of each field, by field id
+    """
+    template_field = aliased(models.Field)
+    rows = session.query(models.Field.id, models.Field.type, models.Field.template_id, models.Field.instance, models.Field.statistical, template_field.statistical) \
+                  .outerjoin(template_field, template_field.id == models.Field.template_id) \
+                  .filter(models.Field.tid.in_({1, tid}), models.Field.id.in_(field_ids)) \
+                  .all()
+
+    return {field_id: {'type': field_type, 'template_id': template_id, 'instance': instance, 'field_statistical': field_statistical, 'template_statistical': template_statistical}
+            for field_id, field_type, template_id, instance, field_statistical, template_statistical in rows}
+
+
+def _statistical_answer(field_data, entry):
+    """
+    Return the statistical value of an answer and the template it counts for too, if any
+
+    :param field_data: The description of the field answered
+    :param entry: The answer
+    :return: The value, None when the answer is not statistical, and the template
+    """
+    is_template_choice = (field_data['type'] in STATISTICAL_CHOICE_TYPES and field_data['instance'] == 'reference' and field_data['template_id'])
+    counts_for_template = is_template_choice and bool(field_data['template_statistical'])
+    if not (bool(field_data['field_statistical']) or counts_for_template):
+        return None, None
+
+    answer_value = _extract_entry_answer_value(field_data['type'], entry)
+    if answer_value in (None, '', []):
+        return None, None
+
+    return answer_value, field_data['template_id'] if counts_for_template else None
+
+
+def extract_statistical_data(session, tid:int, answers:dict):
+    answer_entries = _collect_answer_entries(answers)
+    if not answer_entries:
         return {}
 
-    template_field = aliased(models.Field)
-    statistical_fields = session.query(models.Field.id, models.Field.type, models.Field.template_id, models.Field.instance, models.Field.statistical, template_field.statistical).outerjoin(template_field, template_field.id == models.Field.template_id).filter(models.Field.tid.in_({1, tid}), models.Field.id.in_(answer_field_ids)).all()
+    statistical_fields_by_id = _db_get_statistical_fields(session, tid, list(answer_entries.keys()))
 
-    statistical_fields_by_id = {field_id: {'type': field_type, 'template_id': template_id, 'instance': instance, 'field_statistical': field_statistical, 'template_statistical': template_statistical} for field_id, field_type, template_id, instance, field_statistical, template_statistical in statistical_fields}
     answers_dict = dict()
     for k, entry in answer_entries.items():
-        if k not in statistical_fields_by_id:
+        field_data = statistical_fields_by_id.get(k)
+        if field_data is None:
             continue
 
-        field_data = statistical_fields_by_id[k]
-        is_template_choice = (field_data['type'] in STATISTICAL_CHOICE_TYPES and field_data['instance'] == 'reference' and field_data['template_id'])
-        include_in_statistical_data = bool(field_data['field_statistical']) or (is_template_choice and bool(field_data['template_statistical']))
-        if not include_in_statistical_data:
-            continue
-
-        answer_value = _extract_entry_answer_value(field_data['type'], entry)
-        if answer_value in (None, '', []):
+        answer_value, template_id = _statistical_answer(field_data, entry)
+        if answer_value is None:
             continue
 
         answers_dict[k] = answer_value
 
-        if is_template_choice and field_data['template_statistical']:
-            template_key = 'template:{}'.format(field_data['template_id'])
-            if template_key not in answers_dict:
-                answers_dict[template_key] = answer_value
+        if template_id:
+            answers_dict.setdefault(f'template:{template_id}', answer_value)
 
     return answers_dict
 

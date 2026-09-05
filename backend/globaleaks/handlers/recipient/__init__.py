@@ -221,6 +221,46 @@ def get_receivertips(session, tid, user_session, language, args=None):
     return ret
 
 
+def db_grant_tips_access(session, tid, user_session, tips, receiver_id, log_data):
+    """
+    Grant a recipient access to some reports, announcing it once
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_session: The session of the recipient that grants
+    :param tips: The reports, paired with the access of the recipient that grants
+    :param receiver_id: The recipient granted
+    :param log_data: The data logged with each grant
+    """
+    notified = False
+    for itip, rtip in tips:
+        new_receiver, _ = db_grant_tip_access(session, tid, user_session, itip, rtip, receiver_id)
+        if not new_receiver:
+            continue
+
+        db_log(session, tid=tid, type='grant_access', user_id=user_session.user_id, object_id=itip.id, data=log_data)
+
+        if not notified:
+            db_notify_grant_access(session, new_receiver)
+            notified = True
+
+
+def db_revoke_tips_access(session, tid, user_id, tips, receiver_id, log_data):
+    """
+    Revoke from a recipient the access to some reports
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_id: The recipient that revokes
+    :param tips: The reports, paired with the access of the recipient that revokes
+    :param receiver_id: The recipient revoked
+    :param log_data: The data logged with each revocation
+    """
+    for itip, _ in tips:
+        if db_revoke_tip_access(session, tid, user_id, itip, receiver_id):
+            db_log(session, tid=tid, type='revoke_access', user_id=user_id, object_id=itip.id, data=log_data)
+
+
 @transact
 def perform_tips_operation(session, tid, user_session, user_cc, operation, args):
     """
@@ -233,35 +273,24 @@ def perform_tips_operation(session, tid, user_session, user_cc, operation, args)
     :param operation: An operation command (grant/revoke)
     :param args: The operation arguments
     """
+    if operation not in ('grant', 'revoke') or not user_session.permissions.can_grant_access_to_reports:
+        raise errors.ForbiddenOperation
+
     user_id = user_session.user_id
 
     log_data = {
         'recipient_id': args['receiver']
     }
 
-    result = session.query(models.InternalTip, models.ReceiverTip) \
-                                 .filter(models.ReceiverTip.receiver_id == user_id,
-                                         models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                         models.InternalTip.id.in_(args['rtips']))
+    tips = session.query(models.InternalTip, models.ReceiverTip) \
+                  .filter(models.ReceiverTip.receiver_id == user_id,
+                          models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                          models.InternalTip.id.in_(args['rtips']))
 
-    if operation == 'grant' and user_session.permissions.can_grant_access_to_reports:
-        notified = False
-        for itip, rtip in result:
-           new_receiver, _ = db_grant_tip_access(session, tid, user_session, itip, rtip, args['receiver'])
-           if new_receiver:
-                db_log(session, tid=tid, type='grant_access', user_id=user_id, object_id=itip.id, data=log_data)
-
-                if not notified:
-                    db_notify_grant_access(session, new_receiver)
-                    notified = True
-
-    elif operation == 'revoke' and user_session.permissions.can_grant_access_to_reports:
-        for itip, _ in result:
-            if db_revoke_tip_access(session, tid, user_id, itip, args['receiver']):
-                db_log(session, tid=tid, type='revoke_access', user_id=user_id, object_id=itip.id, data=log_data)
-
+    if operation == 'grant':
+        db_grant_tips_access(session, tid, user_session, tips, args['receiver'], log_data)
     else:
-        raise errors.ForbiddenOperation
+        db_revoke_tips_access(session, tid, user_id, tips, args['receiver'], log_data)
 
 
 class TipsCollection(BaseHandler):
