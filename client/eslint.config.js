@@ -51,6 +51,18 @@ module.exports = tseslint.config(
     },
   },
   {
+    files: ["cypress/**/*.ts"],
+    rules: {
+      // A Cypress chain is a thenable, not a promise: it is enqueued, never
+      // awaited, and the promise rules would flag every command.
+      "@typescript-eslint/no-floating-promises": "off",
+      "@typescript-eslint/no-misused-promises": "off",
+      // Reported, not enforced: the synchronous Cypress.env() reads are
+      // replaced by cy.env() when the suite is reworked for Cypress 15.
+      "@typescript-eslint/no-deprecated": "warn",
+    },
+  },
+  {
     files: ["**/*.html"],
     extends: [
       ...angular.configs.templateRecommended,
