@@ -7,7 +7,7 @@ import {OAuthService, OAuthStorage} from "angular-oauth2-oidc";
 export type IdpContext = "login" | "signup";
 
 class TenantOAuthStorage implements OAuthStorage {
-  constructor(private prefix: string) {}
+  constructor(private readonly prefix: string) {}
 
   getItem(key: string): string | null {
     return window.sessionStorage.getItem(this.prefix + key);
@@ -26,10 +26,10 @@ class TenantOAuthStorage implements OAuthStorage {
   providedIn: "root"
 })
 export class IdpService {
-  private appDataService = inject(AppDataService);
-  private location = inject(Location);
-  private oauthService = inject(OAuthService);
-  private router = inject(Router);
+  private readonly appDataService = inject(AppDataService);
+  private readonly location = inject(Location);
+  private readonly oauthService = inject(OAuthService);
+  private readonly router = inject(Router);
 
   private configurationKey = "";
   private storagePrefix = "";

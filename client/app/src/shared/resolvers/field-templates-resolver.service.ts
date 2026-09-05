@@ -9,8 +9,8 @@ import {fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-
   providedIn: "root"
 })
 export class FieldTemplatesResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: fieldtemplatesResolverModel[];
 

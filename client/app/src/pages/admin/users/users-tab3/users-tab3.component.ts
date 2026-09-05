@@ -12,8 +12,8 @@ import {TranslatePipe} from "@ngx-translate/core";
     imports: [FormsModule, TranslatePipe]
 })
 export class UsersTab3Component implements OnInit {
-  private nodeResolver = inject(NodeResolver);
-  private utilsService = inject(UtilsService);
+  private readonly nodeResolver = inject(NodeResolver);
+  private readonly utilsService = inject(UtilsService);
 
   nodeData: nodeResolverModel;
 

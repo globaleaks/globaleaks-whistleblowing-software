@@ -20,13 +20,13 @@ import {ErrorCodes} from "@app/models/app/error-code";
 })
 export class SignupComponent implements OnInit {
   protected appDataService = inject(AppDataService);
-  private httpService = inject(HttpService);
-  private appConfig = inject(AppConfigService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private oauthService = inject(OAuthService);
-  private idpService = inject(IdpService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly httpService = inject(HttpService);
+  private readonly appConfig = inject(AppConfigService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly oauthService = inject(OAuthService);
+  private readonly idpService = inject(IdpService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   hostname = "";
   completed = false;

@@ -17,7 +17,7 @@ import {ListItemComponent} from "@app/shared/components/list-item/list-item.comp
     imports: [TranslatePipe, FormsModule, NgbTooltipModule, ListItemComponent]
 })
 export class SubStatusComponent implements OnInit {
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
   protected modalService = inject(NgbModal);
   protected utilsService = inject(UtilsService);
 

@@ -53,12 +53,12 @@ interface GroupedAuditLogEntry extends AuditLogEntry {
 })
 
 export class TipAuditLogComponent implements OnInit {
-  private activeModal = inject(NgbActiveModal);
-  private translateService = inject(TranslateService);
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
-  private utilsService = inject(UtilsService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly translateService = inject(TranslateService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   @Input() tipId = '';
   @Input() tipData: any = null; // Will receive the tip data from parent

@@ -7,7 +7,7 @@ import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
   providedIn: "root"
 })
 export class NetworkResolver extends ResourceResolver<networkResolverModel> {
-  private authenticationService = inject(AuthenticationService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   constructor() {
     super("api/admin/network", new networkResolverModel());

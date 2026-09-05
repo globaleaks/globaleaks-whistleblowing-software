@@ -56,8 +56,8 @@ import {
   providedIn: "root"
 })
 export class HttpService {
-  private httpClient = inject(HttpClient);
-  private router = inject(Router);
+  private readonly httpClient = inject(HttpClient);
+  private readonly router = inject(Router);
 
 
   getPublicResource(): Observable<HttpResponse<Root>> {

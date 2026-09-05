@@ -12,9 +12,9 @@ import {TranslatePipe} from "@ngx-translate/core";
     imports: [TranslatePipe]
 })
 export class MessageConsoleComponent implements AfterViewChecked {
-  private cdr = inject(ChangeDetectorRef);
-  private element = inject(ElementRef);
-  private liveAnnouncer = inject(LiveAnnouncer);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly element = inject(ElementRef);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
   appDataService = inject(AppDataService);
 
   private timeoutId: any;

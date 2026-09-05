@@ -6,8 +6,8 @@ import {NgModel} from "@angular/forms";
     standalone: true
 })
 export class SubdomainValidatorDirective {
-  private el = inject(ElementRef);
-  private ngModel = inject(NgModel);
+  private readonly el = inject(ElementRef);
+  private readonly ngModel = inject(NgModel);
 
 
   @HostListener("input")

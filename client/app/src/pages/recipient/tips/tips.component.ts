@@ -29,15 +29,15 @@ import {InsertReportComponent} from "@app/shared/modals/insert-report/insert-rep
 export class TipsComponent implements OnInit {
   protected authenticationService = inject(AuthenticationService);
   protected httpService = inject(HttpService);
-  private appConfigServices = inject(AppConfigService);
-  private router = inject(Router);
+  private readonly appConfigServices = inject(AppConfigService);
+  private readonly router = inject(Router);
   protected RTips = inject(RTipsResolver);
   protected preferencesService = inject(PreferenceResolver);
-  private modalService = inject(NgbModal);
+  private readonly modalService = inject(NgbModal);
   protected utils = inject(UtilsService);
   protected appDataService = inject(AppDataService);
-  private translateService = inject(TranslateService);
-  private tokenResourceService = inject(TokenResource);
+  private readonly translateService = inject(TranslateService);
+  private readonly tokenResourceService = inject(TokenResource);
 
   selectedTips: string[] = [];
   index: number;

@@ -14,8 +14,8 @@ import {TranslatePipe} from "@ngx-translate/core";
     imports: [NgSelectComponent, FormsModule, NgLabelTemplateDirective, TranslatePipe]
 })
 export class GrantAccessComponent {
-  private modalService = inject(NgbModal);
-  private utils = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly utils = inject(UtilsService);
 
 
   usersNames: Record<string, string>;

@@ -19,11 +19,10 @@ import {TranslatePipe} from '@ngx-translate/core';
 ],
 })
 export class RedactInformationComponent implements OnInit{
-  private maskService = inject(MaskService);
+  private readonly maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);
-  private modalService = inject(NgbModal);
-  private receiverTipService = inject(ReceiverTipService);
-  private httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly receiverTipService = inject(ReceiverTipService);
 
   readonly redactTextArea = viewChild.required<ElementRef>('redact');
   arg: any;

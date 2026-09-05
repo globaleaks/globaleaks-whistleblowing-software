@@ -20,7 +20,7 @@ import {Tab8Component} from "@app/pages/admin/settings/tab8/tab8.component";
     imports: [TabsComponent, TabDirective, FormsModule, Tab1Component, Tab2Component, Tab3Component, Tab4Component, Tab5Component, Tab6Component, Tab7Component, Tab8Component]
 })
 export class AdminSettingsComponent {
-  private node = inject(NodeResolver);
+  private readonly node = inject(NodeResolver);
 
   protected isAdmin = inject(AuthenticationService).session.role === "admin";
 

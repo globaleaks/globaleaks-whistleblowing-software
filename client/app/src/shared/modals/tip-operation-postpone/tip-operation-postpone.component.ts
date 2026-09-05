@@ -12,9 +12,9 @@ import {TranslatePipe} from "@ngx-translate/core";
     imports: [NgbInputDatepicker, FormsModule, TranslatePipe]
 })
 export class TipOperationPostponeComponent implements OnInit {
-  private modalService = inject(NgbModal);
-  private httpService = inject(HttpService);
-  private utils = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
+  private readonly utils = inject(UtilsService);
 
   args: any;
 

@@ -14,9 +14,9 @@ import {TranslatePipe} from "@ngx-translate/core";
     imports: [FormsModule, NgbTooltipModule, TranslatePipe]
 })
 export class PasswordResetResponseComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private httpService = inject(HttpService);
-  private router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
+  private readonly router = inject(Router);
   protected utilsService = inject(UtilsService);
 
   state = "start";

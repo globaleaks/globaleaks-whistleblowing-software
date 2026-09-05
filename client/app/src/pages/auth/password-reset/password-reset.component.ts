@@ -13,7 +13,7 @@ import {TranslatePipe} from "@ngx-translate/core";
     imports: [FormsModule, NgbTooltipModule, TranslatePipe]
 })
 export class PasswordResetComponent {
-  private authenticationService = inject(AuthenticationService);
+  private readonly authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
 
