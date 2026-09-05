@@ -44,6 +44,10 @@ module.exports = tseslint.config(
       "@typescript-eslint/prefer-readonly": "error",
       // Deprecated APIs break at the next major: fix them as they appear.
       "@typescript-eslint/no-deprecated": "error",
+      // A promise nobody awaits or catches fails in silence: mark the
+      // fire-and-forget ones with `void`, handle the others.
+      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-misused-promises": "error",
     },
   },
   {
