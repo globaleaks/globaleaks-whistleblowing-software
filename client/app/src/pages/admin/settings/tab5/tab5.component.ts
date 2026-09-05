@@ -23,10 +23,10 @@ export class Tab5Component implements OnInit {
   idpProvisioning = false;
 
   protected utilsService = inject(UtilsService);
-  private authenticationService = inject(AuthenticationService);
-  private appConfigService = inject(AppConfigService);
-  private appDataService = inject(AppDataService);
-  private nodeResolver = inject(NodeResolver);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly nodeResolver = inject(NodeResolver);
 
   ngOnInit(): void {
     this.nodeData = this.nodeResolver.dataModel;

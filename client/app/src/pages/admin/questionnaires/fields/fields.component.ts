@@ -30,14 +30,14 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, NgbInputDatepicker, NgbTooltipModule, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, OrderByPipe, TranslateModule, ListItemComponent]
 })
 export class FieldsComponent implements OnInit {
-  private authenticationService = inject(AuthenticationService);
-  private modalService = inject(NgbModal);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly modalService = inject(NgbModal);
   nodeResolver = inject(NodeResolver);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private cdr = inject(ChangeDetectorRef);
-  private fieldTemplates = inject(FieldTemplatesResolver);
-  private fieldUtilities = inject(FieldUtilitiesService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly fieldTemplates = inject(FieldTemplatesResolver);
+  private readonly fieldUtilities = inject(FieldUtilitiesService);
 
   readonly editField = input.required<NgForm>();
   readonly field = input.required<Children | Step | Field>();

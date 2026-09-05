@@ -16,9 +16,9 @@ import {HttpClient} from "@angular/common/http";
   imports: [FormsModule, PaginatedInterfaceComponent, ProfilelistComponent, NgbTooltipModule, TranslateModule]
 })
 export class SitesTab2Component implements OnInit {
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private http = inject(HttpClient);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly http = inject(HttpClient);
 
   newTenant: { name: string, active: boolean, profile: string, subdomain: string, is_profile: boolean} = {
     name: "",

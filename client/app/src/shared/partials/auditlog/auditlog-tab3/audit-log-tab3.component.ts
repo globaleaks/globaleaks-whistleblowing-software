@@ -17,7 +17,7 @@ import {TableFilterOption, TableState} from "@app/shared/components/table/table-
     imports: [DatePipe, NgbTooltipModule, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule]
 })
 export class AuditLogTab3Component implements OnInit {
-  private tipsResolver = inject(TipsResolver);
+  private readonly tipsResolver = inject(TipsResolver);
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
 

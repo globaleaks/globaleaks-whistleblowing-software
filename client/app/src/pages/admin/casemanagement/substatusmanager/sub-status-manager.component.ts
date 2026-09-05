@@ -19,10 +19,10 @@ import {ListItemComponent} from "@app/shared/components/list-item/list-item.comp
     imports: [TranslatePipe, FormsModule, NgbTooltipModule, SubStatusComponent, ListItemComponent]
 })
 export class SubStatusManagerComponent {
-  private appDataServices = inject(AppDataService);
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
-  private utilsService = inject(UtilsService);
+  private readonly appDataServices = inject(AppDataService);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly utilsService = inject(UtilsService);
 
   editing = false;
   readonly submissionsStatus = input.required<Status>();

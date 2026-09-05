@@ -26,7 +26,7 @@ import {AutoExpandDirective} from "@app/shared/directive/auto-expand.directive";
     imports: [AutoExpandDirective, FormsModule, forwardRef(() => WhistleblowerIdentityFieldComponent), NgbTooltipModule, NgSelectComponent, NgOptionComponent, NgbInputDatepicker, MarkdownComponent, VoiceRecorderComponent, RFileUploadButtonComponent, forwardRef(() => FormComponent), TranslateModule, StripHtmlPipe, OrderByPipe]
 })
 export class FormFieldInputComponent implements OnInit {
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
 
 
   readonly field = input<any>();

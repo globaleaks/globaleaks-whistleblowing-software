@@ -12,8 +12,8 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, TranslateModule]
 })
 export class QuestionnaireDuplicationComponent {
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
 
   questionnaire: questionnaireResolverModel;
   operation: string;

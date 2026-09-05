@@ -5,7 +5,7 @@ import {NgbDatepickerI18n, NgbDateStruct} from '@ng-bootstrap/ng-bootstrap';
 
 @Injectable()
 export class CustomDatepickerI18n extends NgbDatepickerI18n {
-  private translationService = inject(TranslationService);
+  private readonly translationService = inject(TranslationService);
 
   private locale: string;
 

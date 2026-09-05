@@ -17,7 +17,7 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 export class HomepageComponent  implements OnInit {
   protected appConfigService = inject(AppConfigService);
   protected appDataService = inject(AppDataService);
-  private router = inject(Router);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
     if (this.appDataService.public.node.homepage === '/submission') {

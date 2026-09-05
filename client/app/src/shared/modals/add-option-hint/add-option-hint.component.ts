@@ -11,8 +11,8 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, TranslateModule]
 })
 export class AddOptionHintComponent {
-  private activeModal = inject(NgbActiveModal);
-  private modalService = inject(NgbModal);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly modalService = inject(NgbModal);
 
   confirmFunction: (data: Option) => void;
   arg: Option;

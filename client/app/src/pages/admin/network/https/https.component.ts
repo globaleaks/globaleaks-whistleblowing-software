@@ -19,8 +19,8 @@ import {HttpsFilesComponent} from "../https-files/https-files.component";
 })
 export class HttpsComponent implements OnInit {
   protected nodeResolver = inject(NodeResolver);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
 
   protected readonly Constants = Constants;

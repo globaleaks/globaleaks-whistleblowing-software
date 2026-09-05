@@ -13,8 +13,8 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
     imports: [TabsComponent, TabDirective, FormsModule, Tab1Component]
 })
 export class RecipientSettingsComponent {
-  private preferenceResolver = inject(PreferenceResolver);
-  private router = inject(Router);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly router = inject(Router);
 
   constructor() {
     if (!this.preferenceResolver.dataModel.profile.permissions.can_manage_settings) {

@@ -22,10 +22,10 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 export class ProfilelistComponent {
   protected nodeResolver = inject(NodeResolver);
   protected appDataService = inject(AppDataService);
-  private modalService = inject(NgbModal);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   @Input() editTenant: NgForm;
   @Input() tenant: tenantResolverModel;

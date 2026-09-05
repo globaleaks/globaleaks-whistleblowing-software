@@ -21,8 +21,8 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     imports: [CollapsiblePanelComponent, WbFilesComponent, FormsModule, NgbTooltipModule, NgxFlowModule, TranslateModule, OrderByPipe, FilterPipe]
 })
 export class TipUploadWbFileComponent {
-  private cdr = inject(ChangeDetectorRef);
-  private authenticationService = inject(AuthenticationService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
   protected tipService = inject(ReceiverTipService);

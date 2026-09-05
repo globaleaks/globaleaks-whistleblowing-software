@@ -15,8 +15,8 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [NgSelectComponent, FormsModule, NgLabelTemplateDirective, TranslateModule]
 })
 export class RevokeAccessComponent {
-  private modalService = inject(NgbModal);
-  private utils = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly utils = inject(UtilsService);
 
 
 
