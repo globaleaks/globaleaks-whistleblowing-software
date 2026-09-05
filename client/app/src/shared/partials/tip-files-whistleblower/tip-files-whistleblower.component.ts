@@ -36,7 +36,7 @@ export class TipFilesWhistleblowerComponent {
 
     const param = JSON.stringify({});
     this.httpService.requestToken(param).subscribe({
-        next: async token => {
+        next: token => {
           this.cryptoService.proofOfWork(token).subscribe(
               (ans) => {
                 window.open("api/whistleblower/wbtip/wbfiles/" + wbFile.id + "?token=" + token.id + ":" + ans);

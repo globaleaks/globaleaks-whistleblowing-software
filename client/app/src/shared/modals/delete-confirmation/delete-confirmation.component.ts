@@ -81,7 +81,7 @@ export class DeleteConfirmationComponent implements OnInit {
       if (args.operation === "delete") {
         return this.httpService.requestDeleteReceiverTip(args.tip.id)
           .subscribe(() => {
-            this.router.navigate(["/recipient/reports"]).then();
+            void this.router.navigate(["/recipient/reports"]);
           });
       }
       return;

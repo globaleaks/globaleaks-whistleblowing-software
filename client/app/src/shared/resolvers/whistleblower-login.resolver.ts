@@ -14,7 +14,7 @@ export class WhistleblowerLoginResolver {
   resolve(): Observable<boolean> {
     if (this.appDataService.page === "submissionpage") {
       setTimeout(() => {
-        this.authenticationService.login(0, "whistleblower", "");
+        void this.authenticationService.login(0, "whistleblower", "");
       }, 0);
     }
     return of(true);

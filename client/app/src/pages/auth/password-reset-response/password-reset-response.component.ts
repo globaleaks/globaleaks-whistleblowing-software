@@ -32,7 +32,7 @@ export class PasswordResetResponseComponent implements OnInit {
       {
         next: response => {
           if (response.status === "success") {
-            this.router.navigate([("/login")], {queryParams: {token: response.token}}).then();
+            void this.router.navigate([("/login")], {queryParams: {token: response.token}});
           } else {
             if (response.status === "require_recovery_key") {
               this.request.recovery_key = "";

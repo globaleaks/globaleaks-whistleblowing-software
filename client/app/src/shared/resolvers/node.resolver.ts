@@ -33,7 +33,7 @@ export class NodeResolver extends ResourceResolver<nodeResolverModel> {
 
   protected override onError(error: unknown): Observable<boolean> {
     this.authenticationService.deleteSession();
-    this.router.navigateByUrl("/login").then();
+    void this.router.navigateByUrl("/login");
     return throwError(() => error);
   }
 }

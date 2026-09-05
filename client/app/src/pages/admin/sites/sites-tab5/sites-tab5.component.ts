@@ -371,7 +371,7 @@ export class SitesTab5Component implements OnInit {
 
     // A channel of this platform is reached in the open session; one of another site by entering it
     if (row.target.id === 1) {
-      this.router.navigate(["/admin/channels"], {queryParams: {id: channel}});
+      void this.router.navigate(["/admin/channels"], {queryParams: {id: channel}});
       return;
     }
 
