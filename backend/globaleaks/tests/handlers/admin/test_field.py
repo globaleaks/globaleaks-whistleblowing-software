@@ -375,3 +375,48 @@ class TestTemplateSerializationDepth(helpers.TestHandler):
 
         # Must not raise RecursionError
         yield serialize_field_with_templates(1, top)
+
+
+class TestFieldTemplateReference(helpers.TestGLWithPopulatedDB):
+    """
+    A field is derived from a template the site reaches: one of its own, or one
+    of the templates the platform offers to everyone
+    """
+
+    @inlineCallbacks
+    def test_a_template_of_the_site_is_referenced(self):
+        values = helpers.get_dummy_field()
+        values['instance'] = 'template'
+        template = yield create_field(1, values, 'en')
+
+        values = helpers.get_dummy_field()
+        values['instance'] = 'reference'
+        values['template_id'] = template['id']
+        values['step_id'] = yield get_id_of_first_step_of_questionnaire('default')
+
+        field = yield create_field(1, values, 'en')
+        self.assertIn('id', field)
+
+    @inlineCallbacks
+    def test_a_template_of_another_site_is_refused(self):
+        values = helpers.get_dummy_field()
+        values['instance'] = 'template'
+        elsewhere = yield create_field(2, values, 'en')
+
+        values = helpers.get_dummy_field()
+        values['instance'] = 'reference'
+        values['template_id'] = elsewhere['id']
+        values['step_id'] = yield get_id_of_first_step_of_questionnaire('default')
+
+        yield self.assertFailure(create_field(1, values, 'en'),
+                                 errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_a_template_that_is_not_there_is_refused(self):
+        values = helpers.get_dummy_field()
+        values['instance'] = 'reference'
+        values['template_id'] = 'x' * 36
+        values['step_id'] = yield get_id_of_first_step_of_questionnaire('default')
+
+        yield self.assertFailure(create_field(1, values, 'en'),
+                                 errors.InputValidationError)

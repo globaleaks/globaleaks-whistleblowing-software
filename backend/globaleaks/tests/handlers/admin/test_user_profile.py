@@ -313,3 +313,46 @@ class TestAssignableProfile(helpers.TestGLWithPopulatedDB):
 
         yield self.assertFailure(self.assign(1, operator, profile, 'admin'),
                                  errors.ForbiddenOperation)
+
+
+class TestDefaultProfileResolution(helpers.TestGLWithPopulatedDB):
+    """
+    The profile a site assigns to the accounts it provisions is one it reaches
+    """
+
+    @transact
+    def resolve(self, session, tid, value):
+        models_config.db_set_config_variable(session, tid, 'default_user_profile', value)
+
+        return user_profile.db_resolve_default_user_profile(session, tid)
+
+    @inlineCallbacks
+    def test_a_role_is_resolved_to_itself(self):
+        role, profile = yield self.resolve(1, 'analyst')
+
+        self.assertEqual(role, 'analyst')
+        self.assertEqual(profile, '')
+
+    @inlineCallbacks
+    def test_a_profile_of_the_site_is_resolved(self):
+        created = yield create_profile(1, profile_desc(name='Provisioned'))
+
+        role, profile = yield self.resolve(1, created)
+
+        self.assertEqual(role, 'receiver')
+        self.assertEqual(profile, created)
+
+    @inlineCallbacks
+    def test_a_profile_of_another_site_is_refused(self):
+        # The value is configuration and not a request, but it names an object
+        # of a site: one that lives elsewhere is not resolved into a binding
+        created = yield create_profile(2, profile_desc(name='Elsewhere'))
+
+        yield self.assertFailure(self.resolve(1, created), errors.InputValidationError)
+
+
+class TestProfileDeletion(helpers.TestGLWithPopulatedDB):
+    @inlineCallbacks
+    def test_a_profile_that_is_not_there_is_not_found(self):
+        yield self.assertFailure(user_profile.delete_user_profile(1, 'x' * 36),
+                                 errors.ResourceNotFound)
