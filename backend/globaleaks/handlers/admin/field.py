@@ -318,7 +318,12 @@ def db_create_field(session, tid, request, language):
             if field is not None:
                 raise errors.InputValidationError("Whistleblower identity field already present")
 
-        template = session.query(models.Field).filter(models.Field.id == request['template_id']).one()
+        template = session.query(models.Field) \
+                          .filter(models.Field.id == request['template_id'],
+                                  models.Field.tid.in_({1, tid})).one_or_none()
+        if template is None:
+            raise errors.InputValidationError("Invalid template reference")
+
         request['statistical'] = template.statistical
 
         field = db_add(session, models.Field, request)
