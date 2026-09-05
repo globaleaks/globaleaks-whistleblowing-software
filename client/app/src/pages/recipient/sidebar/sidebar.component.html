@@ -1,22 +1,22 @@
-<a routerLink="/recipient/home" routerLinkActive="active" id="recipient_home" [class.active]="isActive('/recipient/home')" [attr.aria-current]="isActive('/recipient/home') ? 'page' : 'false'">
+<a routerLink="/recipient/home" routerLinkActive="active" ariaCurrentWhenActive="page" id="recipient_home">
   <i class="fas fa-house"></i>
   <span>{{'Home' | translate}}</span>
 </a>
 @if (!nodeResolver.dataModel.is_profile) {
   @if (isTransmitter()) {
-    <a routerLink="/recipient/transmissions" routerLinkActive="active" id="recipient_transmissions" [class.active]="isActive('/recipient/transmissions')" [attr.aria-current]="isActive('/recipient/transmissions') ? 'page' : 'false'">
+    <a routerLink="/recipient/transmissions" routerLinkActive="active" ariaCurrentWhenActive="page" id="recipient_transmissions">
       <i class="fas fa-share"></i>
       <span>{{'Transmissions' | translate}}</span>
     </a>
   } @else {
-    <a routerLink="/recipient/reports" routerLinkActive="active" id="recipient_reports" [class.active]="isActive('/recipient/reports')" [attr.aria-current]="isActive('/recipient/reports') ? 'page' : 'false'">
+    <a routerLink="/recipient/reports" routerLinkActive="active" ariaCurrentWhenActive="page" id="recipient_reports">
       <i class="fas fa-inbox"></i>
       <span>{{'Reports' | translate}}</span>
     </a>
   }
 }
 @if (preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
-  <a routerLink="/recipient/settings" routerLinkActive="active" id="recipient_settings" [class.active]="isActive('/recipient/settings')" [attr.aria-current]="isActive('/recipient/settings') ? 'page' : 'false'">
+  <a routerLink="/recipient/settings" routerLinkActive="active" ariaCurrentWhenActive="page" id="recipient_settings">
     <i class="fas fa-sliders"></i>
     <span>{{'Settings' | translate}}</span>
   </a>
