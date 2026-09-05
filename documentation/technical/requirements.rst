@@ -21,7 +21,7 @@ GlobaLeaks is designed to run on GNU/Linux and is developed and tested specifica
 
 The currently recommended distributions are: `Debian 13 (Trixie) <https://www.debian.org/releases/trixie/>`_ and `Ubuntu 26.04 (Resolute) <https://releases.ubuntu.com/resolute/>`_
 
-The software lifecycle of the platform includes full support for all Debian and Ubuntu LTS versions starting from `Debian 11 <https://www.debian.org/releases/bullseye/>`_ and `Ubuntu 20.04 <https://releases.ubuntu.com/20.04/>`_.
+The software lifecycle of the platform includes full support for all Debian and Ubuntu LTS versions starting from `Debian 12 <https://www.debian.org/releases/bookworm/>`_ and `Ubuntu 22.04 <https://releases.ubuntu.com/22.04/>`_.
 
 Support is guaranteed on these platforms according to the official long-term support timelines:
 
