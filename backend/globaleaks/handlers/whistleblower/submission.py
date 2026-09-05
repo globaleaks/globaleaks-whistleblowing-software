@@ -163,56 +163,105 @@ def extract_statistical_data(session, tid:int, answers:dict):
     return answers_dict
 
 
+def _decrypt_value(tip_key, value):
+    """
+    Decrypt one datum of a report, encrypted to the key of the report
+    """
+    return GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(value.encode())).decode()
+
+
+def _decrypt_keys(tip_key, obj, keys):
+    """
+    Decrypt, in place, the data of an object of a report that carry a value
+    """
+    for k in keys:
+        if k in obj and obj[k]:
+            obj[k] = _decrypt_value(tip_key, obj[k])
+
+
+def _decrypt_tip_questionnaires(tip_key, tip):
+    """
+    Decrypt the answers of a report and index them as the client reads them
+    """
+    for questionnaire in tip['questionnaires']:
+        questionnaire['answers'] = json.loads(_decrypt_value(tip_key, questionnaire['answers']))
+        decrypt_hashes(tip_key, questionnaire)
+        index_answers(questionnaire['answers'])
+
+
+def _decrypt_tip_identity(tip_key, tip):
+    """
+    Decrypt the identity of the whistleblower, when it was provided
+    """
+    k = 'whistleblower_identity'
+    if not tip['data'].get(k):
+        return
+
+    tip['data'][k] = json.loads(_decrypt_value(tip_key, tip['data'][k]))
+
+    if isinstance(tip['data'][k], list):
+        # Fix for issue: https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2612
+        # The bug is due to the fact that the data was initially saved as an array of one entry
+        tip['data'][k] = tip['data'][k][0]
+
+    decrypt_hashes(tip_key, tip['data'], k + '_')
+
+
+def _decrypt_tip_receipt(tip_key, tip):
+    """
+    Decrypt the receipt handed to the whistleblower, when the report carries one
+    """
+    if not tip['data'].get('receipt'):
+        return
+
+    with contextlib.suppress(CryptoError, ValueError):
+        tip['data']['receipt'] = _decrypt_value(tip_key, tip['data']['receipt'])
+        decrypt_hashes(tip_key, tip['data'], 'receipt_')
+
+
+def _decrypt_tip_identity_access_request(tip_key, tip):
+    """
+    Decrypt the motivations of the request of access to the identity, when the report carries one
+    """
+    if 'iar' not in tip:
+        return
+
+    for k in ['request_motivation', 'reply_motivation']:
+        if not tip['iar'][k]:
+            continue
+
+        with contextlib.suppress(CryptoError, ValueError):
+            tip['iar'][k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['iar'][k])).decode()
+
+
+def _decrypt_tip_attachments(tip_key, tip):
+    """
+    Decrypt the metadata of the attachments of a report
+    """
+    for x in tip['wbfiles'] + tip['rfiles']:
+        _decrypt_keys(tip_key, x, ['name', 'description', 'type', 'size', 'hash_sha256', 'hash_sha512'])
+
+        if x.get('size'):
+            x['size'] = int(x['size'])
+
+
 def decrypt_tip(user_key, tip_prv_key, tip):
     tip_key = GCE.asymmetric_decrypt(user_key, tip_prv_key)
 
-    if 'label' in tip and tip['label']:
-        tip['label'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['label'].encode())).decode()
+    _decrypt_keys(tip_key, tip, ['label'])
 
-    for questionnaire in tip['questionnaires']:
-        questionnaire['answers'] = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(questionnaire['answers'].encode())).decode())
-        decrypt_hashes(tip_key, questionnaire)
+    _decrypt_tip_questionnaires(tip_key, tip)
 
-    for q in tip['questionnaires']:
-        index_answers(q['answers'])
+    _decrypt_tip_identity(tip_key, tip)
 
-    for k in ['whistleblower_identity']:
-        if k in tip['data'] and tip['data'][k]:
-            tip['data'][k] = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['data'][k].encode())).decode())
+    _decrypt_tip_receipt(tip_key, tip)
 
-            if k == 'whistleblower_identity' and isinstance(tip['data'][k], list):
-                # Fix for issue: https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/2612
-                # The bug is due to the fact that the data was initially saved as an array of one entry
-                tip['data'][k] = tip['data'][k][0]
-
-            decrypt_hashes(tip_key, tip['data'], k + '_')
-
-    if tip['data'].get('receipt'):
-        with contextlib.suppress(CryptoError, ValueError):
-            tip['data']['receipt'] = GCE.asymmetric_decrypt(
-                tip_key, Base64Encoder.decode(tip['data']['receipt'].encode())).decode()
-            decrypt_hashes(tip_key, tip['data'], 'receipt_')
-
-    if 'iar' in tip:
-        if tip['iar']['request_motivation']:
-            with contextlib.suppress(CryptoError, ValueError):
-                tip['iar']['request_motivation'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['iar']['request_motivation'])).decode()
-
-        if tip['iar']['reply_motivation']:
-            with contextlib.suppress(CryptoError, ValueError):
-                tip['iar']['reply_motivation'] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(tip['iar']['reply_motivation'])).decode()
+    _decrypt_tip_identity_access_request(tip_key, tip)
 
     for x in tip['comments']:
-        for k in ['content', 'hash_sha256', 'hash_sha512']:
-            if k in x and x[k]:
-                x[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x[k].encode())).decode()
+        _decrypt_keys(tip_key, x, ['content', 'hash_sha256', 'hash_sha512'])
 
-    for x in tip['wbfiles'] + tip['rfiles']:
-        for k in ['name', 'description', 'type', 'size', 'hash_sha256', 'hash_sha512']:
-            if k in x and x[k]:
-                x[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(x[k].encode())).decode()
-                if k == 'size':
-                    x[k] = int(x[k])
+    _decrypt_tip_attachments(tip_key, tip)
 
     return tip
 
