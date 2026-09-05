@@ -26,7 +26,7 @@ def select_http01_chall(orderr):
             if isinstance(i.chall, challenges.HTTP01):
                 return i
 
-    raise Exception('HTTP-01 challenge was not offered by the CA server.')
+    raise RuntimeError('HTTP-01 challenge was not offered by the CA server.')
 
 
 def split_certificate_chain(full_chain_pem):
