@@ -366,19 +366,19 @@ class MigrationScript(MigrationBase):
 
         return min(EXPIRATION_ALERT_DAYS, key=lambda d: abs(d - days))
 
-    def elect_additional_questionnaires(self, Context, known):
+    def elect_additional_questionnaires(self, context_model, known):
         """
         Turn the additional questionnaire each channel names into its election, joining the set it
         is elected from
 
-        :param Context: The model of the channels
+        :param context_model: The model of the channels
         :param known: The questionnaires that exist
         :return: The questionnaire composing the reports and the automatic one, by channel
         """
         from globaleaks.models import ContextAdditionalQuestionnaire
 
         questionnaires = {}
-        for context in self.session_new.query(Context):
+        for context in self.session_new.query(context_model):
             automatic = context.additional_questionnaire_id or ''
 
             # A channel could name a questionnaire that is no longer there: the
