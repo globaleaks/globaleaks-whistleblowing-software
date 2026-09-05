@@ -159,9 +159,9 @@
         @if (canChangeLabel()) {
         <div id="TipLabelBox" class="float-start">
           <span class="input-group ms-1">
-            <input id="assignLabelInput" type="text" class="form-control m-0" placeholder="{{'Label' | translate}}" [(ngModel)]="RTipService.tip.label" />
+            <input id="assignLabelInput" type="text" class="form-control m-0" [attr.aria-label]="'Label' | translate" placeholder="{{'Label' | translate}}" [(ngModel)]="RTipService.tip.label" />
             <button id="assignLabelButton" ngbTooltip="{{'Label the report' | translate}} " class="btn btn-primary rounded-start-0 m-0" name="tip.label" (click)="updateLabel(RTipService.tip.label)" [attr.aria-label]="'Label the report' | translate">
-                <i class="fas fa-tag" aria-hidden="true"></i>
+              <i class="fas fa-tag" aria-hidden="true"></i>
             </button>
           </span>
         </div>
@@ -233,7 +233,7 @@
     @if (tip && tip.exchanges && tip.exchanges.length) {
       <div class="row">
         <div class="col-md-12">
-          <div srcCollapsiblePanel id="TipCommunicationsBox" class="card card-default" [collapsed]="communicationsCollapsed" [label]="'Communications with other organizations' | translate" (toggled)="communicationsCollapsed = !communicationsCollapsed">
+          <div srcCollapsiblePanel id="TipCommunicationsBox" class="card" [collapsed]="communicationsCollapsed" [label]="'Communications with other organizations' | translate" (toggled)="communicationsCollapsed = !communicationsCollapsed">
             @if (!communicationsCollapsed) {
               <div class="card-body">
                 <table class="table table-hover">
