@@ -57,7 +57,7 @@ export class Tab4Component implements OnInit {
       const list = [];
       for (const key in default_texts) {
         if (Object.prototype.hasOwnProperty.call(default_texts, key)) {
-          let value = default_texts[key];
+          let value = default_texts[key] ?? "";
           if (value.length > 150) {
             value = value.slice(0, 150) + "...";
           }

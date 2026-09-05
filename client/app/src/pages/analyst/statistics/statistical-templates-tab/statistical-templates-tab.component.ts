@@ -76,11 +76,12 @@ export class StatisticalTemplatesTabComponent implements OnInit {
   }
 
   importTemplate(files: FileList | null): void {
-    if (!files || files.length === 0) {
+    const file = files?.[0];
+    if (!file) {
       return;
     }
 
-    this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
+    this.utilsService.readFileAsText(file).subscribe((txt) => {
       this.httpService.requestImportStatisticalTemplate(txt).subscribe({
         next: (response) => {
           this.templatesResolver.dataModel.push(response);

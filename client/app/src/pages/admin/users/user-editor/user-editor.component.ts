@@ -85,7 +85,10 @@ export class UserEditorComponent implements OnInit {
       password_change_needed: ""
     };
 
-    this.user().profile = this.profiles().filter(profile => profile.id === this.user().profile_id)[0];
+    const profile = this.profiles().find(profile => profile.id === this.user().profile_id);
+    if (profile) {
+      this.user().profile = profile;
+    }
     this.filteredProfiles = this.profiles().filter(profile => !profile.custom);
 
     if (this.expanded()) {
@@ -182,8 +185,9 @@ export class UserEditorComponent implements OnInit {
   }
 
   loadPublicKeyFile(files: FileList | null, user:User) {
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0])
+    const file = files?.[0];
+    if (file) {
+      this.utilsService.readFileAsText(file)
         .subscribe((txt: string) => {
           this.user().pgp_key_public = txt;
           return this.saveUser(user);
@@ -209,7 +213,7 @@ export class UserEditorComponent implements OnInit {
     };
 
     if (user.id == user.profile_id) {
-      return roleMap[user.role];
+      return roleMap[user.role] ?? user.role;
     } else {
       return this.getUserProfile(user.profile_id)!.name;
     }

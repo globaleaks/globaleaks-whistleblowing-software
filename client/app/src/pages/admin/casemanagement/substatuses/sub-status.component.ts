@@ -67,9 +67,14 @@ export class SubStatusComponent implements OnInit {
       return;
     }
 
-    const temp = this.submissionsStatus().substatuses[index];
-    this.submissionsStatus().substatuses[index] = this.submissionsStatus().substatuses[target];
-    this.submissionsStatus().substatuses[target] = temp;
+    const substatuses = this.submissionsStatus().substatuses;
+    const moved = substatuses[index];
+    const displaced = substatuses[target];
+    if (moved === undefined || displaced === undefined) {
+      return;
+    }
+    substatuses[index] = displaced;
+    substatuses[target] = moved;
 
     const ids = this.submissionsStatus().substatuses.map((c: Substatus) => c.id);
 

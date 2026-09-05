@@ -88,7 +88,7 @@ export class TippageComponent implements OnInit {
 
     this.tip.submissionStatusStr = this.utilsService.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
     if (this.tip.receivers.length === 1 && this.tip.msg_receiver_selected === null) {
-      this.tip.msg_receiver_selected = this.tip.msg_receivers_selector[0].key;
+      this.tip.msg_receiver_selected = this.tip.msg_receivers_selector[0]?.key ?? null;
     }
   }
 

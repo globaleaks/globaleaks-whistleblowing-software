@@ -53,7 +53,7 @@ describe("admin add, configure and delete questionnaires", () => {
           inputElement.files = dataTransfer.files;
 
           const changeEvent = new Event("change", { bubbles: true });
-          input[0].dispatchEvent(changeEvent);
+          input[0]!.dispatchEvent(changeEvent);
         });
       });
 
@@ -127,7 +127,7 @@ describe("admin add, configure and delete questionnaires", () => {
         inputElement.files = dataTransfer.files;
 
         const changeEvent = new Event("change", { bubbles: true });
-        input[0].dispatchEvent(changeEvent);
+        input[0]!.dispatchEvent(changeEvent);
       });
 
     });
@@ -141,7 +141,7 @@ describe("admin add, configure and delete questionnaires", () => {
         inputElement.files = dataTransfer.files;
 
         const changeEvent = new Event("change", { bubbles: true });
-        input[0].dispatchEvent(changeEvent);
+        input[0]!.dispatchEvent(changeEvent);
       });
 
     });

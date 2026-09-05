@@ -73,7 +73,7 @@ export class SelectionEditorComponent implements OnChanges {
     const options = this.options();
 
     if (options.length !== this.stableOptions.length ||
-        options.some((option, i) => option.id !== this.stableOptions[i].id || option.label !== this.stableOptions[i].label)) {
+        options.some((option, i) => option.id !== this.stableOptions[i]?.id || option.label !== this.stableOptions[i]?.label)) {
       this.stableOptions = options;
     }
   }

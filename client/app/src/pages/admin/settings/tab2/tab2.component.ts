@@ -72,8 +72,8 @@ export class Tab2Component implements OnInit {
   }
 
   onFileSelected(files: FileList | null) {
-    if (files && files.length > 0) {
-      const file = files[0];
+    const file = files?.[0];
+    if (file) {
       const flowJsInstance = this.utilsService.getFlowInstance({
         target: "api/admin/files/custom",
         allowDuplicateUploads: true,

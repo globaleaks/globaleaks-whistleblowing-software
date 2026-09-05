@@ -338,7 +338,7 @@ export class TipComponent implements OnInit {
         const selectableRecipients: Receiver[] = [];
         this.appDataService.public.receivers.forEach((receiver: Receiver) => {
           if (receiver.id !== this.authenticationService.session.user_id && !this.tip.receivers_by_id[receiver.id]) {
-            receiver.name = names[receiver.id];
+            receiver.name = names[receiver.id] ?? receiver.name;
             selectableRecipients.push(receiver);
           }
         });
@@ -369,7 +369,7 @@ export class TipComponent implements OnInit {
           const selectableRecipients: Receiver[] = [];
           this.appDataService.public.receivers.forEach((receiver: Receiver) => {
             if (receiver.id !== this.authenticationService.session.user_id && this.tip.receivers_by_id[receiver.id]) {
-              receiver.name = names[receiver.id];
+              receiver.name = names[receiver.id] ?? receiver.name;
               selectableRecipients.push(receiver);
             }
           });
@@ -401,7 +401,7 @@ export class TipComponent implements OnInit {
           const selectableRecipients: Receiver[] = [];
           this.appDataService.public.receivers.forEach((receiver: Receiver) => {
             if (receiver.id !== this.authenticationService.session.user_id && !this.tip.receivers_by_id[receiver.id]) {
-              receiver.name = names[receiver.id];
+              receiver.name = names[receiver.id] ?? receiver.name;
               selectableRecipients.push(receiver);
             }
           });

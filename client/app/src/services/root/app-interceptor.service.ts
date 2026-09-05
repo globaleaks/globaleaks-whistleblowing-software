@@ -66,7 +66,7 @@ export class appInterceptor implements HttpInterceptor {
       const hashFragment = url.split("#")[1];
 
       if (hashFragment && hashFragment.includes("lang=")) {
-        return hashFragment.split("lang=")[1].split("&")[0];
+        return hashFragment.split("lang=")[1]?.split("&")[0] ?? "";
       } else {
         return "";
       }
@@ -85,7 +85,7 @@ export class appInterceptor implements HttpInterceptor {
       path = "/" + url.replace(/^\/+/, "");
     }
 
-    path = path.split("?")[0].split("#")[0];
+    path = path.split(/[?#]/)[0] ?? "";
 
     // Strip the tenant prefix that the backend removes from request.path before
     // it computes the htu, so that the htu matches on both sides.
