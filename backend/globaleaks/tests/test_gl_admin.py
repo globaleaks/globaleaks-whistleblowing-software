@@ -15,7 +15,9 @@ from twisted.trial import unittest
 class TestGLAdminBackupRestore(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
-        self.backup_file = os.path.join(tempfile.gettempdir(), 'test_backup.tar.gz')
+        # named after the test directory, so that the workers of a parallel run
+        # do not contend for one archive
+        self.backup_file = self.test_dir + '.tar.gz'
 
     def tearDown(self):
         if os.path.exists(self.test_dir):
