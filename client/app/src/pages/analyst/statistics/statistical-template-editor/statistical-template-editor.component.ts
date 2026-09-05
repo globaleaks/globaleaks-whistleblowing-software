@@ -109,7 +109,7 @@ export class StatisticalTemplateEditorComponent implements OnInit {
       }
 
       this.saveSelectedMetrics();
-    });
+    }, () => { /* dismissed */ });
   }
 
   removeMetric(metricId: string): void {
@@ -185,7 +185,7 @@ export class StatisticalTemplateEditorComponent implements OnInit {
       }
 
       this.saveSelectedMetrics();
-    });
+    }, () => { /* dismissed */ });
   }
 
   private buildTemplateData(): ReportTemplateData {
