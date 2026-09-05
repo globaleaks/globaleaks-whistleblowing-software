@@ -164,23 +164,25 @@ class MailGenerator:
             except Exception as e:
                 log.err("Unable to generate a user notification: %s", e, tid=user.tid)
 
-    @transact
-    def generate(self, session):
-        now_dt = datetime_now()
-        now_date = now_dt.date()
-
-        config = ConfigFactory(session, 1)
-        timestamp_daily_notifications = config.get_val('timestamp_daily_notifications')
-
-        rtips_ids = {}
+    def silent_tids(self):
+        """
+        The tenants that do not notify their recipients
+        """
         silent_tids = []
-        thresholds = [28, 14, 7, 3, 1]
 
         for tid in self.state.tenants:
             cache = self.state.tenants[tid].cache
             if cache.notification and not cache.notification.enable_receiver_notification_emails:
                 silent_tids.append(tid)
 
+        return silent_tids
+
+    @staticmethod
+    def db_new_content(session):
+        """
+        The content still to be announced to its recipients: the reports, the comments and the
+        files, in the order they arrived
+        """
         results1 = session.query(models.User, models.ReceiverTip, models.InternalTip, models.ReceiverTip) \
             .filter(models.User.id == models.ReceiverTip.receiver_id,
                     models.InternalTip.id == models.ReceiverTip.internaltip_id,
@@ -209,16 +211,33 @@ class MailGenerator:
                                   models.ReceiverFile.new.is_(True)) \
                           .order_by(models.ReceiverFile.creation_date)
 
-        for user, rtip, itip, obj in itertools.chain(results1, results2, results3, results4):
+        return itertools.chain(results1, results2, results3, results4)
+
+    @staticmethod
+    def is_not_announced(user, rtip, itip, obj, silent, announced):
+        """
+        Whether a piece of content is not announced to a recipient: on a site that does not notify,
+        on a report announced in this run or read since the last announcement, authored by the
+        recipient itself, or personal
+        """
+        return silent or \
+            announced or \
+            rtip.last_notification > rtip.last_access or \
+            (isinstance(obj, models.ReceiverTip) and itip.operator_id == user.id) or \
+            (isinstance(obj, (models.Comment, models.ReceiverFile)) and
+             (obj.author_id == user.id or
+              obj.visibility == models.EnumVisibility.personal.name))
+
+    def announce_new_content(self, session, now_dt, silent_tids):
+        """
+        Announce to the recipients the content that arrived on their reports, once per report
+        """
+        rtips_ids = {}
+
+        for user, rtip, itip, obj in self.db_new_content(session):
             tid = user.tid
 
-            if (tid in silent_tids) or \
-                rtips_ids.get(rtip.id, False) or \
-                rtip.last_notification > rtip.last_access or \
-                (isinstance(obj, models.ReceiverTip) and itip.operator_id == user.id) or \
-                (isinstance(obj, (models.Comment, models.ReceiverFile)) and \
-                 (obj.author_id == user.id or
-                  obj.visibility == models.EnumVisibility.personal.name)):
+            if self.is_not_announced(user, rtip, itip, obj, tid in silent_tids, rtips_ids.get(rtip.id, False)):
                 obj.new = False
                 continue
 
@@ -245,16 +264,10 @@ class MailGenerator:
             except Exception:
                 log.err("Unable to generate notification for report %s", rtip.id, tid=tid)
 
-        if now_dt < datetime.fromtimestamp(timestamp_daily_notifications) + timedelta(1):
-            return
-
-        config.set_val('timestamp_daily_notifications', now_dt)
-
-        for tid in self.state.tenants:
-            self.db_generate_emails_for_expiring_reports(session, tid)
-
-        self.db_generate_email_for_unread_reports(session, now_dt, silent_tids)
-
+    def send_reminders(self, session, now_dt, silent_tids):
+        """
+        Remind the recipients of the reports whose reminder date has come
+        """
         for user in session.query(models.User).filter(models.User.id == models.ReceiverTip.receiver_id,
                                                       not_(models.User.tid.in_(silent_tids)),
                                                       models.ReceiverTip.internaltip_id == models.InternalTip.id,
@@ -267,6 +280,31 @@ class MailGenerator:
                 self.process_mail_creation(session, user.tid, data)
             except Exception as e:
                 log.err("Unable to generate a user notification: %s", e, tid=user.tid)
+
+    @staticmethod
+    def crossed_threshold(exp_dt, now_dt, thresholds):
+        """
+        The latest reminder threshold an expiration has crossed, with the date it was crossed on
+        """
+        applicable = []
+        for t in thresholds:
+            target_dt = exp_dt - timedelta(days=t)
+            if target_dt <= now_dt:
+                applicable.append((t, target_dt))
+
+        if not applicable:
+            return None
+
+        return max(applicable, key=lambda x: x[1])
+
+    def collect_expiration_reminders(self, session, now_dt, now_date, silent_tids):
+        """
+        Collect, by recipient, the reports whose expiration has crossed a reminder threshold the
+        recipient has not been reminded of yet
+
+        :return: The reminders by recipient, None when the expirations are beyond the threshold
+        """
+        thresholds = [28, 14, 7, 3, 1]
 
         max_threshold = self.state.tenants[1].cache.notification.tip_expiration_threshold
 
@@ -291,18 +329,13 @@ class MailGenerator:
 
             threshold_days = self.state.tenants[1].cache.notification.tip_expiration_threshold
             if exp_dt - now_dt > timedelta(days=threshold_days):
-                return
+                return None
 
-            applicable = []
-            for t in thresholds:
-                target_dt = exp_dt - timedelta(days=t)
-                if target_dt <= now_dt:
-                    applicable.append((t, target_dt))
-
-            if not applicable:
+            chosen = self.crossed_threshold(exp_dt, now_dt, thresholds)
+            if chosen is None:
                 continue
 
-            chosen_threshold, chosen_target_dt = max(applicable, key=lambda x: x[1])
+            chosen_threshold, chosen_target_dt = chosen
 
             last_sent_dt = _to_datetime(user.last_expiration_reminder_date)
 
@@ -316,6 +349,37 @@ class MailGenerator:
                     'days_until_exp': days_until_exp
                 })
 
+        return notifications_by_user
+
+    def record_simulated_reminders(self, user, entries):
+        """
+        Count, in place of sending, the reminders a recipient would be sent
+        """
+        uid = str(user.id)
+        user_stats = self.simulation_stats['users'].setdefault(uid, {
+            'grouped_mails': 0,
+            'total_reminders': 0,
+            'reminders_per_report': {}
+        })
+
+        # Count grouped email for this user
+        user_stats['grouped_mails'] += 1
+        self.simulation_stats['totals']['grouped_emails'] += 1
+
+        # Track each report’s reminder
+        for e in entries:
+            key = (user.id, e['itip'].id)
+            self.sent_reminders.setdefault(key, []).append(e['threshold'])
+            user_stats['reminders_per_report'].setdefault(str(e['itip'].id), []).append(e['threshold'])
+
+            # Increment totals
+            user_stats['total_reminders'] += 1
+            self.simulation_stats['totals']['total_reminders'] += 1
+
+    def send_expiration_reminders(self, session, now_dt, notifications_by_user):
+        """
+        Send each recipient a single summary of the reports about to expire
+        """
         for _, payload in notifications_by_user.items():
             user = payload['user_obj']
             tid = payload['tid']
@@ -335,26 +399,7 @@ class MailGenerator:
                 tips_serialized.append(tip_ser)
 
             if self.simulate_mode:
-                uid = str(user.id)
-                user_stats = self.simulation_stats['users'].setdefault(uid, {
-                    'grouped_mails': 0,
-                    'total_reminders': 0,
-                    'reminders_per_report': {}
-                })
-
-                # Count grouped email for this user
-                user_stats['grouped_mails'] += 1
-                self.simulation_stats['totals']['grouped_emails'] += 1
-
-                # Track each report’s reminder
-                for e in entries:
-                    key = (user.id, e['itip'].id)
-                    self.sent_reminders.setdefault(key, []).append(e['threshold'])
-                    user_stats['reminders_per_report'].setdefault(str(e['itip'].id), []).append(e['threshold'])
-
-                    # Increment totals
-                    user_stats['total_reminders'] += 1
-                    self.simulation_stats['totals']['total_reminders'] += 1
+                self.record_simulated_reminders(user, entries)
 
             if not tips_serialized:
                 continue
@@ -373,6 +418,36 @@ class MailGenerator:
                 continue
 
             user.last_expiration_reminder_date = now_dt
+
+    @transact
+    def generate(self, session):
+        now_dt = datetime_now()
+        now_date = now_dt.date()
+
+        config = ConfigFactory(session, 1)
+        timestamp_daily_notifications = config.get_val('timestamp_daily_notifications')
+
+        silent_tids = self.silent_tids()
+
+        self.announce_new_content(session, now_dt, silent_tids)
+
+        if now_dt < datetime.fromtimestamp(timestamp_daily_notifications) + timedelta(1):
+            return
+
+        config.set_val('timestamp_daily_notifications', now_dt)
+
+        for tid in self.state.tenants:
+            self.db_generate_emails_for_expiring_reports(session, tid)
+
+        self.db_generate_email_for_unread_reports(session, now_dt, silent_tids)
+
+        self.send_reminders(session, now_dt, silent_tids)
+
+        notifications_by_user = self.collect_expiration_reminders(session, now_dt, now_date, silent_tids)
+        if notifications_by_user is None:
+            return
+
+        self.send_expiration_reminders(session, now_dt, notifications_by_user)
 
 
 @transact
