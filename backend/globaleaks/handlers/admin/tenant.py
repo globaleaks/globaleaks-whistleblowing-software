@@ -283,6 +283,147 @@ def get(session, self, tid):
     }
 
 
+def db_wizard_user(session, tid, request, prefix, role, language):
+    """
+    Create one of the accounts the wizard asks for
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param request: A user request
+    :param prefix: The prefix of the keys of the request describing the account
+    :param role: The role of the account
+    :param language: The language of the account
+    :return: The account created
+    """
+    desc = models.User().dict(language)
+    desc['username'] = request[f'{prefix}_username']
+    desc['name'] = request[f'{prefix}_name']
+    desc['password'] = request[f'{prefix}_password']
+    desc['mail_address'] = request[f'{prefix}_mail_address']
+    desc['language'] = language
+    desc['role'] = role
+    desc['profile_id'] = request.get(f'{prefix}_profile_id', '')
+    desc['idp_id'] = request.get('idp_id', '')
+    desc['pgp_key_remove'] = False
+    desc = desc | user_permissions
+
+    user = db_create_user(session, tid, None, desc, language)
+    user.password_change_needed = (tid != 1)
+
+    return user
+
+
+def db_wizard_keys(node, root_tenant_node, tid, encryption, escrow):
+    """
+    Generate the statistical key of a site and, with the escrow, its escrow key, keeping a recovery
+    copy of the statistical key encrypted to the escrow key
+
+    :param node: The configuration of the site
+    :param root_tenant_node: The configuration of the root site
+    :param tid: A tenant ID
+    :param encryption: Whether the site encrypts
+    :param escrow: Whether the site holds an escrow key
+    :return: The statistical private key, the escrow private key and the escrow public key
+    """
+    crypto_stat_prv_key = ""
+    crypto_escrow_prv_key = ""
+    crypto_escrow_pub_key = ""
+
+    if encryption:
+        crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
+        node.set_val('crypto_stat_pub_key', crypto_stat_pub_key)
+
+    if encryption and escrow:
+        crypto_escrow_prv_key, crypto_escrow_pub_key = GCE.generate_keypair()
+
+        node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
+
+        node.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, crypto_stat_prv_key)))
+
+        if tid != 1 and root_tenant_node.get_val('crypto_escrow_pub_key'):
+            node.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_node.get_val('crypto_escrow_pub_key'), crypto_escrow_prv_key)))
+
+    return crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key
+
+
+def db_wizard_admin(session, tid, request, language, node, encryption, escrow,
+                    crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key):
+    """
+    Create the first administrator of a site, holder of the escrow key and of the statistical key
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param request: A user request
+    :param language: The language of the account
+    :param node: The configuration of the site
+    :param encryption: Whether the site encrypts
+    :param escrow: Whether the site holds an escrow key
+    :param crypto_stat_prv_key: The statistical private key of the site
+    :param crypto_escrow_prv_key: The escrow private key of the site
+    :param crypto_escrow_pub_key: The escrow public key of the site
+    """
+    admin_user = db_wizard_user(session, tid, request, 'admin', 'admin', language)
+
+    if encryption and escrow:
+        node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
+        admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
+
+    # The first admin always becomes a holder of the statistical key so that
+    # it can be propagated to every other admin/analyst (escrow independent)
+    if encryption and admin_user.crypto_pub_key:
+        admin_user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_stat_prv_key))
+
+
+def db_wizard_channels(session, tid, node, request, receiver_user, language):
+    """
+    Give a site its channels: a tenant whose profile carries channels derives one from each
+    template, and the users of a shared profile receive on it; without channels in the profile the
+    default one is kept, as a profile carries none until its templates are defined
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param node: The configuration of the site
+    :param request: A user request
+    :param receiver_user: The recipient created, if any
+    :param language: The language of the channel
+    """
+    templates = []
+    if tid != 1:
+        pid = config.db_get_pid(session, tid)
+        if pid and pid != tid:
+            templates = session.query(models.Context) \
+                               .filter(models.Context.tid == pid).all()
+
+    if templates:
+        for template in templates:
+            db_derive_context(session, tid, template)
+
+        for user in session.query(models.User) \
+                           .filter(models.User.tid == tid,
+                                   models.User.id != models.User.profile_id):
+            user_profile = session.query(models.UserProfile) \
+                                  .filter(models.UserProfile.id == user.profile_id) \
+                                  .one_or_none()
+            if user_profile is not None:
+                db_attach_user_to_profile_contexts(session, user, user_profile)
+
+        return
+
+    if tid >= DEFAULT_PROFILE_ID:
+        return
+
+    context_desc = models.Context().dict(language)
+    context_desc['name'] = 'Default'
+    context_desc['status'] = 'enabled'
+    context_desc['questionnaire_id'] = node.get_val('default_questionnaire')
+    context_desc['tip_timetolive'] = node.get_val('default_tip_timetolive')
+
+    if not request['skip_recipient_account_creation']:
+        context_desc['receivers'] = [receiver_user.id]
+
+    db_create_context(session, tid, None, context_desc, language)
+
+
 def db_wizard(session, tid, hostname, request):
     """
     Transaction for the handling of wizard request
@@ -321,120 +462,26 @@ def db_wizard(session, tid, hostname, request):
     if tid == 1 and not isIPAddress(hostname):
        node.set_val('hostname', hostname)
 
-    crypto_stat_prv_key = ""
-    if encryption:
-        crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
-        node.set_val('crypto_stat_pub_key', crypto_stat_pub_key)
-
-    if encryption and escrow:
-        crypto_escrow_prv_key, crypto_escrow_pub_key = GCE.generate_keypair()
-
-        node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
-
-        # Keep a recovery copy of the statistical key encrypted to the escrow key
-        node.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, crypto_stat_prv_key)))
-
-        if  tid != 1 and root_tenant_node.get_val('crypto_escrow_pub_key'):
-            node.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_node.get_val('crypto_escrow_pub_key'), crypto_escrow_prv_key)))
+    crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key = \
+        db_wizard_keys(node, root_tenant_node, tid, encryption, escrow)
 
     if not request['skip_admin_account_creation']:
-        admin_desc = models.User().dict(language)
-        admin_desc['username'] = request['admin_username']
-        admin_desc['name'] = request['admin_name']
-        admin_desc['password'] = request['admin_password']
-        admin_desc['mail_address'] = request['admin_mail_address']
-        admin_desc['language'] = language
-        admin_desc['role'] = 'admin'
-        admin_desc['profile_id'] = request.get('admin_profile_id', '')
-        admin_desc['idp_id'] = request.get('idp_id', '')
-        admin_desc['pgp_key_remove'] = False
-        admin_desc = admin_desc | user_permissions
+        db_wizard_admin(session, tid, request, language, node, encryption, escrow,
+                        crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key)
 
-        admin_user = db_create_user(session, tid, None, admin_desc, language)
-        admin_user.password_change_needed = (tid != 1)
-
-        if encryption and escrow:
-            node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
-            admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
-
-        # The first admin always becomes a holder of the statistical key so that
-        # it can be propagated to every other admin/analyst (escrow independent)
-        if encryption and admin_user.crypto_pub_key:
-            admin_user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_stat_prv_key))
-
+    receiver_user = None
     if not request['skip_recipient_account_creation']:
-        receiver_desc = models.User().dict(language)
-        receiver_desc['username'] = request['receiver_username']
-        receiver_desc['password'] = request['receiver_password']
-        receiver_desc['name'] = request['receiver_name']
-        receiver_desc['mail_address'] = request['receiver_mail_address']
-        receiver_desc['language'] = language
-        receiver_desc['role'] = 'receiver'
-        receiver_desc['profile_id'] = request.get('receiver_profile_id', '')
-        receiver_desc['idp_id'] = request.get('idp_id', '')
-        receiver_desc['pgp_key_remove'] = False
-        receiver_desc = receiver_desc | user_permissions
-
-        receiver_user = db_create_user(session, tid, None, receiver_desc, language)
-        receiver_user.password_change_needed = (tid != 1)
-    else:
-        receiver_user = None
+        receiver_user = db_wizard_user(session, tid, request, 'receiver', 'receiver', language)
 
     if 'skip_default_account_creation' in request and not request['skip_default_account_creation']:
-        default_desc = models.User().dict(language)
-        default_desc['username'] = request['default_username']
-        default_desc['password'] = request['default_password']
-        default_desc['name'] = request['default_name']
-        default_desc['mail_address'] = request['default_mail_address']
-        default_desc['language'] = language
-        default_desc['role'] = request['default_role']
-        default_desc['profile_id'] = request.get('default_profile_id', '')
-        default_desc['idp_id'] = request.get('idp_id', '')
-        default_desc['pgp_key_remove'] = False
-        default_desc = default_desc | user_permissions
-
-        default_user = db_create_user(session, tid, None, default_desc, language)
-        default_user.password_change_needed = (tid != 1)
+        default_user = db_wizard_user(session, tid, request, 'default', request['default_role'], language)
 
         if default_user.role == 'receiver':
             receiver_user = default_user
 
     db_initialize_support(session, tid)
 
-    # A tenant whose profile carries channels derives one from each template; the users of a shared
-    # profile receive on it
-    templates = []
-    if tid != 1:
-        pid = config.db_get_pid(session, tid)
-        if pid and pid != tid:
-            templates = session.query(models.Context) \
-                               .filter(models.Context.tid == pid).all()
-
-    if templates:
-        for template in templates:
-            db_derive_context(session, tid, template)
-
-        for user in session.query(models.User) \
-                           .filter(models.User.tid == tid,
-                                   models.User.id != models.User.profile_id):
-            user_profile = session.query(models.UserProfile) \
-                                  .filter(models.UserProfile.id == user.profile_id) \
-                                  .one_or_none()
-            if user_profile is not None:
-                db_attach_user_to_profile_contexts(session, user, user_profile)
-    elif tid < DEFAULT_PROFILE_ID:
-        # Without channels in the profile the default one is kept; a profile carries none until its
-        # templates are defined
-        context_desc = models.Context().dict(language)
-        context_desc['name'] = 'Default'
-        context_desc['status'] = 'enabled'
-        context_desc['questionnaire_id'] = node.get_val('default_questionnaire')
-        context_desc['tip_timetolive'] = node.get_val('default_tip_timetolive')
-
-        if not request['skip_recipient_account_creation']:
-            context_desc['receivers'] = [receiver_user.id]
-
-        db_create_context(session, tid, None, context_desc, language)
+    db_wizard_channels(session, tid, node, request, receiver_user, language)
 
     # Root tenants initialization terminates here
 
