@@ -35,6 +35,8 @@ def days_before_expiration(days):
 class TestCertificateCheck(helpers.TestGLWithPopulatedDB):
     """
     The certificate of a site is watched: one issued by the ACME CA is renewed
+    on its own two weeks before it expires, and one that cannot be renewed has
+    the administrators of the site warned in its last week of validity.
     """
     @inlineCallbacks
     def setUp(self):

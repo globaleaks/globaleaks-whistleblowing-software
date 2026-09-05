@@ -74,6 +74,8 @@ class TestRunAcmeReg(TestCase):
 class TestCertificateChain(TestCase):
     """
     What the CA hands back is one PEM: the certificate of the site first, its
+    issuers after it. The two are told apart because the site is served its own
+    certificate and the chain of its issuers separately.
     """
     def test_the_chain_is_split_into_the_certificate_and_its_issuers(self):
         cert, chain = letsencrypt.split_certificate_chain(helpers.HTTPS_DATA['cert'] +
@@ -92,6 +94,8 @@ class TestCertificateChain(TestCase):
 class TestChallengeSelection(TestCase):
     """
     The site can only prove its name over HTTP: among the challenges the CA
+    offers, the HTTP-01 one is the only one that can be answered, and an order
+    that does not offer it cannot be fulfilled at all.
     """
     def order_offering(self, *challs):
         offered = []
@@ -127,6 +131,8 @@ class TestChallengeSelection(TestCase):
 class TestAcmeClient(TestCase):
     """
     The client speaks to the CA it is pointed at, on behalf of the account
+    whose key it holds: the directory of the CA says where the orders are to be
+    placed and what terms are being agreed to.
     """
     def setUp(self):
         self.account_key = serialization.load_pem_private_key(helpers.HTTPS_DATA['key'].encode(), None)
@@ -154,6 +160,8 @@ class TestAcmeClient(TestCase):
 class TestCertificateRequest(TestCase):
     """
     Getting a certificate is a sequence with the CA: an account, an order, a
+    challenge answered over HTTP and, at the end of it, the certificate issued
+    against a request signed by the key of the site.
     """
     def setUp(self):
         self.acme_client = MagicMock()
