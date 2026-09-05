@@ -23,6 +23,162 @@ from globaleaks.utils.utility import datetime_never
 from globaleaks.handlers.exchange import db_get_presented_context_id
 
 
+def _db_context_info(session, context_id, language, context_cache):
+    """
+    Describe a channel as the list of the reports names it, once per channel
+    """
+    if context_id in context_cache:
+        return context_cache[context_id]
+
+    context = session.query(models.Context).filter(models.Context.id == context_id).one_or_none()
+    if context is None:
+        context_cache[context_id] = {
+            'name': '',
+            'order': 0,
+            'slug': ''
+        }
+        return context_cache[context_id]
+
+    name = get_localized_values({}, context, ['name'], language)['name']
+    context_cache[context_id] = {
+        'name': name,
+        'order': context.order or 0,
+        'slug': context.slug
+    }
+    return context_cache[context_id]
+
+
+def _db_receiver_ids_by_itip(session):
+    """
+    Return the recipients that have access to each report
+    """
+    receiver_ids_by_itip = {}
+
+    for itip_id, receiver_id in session.query(models.ReceiverTip.internaltip_id,
+                                              models.ReceiverTip.receiver_id) \
+                                       .filter(models.User.id == models.ReceiverTip.receiver_id,
+                                               models.User.tid == models.InternalTip.tid,
+                                               models.InternalTip.id == models.ReceiverTip.internaltip_id):
+        receiver_ids_by_itip.setdefault(itip_id, []).append(receiver_id)
+
+    return receiver_ids_by_itip
+
+
+def _db_listed_reports(session, tid, user_id, updated_after, updated_before):
+    """
+    Return the reports a recipient is shown: the ones it received and the ones of the channels it
+    is on whose recipients are not selectable, paired with their answers and the identity of the
+    whistleblower; the report of an exchange is listed to the owning site, and to the other side
+    only where it cannot reach it through the origin
+    """
+    receiver_contexts = [
+        context_id[0] for context_id in session.query(models.Context.id)
+                                               .join(models.ReceiverContext,
+                                                     models.Context.id == models.ReceiverContext.context_id)
+                                               .filter(models.Context.allow_recipients_selection == False,
+                                                       models.ReceiverContext.receiver_id == user_id
+                                                      ).all()
+    ]
+
+    # Reached from its origin by whoever holds it: the report it was filed from, or the request
+    origin_rtip = aliased(models.ReceiverTip)
+    origin_held = session.query(models.InternalTipTransmission) \
+                         .filter(models.InternalTipTransmission.transmitting_internaltip_id == models.InternalTip.id,
+                                 origin_rtip.internaltip_id == models.InternalTipTransmission.internaltip_id,
+                                 origin_rtip.receiver_id == user_id) \
+                         .exists()
+
+    return session.query(models.ReceiverTip,
+                         models.InternalTip,
+                         models.InternalTipAnswers,
+                         models.InternalTipData) \
+                  .join(models.InternalTipData,
+                        and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
+                             models.InternalTipData.key == 'whistleblower_identity'),
+                        isouter=True) \
+                  .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
+                              models.ReceiverTip.receiver_id == user_id),
+                          or_(models.InternalTip.type != 'exchange',
+                              models.InternalTip.tid == tid,
+                              ~origin_held),
+                          models.InternalTip.update_date >= updated_after,
+                          models.InternalTip.update_date <= updated_before,
+                          models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                          models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
+                  .group_by(models.ReceiverTip.id)
+
+
+def _listed_answers(user_key, rtip, itip, itip_answers, label, accessible):
+    """
+    Return the answers and the label of a report as listed: decrypted by the key of the recipient
+    that holds it, dropped when it holds none
+    """
+    answers = itip_answers.answers
+
+    if itip.crypto_tip_pub_key and accessible and rtip.crypto_tip_prv_key:
+        tip_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(rtip.crypto_tip_prv_key))
+
+        if label:
+            label = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(label.encode())).decode()
+
+        answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())
+        index_answers(answers)
+    elif itip.crypto_tip_pub_key:
+        # remove useless and unusable crypted data
+        answers = ""
+        label = ""
+
+    return answers, label
+
+
+def _subscription_level(data, itip):
+    """
+    Return how the whistleblower is identified: not at all, from the filing, or later on
+    """
+    if data is None:
+        return 0
+
+    if data.creation_date == itip.creation_date:
+        return 1
+
+    return 2
+
+
+def _db_redact_listed_answers(session, user_id, dict_ret):
+    """
+    The list shows the answers: the redactions apply here too
+    """
+    if not dict_ret or db_user_can_bypass_masking(session, user_id):
+        return
+
+    redactions_by_itip = {}
+    for redaction in session.query(models.Redaction) \
+                            .filter(models.Redaction.internaltip_id.in_(dict_ret.keys())):
+        redactions_by_itip.setdefault(redaction.internaltip_id, []).append(redaction)
+
+    for itip_id, entry in dict_ret.items():
+        redactions = redactions_by_itip.get(itip_id)
+        if redactions and isinstance(entry['answers'], dict):
+            redact_answers(entry['answers'], redactions)
+
+
+def _number_reports_by_channel(session, ret, language, context_cache):
+    """
+    Number the reports of each channel in the order they were filed
+    """
+    reports_by_context = {}
+    for report in ret:
+        reports_by_context.setdefault(report['context_id'], []).append(report)
+
+    for reports in reports_by_context.values():
+        reports.sort(key=lambda r: (r['creation_date'], r['progressive']))
+        for index, report in enumerate(reports, start=1):
+            context_order = _db_context_info(session, report['context_id'], language, context_cache)['order']
+            report['channel_progressive'] = index
+            report['context_count'] = index
+            report['channel_progressive_sort_key'] = f'{context_order:08d}-{index:08d}'
+
+
 @transact
 def get_receivertips(session, tid, user_session, language, args=None):
     """
@@ -41,84 +197,14 @@ def get_receivertips(session, tid, user_session, language, args=None):
     updated_after = datetime.fromtimestamp(int(args.get(b'updated_after', [b'0'])[0]))
     updated_before = datetime.fromtimestamp(int(args.get(b'updated_before', [b'32503680000'])[0]))
 
-    receiver_ids_by_itip = {}
-
-    # Fetch number of receivers ids who have access to each report
-    for itip_id, receiver_id in session.query(models.ReceiverTip.internaltip_id,
-                                              models.ReceiverTip.receiver_id) \
-                                       .filter(models.User.id == models.ReceiverTip.receiver_id,
-                                               models.User.tid == models.InternalTip.tid,
-                                               models.InternalTip.id == models.ReceiverTip.internaltip_id):
-        receiver_ids_by_itip.setdefault(itip_id, []).append(receiver_id)
-
-    # Retrieve all channels that include this recipient, but only if
-    # the recipients of those channels are not selectable.
-    receiver_contexts = [
-        context_id[0] for context_id in session.query(models.Context.id)
-                                               .join(models.ReceiverContext,
-                                                     models.Context.id == models.ReceiverContext.context_id)
-                                               .filter(models.Context.allow_recipients_selection == False,
-                                                       models.ReceiverContext.receiver_id == user_id
-                                                      ).all()
-    ]
-
-    # Reached from its origin by whoever holds it: the report it was filed from, or the request
-    origin_rtip = aliased(models.ReceiverTip)
-    origin_held = session.query(models.InternalTipTransmission) \
-                         .filter(models.InternalTipTransmission.transmitting_internaltip_id == models.InternalTip.id,
-                                 origin_rtip.internaltip_id == models.InternalTipTransmission.internaltip_id,
-                                 origin_rtip.receiver_id == user_id) \
-                         .exists()
+    receiver_ids_by_itip = _db_receiver_ids_by_itip(session)
 
     dict_ret = dict()
     can_transmit = globaleaks.handlers.exchange.db_can_transmit(session, tid)
 
     context_cache = {}
 
-    def get_context_info(context_id):
-        if context_id in context_cache:
-            return context_cache[context_id]
-
-        context = session.query(models.Context).filter(models.Context.id == context_id).one_or_none()
-        if context is None:
-            context_cache[context_id] = {
-                'name': '',
-                'order': 0,
-                'slug': ''
-            }
-            return context_cache[context_id]
-
-        name = get_localized_values({}, context, ['name'], language)['name']
-        context_cache[context_id] = {
-            'name': name,
-            'order': context.order or 0,
-            'slug': context.slug
-        }
-        return context_cache[context_id]
-
-    # Fetch rtip, internaltip and associated questionnaire schema
-    for rtip, itip, itip_answers, data in session.query(models.ReceiverTip,
-                                                   models.InternalTip,
-                                                   models.InternalTipAnswers,
-                                                   models.InternalTipData) \
-                                            .join(models.InternalTipData,
-                                                  and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
-                                                       models.InternalTipData.key == 'whistleblower_identity'),
-                                                  isouter=True) \
-                                            .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
-                                                        models.ReceiverTip.receiver_id == user_id),
-                                                    # Listed to the owning site, and to the other
-                                                    # side only where it cannot reach it through the
-                                                    # origin
-                                                    or_(models.InternalTip.type != 'exchange',
-                                                        models.InternalTip.tid == tid,
-                                                        ~origin_held),
-                                                    models.InternalTip.update_date >= updated_after,
-                                                    models.InternalTip.update_date <= updated_before,
-                                                    models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                                    models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
-                                            .group_by(models.ReceiverTip.id):
-        answers = itip_answers.answers
+    for rtip, itip, itip_answers, data in _db_listed_reports(session, tid, user_id, updated_after, updated_before):
         label = itip.label
         important = itip.important
         reminder_date = itip.reminder_date
@@ -131,37 +217,18 @@ def get_receivertips(session, tid, user_session, language, args=None):
 
         # The report of an exchange is presented to the recipients of each of
         # the two sites on the channel their own site knows it by
-
         context_id = db_get_presented_context_id(session, tid, itip)
 
         accessible = rtip.receiver_id == user_id
-        if itip.crypto_tip_pub_key and accessible and rtip.crypto_tip_prv_key:
-            tip_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(rtip.crypto_tip_prv_key))
-
-            if label:
-                label = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(label.encode())).decode()
-
-            answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())
-            index_answers(answers)
-        elif itip.crypto_tip_pub_key:
-            # remove useless and unusable crypted data
-            answers = ""
-            label = ""
+        answers, label = _listed_answers(user_key, rtip, itip, itip_answers, label, accessible)
 
         can_communicate = globaleaks.handlers.exchange.db_can_communicate_report(session, tid, itip)
-
-        if data is None:
-            subscription = 0
-        elif data.creation_date == itip.creation_date:
-            subscription = 1
-        else:
-            subscription = 2
 
         receiver_count = len(receiver_ids_by_itip.get(itip.id, []))
         if itip.type == 'request' and tid != itip.tid:
             receiver_count = 1
 
-        context_info = get_context_info(context_id)
+        context_info = _db_context_info(session, context_id, language, context_cache)
         if accessible or itip.id not in dict_ret:
             dict_ret[itip.id] = {
                 'id': itip.id,
@@ -189,34 +256,15 @@ def get_receivertips(session, tid, user_session, language, args=None):
                 'substatus': itip.substatus,
                 'receiver_count': receiver_count,
                 'receiver_ids': receiver_ids_by_itip.get(itip.id, []),
-                'subscription': subscription,
+                'subscription': _subscription_level(data, itip),
                 'accessible': accessible
             }
 
-    # The list shows the answers: the redactions apply here too
-    if dict_ret and not db_user_can_bypass_masking(session, user_id):
-        redactions_by_itip = {}
-        for redaction in session.query(models.Redaction) \
-                                .filter(models.Redaction.internaltip_id.in_(dict_ret.keys())):
-            redactions_by_itip.setdefault(redaction.internaltip_id, []).append(redaction)
-
-        for itip_id, entry in dict_ret.items():
-            redactions = redactions_by_itip.get(itip_id)
-            if redactions and isinstance(entry['answers'], dict):
-                redact_answers(entry['answers'], redactions)
+    _db_redact_listed_answers(session, user_id, dict_ret)
 
     ret = list(dict_ret.values())
-    reports_by_context = {}
-    for report in ret:
-        reports_by_context.setdefault(report['context_id'], []).append(report)
 
-    for reports in reports_by_context.values():
-        reports.sort(key=lambda r: (r['creation_date'], r['progressive']))
-        for index, report in enumerate(reports, start=1):
-            context_order = get_context_info(report['context_id'])['order']
-            report['channel_progressive'] = index
-            report['context_count'] = index
-            report['channel_progressive_sort_key'] = f'{context_order:08d}-{index:08d}'
+    _number_reports_by_channel(session, ret, language, context_cache)
 
     return ret
 
