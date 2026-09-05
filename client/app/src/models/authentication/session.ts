@@ -6,7 +6,7 @@ export class Session {
   properties: Properties;
   homepage: string;
   preferencespage: string;
-  receipt: any;
+  receipt?: string;
   two_factor: boolean;
   permissions: { can_upload_files: boolean };
   token: any;
@@ -14,7 +14,7 @@ export class Session {
 }
 
 export interface Properties {
-  management_session: any
+  management_session?: boolean;
   receipt_change_needed: boolean;
   password_change_needed: boolean;
   require_two_factor: boolean;

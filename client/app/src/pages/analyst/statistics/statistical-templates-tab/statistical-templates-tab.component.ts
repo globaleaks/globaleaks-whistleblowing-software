@@ -48,7 +48,7 @@ export class StatisticalTemplatesTabComponent implements OnInit {
   }
 
   get isAdmin(): boolean {
-    return this.authenticationService.session.role === "admin";
+    return this.authenticationService.session?.role === "admin";
   }
 
   setDefaultTemplate(templateId: string): void {

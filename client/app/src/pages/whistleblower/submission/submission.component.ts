@@ -331,7 +331,10 @@ export class SubmissionComponent implements OnInit {
       this.submission.submission.receipt = receipt;
     }
 
-    this.authenticationService.session.receipt = receipt;
+    const session = this.authenticationService.session;
+    if (session) {
+      session.receipt = receipt;
+    }
 
     this.submission.submit().subscribe({
       next: () => {

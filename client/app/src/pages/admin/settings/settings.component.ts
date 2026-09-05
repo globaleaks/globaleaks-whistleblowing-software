@@ -22,7 +22,7 @@ import {Tab8Component} from "@app/pages/admin/settings/tab8/tab8.component";
 export class AdminSettingsComponent {
   private readonly node = inject(NodeResolver);
 
-  protected isAdmin = inject(AuthenticationService).session.role === "admin";
+  protected isAdmin = inject(AuthenticationService).session?.role === "admin";
 
   // The antivirus and backup features are configurable on the primary tenant
   // only: their tabs are hidden on secondary tenants and profiles

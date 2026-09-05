@@ -53,7 +53,7 @@ export class StatisticsComponent {
   }
 
   get isAnalyst(): boolean {
-    return this.authenticationService.session.role === "analyst";
+    return this.authenticationService.session?.role === "analyst";
   }
 
   get canConfigureTemplates(): boolean {

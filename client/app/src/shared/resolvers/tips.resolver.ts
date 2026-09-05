@@ -18,7 +18,7 @@ export class TipsResolver {
   resolve(): Observable<boolean> {
     // The log is read on the area of the role in session: the administrator
     // and the auditor reach the same implementation, each on its own path
-    const area = auditLogArea(this.authenticationService.session.role);
+    const area = auditLogArea(this.authenticationService.session?.role ?? "");
 
     if (area) {
       return this.httpService.requestAuditLogTipsResource(area).pipe(

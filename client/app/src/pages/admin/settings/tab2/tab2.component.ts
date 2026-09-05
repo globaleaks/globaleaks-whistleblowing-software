@@ -68,7 +68,7 @@ export class Tab2Component implements OnInit {
     };
     this.preferenceData.profile.permissions.can_upload_files = false;
     this.updateFiles();
-    this.permissionStatus = this.authenticationData.session.permissions.can_upload_files;
+    this.permissionStatus = this.canUploadFiles();
   }
 
   onFileSelected(files: FileList | null) {
@@ -98,7 +98,7 @@ export class Tab2Component implements OnInit {
   }
 
   canUploadFiles() {
-    return this.authenticationData.session.permissions.can_upload_files;
+    return this.authenticationData.session?.permissions.can_upload_files ?? false;
   }
 
   deleteFile(url: string): void {
@@ -124,16 +124,19 @@ export class Tab2Component implements OnInit {
   togglePermissionUploadFiles(): void {
     // The switch shows the permission the session holds: the click asks the backend and the answer
     // flips it
-    const enable = !this.authenticationData.session.permissions.can_upload_files;
+    const enable = !this.canUploadFiles();
     const operation = enable ? "enable_user_permission_file_upload" : "disable_user_permission_file_upload";
 
     this.utilsService.runAdminOperation(operation, {}, false).subscribe({
       next: () => {
-        this.authenticationData.session.permissions.can_upload_files = enable;
+        const session = this.authenticationData.session;
+        if (session) {
+          session.permissions.can_upload_files = enable;
+        }
         this.permissionStatus = enable;
       },
       error: () => {
-        this.permissionStatus = this.authenticationData.session.permissions.can_upload_files;
+        this.permissionStatus = this.canUploadFiles();
       }
     });
   }
