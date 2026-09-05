@@ -139,7 +139,7 @@ fi
 # Depending on the intention of the user to proceed anyhow installing on
 # a not supported distro we using the experimental package if it exists
 # or trixie as fallback.
-if echo "$DISTRO_CODENAME" | grep -vqE "^(bookworm|bullseye|jammy|noble|resolute|trixie)$"; then
+if echo "$DISTRO_CODENAME" | grep -vqE "^(bookworm|jammy|noble|resolute|trixie)$"; then
   # In case of unsupported platforms we fallback on trixie
   echo "No packages available for the current distribution; the install script will use the trixie repository."
   DISTRO="debian"
