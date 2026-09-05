@@ -3,7 +3,6 @@ import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {Step} from "@app/models/resolvers/questionnaire-model";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
-import {HttpService} from "@app/shared/services/http.service";
 
 import {AddFieldComponent} from "../add-field/add-field.component";
 import {AddFieldFromTemplateComponent} from "../add-field-from-template/add-field-from-template.component";
@@ -19,7 +18,6 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [AddFieldComponent, AddFieldFromTemplateComponent, FormsModule, FieldsComponent, OrderByPipe, TranslateModule]
 })
 export class StepComponent implements OnInit {
-  private readonly httpService = inject(HttpService);
   protected fieldTemplates = inject(FieldTemplatesResolver);
 
   readonly step = input.required<Step>();

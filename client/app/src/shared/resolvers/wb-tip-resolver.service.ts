@@ -3,7 +3,6 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {Observable, of} from "rxjs";
 import {WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {HttpService} from "@app/shared/services/http.service";
-import {AppDataService} from "@app/app-data.service";
 import {map} from "rxjs/operators";
 
 @Injectable({
@@ -12,7 +11,6 @@ import {map} from "rxjs/operators";
 export class WbTipResolver {
   private readonly authenticationService = inject(AuthenticationService);
   private readonly httpService = inject(HttpService);
-  private readonly appDataService = inject(AppDataService);
 
 
   dataModel?: WbTipData;

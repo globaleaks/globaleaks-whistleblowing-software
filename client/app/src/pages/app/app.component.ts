@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, HostListener, OnInit, Renderer2, inject} from "@angular/core";
+import {AfterViewInit, Component, HostListener, OnInit, inject} from "@angular/core";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {SessionActivityService} from "@app/services/helper/session-activity.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -8,7 +8,6 @@ import {TrustedTypesService} from "@app/services/helper/trusted-types.service";
 import {TranslateService, TranslateModule} from "@ngx-translate/core";
 import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
 import {BrowserCheckService} from "@app/shared/services/browser-check.service";
-import {DOCUMENT} from "@angular/common";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HeaderComponent} from "@app/shared/partials/header/header.component";
 import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
@@ -50,8 +49,6 @@ window.GL = {
 })
 export class AppComponent implements AfterViewInit, OnInit {
   private readonly renderScheduler = inject(RenderSchedulerService);
-  private readonly document = inject<Document>(DOCUMENT);
-  private readonly renderer = inject(Renderer2);
   protected browserCheckService = inject(BrowserCheckService);
   private readonly router = inject(Router);
   protected translate = inject(TranslateService);
@@ -60,8 +57,6 @@ export class AppComponent implements AfterViewInit, OnInit {
   protected utilsService = inject(UtilsService);
   protected authenticationService = inject(AuthenticationService);
   private readonly sessionActivity = inject(SessionActivityService);
-  private readonly bodyDomObserver = inject(BodyDomObserverService);
-  private readonly TrustedTypesService = inject(TrustedTypesService);
   private readonly wbTipResolver = inject(WbTipResolver);
 
   showSidebar = true;
@@ -71,6 +66,10 @@ export class AppComponent implements AfterViewInit, OnInit {
   loading = false;
 
   constructor() {
+    // Instantiated for their side effects: the body observer and the
+    // Trusted Types policy are installed by their constructors.
+    inject(BodyDomObserverService);
+    inject(TrustedTypesService);
     (window as any).scope = this.appDataService;
   }
 

@@ -8,7 +8,6 @@ import {AppDataService} from "@app/app-data.service";
 import {TranslationService} from "@app/services/helper/translation.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TitleService} from "@app/shared/services/title.service";
-import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
 import {ProfileComponent} from "./template/profile/profile.component";
 import {PasswordStrengthValidatorDirective} from "@app/shared/directive/password-strength-validator.directive";
@@ -32,7 +31,6 @@ export class WizardComponent implements OnInit {
   private readonly httpService = inject(HttpService);
   protected appDataService = inject(AppDataService);
   protected appConfigService = inject(AppConfigService);
-  private readonly utilsService = inject(UtilsService);
   private readonly cryptoService = inject(CryptoService);
 
   step = 1;

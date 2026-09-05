@@ -11,9 +11,7 @@ import {TableFilterOption, TableState} from "@app/shared/components/table/table-
 import {SupportThreadComponent} from "@app/shared/partials/support-thread/support-thread.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
 
@@ -36,8 +34,6 @@ export class SupportTab1Component implements OnInit {
   private readonly httpService = inject(HttpService);
   private readonly modalService = inject(NgbModal);
   private readonly translateService = inject(TranslateService);
-  private readonly utilsService = inject(UtilsService);
-  private readonly authenticationService = inject(AuthenticationService);
   private readonly preferenceResolver = inject(PreferenceResolver);
   private readonly activatedRoute = inject(ActivatedRoute);
   protected nodeResolver = inject(NodeResolver);
