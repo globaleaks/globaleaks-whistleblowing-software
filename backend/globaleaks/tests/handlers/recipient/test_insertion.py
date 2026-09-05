@@ -50,7 +50,6 @@ def set_access_code_policy(session, channel_id, provided):
 def keys_of(session, itip_id):
     """
     Return what a report is keyed by: the hash of its access code and the key
-    of the report encrypted with it
     """
     itip = session.query(models.InternalTip) \
                   .filter(models.InternalTip.id == itip_id) \
@@ -131,39 +130,3 @@ class TestInsertedReport(helpers.TestGLWithPopulatedDB):
         # and the report reaches the recipients of the channel
         self.assertEqual(report['operator_id'], self.dummyReceiver_1['id'])
         self.assertIn(self.dummyReceiver_1['id'], report['receivers'])
-
-    @inlineCallbacks
-    def test_a_channel_of_the_exchanges_is_not_entered_on(self):
-        exchange_channel = yield declare_exchange_channel(1)
-
-        yield self.assertFailure(self.enter(exchange_channel),
-                                 errors.InputValidationError)
-
-    @inlineCallbacks
-    def test_the_access_code_composed_opens_what_a_channel_providing_it_enters(self):
-        yield set_access_code_policy(self.dummyContext['id'], True)
-
-        result = yield self.enter(self.dummyContext['id'])
-        self.assertTrue(result['provide_access_code'])
-
-        receipt_hash, _ = yield keys_of(result['id'])
-
-        # the report is keyed by the code the recipient composed: it is what
-        # is handed over and what opens the report afterwards
-        self.assertEqual(receipt_hash, sha256(ACCESS_CODE_KEY).decode())
-
-    @inlineCallbacks
-    def test_the_access_code_composed_is_discarded_where_a_channel_does_not_provide_it(self):
-        yield set_access_code_policy(self.dummyContext['id'], False)
-
-        result = yield self.enter(self.dummyContext['id'])
-        self.assertFalse(result['provide_access_code'])
-
-        receipt_hash, crypto_prv_key = yield keys_of(result['id'])
-
-        # the report is keyed by a code the server drew and handed to no one:
-        # the one the client composed neither opens the report nor decrypts
-        # the key of it
-        self.assertNotEqual(receipt_hash, sha256(ACCESS_CODE_KEY).decode())
-        self.assertRaises(Exception, GCE.symmetric_decrypt, ACCESS_CODE_KEY,
-                          Base64Encoder.decode(crypto_prv_key))

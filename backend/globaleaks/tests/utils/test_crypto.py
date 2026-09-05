@@ -37,6 +37,24 @@ class TestCryptoUtils(helpers.TestGL):
         expected_hash = b'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
         self.assertEqual(crypto.sha256(input_data), expected_hash)
 
+    # The evidences of a report are fingerprinted with sha512: the digest is
+    # what the reporting person and the recipient compare afterwards, so it is
+    # pinned here on known inputs rather than computed the same way twice.
+    def test_sha512_with_string(self):
+        input_data = "hello world"
+        expected_hash = b'309ecc489c12d6eb4cc40f50c902f2b4d0ed77ee511a7c7a9bcd3ca86d4cd86f989dd35bc5ff499670da34255b45b0cfd830e81f605dcf7dc5542e93ae9cd76f'
+        self.assertEqual(crypto.sha512(input_data), expected_hash)
+
+    def test_sha512_with_bytes(self):
+        input_data = b"hello world"
+        expected_hash = b'309ecc489c12d6eb4cc40f50c902f2b4d0ed77ee511a7c7a9bcd3ca86d4cd86f989dd35bc5ff499670da34255b45b0cfd830e81f605dcf7dc5542e93ae9cd76f'
+        self.assertEqual(crypto.sha512(input_data), expected_hash)
+
+    def test_sha512_empty_string(self):
+        input_data = ""
+        expected_hash = b'cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e'
+        self.assertEqual(crypto.sha512(input_data), expected_hash)
+
     def test_generate_key(self):
         crypto.GCE.generate_key()
 
