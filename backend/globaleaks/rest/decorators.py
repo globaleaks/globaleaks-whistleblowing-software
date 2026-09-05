@@ -166,135 +166,165 @@ def decorator_cache_invalidate(f):
 
     return wrapper
 
+def _check_any(checks):
+    """
+    Run some rate limit checks in order, stopping at the first that trips
+
+    :param checks: The checks, each a (counter, threshold, window) triple
+    :return: The depth the first tripped check reports, 0 when none trips
+    """
+    for counter, threshold, window in checks:
+        hits = State.RateLimit.check(counter, threshold, window)
+        if hits:
+            return hits
+
+    return 0
+
+
+def _login_delay(cache, tid, client_ip, using_tor):
+    """
+    Login endpoints are throttled regardless of any presented session: a session must not exempt
+    the caller from the login thresholds (e.g. minting unlimited submission sessions via empty
+    receipts)
+    """
+    checks = []
+
+    if not using_tor:
+        checks += [(b"logins_per_minute_per_tenant_per_ip:" + tid + b":" + client_ip,
+                    cache.threshold_logins_per_minute_per_tenant_per_ip, 60),
+                   (b"logins_per_minute_per_ip:" + client_ip,
+                    cache.threshold_logins_per_minute_per_ip, 60)]
+
+    checks += [(b"logins_per_minute_per_tenant:" + tid,
+                cache.threshold_logins_per_minute_per_tenant, 60),
+               (b"logins_per_minute_per_system",
+                cache.threshold_logins_per_minute_per_system, 60)]
+
+    return _check_any(checks)
+
+
+def _support_blocked(cache, tid, client_ip, using_tor):
+    """
+    Support requests are throttled regardless of any presented session or token: a token-only
+    caller must not be able to enqueue unbounded administrator notification mail
+    """
+    checks = []
+
+    if not using_tor:
+        checks += [(b"support_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
+                    cache.threshold_support_per_hour_per_tenant_per_ip, 3600),
+                   (b"support_per_hour_per_ip:" + client_ip,
+                    cache.threshold_support_per_hour_per_ip, 3600)]
+
+    checks += [(b"support_per_hour_per_tenant:" + tid,
+                cache.threshold_support_per_hour_per_tenant, 3600),
+               (b"support_per_hour_per_system",
+                cache.threshold_support_per_hour_per_system, 3600)]
+
+    return _check_any(checks) > 0
+
+
+def _signup_blocked(cache, client_ip, using_tor):
+    """
+    Signup is public and allocates persistent tenant state plus administrator notification mail:
+    a token-only caller must not be able to register unbounded tenants. Signup is served only on
+    the root tenant, so per-IP limits are enforced (skipped on Tor, where the client IP is not
+    meaningful) together with a per-system backstop that also bounds Tor traffic
+    """
+    checks = []
+
+    if not using_tor:
+        checks += [(b"signups_per_minute_per_ip:" + client_ip,
+                    cache.threshold_signups_per_minute_per_ip, 60),
+                   (b"signups_per_hour_per_ip:" + client_ip,
+                    cache.threshold_signups_per_hour_per_ip, 3600)]
+
+    checks.append((b"signups_per_hour_per_system",
+                   cache.threshold_signups_per_hour_per_system, 3600))
+
+    return _check_any(checks) > 0
+
+
+def _csp_report_blocked(client_ip, using_tor):
+    """
+    The endpoint collecting the violations of the content security policy is public
+    """
+    checks = []
+
+    if not using_tor:
+        checks.append((b"reports_csp_per_minute_per_ip:" + client_ip,
+                       CSP_REPORTS_PER_MINUTE_PER_IP, 60))
+
+    checks.append((b"reports_csp_per_minute_per_system",
+                   CSP_REPORTS_PER_MINUTE_PER_SYSTEM, 60))
+
+    return _check_any(checks) > 0
+
+
+def _submission_blocked(cache, tid, client_ip, using_tor):
+    """
+    The filing of a report is bounded per site and per system
+    """
+    checks = []
+
+    if not using_tor:
+        checks += [(b"reports_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
+                    cache.threshold_reports_per_hour_per_tenant_per_ip, 3600),
+                   (b"reports_per_hour_per_ip:" + client_ip,
+                    cache.threshold_reports_per_hour_per_ip, 3600)]
+
+    checks += [(b"reports_per_hour_per_tenant:" + tid,
+                cache.threshold_reports_per_hour_per_tenant, 3600),
+               (b"reports_per_hour_per_system",
+                cache.threshold_reports_per_hour_per_system, 3600)]
+
+    return _check_any(checks) > 0
+
+
+def _report_operations_delay(cache, user_id):
+    """
+    What a whistleblower does on its own report is delayed rather than refused
+    """
+    return _check_any([(b"operations_per_second_per_report:" + user_id,
+                        cache.threshold_operations_per_second_per_report, 1),
+                       (b"operations_per_minute_per_report:" + user_id,
+                        cache.threshold_operations_per_minute_per_report, 60),
+                       (b"operations_per_hour_per_report:" + user_id,
+                        cache.threshold_operations_per_hour_per_report, 3600)])
+
+
 def decorator_rate_limit(f):
     def wrapper(self, *args, **kwargs):
         root_tenant = State.tenants.get(1)
         if not root_tenant:
             return None
 
+        cache = root_tenant.cache
         delay = False
         block = False
         client_ip = get_ip_identity(self.request.client_ip).encode()
         tid = str(self.request.tid).encode()
+        using_tor = self.request.client_using_tor
         path = self.request.path
+
         if path in (b'/api/auth/authentication', b'/api/auth/tokenauth', b'/api/auth/receiptauth'):
-            # Login endpoints are throttled regardless of any presented session:
-            # a session must not exempt the caller from the login thresholds
-            # (e.g. minting unlimited submission sessions via empty receipts)
-            if not self.request.client_using_tor:
-                delay = State.RateLimit.check(b"logins_per_minute_per_tenant_per_ip:" + tid + b":" + client_ip,
-                                              root_tenant.cache.threshold_logins_per_minute_per_tenant_per_ip,
-                                              60)
+            delay = _login_delay(cache, tid, client_ip, using_tor)
 
-                delay = delay or \
-                        State.RateLimit.check(b"logins_per_minute_per_ip:" + client_ip,
-                                              root_tenant.cache.threshold_logins_per_minute_per_ip,
-                                              60)
-
-            delay = delay or \
-                    State.RateLimit.check(b"logins_per_minute_per_tenant:" + tid,
-                                          root_tenant.cache.threshold_logins_per_minute_per_tenant,
-                                          60)
-
-            delay = delay or \
-                    State.RateLimit.check(b"logins_per_minute_per_system",
-                                          root_tenant.cache.threshold_logins_per_minute_per_system,
-                                          60)
         elif path == b'/api/support':
-            # Support requests are throttled regardless of any presented
-            # session or token: a token-only caller must not be able to
-            # enqueue unbounded administrator notification mail.
-            if not self.request.client_using_tor:
-                block = State.RateLimit.check(b"support_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
-                                              root_tenant.cache.threshold_support_per_hour_per_tenant_per_ip,
-                                              3600) > 0
-
-                block = block or \
-                        State.RateLimit.check(b"support_per_hour_per_ip:" + client_ip,
-                                              root_tenant.cache.threshold_support_per_hour_per_ip,
-                                              3600) > 0
-
-            block = block or \
-                    State.RateLimit.check(b"support_per_hour_per_tenant:" + tid,
-                                          root_tenant.cache.threshold_support_per_hour_per_tenant,
-                                          3600) > 0
-
-            block = block or \
-                    State.RateLimit.check(b"support_per_hour_per_system",
-                                          root_tenant.cache.threshold_support_per_hour_per_system,
-                                          3600) > 0
+            block = _support_blocked(cache, tid, client_ip, using_tor)
 
         elif path == b'/api/signup':
-            # Signup is public and allocates persistent tenant state plus
-            # administrator notification mail: a token-only caller must not be
-            # able to register unbounded tenants. Signup is served only on the
-            # root tenant, so per-IP limits are enforced (skipped on Tor, where
-            # the client IP is not meaningful) together with a per-system
-            # backstop that also bounds Tor traffic.
-            if not self.request.client_using_tor:
-                block = State.RateLimit.check(b"signups_per_minute_per_ip:" + client_ip,
-                                              root_tenant.cache.threshold_signups_per_minute_per_ip,
-                                              60) > 0
-
-                block = block or \
-                        State.RateLimit.check(b"signups_per_hour_per_ip:" + client_ip,
-                                              root_tenant.cache.threshold_signups_per_hour_per_ip,
-                                              3600) > 0
-
-            block = block or \
-                    State.RateLimit.check(b"signups_per_hour_per_system",
-                                          root_tenant.cache.threshold_signups_per_hour_per_system,
-                                          3600) > 0
+            block = _signup_blocked(cache, client_ip, using_tor)
 
         elif path == b'/api/report':
-            if not self.request.client_using_tor:
-                block = State.RateLimit.check(b"reports_csp_per_minute_per_ip:" + client_ip,
-                                              CSP_REPORTS_PER_MINUTE_PER_IP,
-                                              60) > 0
+            block = _csp_report_blocked(client_ip, using_tor)
 
-            block = block or \
-                    State.RateLimit.check(b"reports_csp_per_minute_per_system",
-                                          CSP_REPORTS_PER_MINUTE_PER_SYSTEM,
-                                          60) > 0
-
-        elif self.session:
-            user_id = self.session.user_id.encode()
-
-            if self.session.role == 'whistleblower' and path.startswith(b'/api/whistleblower/'):
-                if self.request.path == b'/api/whistleblower/submission':
-                    if not self.request.client_using_tor:
-                        block = State.RateLimit.check(b"reports_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
-                                                      root_tenant.cache.threshold_reports_per_hour_per_tenant_per_ip,
-                                                      3600) > 0
-
-                        block = block or \
-                                State.RateLimit.check(b"reports_per_hour_per_ip:" + client_ip,
-                                                      root_tenant.cache.threshold_reports_per_hour_per_ip,
-                                                      3600) > 0
-
-                    block = block or \
-                            State.RateLimit.check(b"reports_per_hour_per_tenant:" + tid,
-                                                  root_tenant.cache.threshold_reports_per_hour_per_tenant,
-                                                  3600) > 0
-
-                    block = block or \
-                            State.RateLimit.check(b"reports_per_hour_per_system",
-                                                  root_tenant.cache.threshold_reports_per_hour_per_system,
-                                                  3600) > 0
-                elif not self.upload_handler:
-                    delay = State.RateLimit.check(b"operations_per_second_per_report:" + user_id,
-                                                  root_tenant.cache.threshold_operations_per_second_per_report,
-                                                  1)
-
-                    delay = delay or \
-                            State.RateLimit.check(b"operations_per_minute_per_report:" + user_id,
-                                                  root_tenant.cache.threshold_operations_per_minute_per_report,
-                                                  60)
-
-                    delay = delay or \
-                            State.RateLimit.check(b"operations_per_hour_per_report:" + user_id,
-                                                  root_tenant.cache.threshold_operations_per_hour_per_report,
-                                                  3600)
+        elif self.session and self.session.role == 'whistleblower' and \
+                path.startswith(b'/api/whistleblower/'):
+            if path == b'/api/whistleblower/submission':
+                block = _submission_blocked(cache, tid, client_ip, using_tor)
+            elif not self.upload_handler:
+                delay = _report_operations_delay(cache, self.session.user_id.encode())
 
         if block:
             raise errors.ForbiddenOperation()
