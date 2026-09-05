@@ -3,7 +3,7 @@
   <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
 </div>
 <div class="modal-body">
-  <div>{{ 'Status:' | translate }}</div>
+  <label for="assignSubmissionStatus">{{ 'Status:' | translate }}</label>
   <select id="assignSubmissionStatus" class="form-control" [(ngModel)]="arg.status">
     @for (state of arg.submission_statuses.slice(1); track state) {
       <option [ngValue]="state">
