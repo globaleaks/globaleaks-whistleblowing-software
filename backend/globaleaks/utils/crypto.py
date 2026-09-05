@@ -95,13 +95,18 @@ def generateRandomPassword(N: int) -> str:
     accessible_special_symbols = "!?@#+-/*="
     accessible_symbols_set = string.ascii_letters + string.digits + accessible_special_symbols
 
-    password = ''.join(secrets.SystemRandom().choice(accessible_symbols_set) for _ in range(N - 4))
-    password += secrets.SystemRandom().choice(string.ascii_lowercase)
-    password += secrets.SystemRandom().choice(string.ascii_uppercase)
-    password += secrets.SystemRandom().choice(string.digits)
-    password += secrets.SystemRandom().choice(accessible_special_symbols)
+    password = [secrets.choice(accessible_symbols_set) for _ in range(N - 4)]
+    password.append(secrets.choice(string.ascii_lowercase))
+    password.append(secrets.choice(string.ascii_uppercase))
+    password.append(secrets.choice(string.digits))
+    password.append(secrets.choice(accessible_special_symbols))
 
-    return ''.join(secrets.SystemRandom().sample(password, N))
+    # Shuffled so that the guaranteed characters do not sit at the end
+    for i in range(N - 1, 0, -1):
+        j = secrets.randbelow(i + 1)
+        password[i], password[j] = password[j], password[i]
+
+    return ''.join(password)
 
 
 def totpVerify(secret: str, token: str) -> None:
