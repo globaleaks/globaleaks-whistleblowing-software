@@ -50,7 +50,7 @@
               <div class="form-group">
                 <label for="step-trigger-option-{{step().id}}" class="visually-hidden">{{ 'Trigger option' | translate }}</label>
                 <select id="step-trigger-option-{{step().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.option" required>
-                  @for (option of parsedFields.fields_by_id[new_trigger.field].options; track option) {
+                  @for (option of parsedFields.fields_by_id[new_trigger.field]?.options ?? []; track option) {
                     <option [value]="option.id">{{ option.label }}</option>
                   }
                 </select>
@@ -75,7 +75,7 @@
             <button class="btn btn-sm btn-danger" (click)="delTrigger(trigger)">
               <i class="fas fa-xmark"></i>
             </button>
-            <span>{{ parsedFields.fields_by_id[trigger.field].label }}</span>: <span>{{ parsedFields.options_by_id[trigger.option].label }}</span>
+            <span>{{ parsedFields.fields_by_id[trigger.field]?.label }}</span>: <span>{{ parsedFields.options_by_id[trigger.option]?.label }}</span>
             @if (trigger.sufficient) {
               <span>({{ 'Sufficient' | translate }})</span>
             }
