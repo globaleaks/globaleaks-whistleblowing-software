@@ -112,6 +112,6 @@ export class UserComponent {
             }
           },
         });
-      })
+      }, () => { /* dismissed */ });
   }
 }

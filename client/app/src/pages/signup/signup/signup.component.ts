@@ -70,7 +70,7 @@ export class SignupComponent implements OnInit {
     this.idpRequired = !!config.signup_idp;
     this.setIdpClaims();
     if (this.idpRequired) {
-      this.idpService.initialize("signup").then(() => this.setIdpClaims());
+      void this.idpService.initialize("signup").then(() => this.setIdpClaims());
       this.oauthService.events.subscribe(() => this.setIdpClaims());
     }
 
@@ -134,7 +134,7 @@ export class SignupComponent implements OnInit {
 
   authenticateWithIDP() {
     this.storeSignup();
-    this.idpService.startLogin(this.router.url, "signup");
+    void this.idpService.startLogin(this.router.url, "signup");
   }
 
   setIdpClaims() {
@@ -173,7 +173,7 @@ export class SignupComponent implements OnInit {
 
     // The session of the IdP used for the signup is restored before submitting,
     // as the site may be authenticated by a different identity provider
-    this.idpService.initialize("signup").then(() => {
+    void this.idpService.initialize("signup").then(() => {
       this.setIdpClaims();
 
       if (!this.idpAuthenticated || !this.oauthService.hasValidIdToken()) {
