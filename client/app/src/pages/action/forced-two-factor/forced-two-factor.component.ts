@@ -39,8 +39,11 @@ export class ForcedTwoFactorComponent {
       {
         next: () => {
           this.preferenceResolver.dataModel.two_factor = true;
-          this.authenticationService.session.two_factor = true;
-          void this.router.navigate([this.authenticationService.session.homepage]);
+          const session = this.authenticationService.session;
+          if (session) {
+            session.two_factor = true;
+            void this.router.navigate([session.homepage]);
+          }
         }
       }
     );

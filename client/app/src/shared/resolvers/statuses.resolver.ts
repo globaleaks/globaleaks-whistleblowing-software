@@ -14,6 +14,6 @@ export class StatusResolver extends ResourceResolver<statusResolverModel> {
   }
 
   protected allowed(): boolean {
-    return this.authenticationService.session.role === "admin";
+    return this.authenticationService.session?.role === "admin";
   }
 }
