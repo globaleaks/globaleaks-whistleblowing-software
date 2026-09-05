@@ -1,13 +1,17 @@
 """
 Utilities and basic TestCases.
 """
+import atexit
 import base64
 import copy
+import contextlib
+import glob
 import json
 import mimetypes
 import os
 import secrets
 import shutil
+import tempfile
 
 from datetime import timedelta
 
@@ -671,6 +675,25 @@ def forge_request(uri=b'https://globaleaks.org/', tid=1,
     return request
 
 
+# The database a test starts from is the same for every test, and the population
+# a test is given is the same for every test of its shape: both are built once
+# and copied from there on, instead of being rebuilt hundreds of times over a
+# run. They are kept out of the working path, which is wiped before each test,
+# and named after the process, so that the workers of a parallel run do not
+# read a copy another one is still writing.
+DATABASE_TEMPLATES = os.path.join(tempfile.gettempdir(), f'globaleaks-tests-{os.getpid()}')
+EMPTY_DATABASE_TEMPLATE = DATABASE_TEMPLATES + '-empty.db'
+POPULATED_DATABASE_TEMPLATE = DATABASE_TEMPLATES + '-populated.db'
+POPULATED_DATABASES = {}
+
+
+@atexit.register
+def drop_database_templates():
+    for template in glob.glob(DATABASE_TEMPLATES + '*'):
+        with contextlib.suppress(OSError):
+            os.remove(template)
+
+
 class TestGL(unittest.TestCase):
     initialize_test_database_using_archived_db = False
     pgp_configuration = 'ALL'
@@ -694,9 +717,16 @@ class TestGL(unittest.TestCase):
                 os.path.join(TEST_DIR, 'db', 'empty', f'globaleaks-{DATABASE_VERSION}.db'),
                 os.path.join(Settings.db_file_path)
             )
+        elif os.path.exists(EMPTY_DATABASE_TEMPLATE):
+            # The database a test starts from is the same for every test: it is
+            # built once and copied from there on, so that the schema and the
+            # defaults are not rebuilt hundreds of times over a run
+            shutil.copy(EMPTY_DATABASE_TEMPLATE, Settings.db_file_path)
         else:
             yield db.create_db()
             yield db.initialize_db()
+
+            shutil.copy(Settings.db_file_path, EMPTY_DATABASE_TEMPLATE)
 
         yield self.set_hostnames(1)
 
@@ -987,10 +1017,42 @@ class TestGLWithPopulatedDB(TestGL):
     # Seed a legacy report so the tenant starts in server-side hashing mode.
     wb_legacy_receipt_seed = False
 
+    def population_signature(self):
+        """
+        What makes the population of a test differ from the population of another
+        """
+        return '-'.join(str(x) for x in (self.population_of_tenants,
+                                         self.wb_legacy_receipt_seed,
+                                         self.pgp_configuration,
+                                         self.clientside_hashing,
+                                         # a population whose keys are all the same
+                                         # is not the population of one whose keys differ
+                                         GCE.generate_keypair is mock_GCE_generate_keypair))
+
     @inlineCallbacks
     def setUp(self):
         yield TestGL.setUp(self)
-        yield self.fill_data()
+
+        # A population of the same shape is built once and copied from there on:
+        # the database it produced, and the descriptors the test reads it by
+        signature = self.population_signature()
+        built = POPULATED_DATABASES.get(signature)
+
+        if built is not None:
+            shutil.copy(built['database'], Settings.db_file_path)
+            self.__dict__.update(copy.deepcopy(built['descriptors']))
+        else:
+            before = set(self.__dict__)
+            yield self.fill_data()
+
+            database = f'{POPULATED_DATABASE_TEMPLATE}.{signature}'
+            shutil.copy(Settings.db_file_path, database)
+
+            POPULATED_DATABASES[signature] = {
+                'database': database,
+                'descriptors': copy.deepcopy({k: v for k, v in self.__dict__.items()
+                                              if k.startswith('dummy') or k not in before})
+            }
         yield db.refresh_tenant_cache()
 
     @transact
