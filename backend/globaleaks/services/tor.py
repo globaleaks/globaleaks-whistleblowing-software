@@ -4,7 +4,7 @@ import txtorcon
 
 from txtorcon import build_local_tor_connection
 from twisted.internet import reactor
-from twisted.internet.defer import Deferred
+from twisted.internet.defer import Deferred, inlineCallbacks
 from txtorcon import TorConfig
 
 from globaleaks.services.service import Service
@@ -36,7 +36,7 @@ class Tor(Service):
         super().stop()
 
         if self.tor_conn is None:
-            return
+            return None
 
         tor_conn = self.tor_conn
         self.tor_conn = None
@@ -44,7 +44,7 @@ class Tor(Service):
 
     def load_onion_service(self, tid, hostname, key):
         if self.tor_conn is None:
-            return
+            return None
 
         onion_service = None
 
@@ -66,11 +66,11 @@ class Tor(Service):
             log.err('Initialization of onion-service %s completed.', onion_service.hostname, tid=tid)
 
         try:
-            from txtorcon.onion import EphemeralOnionService
+            from txtorcon.onion import EphemeralOnionService  # noqa: PLC0415
             onion_service = EphemeralOnionService.create(reactor, config, [hs_loc], private_key=key)
             return onion_service.addCallbacks(init_callback)  # pylint: disable=no-member
         except ImportError:
-            from txtorcon.torconfig import EphemeralHiddenService
+            from txtorcon.torconfig import EphemeralHiddenService  # noqa: PLC0415
             onion_service = EphemeralHiddenService(hs_loc, key)
             return onion_service.add_to_tor(self.tor_conn.protocol).addCallbacks(init_callback)  # pylint: disable=no-member
 
@@ -84,6 +84,7 @@ class Tor(Service):
                 self.state.tenants[tid].ephs = False
                 self.load_onion_service(tid, self.state.tenants[tid].cache.onionservice, self.state.tenants[tid].cache.tor_onion_key)
 
+    @inlineCallbacks
     def unload_onion_service(self, tid):
         if self.tor_conn is None:
             return
@@ -115,11 +116,11 @@ class Tor(Service):
             restart_deferred.callback(None)
 
         if not os.path.exists(self.state.settings.tor_control):
-            startup_errback(Exception('Tor control port not open on %s; waiting for Tor to become available' % self.state.settings.tor_control))
+            startup_errback(Exception(f'Tor control port not open on {self.state.settings.tor_control}; waiting for Tor to become available'))
             return deferred_sleep(1)
 
         if not os.access(self.state.settings.tor_control, os.R_OK):
-            startup_errback(Exception('Unable to access %s; manual permission recheck needed' % self.state.settings.tor_control))
+            startup_errback(Exception(f'Unable to access {self.state.settings.tor_control}; manual permission recheck needed'))
             return deferred_sleep(1)
 
         def connect(_):
