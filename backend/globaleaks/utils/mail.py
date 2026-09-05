@@ -107,7 +107,7 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
         def timeout_cb():
             if not smtp_deferred.called:
                 log.err("SMTP deferred timeout reached, forcing errback for %s", to_address, tid=tid)
-                smtp_deferred.errback(Exception("SMTP deferred timeout"))
+                smtp_deferred.errback(TimeoutError("SMTP deferred timeout"))
         reactor.callLater(timeout + 30, timeout_cb)  # 30s extra buffer
 
         def failure_cb(failure):

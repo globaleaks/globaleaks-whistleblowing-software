@@ -37,7 +37,7 @@ def launch_rsync(source, destination, excludes=None, link_dest=None):
     def check(result):
         _, err, code = result
         if code != 0:
-            raise Exception(f"rsync exited with {code}: {err.decode(errors='replace').strip()}")
+            raise RuntimeError(f"rsync exited with {code}: {err.decode(errors='replace').strip()}")
 
     return d.addCallback(check)
 
@@ -217,7 +217,7 @@ def publish_snapshot_threaded(backup_path, snapshots_path, incomplete_path, fina
 @defer.inlineCallbacks
 def backup_sqlite_database_and_files(backup_path, backup_retention):
     if not shutil.which("rsync"):
-        raise Exception("rsync not found in PATH")
+        raise FileNotFoundError("rsync not found in PATH")
 
     source_path = os.path.join(Settings.working_path, '')
     excludes = get_rsync_excludes(backup_path)

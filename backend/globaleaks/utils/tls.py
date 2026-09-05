@@ -243,7 +243,7 @@ def new_tls_server_context():
     # excluding SHA-224 and SHA-1 that are otherwise enabled by the OpenSSL
     # defaults on TLS 1.2.
     if _lib.SSL_CTX_set1_sigalgs_list(ctx._context, TLS_SIGALGS_LIST) != 1:  # pylint: disable=no-member
-        raise Exception("Failed to set the TLS signature algorithms list")
+        raise RuntimeError("Failed to set the TLS signature algorithms list")
 
     return ctx
 
