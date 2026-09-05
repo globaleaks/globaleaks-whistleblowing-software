@@ -85,9 +85,13 @@ export class ContextsTab1Component implements OnInit {
     }
 
     const updated = [...this.contextsData()];
-
-    [updated[index], updated[target]] =
-      [updated[target], updated[index]];
+    const moved = updated[index];
+    const displaced = updated[target];
+    if (moved === undefined || displaced === undefined) {
+      return;
+    }
+    updated[index] = displaced;
+    updated[target] = moved;
 
     this.contexts.resource.set(updated);
 

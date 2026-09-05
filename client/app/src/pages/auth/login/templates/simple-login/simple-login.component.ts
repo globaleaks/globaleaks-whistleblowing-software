@@ -26,8 +26,10 @@ export class SimpleLoginComponent implements OnInit {
   readonly loginValidator = input.required<NgForm>();
 
   ngOnInit() {
-    if (this.appDataService.public.receivers.length === 1) {
-      this.authentication.loginData.loginUsername = this.appDataService.public.receivers[0].id;
+    const receivers = this.appDataService.public.receivers;
+    const only = receivers[0];
+    if (receivers.length === 1 && only) {
+      this.authentication.loginData.loginUsername = only.id;
     }
   }
 }

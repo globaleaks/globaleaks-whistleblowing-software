@@ -48,8 +48,8 @@ export class HttpsFilesComponent implements OnInit {
   }
 
   postFile(files: FileList | null, resource: FileResource) {
-    if (files && files.length > 0) {
-      const file = files[0];
+    const file = files?.[0];
+    if (file) {
       this.utilsService.readFileAsText(file).subscribe(
         (str: string) => {
           resource.content = str;

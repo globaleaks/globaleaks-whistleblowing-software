@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, HostListener, OnInit, inject} from "@angular/core";
+import {AfterViewInit, Component, HostListener, OnInit, inject, signal} from "@angular/core";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {SessionActivityService} from "@app/services/helper/session-activity.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -9,7 +9,7 @@ import {TranslateService, TranslatePipe} from "@ngx-translate/core";
 import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
 import {BrowserCheckService} from "@app/shared/services/browser-check.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {DOCUMENT} from "@angular/common";
+import {DOCUMENT, NgTemplateOutlet} from "@angular/common";
 import {LiveAnnouncer} from "@angular/cdk/a11y";
 import {HeaderComponent} from "@app/shared/partials/header/header.component";
 import {FooterComponent} from "@app/shared/partials/footer/footer.component";
@@ -46,7 +46,7 @@ window.GL = {
     selector: "app-root",
     templateUrl: "./app.component.html",
     standalone: true,
-    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, AuditorSidebarComponent, MessageConsoleComponent, DemoComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslatePipe]
+    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, AuditorSidebarComponent, MessageConsoleComponent, DemoComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgTemplateOutlet, RouterOutlet, TranslatePipe]
 })
 export class AppComponent implements AfterViewInit, OnInit {
   private readonly renderScheduler = inject(RenderSchedulerService);
@@ -75,12 +75,17 @@ export class AppComponent implements AfterViewInit, OnInit {
     // Trusted Types policy are installed by their constructors.
     inject(BodyDomObserverService);
     inject(TrustedTypesService);
+    const phone = this.document.defaultView?.matchMedia("(width < 768px)");
+    if (phone) {
+      this.isPhone.set(phone.matches);
+      phone.addEventListener("change", (event) => this.isPhone.set(event.matches));
+    }
     (window as any).scope = this.appDataService;
   }
 
   watchLanguage() {
     this.translate.onLangChange.subscribe(() => {
-      document.getElementsByTagName("html")[0].setAttribute("lang", localeToBcp47(this.translate.getCurrentLang() ?? ""));
+      document.documentElement.setAttribute("lang", localeToBcp47(this.translate.getCurrentLang() ?? ""));
     });
   }
 

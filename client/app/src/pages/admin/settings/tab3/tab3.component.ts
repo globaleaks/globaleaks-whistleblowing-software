@@ -45,7 +45,7 @@ export class Tab3Component implements OnInit {
   }
 
   get enabledLanguages(): SelectionEntry[] {
-    return this.nodeResolver.dataModel.languages_enabled.map(code => ({id: code, label: this.languageUtils.languages_supported[code].name + " [" + code + "]"}));
+    return this.nodeResolver.dataModel.languages_enabled.map(code => ({id: code, label: (this.languageUtils.languages_supported[code]?.name ?? code) + " [" + code + "]"}));
   }
 
   enableLanguage(lang_code: string) {

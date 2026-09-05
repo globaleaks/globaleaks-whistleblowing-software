@@ -20,17 +20,16 @@ export class StepsComponent implements OnInit {
   protected node = inject(NodeResolver);
   protected utilsService = inject(UtilsService);
   private readonly httpService = inject(HttpService);
+  private readonly fieldUtilities = inject(FieldUtilitiesService);
 
   readonly deleted = output<string>();
   readonly questionnaire = input.required<questionnaireResolverModel>();
   showAddStep = false;
-  step: Step;
   editing = false;
   new_step: { label: string } = {label: ""};
   parsedFields: ParsedFields;
 
   ngOnInit(): void {
-    this.step = this.questionnaire().steps[0];
     this.recompute();
   }
 
@@ -54,7 +53,6 @@ export class StepsComponent implements OnInit {
 
     this.parsedFields = parsedFields;
   }
-
   toggleAddStep() {
     this.showAddStep = !this.showAddStep;
   }

@@ -10,7 +10,7 @@ describe("every type of question is asked, answered and read", () => {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(new File([blob], fixture));
         (input[0] as HTMLInputElement).files = dataTransfer.files;
-        input[0].dispatchEvent(new Event("change", {bubbles: true}));
+        input[0]!.dispatchEvent(new Event("change", {bubbles: true}));
       });
     });
   };

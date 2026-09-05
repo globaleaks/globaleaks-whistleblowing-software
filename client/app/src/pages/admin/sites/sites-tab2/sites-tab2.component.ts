@@ -48,8 +48,9 @@ export class SitesTab2Component implements OnInit {
 
   importTenant(input: HTMLInputElement) {
     const files = input.files;
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
+    const file = files?.[0];
+    if (file) {
+      this.utilsService.readFileAsText(file).subscribe((txt) => {
         const jsonTxt = JSON.parse(txt);
         jsonTxt.tenant.profile = "default";
 

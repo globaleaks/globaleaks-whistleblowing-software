@@ -46,6 +46,6 @@ export class TableHeaderComponent {
   };
 
   get filterType(): string {
-    return this.filter && this.state.filters[this.filter] ? this.state.filters[this.filter].type : "";
+    return this.filter ? this.state.filters[this.filter]?.type ?? "" : "";
   }
 }
