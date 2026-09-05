@@ -53,8 +53,8 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   onFileSelected(files: FileList | null) {
-    if (files && files.length > 0) {
-      const file = files[0];
+    const file = files?.[0];
+    if (file) {
       const fileNameParts = file.name.split(".");
       const fileExtension = fileNameParts.pop();
       const fileNameWithoutExtension = fileNameParts.join(".");

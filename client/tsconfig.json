@@ -10,6 +10,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
+    "noUncheckedIndexedAccess": true,
     "sourceMap": true,
     "inlineSources": false,
     "inlineSourceMap": false,
