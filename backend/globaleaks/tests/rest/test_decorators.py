@@ -5,7 +5,8 @@ from globaleaks.rest import errors
 from globaleaks.state import State
 from globaleaks.rest.cache import Cache
 from globaleaks.rest.decorators import (decorator_rate_limit, decorator_require_session_or_token,
-                                        decorator_authentication, decorator_cache_get, decorator_cache_invalidate)
+                                        decorator_authentication, decorator_cache_get, decorator_cache_invalidate,
+                                        decorator_require_permission)
 from globaleaks.utils.utility import uuid4
 
 
@@ -338,3 +339,96 @@ class TestDecorators(unittest.TestCase):
 
                             # the tripped bucket must have been consulted
                             self.assertTrue(any(k.startswith(bucket) for k in checked()))
+
+
+class FakePermissionSession(FakeSession):
+    def __init__(self, permissions=None, **kwargs):
+        FakeSession.__init__(self, **kwargs)
+        self.permissions = permissions or {}
+
+    def has_permission(self, permission):
+        return self.permissions.get(permission, False)
+
+
+class TestAuthorizationContract(unittest.TestCase):
+    """
+    The decision that lets a request through is taken in two places alone: the
+    role check the handler declares and the permission it requires. Every
+    outcome of both is stated here, so that a change of the decision shows up
+    as a failing case rather than as an endpoint that silently opens.
+    """
+
+    def setUp(self):
+        root_tenant = MagicMock()
+        root_tenant.cache.get.return_value = False
+        State.tenants[1] = root_tenant
+
+    def handler(self, session):
+        h = FakeHandler()
+        h.session = session
+        h.token = None
+        h.request = FakeRequest()
+        return h
+
+    def test_the_role_a_handler_declares_says_who_passes(self):
+        # (declared roles, session, allowed)
+        cases = [
+            ("an anonymous caller is refused where a role is asked",
+             ['admin'], None, False),
+            ("the declared role passes",
+             ['admin'], FakeSession(role='admin'), True),
+            ("another role does not",
+             ['admin'], FakeSession(role='receiver'), False),
+            ("one of the declared roles passes",
+             ['receiver', 'transmitter'], FakeSession(role='transmitter'), True),
+            ("'any' opens the endpoint to the anonymous caller",
+             ['any'], None, True),
+            ("'user' stands for every role of an account",
+             ['user'], FakeSession(role='custodian'), True),
+            ("'user' does not stand for the whistleblower",
+             ['user'], FakeSession(role='whistleblower'), False),
+            ("a session of another site does not pass",
+             ['admin'], FakeSession(role='admin', tid=2), False),
+        ]
+
+        for reason, roles, session, allowed in cases:
+            with self.subTest(reason=reason):
+                decorated = decorator_authentication(lambda self: "Authorized", roles)
+                asked = self.handler(session)
+
+                if allowed:
+                    self.assertEqual(decorated(asked), "Authorized")
+                else:
+                    with self.assertRaises(errors.NotAuthenticated):
+                        decorated(asked)
+
+    def test_the_permission_a_handler_requires_says_who_acts(self):
+        held = {'can_manage_users': True, 'can_manage_settings': False}
+
+        cases = [
+            ("no permission declared leaves the endpoint to the role alone",
+             None, FakePermissionSession(held), True),
+            ("the required permission is held",
+             'can_manage_users', FakePermissionSession(held), True),
+            ("the required permission is not held",
+             'can_manage_settings', FakePermissionSession(held), False),
+            ("a permission never granted is not held",
+             'can_manage_sites', FakePermissionSession(held), False),
+            ("one of the alternatives is enough",
+             ('can_manage_settings', 'can_manage_users'), FakePermissionSession(held), True),
+            ("none of the alternatives is held",
+             ('can_manage_sites', 'can_manage_settings'), FakePermissionSession(held), False),
+            ("a required permission fails closed without a session",
+             'can_manage_users', None, False),
+        ]
+
+        for reason, permission, session, allowed in cases:
+            with self.subTest(reason=reason):
+                decorated = decorator_require_permission(lambda self: "Acted", permission)
+                asked = self.handler(session)
+
+                if allowed:
+                    self.assertEqual(decorated(asked), "Acted")
+                else:
+                    with self.assertRaises(errors.ForbiddenOperation):
+                        decorated(asked)

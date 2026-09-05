@@ -9,8 +9,15 @@ from globaleaks.handlers.admin.node import db_update_enabled_languages
 from globaleaks.handlers.admin.user_profile import user_permissions
 from globaleaks.orm import tw
 from globaleaks.rest import api, errors
+from globaleaks.rest.decorators import USERS_ROLES
 from globaleaks.tests import helpers
 from globaleaks.tests.helpers import TestGL, forge_request
+
+
+# What a route may ask for: one of the roles an account holds, the whistleblower,
+# or one of the two keywords that stand for a set of them - 'user' for every
+# account and 'any' for whoever asks
+DECLARABLE_ROLES = USERS_ROLES | {'user', 'whistleblower'}
 
 
 # The routes an administrator reaches without holding any permission. Each is a
@@ -31,6 +38,46 @@ ROUTES_OPEN_TO_EVERY_ADMINISTRATOR = {
     "SelectablesCollection",
     "TenantAuthSwitchHandler"
 }
+
+
+# The routes served to whoever asks, without a session. Each is a deliberate
+# opening of the platform to the outside, and is named here so that a route
+# cannot become public by the slip of a declaration:
+#
+#   - what a site publishes of itself, and what tells it is alive;
+#   - the ways of authenticating, and the ones of recovering an access;
+#   - what a reporting person and a registering organization submit;
+#   - what a browser fetches on its own: files, translations, redirects and the
+#     documents a domain is expected to serve.
+ROUTES_OPEN_TO_ANYONE = {
+    "admin.https.AcmeChallengeHandler",
+    "admin.invite.InviteInstance",
+    "auth.AuthTypeHandler",
+    "auth.AuthenticationHandler",
+    "auth.ReceiptAuthHandler",
+    "auth.TokenAuthHandler",
+    "auth.token.TokenHandler",
+    "file.FileHandler",
+    "health.HealthStatusHandler",
+    "l10n.L10NHandler",
+    "public.ContextInstance",
+    "public.PublicResource",
+    "redirect.SpecialRedirectHandler",
+    "report.ReportHandler",
+    "robots.RobotstxtHandler",
+    "security.SecuritytxtHandler",
+    "signup.Signup",
+    "signup.SignupActivation",
+    "sitemap.SitemapHandler",
+    "support.SupportHandler",
+    "user.reset_password.PasswordResetHandler",
+    "user.validate_email.EmailValidation",
+    "wizard.Wizard",
+}
+
+
+def handler_name(handler):
+    return handler.__module__.replace('globaleaks.handlers.', '') + '.' + handler.__name__
 
 
 def declared_permissions(handler, method):
@@ -395,3 +442,30 @@ class TestPermissionEnforcement(helpers.TestHandler):
         # api_spec, or that stopped declaring permissions altogether, would
         # otherwise leave this test green over nothing
         self.assertEqual(exercised, 93)
+
+
+class TestPublicSurface(TestGL):
+    """
+    What the platform serves without a session is the surface it exposes to
+    the outside: it is stated here in full, so that a route cannot join it
+    without the decision being taken here as well.
+    """
+
+    def test_only_the_declared_routes_are_served_without_a_session(self):
+        public = {handler_name(spec[1]) for spec in api.api_spec
+                  if spec[1].check_roles == 'any'}
+
+        self.assertEqual(public, ROUTES_OPEN_TO_ANYONE)
+
+    def test_every_route_says_who_reaches_it(self):
+        # A route that declares nothing inherits the default of the base
+        # handler, which asks for an administrator: the platform fails closed,
+        # and this states it rather than leaving it to be discovered
+        for spec in api.api_spec:
+            handler = spec[1]
+            roles = handler.check_roles
+            roles = {roles} if isinstance(roles, str) else set(roles)
+
+            self.assertTrue(roles, f"{handler_name(handler)} declares no role")
+            self.assertTrue(roles <= DECLARABLE_ROLES,
+                            f"{handler_name(handler)} declares an unknown role: {sorted(roles)}")
