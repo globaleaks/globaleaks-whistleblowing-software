@@ -366,34 +366,16 @@ class MigrationScript(MigrationBase):
 
         return min(EXPIRATION_ALERT_DAYS, key=lambda d: abs(d - days))
 
-    def migrate_additional_questionnaires(self):
+    def elect_additional_questionnaires(self, Context, known):
         """
-        Give the additional questionnaires the shape the channels and the
-        reports now hold them in
+        Turn the additional questionnaire each channel names into its election, joining the set it
+        is elected from
 
-        A channel used to name a single additional questionnaire, asked of
-        every report filed on it. It now names a set of them, that the
-        recipients choose from of a single report, and elects one of the set as
-        the automatic one: the questionnaire it had is that election, and joins
-        the set it is elected from.
-
-        The election is asked of a report by the report itself and no longer by
-        its channel: the reports that have not answered it yet carry it from
-        here on, so that asking and answering read the same field.
-
-        The answers used to name the schema they were archived against and not
-        the questionnaire they were given to: the first answers of a report are
-        the ones of the questionnaire composing it, the following ones those of
-        the additional questionnaire its channel asked.
+        :param Context: The model of the channels
+        :param known: The questionnaires that exist
+        :return: The questionnaire composing the reports and the automatic one, by channel
         """
         from globaleaks.models import ContextAdditionalQuestionnaire
-
-        Context = self.model_to['Context']
-        InternalTip = self.model_to['InternalTip']
-        InternalTipAnswers = self.model_to['InternalTipAnswers']
-        Questionnaire = self.model_to['Questionnaire']
-
-        known = {questionnaire.id for questionnaire in self.session_new.query(Questionnaire)}
 
         questionnaires = {}
         for context in self.session_new.query(Context):
@@ -415,6 +397,36 @@ class MigrationScript(MigrationBase):
             entry.context_id = context.id
             entry.questionnaire_id = automatic
             self.add_entry('ContextAdditionalQuestionnaire', entry)
+
+        return questionnaires
+
+    def migrate_additional_questionnaires(self):
+        """
+        Give the additional questionnaires the shape the channels and the
+        reports now hold them in
+
+        A channel used to name a single additional questionnaire, asked of
+        every report filed on it. It now names a set of them, that the
+        recipients choose from of a single report, and elects one of the set as
+        the automatic one: the questionnaire it had is that election, and joins
+        the set it is elected from.
+
+        The election is asked of a report by the report itself and no longer by
+        its channel: the reports that have not answered it yet carry it from
+        here on, so that asking and answering read the same field.
+
+        The answers used to name the schema they were archived against and not
+        the questionnaire they were given to: the first answers of a report are
+        the ones of the questionnaire composing it, the following ones those of
+        the additional questionnaire its channel asked.
+        """
+        InternalTip = self.model_to['InternalTip']
+        InternalTipAnswers = self.model_to['InternalTipAnswers']
+        Questionnaire = self.model_to['Questionnaire']
+
+        known = {questionnaire.id for questionnaire in self.session_new.query(Questionnaire)}
+
+        questionnaires = self.elect_additional_questionnaires(self.model_to['Context'], known)
 
         answers = {}
         for row in self.session_new.query(InternalTipAnswers) \
