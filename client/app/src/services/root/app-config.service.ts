@@ -30,7 +30,6 @@ export class AppConfigService {
   private readonly appDataService = inject(AppDataService);
   private readonly idpService = inject(IdpService);
   private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
-  private readonly isRunning = false;
 
   public sidebar = "";
 
