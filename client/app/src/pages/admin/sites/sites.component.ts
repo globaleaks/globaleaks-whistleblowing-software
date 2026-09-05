@@ -19,7 +19,7 @@ import {SitesTab5Component} from "@app/pages/admin/sites/sites-tab5/sites-tab5.c
 export class SitesComponent {
   protected node = inject(NodeResolver);
 
-  protected isAdmin = inject(AuthenticationService).session.role === "admin";
+  protected isAdmin = inject(AuthenticationService).session?.role === "admin";
 
   // The registrations are offered only where the signup is open
   protected get areInvitesConfigurable(): boolean {

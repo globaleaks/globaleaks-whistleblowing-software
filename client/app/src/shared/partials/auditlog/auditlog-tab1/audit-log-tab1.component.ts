@@ -39,7 +39,7 @@ export class AuditLogTab1Component implements OnInit {
 
   // The log files are downloaded from the area serving the log to the role in
   // session, the same one the entries have been read from
-  readonly auditLogPath = "/api/" + auditLogArea(this.authenticationService.session.role) + "/auditlog";
+  readonly auditLogPath = "/api/" + auditLogArea(this.authenticationService.session?.role ?? "") + "/auditlog";
 
   userOptions: TableFilterOption[] = [];
 

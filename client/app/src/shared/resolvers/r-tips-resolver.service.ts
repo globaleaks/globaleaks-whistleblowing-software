@@ -26,7 +26,7 @@ export class RTipsResolver {
   }
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "receiver") {
+    if (this.authenticationService.session?.role === "receiver") {
       return this.httpService.receiverTipResource().pipe(
         map((response) => {
           this.dataModel = response;

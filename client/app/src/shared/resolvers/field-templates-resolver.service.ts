@@ -15,7 +15,7 @@ export class FieldTemplatesResolver {
   dataModel: fieldtemplatesResolverModel[];
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "admin") {
+    if (this.authenticationService.session?.role === "admin") {
       return this.httpService.requestAdminFieldTemplateResource().pipe(
         map((response: fieldtemplatesResolverModel[]) => {
           this.dataModel = response;

@@ -19,7 +19,7 @@ export class NodeResolver extends ResourceResolver<nodeResolverModel> {
   }
 
   protected allowed(): boolean {
-    const role = this.authenticationService.session.role;
+    const role = this.authenticationService.session?.role;
 
     return role === "admin" ||
       (role === "receiver" && this.preferenceResolver.dataModel.profile.permissions.can_manage_settings);

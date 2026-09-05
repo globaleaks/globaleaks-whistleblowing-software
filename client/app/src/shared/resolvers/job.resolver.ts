@@ -13,10 +13,10 @@ export class JobResolver extends ResourceResolver<jobResolverModel[]> {
   constructor() {
     // The jobs are read on the area of the role in session: the administrator
     // and the auditor reach the same implementation, each on its own path
-    super(`api/${auditLogArea(inject(AuthenticationService).session.role)}/auditlog/jobs`, []);
+    super(`api/${auditLogArea(inject(AuthenticationService).session?.role ?? "")}/auditlog/jobs`, []);
   }
 
   protected allowed(): boolean {
-    return !!auditLogArea(this.authenticationService.session.role);
+    return !!auditLogArea(this.authenticationService.session?.role ?? "");
   }
 }

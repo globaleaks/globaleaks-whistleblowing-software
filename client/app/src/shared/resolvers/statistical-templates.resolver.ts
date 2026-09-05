@@ -17,7 +17,7 @@ export class StatisticalTemplatesResolver {
   resolve(): Observable<boolean> {
     // The templates are read by the analysts, that are presented with them, and
     // by the administrators that compose them
-    const role = this.authenticationService.session.role;
+    const role = this.authenticationService.session?.role;
     if (role === "analyst" || role === "admin") {
       return this.httpService.requestStatisticalTemplates().pipe(
         map((response) => {

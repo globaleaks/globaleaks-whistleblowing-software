@@ -63,7 +63,7 @@ export class PasswordChangeComponent {
           if (forced) {
             // Forced password changes block the user on the change-password
             // screen, so redirect to the homepage once completed.
-            void this.router.navigate([this.authenticationService.session.homepage]);
+            void this.router.navigate([this.authenticationService.session?.homepage ?? "/"]);
           }
         },
         error: (error) => {

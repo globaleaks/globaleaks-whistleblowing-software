@@ -17,6 +17,6 @@
 </div>
 
 <div class="modal-footer">
-  <button class="btn btn-primary" id="modal-action-ok" (click)="confirm()" [disabled]="selectedRole.value === authenticationService.session.role">{{ 'Confirm' | translate }}</button>
+  <button class="btn btn-primary" id="modal-action-ok" (click)="confirm()" [disabled]="selectedRole.value === authenticationService.session?.role">{{ 'Confirm' | translate }}</button>
   <button class="btn btn-secondary" (click)="cancel()">{{ 'Cancel' | translate }}</button>
 </div>
