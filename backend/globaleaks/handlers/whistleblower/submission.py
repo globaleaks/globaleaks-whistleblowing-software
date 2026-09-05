@@ -602,6 +602,109 @@ input_validation_patterns = {
 }
 
 
+def _validate_text_entry(field, field_type, value):
+    """
+    A text answer respects the length configured on the field and, on an inputbox, the configured
+    input_validation format
+    """
+    if not isinstance(value, str):
+        raise errors.InputValidationError("Invalid answer value")
+
+    attrs = field.get('attrs', {})
+
+    try:
+        min_len = int(attrs.get('min_len', {}).get('value'))
+    except (TypeError, ValueError):
+        min_len = 0
+
+    try:
+        max_len = int(attrs.get('max_len', {}).get('value'))
+    except (TypeError, ValueError):
+        max_len = 4096
+
+    if len(value) < min_len:
+        raise errors.InputValidationError("Answer is shorter than the minimum allowed length")
+
+    if 0 <= max_len < len(value):
+        raise errors.InputValidationError("Answer exceeds the maximum allowed length")
+
+    if field_type != 'inputbox':
+        return
+
+    input_validation = attrs.get('input_validation', {}).get('value')
+    pattern = input_validation_patterns.get(input_validation)
+    if pattern is not None and not re.match(pattern, value):
+        raise errors.InputValidationError("Answer does not match the required format")
+
+
+def _validate_choice_entry(field, value):
+    """
+    A single choice selects an option the questionnaire defines on the field
+    """
+    option_ids = {option['id'] for option in field.get('options', [])}
+    if not isinstance(value, str) or value not in option_ids:
+        raise errors.InputValidationError("Selected option does not exist")
+
+
+def _validate_checkbox_entry(field, entry):
+    """
+    Checkbox selections are stored as option_id -> flag pairs; any key shaped like an option id
+    must reference an option defined on the field
+    """
+    option_ids = {option['id'] for option in field.get('options', [])}
+    for key in entry:
+        if re.match(requests.uuid_regexp, key) and key not in option_ids:
+            raise errors.InputValidationError("Selected option does not exist")
+
+
+def _validate_date_entry(value):
+    """
+    A date answer is the ISO 8601 datetime string produced by the client; require it to be
+    parseable exactly as the recipient-side reader does (see ISO8601_to_day_str) so a malformed
+    value cannot break the export
+    """
+    if not isinstance(value, str):
+        raise errors.InputValidationError("Invalid date value")
+
+    try:
+        parse_ISO8601(value)
+    except (TypeError, ValueError):
+        raise errors.InputValidationError("Invalid date value")
+
+
+def _validate_daterange_entry(value):
+    """
+    A daterange answer is a 'start:end' pair of millisecond timestamps; require both to be
+    parseable (as the recipient-side reader does) and ordered, rejecting any value that would
+    later raise on export
+    """
+    if not isinstance(value, str):
+        raise errors.InputValidationError("Invalid date range value")
+
+    parts = value.split(':')
+    if len(parts) != 2:
+        raise errors.InputValidationError("Invalid date range value")
+
+    try:
+        start = int(parts[0])
+        end = int(parts[1])
+        datetime.fromtimestamp(start / 1000)
+        datetime.fromtimestamp(end / 1000)
+    except (TypeError, ValueError, OverflowError, OSError):
+        raise errors.InputValidationError("Invalid date range value")
+
+    if start > end:
+        raise errors.InputValidationError("Invalid date range value")
+
+
+def _validate_tos_entry(value):
+    """
+    A terms-of-service acceptance is stored as a boolean flag
+    """
+    if value != '' and not isinstance(value, bool):
+        raise errors.InputValidationError("Invalid answer value")
+
+
 def db_validate_field_entry(field, entry):
     """
     Enforce the per-field constraints the official client applies to a single
@@ -626,94 +729,90 @@ def db_validate_field_entry(field, entry):
     """
     field_type = field['type']
 
+    # A checkbox is constrained on the whole entry, the other types on the leaf value alone
+    if field_type == 'checkbox':
+        _validate_checkbox_entry(field, entry)
+        return
+
+    value = entry.get('value', '')
+
+    if field_type == 'tos':
+        _validate_tos_entry(value)
+        return
+
+    if not value:
+        return
+
     if field_type in ('inputbox', 'textarea'):
-        value = entry.get('value', '')
-        if value:
-            if not isinstance(value, str):
-                raise errors.InputValidationError("Invalid answer value")
-
-            attrs = field.get('attrs', {})
-
-            try:
-                min_len = int(attrs.get('min_len', {}).get('value'))
-            except (TypeError, ValueError):
-                min_len = 0
-
-            try:
-                max_len = int(attrs.get('max_len', {}).get('value'))
-            except (TypeError, ValueError):
-                max_len = 4096
-
-            if len(value) < min_len:
-                raise errors.InputValidationError("Answer is shorter than the minimum allowed length")
-
-            if 0 <= max_len < len(value):
-                raise errors.InputValidationError("Answer exceeds the maximum allowed length")
-
-            if field_type == 'inputbox':
-                input_validation = attrs.get('input_validation', {}).get('value')
-                pattern = input_validation_patterns.get(input_validation)
-                if pattern is not None and not re.match(pattern, value):
-                    raise errors.InputValidationError("Answer does not match the required format")
+        _validate_text_entry(field, field_type, value)
 
     elif field_type in ('selectbox', 'multichoice'):
-        value = entry.get('value', '')
-        if value:
-            option_ids = {option['id'] for option in field.get('options', [])}
-            if not isinstance(value, str) or value not in option_ids:
-                raise errors.InputValidationError("Selected option does not exist")
-
-    elif field_type == 'checkbox':
-        # Checkbox selections are stored as option_id -> flag pairs; any key
-        # shaped like an option id must reference an option defined on the field.
-        option_ids = {option['id'] for option in field.get('options', [])}
-        for key in entry:
-            if re.match(requests.uuid_regexp, key) and key not in option_ids:
-                raise errors.InputValidationError("Selected option does not exist")
+        _validate_choice_entry(field, value)
 
     elif field_type == 'date':
-        # A date answer is the ISO 8601 datetime string produced by the client;
-        # require it to be parseable exactly as the recipient-side reader does
-        # (see ISO8601_to_day_str) so a malformed value cannot break the export.
-        value = entry.get('value', '')
-        if value:
-            if not isinstance(value, str):
-                raise errors.InputValidationError("Invalid date value")
-
-            try:
-                parse_ISO8601(value)
-            except (TypeError, ValueError):
-                raise errors.InputValidationError("Invalid date value")
+        _validate_date_entry(value)
 
     elif field_type == 'daterange':
-        # A daterange answer is a 'start:end' pair of millisecond timestamps;
-        # require both to be parseable (as the recipient-side reader does) and
-        # ordered, rejecting any value that would later raise on export.
-        value = entry.get('value', '')
-        if value:
-            if not isinstance(value, str):
-                raise errors.InputValidationError("Invalid date range value")
+        _validate_daterange_entry(value)
 
-            parts = value.split(':')
-            if len(parts) != 2:
-                raise errors.InputValidationError("Invalid date range value")
 
-            try:
-                start = int(parts[0])
-                end = int(parts[1])
-                datetime.fromtimestamp(start / 1000)
-                datetime.fromtimestamp(end / 1000)
-            except (TypeError, ValueError, OverflowError, OSError):
-                raise errors.InputValidationError("Invalid date range value")
+# Field types whose answer entry carries a single leaf 'value' (text, a
+# selected option id, a date/daterange string or a tos boolean), constrained
+# per type by db_validate_field_entry. The remaining types carry their
+# answer differently: checkbox as option_id -> flag pairs, fieldgroup as
+# child_field_id -> entries, and fileupload/voice carry no leaf value at all
+# (their content flows through the attachments pipeline).
+VALUE_FIELD_TYPES = ('inputbox', 'textarea', 'selectbox', 'multichoice',
+                     'date', 'daterange', 'tos')
 
-            if start > end:
-                raise errors.InputValidationError("Invalid date range value")
 
-    elif field_type == 'tos':
-        # A terms-of-service acceptance is stored as a boolean flag.
-        value = entry.get('value', '')
-        if value != '' and not isinstance(value, bool):
-            raise errors.InputValidationError("Invalid answer value")
+def _is_recognised_answer_key(field_type, key, value, children, option_ids):
+    """
+    Whether a key of an answer entry carries recognised answer data for its field: the leaf value
+    of a value-bearing field, the entries of a child of a fieldgroup, or an option flag of a
+    checkbox. The entries of a child are pruned in turn, the traversal descending the shape
+    index_answers reads
+    """
+    if field_type in VALUE_FIELD_TYPES:
+        return key == 'value'
+
+    if field_type == 'fieldgroup':
+        child = children.get(key)
+        if child is None or not isinstance(value, list):
+            return False
+
+        _prune_entries(child, value)
+
+        return True
+
+    return field_type == 'checkbox' and key in option_ids and isinstance(value, bool)
+
+
+def _prune_entries(field, entries):
+    """
+    Validate the entries answering a field and drop from each the keys that carry no recognised
+    answer data, so that they are neither persisted nor able to escape the checks
+    db_validate_field_entry applies
+    """
+    field_type = field['type']
+
+    children = {}
+    if field_type == 'fieldgroup':
+        children = {child['id']: child for child in field.get('children', [])}
+
+    option_ids = set()
+    if field_type == 'checkbox':
+        option_ids = {option['id'] for option in field.get('options', [])}
+
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise errors.InputValidationError("Invalid answers structure")
+
+        db_validate_field_entry(field, entry)
+
+        for key in list(entry.keys()):
+            if not _is_recognised_answer_key(field_type, key, entry[key], children, option_ids):
+                del entry[key]
 
 
 def db_validate_submission_answers(steps, answers):
@@ -740,55 +839,6 @@ def db_validate_submission_answers(steps, answers):
     define, and ill-formed date/daterange/tos values are rejected rather than
     stored.
     """
-    # Field types whose answer entry carries a single leaf 'value' (text, a
-    # selected option id, a date/daterange string or a tos boolean), constrained
-    # per type by db_validate_field_entry. The remaining types carry their
-    # answer differently: checkbox as option_id -> flag pairs, fieldgroup as
-    # child_field_id -> entries, and fileupload/voice carry no leaf value at all
-    # (their content flows through the attachments pipeline).
-    value_field_types = ('inputbox', 'textarea', 'selectbox', 'multichoice',
-                         'date', 'daterange', 'tos')
-
-    def prune_entries(field, entries):
-        field_type = field['type']
-
-        children = {}
-        if field_type == 'fieldgroup':
-            children = {child['id']: child for child in field.get('children', [])}
-
-        option_ids = set()
-        if field_type == 'checkbox':
-            option_ids = {option['id'] for option in field.get('options', [])}
-
-        for entry in entries:
-            if not isinstance(entry, dict):
-                raise errors.InputValidationError("Invalid answers structure")
-
-            db_validate_field_entry(field, entry)
-
-            # Keep only the keys that carry recognised answer data for this
-            # field and drop everything else: the recursion descends into the
-            # children of a fieldgroup (the shape index_answers reads), a
-            # checkbox keeps its option flags, a value-bearing field keeps its
-            # leaf value, and any other key is discarded so it is neither
-            # persisted nor able to escape the checks db_validate_field_entry
-            # applied above.
-            for key in list(entry.keys()):
-                value = entry[key]
-
-                if field_type in value_field_types:
-                    if key == 'value':
-                        continue
-                elif field_type == 'fieldgroup':
-                    child = children.get(key)
-                    if child is not None and isinstance(value, list):
-                        prune_entries(child, value)
-                        continue
-                elif field_type == 'checkbox' and key in option_ids and isinstance(value, bool):
-                    continue
-
-                del entry[key]
-
     schema_fields = {field['id']: field for step in steps for field in step['children']}
 
     for key in list(answers.keys()):
@@ -799,7 +849,7 @@ def db_validate_submission_answers(steps, answers):
             del answers[key]
             continue
 
-        prune_entries(field, value)
+        _prune_entries(field, value)
 
 
 def db_validate_answers(session, tid, questionnaire_id, answers, identity_provided):
