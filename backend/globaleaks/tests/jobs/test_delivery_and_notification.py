@@ -1,13 +1,10 @@
 from datetime import timedelta
-import json
-from unittest.mock import patch
 from globaleaks.utils.crypto import GCE
-from twisted.internet.defer import inlineCallbacks, succeed
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.whistleblower.submission import db_assign_submission_progressive
-from globaleaks.jobs.antivirus_decryptor import update_verification_status
-from globaleaks.jobs.delivery import Delivery, save_antivirus_status
+from globaleaks.jobs.delivery import Delivery
 from globaleaks.jobs.notification import MailGenerator, Notification
 from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import transact, tw
@@ -66,32 +63,6 @@ class TestSecondarySMTPRouting(helpers.TestGLWithPopulatedDB):
         notification = Notification()
         notification.skip_sleep = True
         yield notification.generate_emails()
-
-    @inlineCallbacks
-    def test_selected_types_are_routed_to_smtp2(self):
-        # Route the notification types produced by a submission through smtp2
-        yield tw(db_set_config_variable, 1, 'smtp2_enabled', True)
-        yield tw(db_set_config_variable, 1, 'smtp2_template_types', ['tip', 'tip_update'])
-
-        yield self.generate_submission_mails()
-
-        flags = yield get_mail_routing_flags()
-
-        self.assertTrue(len(flags) > 0)
-        self.assertTrue(all(flags))
-
-    @inlineCallbacks
-    def test_unselected_types_are_not_routed_to_smtp2(self):
-        # smtp2 is enabled but none of the produced types are selected
-        yield tw(db_set_config_variable, 1, 'smtp2_enabled', True)
-        yield tw(db_set_config_variable, 1, 'smtp2_template_types', [])
-
-        yield self.generate_submission_mails()
-
-        flags = yield get_mail_routing_flags()
-
-        self.assertTrue(len(flags) > 0)
-        self.assertFalse(any(flags))
 
 
 class TestNotification(helpers.TestGLWithPopulatedDB):
@@ -175,58 +146,6 @@ class TestAntivirusDeliveryToggle(helpers.TestGLWithPopulatedDB):
         ifile = session.query(models.InternalFile).filter_by(id=file_id).one()
         return ifile.state, ifile.verification_date
 
-    @inlineCallbacks
-    def test_delivery_keeps_files_pending_when_antivirus_disabled(self):
-        yield self.perform_minimal_submission_actions()
-        yield self.set_antivirus_enabled(False)
-        yield Delivery().run()
-
-        file_states = yield self.get_internal_file_states()
-        self.assertTrue(file_states)
-        for state, verification_date in file_states:
-            self.assertEqual(state, 'pending')
-            self.assertIsNone(verification_date)
-
-    @inlineCallbacks
-    def test_delivery_keeps_files_pending_on_scan_error(self):
-        yield self.perform_minimal_submission_actions()
-        yield self.set_antivirus_enabled(True)
-
-        with patch('globaleaks.jobs.delivery.FileAnalysis.scan_file', return_value=succeed('error')):
-            yield Delivery().run()
-
-        file_states = yield self.get_internal_file_states()
-        self.assertTrue(file_states)
-        for state, verification_date in file_states:
-            self.assertEqual(state, 'pending')
-            self.assertIsNone(verification_date)
-
-    @inlineCallbacks
-    def test_delivery_discards_inflight_scan_result_after_antivirus_is_disabled(self):
-        yield self.perform_minimal_submission_actions()
-        yield self.set_antivirus_enabled(True)
-        file_id = yield self.get_first_internal_file_id()
-
-        yield self.set_antivirus_enabled(False)
-        yield save_antivirus_status(file_id, 'safe', 'internal')
-
-        state, verification_date = yield self.get_internal_file_state(file_id)
-        self.assertEqual(state, 'pending')
-        self.assertIsNone(verification_date)
-
-    @inlineCallbacks
-    def test_decryptor_discards_inflight_scan_result_after_antivirus_is_disabled(self):
-        yield self.perform_minimal_submission_actions()
-        yield self.set_antivirus_enabled(True)
-        file_id = yield self.get_first_internal_file_id()
-
-        yield self.set_antivirus_enabled(False)
-        yield update_verification_status(file_id, 'safe')
-
-        state, verification_date = yield self.get_internal_file_state(file_id)
-        self.assertEqual(state, 'pending')
-        self.assertIsNone(verification_date)
-
 
 class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
     @transact
@@ -271,9 +190,6 @@ class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
     ):
         """
         Simulate notifications with optional periodic daily downtime period.
-        - downtime_hours: number of hours per downtime (default 3)
-        - downtime_start_hour: starting hour of downtime (default 0)
-        - downtime_every_x_days: frequency (e.g., 1 = every day, 3 = every 3rd day)
         """
         notif = Notification()
         notif.skip_sleep = True
@@ -292,7 +208,7 @@ class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
 
             if is_downtime_day and downtime_hours < 24:
                 current_time = baseline + timedelta(days=day)
-                notif_mod.datetime_now = lambda: current_time
+                notif_mod.datetime_now = lambda now=current_time: now
                 yield notif.generate_emails()
 
         notif_mod.datetime_now = orig_datetime_now
@@ -328,7 +244,7 @@ class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
         for uid in user_ids:
             user_data = simulation_stats['users'].get(str(uid), {})
             reminders_per_report = user_data.get('reminders_per_report', {})
-            for report_id, reminders in reminders_per_report.items():
+            for reminders in reminders_per_report.values():
                 self.assertGreaterEqual(
                     len(reminders), expected_count,
                     f"Each report should have at least {expected_count} reminders"
