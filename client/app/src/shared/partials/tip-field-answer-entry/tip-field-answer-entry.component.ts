@@ -30,10 +30,10 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   protected utilsService = inject(UtilsService);
   protected maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);
-  private sanitizer = inject(DomSanitizer);
+  private readonly sanitizer = inject(DomSanitizer);
   protected authenticationService = inject(AuthenticationService);
-  private wbTipService = inject(WbtipService);
-  private rTipService = inject(ReceiverTipService);
+  private readonly wbTipService = inject(WbtipService);
+  private readonly rTipService = inject(ReceiverTipService);
 
   readonly entry = input<any>();
   readonly field = input<any>();

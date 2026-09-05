@@ -8,13 +8,13 @@ import {AppDataService} from "@app/app-data.service";
   providedIn: "root",
 })
 export class TranslationService {
-  private utilsService = inject(UtilsService);
+  private readonly utilsService = inject(UtilsService);
   protected translate = inject(TranslateService);
-  private appDataService = inject(AppDataService);
+  private readonly appDataService = inject(AppDataService);
 
   language = "";
 
-  private currentLocale = new BehaviorSubject<string>("");
+  private readonly currentLocale = new BehaviorSubject<string>("");
   currentLocale$ = this.currentLocale.asObservable();
 
   changeLocale(newLocale: string) {

@@ -14,11 +14,11 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [TranslateModule]
 })
 export class FileViewComponent implements OnInit {
-  private authenticationService = inject(AuthenticationService);
-  private sanitizer = inject(DomSanitizer);
-  private utilsService = inject(UtilsService);
-  private modalService = inject(NgbModal);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly utilsService = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   args: {
     file: WbFile,

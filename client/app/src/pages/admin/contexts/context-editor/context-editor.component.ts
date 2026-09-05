@@ -24,12 +24,12 @@ import {exchangeType, exchangeTypeLabels} from "@app/models/admin/exchange";
     imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, ListItemComponent, SelectionEditorComponent]
 })
 export class ContextEditorComponent implements OnInit {
-  private modalService = inject(NgbModal);
-  private elementRef = inject(ElementRef);
-  private authenticationService = inject(AuthenticationService);
+  private readonly modalService = inject(NgbModal);
+  private readonly elementRef = inject(ElementRef);
+  private readonly authenticationService = inject(AuthenticationService);
   protected nodeResolver = inject(NodeResolver);
-  private selectablesResolver = inject(SelectablesResolver);
-  private utilsService = inject(UtilsService);
+  private readonly selectablesResolver = inject(SelectablesResolver);
+  private readonly utilsService = inject(UtilsService);
 
   readonly contextsData = input.required<contextResolverModel[]>();
   readonly contextResolver = input.required<contextResolverModel>();

@@ -6,7 +6,7 @@ export class LanguageUtils {
   public languagesEnabled: Record<string, LanguagesSupported> = {};
   public languages_enabled_selector: LanguagesSupported[] = [];
 
-  constructor(private nodeResolver: NodeResolver) {
+  constructor(private readonly nodeResolver: NodeResolver) {
   }
 
   updateLanguages() {

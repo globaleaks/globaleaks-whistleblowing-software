@@ -22,9 +22,9 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     imports: [CollapsiblePanelComponent, RFileUploadButtonComponent, DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
 })
 export class TipFilesWhistleblowerComponent {
-  private appDataService = inject(AppDataService);
-  private cryptoService = inject(CryptoService);
-  private httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly httpService = inject(HttpService);
   protected authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
   protected wbTipService = inject(WbtipService);

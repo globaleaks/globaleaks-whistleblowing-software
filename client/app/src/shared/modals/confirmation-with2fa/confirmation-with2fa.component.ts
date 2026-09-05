@@ -10,8 +10,8 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, TranslateModule]
 })
 export class ConfirmationWith2faComponent {
-  private activeModal = inject(NgbActiveModal);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   secret: string;
   error = false;

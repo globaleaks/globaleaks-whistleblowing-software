@@ -8,9 +8,9 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
   providedIn: "root"
 })
 export class Pageguard {
-  private authenticationService = inject(AuthenticationService);
-  private router = inject(Router);
-  private appDataService = inject(AppDataService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly router = inject(Router);
+  private readonly appDataService = inject(AppDataService);
 
   canActivate(_: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     if (state.url === "/login") {

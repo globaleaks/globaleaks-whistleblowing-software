@@ -18,8 +18,8 @@ import {LicenseComponent} from "@app/pages/admin/home/license/license.component"
     imports: [TabsComponent, TabDirective, UserHomeComponent, ChangelogComponent, LicenseComponent]
 })
 export class adminHomeComponent implements OnInit {
-  private utilsService = inject(UtilsService);
-  private preference = inject(PreferenceResolver);
+  private readonly utilsService = inject(UtilsService);
+  private readonly preference = inject(PreferenceResolver);
   protected nodeResolver = inject(NodeResolver);
 
   nodeData: nodeResolverModel;

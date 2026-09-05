@@ -14,7 +14,7 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
     imports: [TranslatePipe, RouterLink, RouterLinkActive]
 })
 export class AdminSidebarComponent {
-  private router = inject(Router);
+  private readonly router = inject(Router);
   protected nodeResolver = inject(NodeResolver);
   protected authenticationService = inject(AuthenticationService);
   protected preferenceResolver = inject(PreferenceResolver);

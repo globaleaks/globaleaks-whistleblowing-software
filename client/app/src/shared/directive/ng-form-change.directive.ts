@@ -7,7 +7,7 @@ import {NgForm} from "@angular/forms";
     standalone: true
 })
 export class NgFormChangeDirective implements OnInit, OnDestroy {
-  private ngForm = inject(NgForm);
+  private readonly ngForm = inject(NgForm);
 
 
   readonly ngFormChange = output<void>();

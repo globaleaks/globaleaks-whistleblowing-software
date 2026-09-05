@@ -15,7 +15,7 @@ import {TranslateModule} from '@ngx-translate/core';
         ],
 })
 export class OtkcAccessComponent {
-  private modalService = inject(NgbModal);
+  private readonly modalService = inject(NgbModal);
   protected utils = inject(UtilsService);
 
   arg: { receipt: any, formatted_receipt: any };

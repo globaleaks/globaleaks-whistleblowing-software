@@ -15,7 +15,7 @@ import {TlsConfig} from "@app/models/component-model/tls-confiq";
 })
 export class HttpsStatusComponent implements OnInit {
   protected networkResolver = inject(NetworkResolver);
-  private nodeResolver = inject(NodeResolver);
+  private readonly nodeResolver = inject(NodeResolver);
 
   readonly updated = output<string>();
   readonly tlsConfig = input.required<TlsConfig>();

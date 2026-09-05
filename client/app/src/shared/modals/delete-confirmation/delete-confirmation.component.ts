@@ -17,9 +17,9 @@ import {contextResolverModel} from "@app/models/resolvers/context-resolver-model
     imports: [TranslateModule]
 })
 export class DeleteConfirmationComponent implements OnInit {
-  private modalService = inject(NgbActiveModal);
-  private httpService = inject(HttpService);
-  private utils = inject(UtilsService);
+  private readonly modalService = inject(NgbActiveModal);
+  private readonly httpService = inject(HttpService);
+  private readonly utils = inject(UtilsService);
   protected router = inject(Router);
 
 

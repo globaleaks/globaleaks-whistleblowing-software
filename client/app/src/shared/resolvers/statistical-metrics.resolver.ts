@@ -9,8 +9,8 @@ import {metricCatalogResolverModel} from "@app/models/resolvers/metric-catalog-r
   providedIn: "root"
 })
 export class StatisticalMetricsResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: metricCatalogResolverModel = new metricCatalogResolverModel();
 

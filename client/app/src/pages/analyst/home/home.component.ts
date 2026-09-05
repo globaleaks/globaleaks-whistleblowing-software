@@ -12,9 +12,9 @@ import {UserHomeComponent} from "@app/shared/partials/user-home/user-home.compon
     imports: [UserHomeComponent]
 })
 export class HomeComponent implements OnInit {
-  private appDataService = inject(AppDataService);
-  private utilsService = inject(UtilsService);
-  private preference = inject(PreferenceResolver);
+  private readonly appDataService = inject(AppDataService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly preference = inject(PreferenceResolver);
 
   preferenceData:  preferenceResolverModel;
 

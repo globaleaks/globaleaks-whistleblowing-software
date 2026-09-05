@@ -9,8 +9,8 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [TranslateModule]
 })
 export class ConfirmationComponent {
-  private modalService = inject(NgbModal);
-  private activeModal = inject(NgbActiveModal);
+  private readonly modalService = inject(NgbModal);
+  private readonly activeModal = inject(NgbActiveModal);
 
   arg: string;
   title = "Are you sure?";

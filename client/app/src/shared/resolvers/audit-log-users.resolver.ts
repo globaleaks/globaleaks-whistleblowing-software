@@ -8,7 +8,7 @@ import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
   providedIn: "root"
 })
 export class AuditLogUsersResolver extends ResourceResolver<User[]> {
-  private authenticationService = inject(AuthenticationService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   constructor() {
     // The users are read on the area of the role in session: the administrator

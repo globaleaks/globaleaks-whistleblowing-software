@@ -35,10 +35,10 @@ import {StatisticalTemplateViewComponent} from '@app/pages/analyst/statistics/st
 ],
 })
 export class StatisticsComponent {
-  private statisticsResolver = inject(StatisticsResolver);
-  private templatesResolver = inject(StatisticalTemplatesResolver);
-  private preferenceResolver = inject(PreferenceResolver);
-  private authenticationService = inject(AuthenticationService);
+  private readonly statisticsResolver = inject(StatisticsResolver);
+  private readonly templatesResolver = inject(StatisticalTemplatesResolver);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly authenticationService = inject(AuthenticationService);
 
   /** The statistics of the platform, as they stand right now. */
   readonly statistics = computed(() => this.statisticsResolver.resource.value());

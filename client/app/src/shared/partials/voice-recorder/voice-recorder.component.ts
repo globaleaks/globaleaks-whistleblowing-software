@@ -363,12 +363,12 @@ function anonymizeSpeaker(audioContext: AudioContext) {
     imports: [FormsModule]
 })
 export class VoiceRecorderComponent implements OnInit, OnDestroy {
-  private renderScheduler = inject(RenderSchedulerService);
-  private cd = inject(ChangeDetectorRef);
-  private utilsService = inject(UtilsService);
-  private sanitizer = inject(DomSanitizer);
+  private readonly renderScheduler = inject(RenderSchedulerService);
+  private readonly cd = inject(ChangeDetectorRef);
+  private readonly utilsService = inject(UtilsService);
+  private readonly sanitizer = inject(DomSanitizer);
   protected authenticationService = inject(AuthenticationService);
-  private submissionService = inject(SubmissionService);
+  private readonly submissionService = inject(SubmissionService);
 
   readonly uploads = input<any>();
   readonly field = input.required<Field>();

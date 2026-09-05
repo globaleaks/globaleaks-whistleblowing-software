@@ -38,9 +38,9 @@ interface ExchangeRow {
     imports: [FormsModule, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule]
 })
 export class SitesTab5Component implements OnInit {
-  private httpService = inject(HttpService);
-  private router = inject(Router);
-  private translateService = inject(TranslateService);
+  private readonly httpService = inject(HttpService);
+  private readonly router = inject(Router);
+  private readonly translateService = inject(TranslateService);
 
   sites: tenantResolverModel[] = [];
   profiles: tenantResolverModel[] = [];

@@ -21,11 +21,11 @@ import {TranslateModule} from "@ngx-translate/core";
 ],
 })
 export class Tab1Component {
-  private appConfigService = inject(AppConfigService);
+  private readonly appConfigService = inject(AppConfigService);
   protected nodeResolver = inject(NodeResolver);
   protected appDataService = inject(AppDataService);
   protected authenticationService = inject(AuthenticationService);
-  private utilsService = inject(UtilsService);
+  private readonly utilsService = inject(UtilsService);
 
   protected readonly Constants = Constants;
   readonly contentForm = input.required<NgForm>();

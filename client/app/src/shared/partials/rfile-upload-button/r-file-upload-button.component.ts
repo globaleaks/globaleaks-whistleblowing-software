@@ -21,9 +21,9 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [NgxFlowModule, FormsModule, RFileUploadStatusComponent, RFilesUploadStatusComponent, AsyncPipe, TranslateModule]
 })
 export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDestroy {
-  private renderScheduler = inject(RenderSchedulerService);
-  private cdr = inject(ChangeDetectorRef);
-  private utilsService = inject(UtilsService);
+  private readonly renderScheduler = inject(RenderSchedulerService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
   protected authenticationService = inject(AuthenticationService);
 

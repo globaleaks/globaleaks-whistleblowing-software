@@ -11,8 +11,8 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, NgbTooltipModule, TranslateModule]
 })
 export class TipOperationFileIdentityAccessReplyComponent {
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
 
 
   reply_motivation = "";

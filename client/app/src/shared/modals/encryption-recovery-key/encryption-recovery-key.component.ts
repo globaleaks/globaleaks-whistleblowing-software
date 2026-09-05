@@ -10,7 +10,7 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [NgbTooltipModule, TranslateModule]
 })
 export class EncryptionRecoveryKeyComponent {
-  private activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
   protected utilsService = inject(UtilsService);
 
 

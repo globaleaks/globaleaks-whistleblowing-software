@@ -21,10 +21,10 @@ import {TranslateModule} from "@ngx-translate/core";
 export class SiteslistComponent implements OnInit {
   protected nodeResolver = inject(NodeResolver);
   protected appDataService = inject(AppDataService);
-  private modalService = inject(NgbModal);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private elementRef = inject(ElementRef);
+  private readonly modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly elementRef = inject(ElementRef);
 
   readonly tenant = input.required<tenantResolverModel>();
   readonly tenants = input<tenantResolverModel[]>();

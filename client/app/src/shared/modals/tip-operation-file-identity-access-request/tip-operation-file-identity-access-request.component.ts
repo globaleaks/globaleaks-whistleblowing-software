@@ -14,10 +14,10 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, NgbTooltipModule, TranslateModule]
 })
 export class TipOperationFileIdentityAccessRequestComponent {
-  private modalService = inject(NgbModal);
-  private tipsService = inject(ReceiverTipService);
-  private httpService = inject(HttpService);
-  private utils = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly tipsService = inject(ReceiverTipService);
+  private readonly httpService = inject(HttpService);
+  private readonly utils = inject(UtilsService);
 
   request_motivation: string;
   modal: NgbModalRef;

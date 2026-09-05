@@ -19,12 +19,12 @@ import {filter, take} from "rxjs";
     imports: [FormsModule, SimpleLoginComponent, DefaultLoginComponent, TranslateModule]
 })
 export class LoginComponent implements OnInit {
-  private authentication = inject(AuthenticationService);
+  private readonly authentication = inject(AuthenticationService);
   router = inject(Router);
-  private route = inject(ActivatedRoute);
+  private readonly route = inject(ActivatedRoute);
   protected appDataService = inject(AppDataService);
-  private idpService = inject(IdpService);
-  private changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly idpService = inject(IdpService);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   protected readonly location = location;
   loginData = new LoginDataRef();

@@ -22,11 +22,11 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, NgbTooltipModule, StepComponent, TranslateModule, ListItemComponent]
 })
 export class StepsListComponent implements OnInit {
-  private utilsService = inject(UtilsService);
-  private modalService = inject(NgbModal);
-  private fieldUtilities = inject(FieldUtilitiesService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly fieldUtilities = inject(FieldUtilitiesService);
   protected nodeResolver = inject(NodeResolver);
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
 
   readonly step = input.required<Step>();
   readonly steps = input<Step[]>();

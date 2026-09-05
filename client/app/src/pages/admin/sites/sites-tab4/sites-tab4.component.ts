@@ -15,8 +15,8 @@ import { PaginatedInterfaceComponent } from "@app/shared/components/paginated-in
 })
 export class SitesTab4Component implements OnInit {
 
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
 
   invites: any[] = [];
   expandedRegistration = '';

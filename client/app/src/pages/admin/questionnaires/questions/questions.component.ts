@@ -20,10 +20,10 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [AddFieldComponent, FieldsComponent, FormsModule, PaginatedInterfaceComponent, TranslateModule]
 })
 export class QuestionsComponent implements OnInit {
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private fieldTemplates = inject(FieldTemplatesResolver);
-  private fieldUtilities = inject(FieldUtilitiesService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly fieldTemplates = inject(FieldTemplatesResolver);
+  private readonly fieldUtilities = inject(FieldUtilitiesService);
 
   showAddQuestion = false;
   fields: fieldtemplatesResolverModel[] = [];

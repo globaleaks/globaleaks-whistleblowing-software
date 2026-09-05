@@ -10,9 +10,9 @@ import {UtilsService} from "@app/shared/services/utils.service";
   providedIn: "root"
 })
 export class RTipsResolver {
-  private utilsService = inject(UtilsService);
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: rtipResolverModel[] = [];
 

@@ -11,8 +11,8 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, TranslateModule]
 })
 export class AssignScorePointsComponent {
-  private activeModal = inject(NgbActiveModal);
-  private modalService = inject(NgbModal);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly modalService = inject(NgbModal);
 
   arg = {
     score_points: 0,

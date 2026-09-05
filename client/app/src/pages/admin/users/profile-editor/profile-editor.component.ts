@@ -25,11 +25,11 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [CollapsibleCardComponent, CommonModule, SelectionEditorComponent, FormsModule, NgbTooltipModule, NgClass, TranslateModule]
 })
 export class ProfileEditorComponent implements OnInit {
-  private modalService = inject(NgbModal);
-  private appDataService = inject(AppDataService);
-  private preference = inject(PreferenceResolver);
-  private authenticationService = inject(AuthenticationService);
-  private nodeResolver = inject(NodeResolver);
+  private readonly modalService = inject(NgbModal);
+  private readonly appDataService = inject(AppDataService);
+  private readonly preference = inject(PreferenceResolver);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly nodeResolver = inject(NodeResolver);
   protected utilsService = inject(UtilsService);
 
   @Input() profile: UserProfile;

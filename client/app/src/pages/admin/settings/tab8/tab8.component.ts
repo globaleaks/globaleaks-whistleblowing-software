@@ -23,13 +23,13 @@ import {TranslateModule} from "@ngx-translate/core";
 })
 export class Tab8Component implements OnInit {
   protected authenticationService = inject(AuthenticationService);
-  private modalService = inject(NgbModal);
-  private appConfigService = inject(AppConfigService);
-  private utilsService = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly utilsService = inject(UtilsService);
   protected nodeResolver = inject(NodeResolver);
   protected preferenceResolver = inject(PreferenceResolver);
-  private selectablesResolver = inject(SelectablesResolver);
-  private httpService = inject(HttpService);
+  private readonly selectablesResolver = inject(SelectablesResolver);
+  private readonly httpService = inject(HttpService);
 
   readonly contentForm = input.required<NgForm>();
 

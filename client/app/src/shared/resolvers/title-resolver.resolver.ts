@@ -6,7 +6,7 @@ import {Title} from "@angular/platform-browser";
   providedIn: "root",
 })
 export class TitleResolver {
-  private titleService = inject(Title);
+  private readonly titleService = inject(Title);
 
 
   resolve(route: ActivatedRouteSnapshot): void {

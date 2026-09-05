@@ -19,11 +19,11 @@ import {HttpsCsrGenComponent} from "../https-csr-gen/https-csr-gen.component";
     imports: [TranslatePipe, HttpsCsrGenComponent, DatePipe]
 })
 export class HttpsFilesComponent implements OnInit {
-  private authenticationService = inject(AuthenticationService);
-  private nodeResolver = inject(NodeResolver);
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
-  private utilsService = inject(UtilsService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly nodeResolver = inject(NodeResolver);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly utilsService = inject(UtilsService);
 
   readonly updated = output<void>();
   readonly tlsConfig = input.required<TlsConfig>();

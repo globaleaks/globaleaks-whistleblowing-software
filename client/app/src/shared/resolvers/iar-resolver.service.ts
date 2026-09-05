@@ -9,8 +9,8 @@ import {IarData} from "@app/models/receiver/iar-data";
   providedIn: "root"
 })
 export class IarResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: IarData[] = [];
 

@@ -13,7 +13,7 @@ import {NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirectiv
   imports: [FormsModule, CommonModule, TranslateModule, NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirective]
 })
 export class AddMetricModalComponent implements OnInit {
-  private activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
 
   @Input() availableMetrics: MetricCard[] = [];
   @Input() currentMetricIds: string[] = [];

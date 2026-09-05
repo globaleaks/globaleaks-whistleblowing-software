@@ -16,9 +16,9 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [FormsModule, SelectionEditorComponent, TranslateModule]
 })
 export class Tab3Component implements OnInit {
-  private appConfigService = inject(AppConfigService);
-  private appDataService = inject(AppDataService);
-  private utilsService = inject(UtilsService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly utilsService = inject(UtilsService);
   protected nodeResolver = inject(NodeResolver);
 
   readonly contentForm = input.required<NgForm>();

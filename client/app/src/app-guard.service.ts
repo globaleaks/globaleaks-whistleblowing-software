@@ -9,8 +9,8 @@ import {UtilsService} from "@app/shared/services/utils.service";
   providedIn: "root"
 })
 export class SessionGuard {
-  private router = inject(Router);
-  private appDataService = inject(AppDataService);
+  private readonly router = inject(Router);
+  private readonly appDataService = inject(AppDataService);
   authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
 

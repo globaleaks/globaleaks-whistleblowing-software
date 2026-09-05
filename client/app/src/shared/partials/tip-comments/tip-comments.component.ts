@@ -25,9 +25,9 @@ import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
     imports: [CollapsiblePanelComponent, AutoExpandDirective, DatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, TranslateModule]
 })
 export class TipCommentsComponent {
-  private maskService = inject(MaskService);
+  private readonly maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);
-  private rTipService = inject(ReceiverTipService);
+  private readonly rTipService = inject(ReceiverTipService);
   protected authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
   appDataService = inject(AppDataService);

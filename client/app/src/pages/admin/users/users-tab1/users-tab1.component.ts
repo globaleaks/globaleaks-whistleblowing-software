@@ -23,11 +23,11 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
 })
 export class UsersTab1Component implements OnInit {
   protected nodeResolver = inject(NodeResolver);
-  private usersResolver = inject(UsersResolver);
-  private tenantsResolver = inject(TenantsResolver);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private activatedRoute = inject(ActivatedRoute);
+  private readonly usersResolver = inject(UsersResolver);
+  private readonly tenantsResolver = inject(TenantsResolver);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   showAddUser = false;
 

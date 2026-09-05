@@ -15,9 +15,9 @@ import {FormsModule} from "@angular/forms";
     imports: [TranslatePipe, FormsModule]
 })
 export class AccessControlComponent {
-  private networkResolver = inject(NetworkResolver);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly networkResolver = inject(NetworkResolver);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
 
   readonly networkData = computed(() => this.networkResolver.resource.value());
 
