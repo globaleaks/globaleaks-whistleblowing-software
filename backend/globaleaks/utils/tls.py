@@ -15,12 +15,12 @@ from OpenSSL.crypto import load_certificate, load_privatekey, FILETYPE_PEM
 # NOTE: pyOpenSSL deprecates passing its own X509/PKey objects to the
 # SSL.Context methods (use_certificate/add_extra_chain_cert/use_privatekey)
 # and asks for cryptography objects instead. That newer API is only
-# available since pyOpenSSL 23.2, while Debian 11 (bullseye, 20.0.1) and
-# Ubuntu 22.04 (jammy, 21.0.0) still ship the old one that only accepts
-# pyOpenSSL objects. Once bullseye and jammy are dropped, load the
-# certificate/key with cryptography (x509.load_pem_x509_certificate /
-# serialization.load_pem_private_key) and pass those objects directly,
-# then remove the load_certificate/load_privatekey imports above.
+# available since pyOpenSSL 23.2, while Ubuntu 22.04 (jammy, 21.0.0) still
+# ships the old one that only accepts pyOpenSSL objects. Once jammy is
+# dropped, load the certificate/key with cryptography
+# (x509.load_pem_x509_certificate / serialization.load_pem_private_key) and
+# pass those objects directly, then remove the load_certificate and
+# load_privatekey imports above.
 
 from twisted.internet import ssl
 
@@ -219,13 +219,14 @@ def split_pem_chain(s):
 
 
 def new_tls_server_context():
-    ctx = SSL.Context(SSL.SSLv23_METHOD)
+    ctx = SSL.Context(SSL.TLS_METHOD)
 
-    ctx.set_options(SSL.OP_NO_SSLv2 |
-                    SSL.OP_NO_SSLv3 |
-                    SSL.OP_NO_TLSv1 |
-                    SSL.OP_NO_TLSv1_1 |
-                    SSL.OP_CIPHER_SERVER_PREFERENCE |
+    # The floor is declared rather than subtracted: every protocol below TLS 1.2
+    # is refused by the version the context negotiates from, and not by a list of
+    # the versions to leave out
+    ctx.set_min_proto_version(SSL.TLS1_2_VERSION)
+
+    ctx.set_options(SSL.OP_CIPHER_SERVER_PREFERENCE |
                     SSL.OP_PRIORITIZE_CHACHA |
                     SSL.OP_SINGLE_ECDH_USE |
                     SSL.OP_NO_COMPRESSION |
@@ -300,13 +301,11 @@ def client_tls_options(hostname, ctx):
 
 
 def new_tls_client_context():
-    ctx = SSL.Context(SSL.SSLv23_METHOD)
+    ctx = SSL.Context(SSL.TLS_METHOD)
 
-    ctx.set_options(SSL.OP_NO_SSLv2 |
-                    SSL.OP_NO_SSLv3 |
-                    SSL.OP_NO_TLSv1 |
-                    SSL.OP_NO_TLSv1_1 |
-                    SSL.OP_SINGLE_ECDH_USE |
+    ctx.set_min_proto_version(SSL.TLS1_2_VERSION)
+
+    ctx.set_options(SSL.OP_SINGLE_ECDH_USE |
                     SSL.OP_NO_COMPRESSION |
                     SSL.OP_NO_RENEGOTIATION |
                     SSL.OP_CLEANSE_PLAINTEXT)
