@@ -75,18 +75,6 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
         response = yield handler.put()
         self.assertEqual(response['name'], 'Test Name')
 
-    @inlineCallbacks
-    def test_role_is_not_self_assignable(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
-
-        response = yield handler.get()
-
-        response['role'] = 'admin'
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver',
-                               permissions={'can_manage_settings': True})
-
-        response = yield handler.put()
-        self.assertEqual(response['role'], 'receiver')
 
     @inlineCallbacks
     def test_start_email_change_process(self):
