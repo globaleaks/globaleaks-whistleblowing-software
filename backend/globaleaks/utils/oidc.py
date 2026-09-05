@@ -272,17 +272,11 @@ class OIDCAuth:
         if response.get('error') in ('invalid_client', 'unauthorized_client'):
             raise OIDCError("The configured client is not enabled on the IdP")
 
-    def verify_token(self, token, issuer, client_id):
-        if not issuer:
-            raise OIDCError("No IdP issuer configured")
-
-        if not client_id:
-            raise OIDCError("No IdP client identifier configured")
-
-        jwks = self.jwks.get(issuer)
-        if not jwks:
-            raise OIDCError("JWKS not available for the configured issuer")
-
+    @staticmethod
+    def decode_token(token):
+        """
+        Split a token in its signed input, headers, claims and signature
+        """
         try:
             signing_input, encoded_signature = token.rsplit('.', 1)
             encoded_headers, encoded_claims = signing_input.split('.')
@@ -292,6 +286,10 @@ class OIDCAuth:
         except Exception:
             raise OIDCError("The token is malformed")
 
+        return signing_input, headers, claims, signature
+
+    @staticmethod
+    def check_token_headers(headers):
         # The signature algorithm is pinned to RS256 and never taken from the
         # token header, to avoid algorithm-confusion attacks.
         if headers.get('alg') != 'RS256':
@@ -305,28 +303,19 @@ class OIDCAuth:
         if typ is not None and typ.lower() not in ('jwt', 'application/jwt'):
             raise OIDCError("The token is not an ID token")
 
-        key = None
+    @staticmethod
+    def signing_key(jwks, kid):
+        """
+        Return the key of the JWKS the token names, refusing a token naming none
+        """
         for jwk_key in jwks.get('keys', []):
-            if jwk_key.get('kid') == headers.get('kid'):
-                key = jwk_key
-                break
+            if jwk_key.get('kid') == kid:
+                return jwk_key
 
-        if key is None:
-            raise OIDCError("Public key not found in JWKS")
+        raise OIDCError("Public key not found in JWKS")
 
-        try:
-            rsa_public_key(key).verify(signature,
-                                       signing_input.encode('utf-8'),
-                                       padding.PKCS1v15(),
-                                       hashes.SHA256())
-        except InvalidSignature:
-            raise OIDCError("The token signature is not valid")
-
-        if claims.get('iss') != issuer:
-            raise OIDCError("The token has not been issued by the configured issuer")
-
-        now = time.time()
-
+    @staticmethod
+    def check_token_validity(claims, now):
         # A token carrying no expiration would be valid forever and is
         # therefore rejected even though RFC 7519 makes the claim optional.
         try:
@@ -335,13 +324,17 @@ class OIDCAuth:
         except (KeyError, TypeError, ValueError):
             raise OIDCError("The token does not declare a valid expiration")
 
-        if 'nbf' in claims:
-            try:
-                if float(claims['nbf']) > now:
-                    raise OIDCError("The token is not valid yet")
-            except (TypeError, ValueError):
-                raise OIDCError("The token does not declare a valid validity start")
+        if 'nbf' not in claims:
+            return
 
+        try:
+            if float(claims['nbf']) > now:
+                raise OIDCError("The token is not valid yet")
+        except (TypeError, ValueError):
+            raise OIDCError("The token does not declare a valid validity start")
+
+    @staticmethod
+    def check_token_audience(claims, client_id):
         # OpenID Connect requires the ID token to be audienced to the client:
         # a token of the same issuer minted for another client - or an access
         # token, audienced to a resource - is refused; when the token also
@@ -356,5 +349,37 @@ class OIDCAuth:
 
         if 'azp' in claims and claims['azp'] != client_id:
             raise OIDCError("The token has not been issued for the configured client")
+
+    def verify_token(self, token, issuer, client_id):
+        if not issuer:
+            raise OIDCError("No IdP issuer configured")
+
+        if not client_id:
+            raise OIDCError("No IdP client identifier configured")
+
+        jwks = self.jwks.get(issuer)
+        if not jwks:
+            raise OIDCError("JWKS not available for the configured issuer")
+
+        signing_input, headers, claims, signature = self.decode_token(token)
+
+        self.check_token_headers(headers)
+
+        key = self.signing_key(jwks, headers.get('kid'))
+
+        try:
+            rsa_public_key(key).verify(signature,
+                                       signing_input.encode('utf-8'),
+                                       padding.PKCS1v15(),
+                                       hashes.SHA256())
+        except InvalidSignature:
+            raise OIDCError("The token signature is not valid")
+
+        if claims.get('iss') != issuer:
+            raise OIDCError("The token has not been issued by the configured issuer")
+
+        self.check_token_validity(claims, time.time())
+
+        self.check_token_audience(claims, client_id)
 
         return claims
