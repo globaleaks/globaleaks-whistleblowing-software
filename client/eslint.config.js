@@ -13,6 +13,12 @@ module.exports = tseslint.config(
       ...angular.configs.tsRecommended,
     ],
     processor: angular.processInlineTemplates,
+    languageOptions: {
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
     rules: {
       "@angular-eslint/directive-selector": [
         "error",
@@ -33,6 +39,9 @@ module.exports = tseslint.config(
       // Reported, not enforced: the remaining `any` are being removed
       // incrementally while the models get typed.
       "@typescript-eslint/no-explicit-any": "warn",
+      // A member assigned once and never reassigned is readonly: keeps the
+      // SonarQube S2933 debt from growing back.
+      "@typescript-eslint/prefer-readonly": "error",
     },
   },
   {
