@@ -4,7 +4,6 @@ import {FileResources} from "@app/models/component-model/file-resources";
 import {Constants} from "@app/shared/constants/constants";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {FormsModule} from "@angular/forms";
 
 @Component({
@@ -14,7 +13,6 @@ import {FormsModule} from "@angular/forms";
     imports: [TranslatePipe, FormsModule]
 })
 export class HttpsCsrGenComponent {
-  private readonly authenticationService = inject(AuthenticationService);
   private readonly httpService = inject(HttpService);
   private readonly utilsService = inject(UtilsService);
 

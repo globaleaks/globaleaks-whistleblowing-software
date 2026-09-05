@@ -27,7 +27,6 @@ import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 export class TipCommentsComponent {
   private readonly maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);
-  private readonly rTipService = inject(ReceiverTipService);
   protected authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
   appDataService = inject(AppDataService);

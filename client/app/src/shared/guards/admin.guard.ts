@@ -1,5 +1,5 @@
 import {Injectable, inject} from "@angular/core";
-import {ActivatedRoute, Router, UrlTree} from "@angular/router";
+import {Router, UrlTree} from "@angular/router";
 import {Observable} from "rxjs";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -9,7 +9,6 @@ import {UtilsService} from "@app/shared/services/utils.service";
   providedIn: "root"
 })
 export class AdminGuard {
-  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly utilsService = inject(UtilsService);
   private readonly router = inject(Router);
   private readonly appConfigService = inject(AppConfigService);

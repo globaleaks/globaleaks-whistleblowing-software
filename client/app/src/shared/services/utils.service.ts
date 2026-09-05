@@ -1,7 +1,7 @@
 import {Injectable, OutputEmitterRef, inject} from "@angular/core";
 import Flow from "@flowjs/flow.js";
 import {TranslateService} from "@ngx-translate/core";
-import {ActivatedRoute, Router} from "@angular/router";
+import {Router} from "@angular/router";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {RequestSupportComponent} from "@app/shared/modals/request-support/request-support.component";
 import {HttpService} from "@app/shared/services/http.service";
@@ -41,7 +41,6 @@ const HTTP_STATUS_CODES = Array.from({length: 500}, (_, i) => 100 + i);
 })
 export class UtilsService {
   private readonly authenticationService = inject(AuthenticationService);
-  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly appDataService = inject(AppDataService);
   private readonly cryptoService = inject(CryptoService);
   private readonly translateService = inject(TranslateService);
