@@ -10,7 +10,7 @@ import {TranslatePipe} from "@ngx-translate/core";
     imports: [NgbTooltipModule, TranslatePipe]
 })
 export class PasswordSetComponent {
-  private activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
   protected utilsService = inject(UtilsService);
 
   password: string;

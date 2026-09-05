@@ -7,8 +7,8 @@ import {AppDataService} from "@app/app-data.service";
   providedIn: "root"
 })
 export class WbtipService {
-  private httpService = inject(HttpService);
-  private appDataService = inject(AppDataService);
+  private readonly httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
 
   tip: WbTipData = new WbTipData();
 

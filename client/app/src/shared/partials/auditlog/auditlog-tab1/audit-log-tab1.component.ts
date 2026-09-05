@@ -29,11 +29,11 @@ interface AuditLogRow extends auditlogResolverModel {
 })
 export class AuditLogTab1Component implements OnInit {
   protected authenticationService = inject(AuthenticationService);
-  private auditLogResolver = inject(AuditLogResolver);
+  private readonly auditLogResolver = inject(AuditLogResolver);
   protected appDataService = inject(AppDataService);
   protected utilsService = inject(UtilsService);
-  private translateService = inject(TranslateService);
-  private activatedRoute = inject(ActivatedRoute);
+  private readonly translateService = inject(TranslateService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   auditLog: AuditLogRow[] = [];
 

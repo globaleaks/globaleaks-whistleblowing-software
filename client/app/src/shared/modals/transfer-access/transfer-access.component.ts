@@ -17,7 +17,7 @@ import {TranslatePipe} from "@ngx-translate/core";
         ],
 })
 export class TransferAccessComponent {
-  private activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
 
   usersNames: Record<string, string>;
   selectableRecipients: Receiver[];

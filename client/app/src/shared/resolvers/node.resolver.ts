@@ -10,9 +10,9 @@ import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
   providedIn: "root"
 })
 export class NodeResolver extends ResourceResolver<nodeResolverModel> {
-  private router = inject(Router);
-  private authenticationService = inject(AuthenticationService);
-  private preferenceResolver = inject(PreferenceResolver);
+  private readonly router = inject(Router);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly preferenceResolver = inject(PreferenceResolver);
 
   constructor() {
     super("api/admin/node", new nodeResolverModel());

@@ -19,7 +19,7 @@ import {TranslatePipe} from "@ngx-translate/core";
     imports: [AddFieldComponent, AddFieldFromTemplateComponent, FormsModule, FieldsComponent, OrderByPipe, TranslatePipe]
 })
 export class StepComponent implements OnInit {
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
   protected fieldTemplates = inject(FieldTemplatesResolver);
 
   readonly step = input.required<Step>();

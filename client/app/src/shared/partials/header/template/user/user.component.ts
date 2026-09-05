@@ -31,8 +31,8 @@ export class UserComponent {
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
   protected translationService = inject(TranslationService);
-  private router = inject(Router);
-  private modalService = inject(NgbModal);
+  private readonly router = inject(Router);
+  private readonly modalService = inject(NgbModal);
 
   selectedRole = {value: []};
 

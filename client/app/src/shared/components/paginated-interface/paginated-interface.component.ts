@@ -63,7 +63,7 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   // taken once, so that the pages turned afterwards are the ones of the reader
   private focusedItemId = '';
 
-  private utilsService = inject(UtilsService);
+  private readonly utilsService = inject(UtilsService);
 
   ngAfterViewInit(): void {
     this.update();

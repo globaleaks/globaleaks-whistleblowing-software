@@ -10,8 +10,8 @@ import {TranslatePipe} from "@ngx-translate/core";
     imports: [TranslatePipe]
 })
 export class ActivationComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private httpService = inject(HttpService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
 
 
   ngOnInit(): void {

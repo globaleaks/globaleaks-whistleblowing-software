@@ -20,16 +20,16 @@ import {IdpService} from "@app/services/root/idp.service";
   providedIn: "root"
 })
 export class AuthenticationService {
-  private modalService = inject(NgbModal);
-  private titleService = inject(TitleService);
-  private activatedRoute = inject(ActivatedRoute);
-  private httpService = inject(HttpService);
-  private appDataService = inject(AppDataService);
-  private router = inject(Router);
-  private sanitizer = inject(DomSanitizer);
-  private cryptoService = inject(CryptoService);
-  private oauthService = inject(OAuthService);
-  private idpService = inject(IdpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly titleService = inject(TitleService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly oauthService = inject(OAuthService);
+  private readonly idpService = inject(IdpService);
 
   public session: any = undefined;
   permissions: { can_upload_files: boolean }

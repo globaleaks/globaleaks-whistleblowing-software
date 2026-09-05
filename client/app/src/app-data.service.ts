@@ -28,7 +28,7 @@ export class AppDataService {
   contexts_by_id: any = {};
   questionnaires_by_id: any = {};
 
-  private showLoadingPanelSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+  private readonly showLoadingPanelSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   showLoadingPanel$: Observable<boolean> = this.showLoadingPanelSubject.asObservable();
 
   public publicSubject: BehaviorSubject<Root> = new BehaviorSubject<Root>({} as Root);

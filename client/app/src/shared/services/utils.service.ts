@@ -40,15 +40,15 @@ const HTTP_STATUS_CODES = Array.from({length: 500}, (_, i) => 100 + i);
   providedIn: "root"
 })
 export class UtilsService {
-  private authenticationService = inject(AuthenticationService);
-  private activatedRoute = inject(ActivatedRoute);
-  private appDataService = inject(AppDataService);
-  private cryptoService = inject(CryptoService);
-  private translateService = inject(TranslateService);
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
-  private preferenceResolver = inject(PreferenceResolver);
-  private router = inject(Router);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly appDataService = inject(AppDataService);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly translateService = inject(TranslateService);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly router = inject(Router);
 
   supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
 

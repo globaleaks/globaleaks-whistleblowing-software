@@ -8,13 +8,13 @@ import {Router} from "@angular/router";
   providedIn: 'root'
 })
 export class TitleService {
-  private appDataService = inject(AppDataService);
-  private translateService = inject(TranslateService);
-  private router = inject(Router);
+  private readonly appDataService = inject(AppDataService);
+  private readonly translateService = inject(TranslateService);
+  private readonly router = inject(Router);
 
   // The node is resolved lazily: this service is reached from the
   // authentication, which the resolver of the node is reached through in turn
-  private injector = inject(Injector);
+  private readonly injector = inject(Injector);
 
   private get isProfile(): boolean {
     return !!this.injector.get(NodeResolver).dataModel.is_profile;
