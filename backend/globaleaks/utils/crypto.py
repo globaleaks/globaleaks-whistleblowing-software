@@ -47,7 +47,7 @@ MAGIC = b'GCE\x00'
 VERSION_V2 = 2
 
 
-def _convert_to_bytes(arg: Union[bytes, str]) -> bytes:
+def _convert_to_bytes(arg: bytes | str) -> bytes:
     """
     Convert the argument to bytes if of string type
     :param arg: a string or a byte object
@@ -59,7 +59,7 @@ def _convert_to_bytes(arg: Union[bytes, str]) -> bytes:
     return arg
 
 
-def sha256(data: Union[bytes, str]) -> bytes:
+def sha256(data: bytes | str) -> bytes:
     """
     Perform the sha256 of the passed data
     :param data: A data to be hashed
@@ -114,17 +114,17 @@ class _StreamingEncryptionObject:
     PADDING_MIN = 8
     PADDING_MAX = 65535
 
-    def __init__(self, mode: str, user_key: Union[bytes, str], filepath: str) -> None:
+    def __init__(self, mode: str, user_key: bytes | str, filepath: str) -> None:
         self.mode = mode
         self.user_key = user_key
         self.filepath = filepath
 
-        self.key: Optional[bytes] = None
-        self.partial_nonce: Optional[bytes] = None
+        self.key: bytes | None = None
+        self.partial_nonce: bytes | None = None
         self.EOF = False
         self.index = 0
         self.use_secretstream = False
-        self.version: Optional[int] = None
+        self.version: int | None = None
 
         self.fd = open(filepath, 'wb' if mode == 'ENCRYPT' else 'rb')  # noqa: SIM115 - long-lived handle for streaming (de)cryption, closed explicitly
         if mode == 'ENCRYPT':
@@ -288,7 +288,7 @@ class _StreamingEncryptionObject:
     def __enter__(self) -> '_StreamingEncryptionObject':
         return self
 
-    def __exit__(self, exc_type: Optional[Any], exc_val: Optional[Any], exc_tb: Optional[Any]) -> None:
+    def __exit__(self, exc_type: Any | None, exc_val: Any | None, exc_tb: Any | None) -> None:
         self.close()
 
 
@@ -365,7 +365,7 @@ class _GCE:
         return Base64Encoder.encode(hashv).decode()
 
     @staticmethod
-    def derive_key(password: Union[bytes, str], salt: str) -> bytes:
+    def derive_key(password: bytes | str, salt: str) -> bytes:
         """
         Perform key derivation from a user password.
         """
@@ -471,7 +471,7 @@ class _GCE:
         return _GCE._strip_message_padding(plaintext)
 
     @staticmethod
-    def asymmetric_encrypt(pub_key: Union[bytes, str], data: Union[bytes, str]) -> bytes:
+    def asymmetric_encrypt(pub_key: bytes | str, data: bytes | str) -> bytes:
         """
         Perform asymmetric encryption using libsodium sealedbox (Curve25519, XSalsa20-Poly1305).
         """
@@ -487,7 +487,7 @@ class _GCE:
         return SealedBox(prv).decrypt(_convert_to_bytes(data))
 
     @staticmethod
-    def streaming_encryption_open(mode: str, user_key: Union[bytes, str], filepath: str) -> _StreamingEncryptionObject:
+    def streaming_encryption_open(mode: str, user_key: bytes | str, filepath: str) -> _StreamingEncryptionObject:
         return _StreamingEncryptionObject(mode, user_key, filepath)
 
 
