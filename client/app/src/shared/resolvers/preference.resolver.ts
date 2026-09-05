@@ -28,7 +28,7 @@ export class PreferenceResolver extends ResourceResolver<preferenceResolverModel
       return of(true);
     }
 
-    const url = this.router.getCurrentNavigation()?.finalUrl?.toString() ?? this.router.url;
+    const url = this.router.currentNavigation()?.finalUrl?.toString() ?? this.router.url;
 
     return this.resolveAndWait().pipe(
       tap(() => {
