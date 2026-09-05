@@ -1,9 +1,15 @@
-from twisted.internet.defer import Deferred
+from twisted.internet.defer import Deferred, fail, succeed
 from twisted.internet.protocol import Factory, Protocol
+from twisted.internet.ssl import optionsForClientTLS
+from twisted.internet.task import Clock
 from twisted.internet.testing import StringTransportWithDisconnection
+from twisted.protocols import tls
+from twisted.python.failure import Failure
 from twisted.trial import unittest
+from twisted.web.client import BrowserLikePolicyForHTTPS, URI
 
-from globaleaks.utils.socks import SOCKS5ClientProtocol
+from globaleaks.utils.socks import SOCKS5Agent, SOCKS5ClientEndpoint, SOCKS5ClientFactory, SOCKS5ClientProtocol, \
+    TLSWrapClientEndpoint
 
 class DummyFactory(Factory):
     def __init__(self):
@@ -70,7 +76,7 @@ class TestSOCKS5ClientProtocol(unittest.TestCase):
     def test_deferred_callback(self):
         """Test that the deferred callback is fired upon successful connection."""
         results = []
-        self.deferred.addCallback(lambda x: results.append(x))
+        self.deferred.addCallback(results.append)
         self.protocol.state = 3
         self.protocol.dataReceived(b"\x00" * 8)
         self.assertEqual(results, [self.wrappedProtocol])
@@ -79,3 +85,164 @@ class TestSOCKS5ClientProtocol(unittest.TestCase):
         """Test that the transport is properly disconnected on error."""
         self.protocol.error()
         self.assertIsNone(self.protocol.transport)  # Transport should be set to None
+
+    def test_data_following_the_reply_is_passed_through(self):
+        self.protocol.state = 3
+        self.protocol.dataReceived(b"\x00" * 8 + b"hello")
+        self.assertEqual(self.protocol.state, 4)
+        self.assertEqual(self.wrappedProtocol.data, b"hello")
+        self.assertEqual(self.protocol._buf, b"")
+
+    def test_the_error_state_aborts_the_connection(self):
+        self.protocol.state = 0
+        self.protocol.dataReceived(b"\x05")
+        self.assertIsNone(self.protocol.transport)
+
+
+class FakeProxyEndpoint:
+    def __init__(self):
+        self.factories = []
+        self.transport = StringTransportWithDisconnection()
+
+    def connect(self, factory):
+        self.factories.append(factory)
+        protocol = factory.buildProtocol(None)
+        self.transport.protocol = protocol
+        protocol.makeConnection(self.transport)
+        return succeed(protocol)
+
+
+class TestSOCKS5ClientFactory(unittest.TestCase):
+    def setUp(self):
+        self.wrappedFactory = Factory.forProtocol(DummyProtocol)
+        self.factory = SOCKS5ClientFactory(b"example.com", 80, self.wrappedFactory)
+
+    def test_the_protocol_wraps_the_one_of_the_wrapped_factory(self):
+        protocol = self.factory.buildProtocol(None)
+
+        self.assertIsInstance(protocol, SOCKS5ClientProtocol)
+        self.assertIs(protocol.wrappedProtocol, self.factory.proto)
+        self.assertIsInstance(self.factory.proto, DummyProtocol)
+        self.assertEqual(protocol._host, b"example.com")
+        self.assertEqual(protocol._port, 80)
+
+    def test_a_wrapped_factory_that_fails_to_build_fails_the_connection(self):
+        def failing(addr):
+            raise ValueError("no protocol")
+
+        self.wrappedFactory.buildProtocol = failing
+
+        self.assertIsNone(self.factory.buildProtocol(None))
+
+        return self.assertFailure(self.factory.deferred, ValueError)
+
+    def test_a_failed_connection_fails_the_connection(self):
+        self.factory.clientConnectionFailed(None, Failure(ConnectionRefusedError()))
+
+        return self.assertFailure(self.factory.deferred, ConnectionRefusedError)
+
+    def test_a_canceled_connection_aborts_the_transport_and_is_not_reported(self):
+        transport = StringTransportWithDisconnection()
+        self.factory.proto = DummyProtocol()
+        self.factory.proto.sender = DummyProtocol()
+        self.factory.proto.sender.transport = transport
+        transport.protocol = self.factory.proto.sender
+
+        self.factory.deferred.cancel()
+
+        self.assertTrue(self.factory.canceled)
+        self.assertFalse(transport.connected)
+
+        self.factory.clientConnectionFailed(None, Failure(ConnectionRefusedError()))
+        self.factory.clientConnectionLost(None, None)
+
+        return self.assertFailure(self.factory.deferred, Exception)
+
+    def test_a_protocol_is_unregistered_once_and_harmlessly_twice(self):
+        protocol = self.factory.buildProtocol(None)
+        self.factory.registerProtocol(protocol)
+        self.assertIn(protocol, self.factory.protocols)
+
+        self.factory.unregisterProtocol(protocol)
+        self.factory.unregisterProtocol(protocol)
+        self.assertNotIn(protocol, self.factory.protocols)
+
+
+class TestSOCKS5ClientEndpoint(unittest.TestCase):
+    def test_the_connection_is_established_through_the_proxy(self):
+        proxy = FakeProxyEndpoint()
+        endpoint = SOCKS5ClientEndpoint(b"example.com", 80, proxy)
+
+        d = endpoint.connect(Factory.forProtocol(DummyProtocol))
+
+        self.assertEqual(len(proxy.factories), 1)
+        self.assertIsInstance(proxy.factories[0], SOCKS5ClientFactory)
+        self.assertEqual(proxy.transport.value()[:3], b"\x05\x01\x00")
+
+        return d.addCallback(lambda protocol: self.assertIsInstance(protocol, DummyProtocol))
+
+
+class TestTLSWrapClientEndpoint(unittest.TestCase):
+    def test_the_factory_is_wrapped_in_tls_and_the_protocol_unwrapped(self):
+        wrapped = []
+
+        class WrappedEndpoint:
+            def connect(self, factory):
+                wrapped.append(factory)
+                protocol = DummyProtocol()
+                protocol.wrappedProtocol = DummyProtocol()
+                return succeed(protocol)
+
+        factory = Factory.forProtocol(DummyProtocol)
+        endpoint = TLSWrapClientEndpoint(optionsForClientTLS("example.com"), WrappedEndpoint())
+
+        d = endpoint.connect(factory)
+
+        self.assertIsInstance(wrapped[0], tls.TLSMemoryBIOFactory)
+        self.assertIs(wrapped[0].wrappedFactory, factory)
+
+        return d.addCallback(lambda protocol: self.assertIsInstance(protocol, DummyProtocol))
+
+
+class TestSOCKS5Agent(unittest.TestCase):
+    def setUp(self):
+        self.proxy = FakeProxyEndpoint()
+        self.agent = SOCKS5Agent(Clock(), proxyEndpoint=self.proxy)
+
+    def test_the_context_factory_is_required_to_be_a_policy(self):
+        self.assertIsInstance(self.agent._policyForHTTPS, BrowserLikePolicyForHTTPS)
+        self.assertEqual(self.agent.endpointArgs, {})
+
+        self.assertRaises(NotImplementedError, SOCKS5Agent, Clock(), contextFactory=object())
+
+    def test_a_plaintext_uri_is_reached_through_the_proxy(self):
+        endpoint = self.agent.endpointForURI(URI.fromBytes(b"http://example.com:8080/path"))
+
+        self.assertIsInstance(endpoint, SOCKS5ClientEndpoint)
+        self.assertEqual(endpoint.host, b"example.com")
+        self.assertEqual(endpoint.port, 8080)
+        self.assertIs(endpoint.proxyEndpoint, self.proxy)
+
+    def test_a_protected_uri_is_reached_through_the_proxy_under_tls(self):
+        endpoint = self.agent.endpointForURI(URI.fromBytes(b"https://example.com/path"))
+
+        self.assertIsInstance(endpoint, TLSWrapClientEndpoint)
+        self.assertIsInstance(endpoint.wrappedEndpoint, SOCKS5ClientEndpoint)
+        self.assertEqual(endpoint.wrappedEndpoint.host, b"example.com")
+        self.assertEqual(endpoint.wrappedEndpoint.port, 443)
+
+    def test_the_requests_are_delegated_to_the_wrapped_agent(self):
+        requests = []
+
+        class WrappedAgent:
+            def request(self, *args, **kwargs):
+                requests.append((args, kwargs))
+                return fail(Exception("no network"))
+
+        self.agent._wrappedAgent = WrappedAgent()
+
+        d = self.agent.request(b"GET", b"http://example.com/", headers=None)
+
+        self.assertEqual(requests, [((b"GET", b"http://example.com/"), {"headers": None})])
+
+        return self.assertFailure(d, Exception)
