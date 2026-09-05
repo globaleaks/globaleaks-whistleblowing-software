@@ -72,7 +72,7 @@ export class AppConfigService {
         this.themeService.setPrimaryColor(this.appDataService.public.node.primary_color);
 
         if (this.appDataService.public.node.idp || this.appDataService.public.node.signup_idp) {
-          this.idpService.initialize().then(authenticated => {
+          void this.idpService.initialize().then(authenticated => {
             if (authenticated && this.authenticationService.session) {
               this.idpService.setupAutomaticRefresh();
             }
@@ -180,7 +180,7 @@ export class AppConfigService {
     this.appDataService.public.node.languages_enabled = [];
     this.appDataService.public.node.name = "Globaleaks";
 
-    this.router.navigateByUrl(newPath).then(() => {
+    void this.router.navigateByUrl(newPath).then(() => {
       this.sidebar = "admin-sidebar";
       this.titleService.setTitle();
       this.renderScheduler.schedule();
@@ -266,9 +266,9 @@ export class AppConfigService {
 
   reload() {
     const url = this.utilsService.currentUrl();
-    this.router.navigateByUrl('/blank', {skipLocationChange: true}).then(() => {
+    void this.router.navigateByUrl('/blank', {skipLocationChange: true}).then(() => {
       this.localInitialization(() => {
-        this.router.navigateByUrl(url);
+        void this.router.navigateByUrl(url);
       });
     });
   }

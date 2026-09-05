@@ -80,7 +80,7 @@ export class WbFilesComponent {
 
     const param = JSON.stringify({});
     this.httpService.requestToken(param).subscribe({
-        next: async token => {
+        next: token => {
           this.cryptoService.proofOfWork(token).subscribe(
             (ans) => {
               if (this.authenticationService.session?.role === "whistleblower") {

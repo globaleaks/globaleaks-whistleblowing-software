@@ -164,7 +164,7 @@ export class TipComponent implements OnInit {
   }
 
   openExchangedReport(id: string) {
-    this.router.navigate(["/reports", id]);
+    void this.router.navigate(["/reports", id]);
   }
 
   // The row opens for the recipients that follow what was filed
@@ -334,7 +334,7 @@ export class TipComponent implements OnInit {
       next: response => {
         const names = response as Record<string, string>;
         const selectableRecipients: Receiver[] = [];
-        this.appDataService.public.receivers.forEach(async (receiver: Receiver) => {
+        this.appDataService.public.receivers.forEach((receiver: Receiver) => {
           if (receiver.id !== this.authenticationService.session.user_id && !this.tip.receivers_by_id[receiver.id]) {
             receiver.name = names[receiver.id];
             selectableRecipients.push(receiver);
@@ -365,7 +365,7 @@ export class TipComponent implements OnInit {
         next: response => {
           const names = response as Record<string, string>;
           const selectableRecipients: Receiver[] = [];
-          this.appDataService.public.receivers.forEach(async (receiver: Receiver) => {
+          this.appDataService.public.receivers.forEach((receiver: Receiver) => {
             if (receiver.id !== this.authenticationService.session.user_id && this.tip.receivers_by_id[receiver.id]) {
               receiver.name = names[receiver.id];
               selectableRecipients.push(receiver);
@@ -397,7 +397,7 @@ export class TipComponent implements OnInit {
         next: response => {
           const names = response as Record<string, string>;
           const selectableRecipients: Receiver[] = [];
-          this.appDataService.public.receivers.forEach(async (receiver: Receiver) => {
+          this.appDataService.public.receivers.forEach((receiver: Receiver) => {
             if (receiver.id !== this.authenticationService.session.user_id && !this.tip.receivers_by_id[receiver.id]) {
               receiver.name = names[receiver.id];
               selectableRecipients.push(receiver);
@@ -416,7 +416,7 @@ export class TipComponent implements OnInit {
                 };
                 this.httpService.tipOperation(req.operation, req.args, this.tip.id)
                   .subscribe(() => {
-                    this.router.navigate(["recipient", "reports"]).then();
+                    void this.router.navigate(["recipient", "reports"]);
                   });
               }
             },

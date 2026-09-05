@@ -20,7 +20,7 @@ export class AuditorGuard {
       if(this.authenticationService.session.role === "auditor"){
         this.appConfigService.setPage(this.router.url);
       }else {
-        this.router.navigateByUrl("/login").then();
+        void this.router.navigateByUrl("/login");
       }
       return true;
     } else {

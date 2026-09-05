@@ -18,7 +18,7 @@ export class RecipientSettingsComponent {
 
   constructor() {
     if (!this.preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
-      this.router.navigate(['recipient/home']).then();
+      void this.router.navigate(['recipient/home']);
     }
   }
 }

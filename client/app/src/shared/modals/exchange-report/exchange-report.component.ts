@@ -271,7 +271,7 @@ export class ExchangeReportComponent implements OnInit, OnDestroy {
 
         // The reader follows what it filed where it keeps access: a request, or a report on itself
         if (this.navigateOnSuccess && response.accessible) {
-          this.router.navigate(["reports", response.id]).then();
+          void this.router.navigate(["reports", response.id]);
         }
       },
       error: (response: any) => {

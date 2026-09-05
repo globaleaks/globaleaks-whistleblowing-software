@@ -21,7 +21,7 @@ export class ReceiptComponent{
   formattedReceipt = "";
 
   viewReport() {
-    this.authenticationService.login(0, 'whistleblower', this.formattedReceipt);
+    void this.authenticationService.login(0, 'whistleblower', this.formattedReceipt);
     this.formattedReceipt = ""
   }
 }

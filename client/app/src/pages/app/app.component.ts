@@ -112,7 +112,7 @@ export class AppComponent implements AfterViewInit, OnInit {
     }
 
     setTimeout(() => {
-      this.liveAnnouncer.announce(this.document.title, "polite");
+      void this.liveAnnouncer.announce(this.document.title, "polite");
 
       const active = this.document.activeElement;
       if (!active || active === this.document.body) {

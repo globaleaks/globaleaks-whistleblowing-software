@@ -32,7 +32,7 @@ export class MessageConsoleComponent implements AfterViewChecked {
       // The error is read as soon as it is shown: it goes away by itself after a few seconds
       const text = (this.element.nativeElement as HTMLElement).textContent?.replace(/[\s×]+/g, " ").trim();
       if (text) {
-        this.liveAnnouncer.announce(text, "assertive");
+        void this.liveAnnouncer.announce(text, "assertive");
       }
       this.timeoutId = setTimeout(() => {
         this.dismissError();

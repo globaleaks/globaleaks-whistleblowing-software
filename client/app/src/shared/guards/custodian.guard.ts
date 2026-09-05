@@ -20,7 +20,7 @@ export class CustodianGuard {
       if(this.authenticationService.session.role === "custodian"){
         this.appConfigService.setPage(this.router.url);
       }else {
-        this.router.navigateByUrl("/login").then();
+        void this.router.navigateByUrl("/login");
       }
       return true;
     } else {

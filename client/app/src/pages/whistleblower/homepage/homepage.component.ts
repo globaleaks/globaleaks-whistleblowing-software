@@ -29,7 +29,7 @@ export class HomepageComponent  implements OnInit {
   // it is shown as well to whoever reaches it without passing from here
   openSubmission() {
     if (this.appDataService.public.node.whistleblowing_destination === "/login") {
-      this.router.navigate(["/login"]).then();
+      void this.router.navigate(["/login"]);
       return this.appDataService.page;
     }
 

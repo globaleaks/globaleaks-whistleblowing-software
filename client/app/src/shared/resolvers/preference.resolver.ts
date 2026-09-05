@@ -34,9 +34,9 @@ export class PreferenceResolver extends ResourceResolver<preferenceResolverModel
       tap(() => {
         if (!url.startsWith("/action/")) {
           if (this.dataModel.password_change_needed) {
-            this.router.navigate(["/action/forcedpasswordchange"]).then();
+            void this.router.navigate(["/action/forcedpasswordchange"]);
           } else if (this.dataModel.require_two_factor) {
-            this.router.navigate(["/action/forcedtwofactor"]).then();
+            void this.router.navigate(["/action/forcedtwofactor"]);
           }
         }
       })

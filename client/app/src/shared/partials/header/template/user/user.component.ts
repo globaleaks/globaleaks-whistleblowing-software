@@ -133,6 +133,6 @@ export class UserComponent {
             }
           },
         });
-      })
+      }, () => { /* dismissed */ });
   }
 }
