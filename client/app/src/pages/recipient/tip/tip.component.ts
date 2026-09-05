@@ -22,7 +22,6 @@ import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmatio
 import {
   TipOperationPostponeComponent
 } from "@app/shared/modals/tip-operation-postpone/tip-operation-postpone.component";
-import {CryptoService} from "@app/shared/services/crypto.service";
 import {TransferAccessComponent} from "@app/shared/modals/transfer-access/transfer-access.component";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {ExchangeReport, RecieverTipData} from "@app/models/receiver/receiver-tip-data";
@@ -83,7 +82,6 @@ export class TipComponent implements OnInit {
   private readonly appConfigServices = inject(AppConfigService);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly cryptoService = inject(CryptoService);
   protected utils = inject(UtilsService);
   protected preferencesService = inject(PreferenceResolver);
   protected modalService = inject(NgbModal);

@@ -6,7 +6,7 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {TranslationService} from "@app/services/helper/translation.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {ActivatedRoute, Router} from "@angular/router";
+import {ActivatedRoute} from "@angular/router";
 import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {ReceiptComponent} from "../../../receipt/receipt.component";
@@ -33,7 +33,6 @@ export class UserComponent {
   protected appDataService = inject(AppDataService);
   protected translationService = inject(TranslationService);
   protected themeService = inject(ThemeService);
-  private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
 
   selectedRole = {value: []};

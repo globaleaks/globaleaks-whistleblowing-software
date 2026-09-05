@@ -1,6 +1,5 @@
 import {Component, OnInit, inject} from "@angular/core";
 import {NgbDateStruct, NgbModal, NgbInputDatepicker} from "@ng-bootstrap/ng-bootstrap";
-import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
 import {TranslatePipe} from "@ngx-translate/core";
@@ -15,7 +14,6 @@ import {TranslatePipe} from "@ngx-translate/core";
 export class TipOperationSetReminderComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly httpService = inject(HttpService);
-  private readonly utils = inject(UtilsService);
 
   args: any;
 
