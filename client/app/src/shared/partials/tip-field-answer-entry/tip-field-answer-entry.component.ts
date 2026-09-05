@@ -80,7 +80,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
       const url = this.getApiUrl(id);
 
       this.httpService.requestBlobResource(url, {
-        'x-session': this.authenticationService.session.id
+        'x-session': this.authenticationService.session?.id ?? ""
       }).subscribe((response: Blob) => {
         this.audioFiles[reference_id] = response;
         window.addEventListener("message", (message: MessageEvent) => {

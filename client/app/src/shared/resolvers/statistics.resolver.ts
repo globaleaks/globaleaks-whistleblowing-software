@@ -14,6 +14,6 @@ export class StatisticsResolver extends ResourceResolver<statisticsResolverModel
   }
 
   protected allowed(): boolean {
-    return this.authenticationService.session.role === "analyst";
+    return this.authenticationService.session?.role === "analyst";
   }
 }

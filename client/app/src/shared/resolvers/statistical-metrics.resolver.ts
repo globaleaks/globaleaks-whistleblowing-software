@@ -15,7 +15,7 @@ export class StatisticalMetricsResolver {
   dataModel: metricCatalogResolverModel = new metricCatalogResolverModel();
 
   resolve(): Observable<boolean> {
-    const role = this.authenticationService.session.role;
+    const role = this.authenticationService.session?.role;
     if (role === "analyst" || role === "admin") {
       return this.httpService.requestMetricCatalog().pipe(
         map((response) => {
