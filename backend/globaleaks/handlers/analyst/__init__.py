@@ -486,20 +486,14 @@ def apply_filters_to_query(session, query, filters, tid):
     return query
 
 
-def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
-    tip_rows = session.query(
-        models.InternalTip.id,
-        models.InternalTip.creation_date
-    ).join(
-        filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTip.id
-    ).filter(
-        models.InternalTip.tid == tid
-    ).all()
-    if not tip_rows:
-        return _empty_time_metrics()
+def _average(values):
+    return sum(values) / len(values) if values else 0
 
-    tip_creation_map = {tip_id: creation_date for tip_id, creation_date in tip_rows}
 
+def _db_first_status_dates(session, tid, filtered_tips_subquery):
+    """
+    Return, by report, the date of its first opening and the one of its first closure
+    """
     first_opened_by_tip = {}
     first_closed_by_tip = {}
     status_logs = session.query(
@@ -522,6 +516,13 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
         elif status == 'closed' and object_id not in first_closed_by_tip:
             first_closed_by_tip[object_id] = log_date
 
+    return first_opened_by_tip, first_closed_by_tip
+
+
+def _processing_times(tip_creation_map, first_opened_by_tip, first_closed_by_tip):
+    """
+    Return the hours the reports took to be opened and the ones they took to be closed
+    """
     opening_times = []
     closure_times = []
     for tip_id, creation_date in tip_creation_map.items():
@@ -537,11 +538,14 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
         if closure_hours is not None:
             closure_times.append(closure_hours)
 
-    avg_opening_time = sum(opening_times) / len(opening_times) if opening_times else 0
-    avg_closure_time = sum(closure_times) / len(closure_times) if closure_times else 0
+    return opening_times, closure_times
 
-    # The first reply to the whistleblower is the first public content
-    # authored by a recipient: a comment or an uploaded file
+
+def _db_first_recipient_replies(session, tid, filtered_tips_subquery):
+    """
+    Return, by report, the date of the first reply to the whistleblower: the first public content
+    authored by a recipient, a comment or an uploaded file
+    """
     first_receiver_comment_rows = session.query(
         models.Comment.internaltip_id,
         func.min(models.Comment.creation_date)
@@ -577,14 +581,14 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
         if current is None or first_date < current:
             first_recipient_reply_by_tip[internaltip_id] = first_date
 
-    response_times = []
-    for internaltip_id, first_reply_date in first_recipient_reply_by_tip.items():
-        hours = _hours_between(first_reply_date, tip_creation_map.get(internaltip_id))
-        if hours is not None:
-            response_times.append(hours)
-    avg_first_reply_time = sum(response_times) / len(response_times) if response_times else 0
+    return first_recipient_reply_by_tip
 
-    exchange_counts_query = session.query(
+
+def _db_exchange_counts(session, tid, filtered_tips_subquery):
+    """
+    Return the number of comments of each report that carries some
+    """
+    return session.query(
         models.Comment.internaltip_id,
         func.count(models.Comment.id).label('cnt')
     ).join(
@@ -593,17 +597,41 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
         filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTip.id
     ).filter(
         models.InternalTip.tid == tid
-    ).group_by(models.Comment.internaltip_id)
+    ).group_by(models.Comment.internaltip_id).all()
 
-    exchange_data = exchange_counts_query.all()
+
+def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
+    tip_rows = session.query(
+        models.InternalTip.id,
+        models.InternalTip.creation_date
+    ).join(
+        filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTip.id
+    ).filter(
+        models.InternalTip.tid == tid
+    ).all()
+    if not tip_rows:
+        return _empty_time_metrics()
+
+    tip_creation_map = {tip_id: creation_date for tip_id, creation_date in tip_rows}
+
+    first_opened_by_tip, first_closed_by_tip = _db_first_status_dates(session, tid, filtered_tips_subquery)
+    opening_times, closure_times = _processing_times(tip_creation_map, first_opened_by_tip, first_closed_by_tip)
+
+    response_times = []
+    for internaltip_id, first_reply_date in _db_first_recipient_replies(session, tid, filtered_tips_subquery).items():
+        hours = _hours_between(first_reply_date, tip_creation_map.get(internaltip_id))
+        if hours is not None:
+            response_times.append(hours)
+
+    exchange_data = _db_exchange_counts(session, tid, filtered_tips_subquery)
     total_exchanges = sum(cnt for _, cnt in exchange_data)
     num_tips_with_exchanges = len(exchange_data)
     avg_exchanges_per_tip = total_exchanges / num_tips_with_exchanges if num_tips_with_exchanges > 0 else 0
 
     return {
-        "avg_opening_time_hours": _round_time_metric(avg_opening_time),
-        "avg_first_reply_time_hours": _round_time_metric(avg_first_reply_time),
-        "avg_closure_time_hours": _round_time_metric(avg_closure_time),
+        "avg_opening_time_hours": _round_time_metric(_average(opening_times)),
+        "avg_first_reply_time_hours": _round_time_metric(_average(response_times)),
+        "avg_closure_time_hours": _round_time_metric(_average(closure_times)),
         "avg_exchanges_per_report": round(avg_exchanges_per_tip, 2),
         "total_exchanges": total_exchanges,
         "reports_with_exchanges": num_tips_with_exchanges
