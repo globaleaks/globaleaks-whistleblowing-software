@@ -330,6 +330,19 @@ class StateClass(ObjectDict, metaclass=Singleton):
         """
         return tw(db_support_mail_texts, tid, mail_type, self.tenants[tid].cache.default_language)
 
+    @staticmethod
+    def encrypt_support_email(text, pgp_key_public):
+        """
+        Encrypt a notice to the key of its recipient, when it holds one; sent in clear otherwise
+        """
+        if not pgp_key_public:
+            return text
+
+        try:
+            return PGPContext(pgp_key_public).encrypt_message(text)
+        except Exception:
+            return text
+
     @inlineCallbacks
     def schedule_support_email(self, tid, support_request_id='', escalate=True):
         # Content free: the request is stored encrypted and read after the authentication
@@ -353,13 +366,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
 
                 delivered.add(mail_address)
 
-                body = text_with_url
-
-                if pgp_key_public:
-                    try:
-                        body = PGPContext(pgp_key_public).encrypt_message(body)
-                    except Exception:
-                        body = text_with_url
+                body = self.encrypt_support_email(text_with_url, pgp_key_public)
 
                 deferreds.append(tw(db_schedule_email, tid, mail_address, subject, body))
 

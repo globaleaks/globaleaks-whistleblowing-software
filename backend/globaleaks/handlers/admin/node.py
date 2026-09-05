@@ -227,6 +227,29 @@ class NodeInstance(BaseHandler):
 
         return ret
 
+    @staticmethod
+    @inlineCallbacks
+    def sync_backup_job(request, ret):
+        """
+        Backup is a global (tenant 1) feature: keep the Backup job lifecycle
+        in sync with its configuration so that disabling it actually stops the
+        running job rather than leaving it looping as a no-op.
+        """
+        # Imported lazily: the jobs package imports this module at load time.
+        from globaleaks.jobs.job import reschedule_job, stop_job  # noqa: PLC0415
+
+        if not request['backup_enabled']:
+            yield stop_job("Backup")
+            return
+
+        # Re-arm rather than start: the job is already running since
+        # startup, so this is what makes a changed backup time/period
+        # actually take effect (get_delay is recomputed).
+        reschedule_job("Backup")
+        backup_job = State.jobs_status.get("Backup", None)
+        if backup_job:
+            ret["backup_job_status"] = backup_job["status"]
+
     @inlineCallbacks
     def put(self):
         """
@@ -248,22 +271,8 @@ class NodeInstance(BaseHandler):
                        request,
                        self.request.language)
 
-        # Backup is a global (tenant 1) feature: keep the Backup job lifecycle
-        # in sync with its configuration so that disabling it actually stops the
-        # running job rather than leaving it looping as a no-op.
         if self.request.tid == 1 and 'backup_enabled' in request:
-            # Imported lazily: the jobs package imports this module at load time.
-            from globaleaks.jobs.job import reschedule_job, stop_job  # noqa: PLC0415
-            if request['backup_enabled']:
-                # Re-arm rather than start: the job is already running since
-                # startup, so this is what makes a changed backup time/period
-                # actually take effect (get_delay is recomputed).
-                reschedule_job("Backup")
-                backup_job = State.jobs_status.get("Backup", None)
-                if backup_job:
-                    ret["backup_job_status"] = backup_job["status"]
-            else:
-                yield stop_job("Backup")
+            yield self.sync_backup_job(request, ret)
 
         tenant = self.state.tenants.get(self.request.tid)
         if tenant is not None:
