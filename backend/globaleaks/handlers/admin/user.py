@@ -44,6 +44,147 @@ def db_default_profile_permissions(role, user_session=None):
     return permissions
 
 
+def db_new_user_profile(session, tid, request, user_session):
+    """
+    Give an account bound to no shared profile a profile of its own, of its role
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param request: The request data
+    :param user_session: The session of the user performing the operation
+    """
+    request['profile_id'] = request['id']
+
+    profile = {
+      'id': request['id'],
+      'role': request['role'],
+      'roles':  [request['role']],
+      'permissions':  db_default_profile_permissions(request['role'], user_session)
+    }
+
+    db_create_user_profile(session, tid, profile)
+
+
+def db_user_key(user, request, defer_password_setup):
+    """
+    Set the hash of an account from its password, given or generated
+
+    :param user: The account
+    :param request: The request data
+    :param defer_password_setup: Whether the account holds no password yet
+    :return: The key derived from the password, None when the account holds no password
+    """
+    if defer_password_setup:
+        # An empty hash marks an account authenticated elsewhere that must set a password
+        user.hash = ''
+        return None
+
+    password = request.get('password', '')
+    if not password:
+        password = generateRandomPassword(16)
+        key = Base64Encoder.decode(GCE.derive_key(password, user.salt).encode())
+    else:
+        key = Base64Encoder.decode(password)
+
+    user.hash = sha256(key)
+
+    return key
+
+
+def db_attach_to_shared_profile(session, user):
+    """
+    A receiver bound to a shared profile is a recipient of the channels the profile is associated to
+
+    :param session: An ORM session
+    :param user: The account
+    """
+    if user.profile_id == user.id:
+        return
+
+    profile = session.query(models.UserProfile) \
+                     .filter(models.UserProfile.id == user.profile_id).one_or_none()
+    if profile is not None:
+        db_attach_user_to_profile_contexts(session, user, profile)
+
+
+def db_activation_token(session, tid, user, user_session, request):
+    """
+    Issue the token of the activation link of an account, when asked
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user: The account
+    :param user_session: The session of the user performing the operation
+    :param request: The request data
+    :return: The token, None when no link is sent
+    """
+    if not request.get('send_activation_link', False):
+        return None
+
+    token = db_generate_password_reset_token(session, user)
+
+    if user_session:
+        db_log(session, tid=tid, type='send_password_reset_email', user_id=user_session.user_id, object_id=user.id)
+
+    return token
+
+
+def db_user_needs_keys(defer_password_setup, encryption, request, escrow_pub_key_1, escrow_pub_key_n, support_pub_key):
+    """
+    An account with a password on a site that encrypts, or that an escrow or the support has to
+    reach, holds keys from its creation
+    """
+    if defer_password_setup:
+        return False
+
+    return (encryption and escrow_pub_key_1) or escrow_pub_key_n or support_pub_key or (encryption and request.get('password'))
+
+
+def db_generate_user_keys(session, tid, user, user_session, key, token):
+    """
+    Generate the key pair of an account and its recovery key; the creating user keeps a copy for
+    the activation link and reconciles the statistical key
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user: The account
+    :param user_session: The session of the user performing the operation
+    :param key: The key derived from the password
+    :param token: The token of the activation link, if any
+    :return: The private key of the account
+    """
+    cc, user.crypto_pub_key = GCE.generate_keypair()
+    user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
+    user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
+
+    if user_session:
+        if token:
+            set_tmp_key(session, user_session, user, token, cc)
+
+        current_user = db_get(session, models.User, models.User.id == user_session.user_id)
+        db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
+
+    return cc
+
+
+def db_escrow_user_key(user, tid, cc, escrow_pub_key_1, escrow_pub_key_n):
+    """
+    Keep copies of the key of an account encrypted to the escrow key of the root site and to the
+    one of its site
+
+    :param user: The account
+    :param tid: A tenant ID
+    :param cc: The private key of the account
+    :param escrow_pub_key_1: The escrow key of the root site
+    :param escrow_pub_key_n: The escrow key of the site
+    """
+    if escrow_pub_key_1:
+        user.crypto_escrow_bkp1_key = Base64Encoder.encode(GCE.asymmetric_encrypt(escrow_pub_key_1, cc))
+
+    if tid != 1 and escrow_pub_key_n:
+        user.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(escrow_pub_key_n, cc))
+
+
 def db_create_user(session, tid, user_session, request, language, defer_password_setup=False):
     """
     Transaction for creating a new user
@@ -74,16 +215,7 @@ def db_create_user(session, tid, user_session, request, language, defer_password
         request['username'] = request['id']
 
     if not request['profile_id'] or request['profile_id'] == 'none':
-        request['profile_id'] = request['id']
-
-        profile = {
-          'id': request['id'],
-          'role': request['role'],
-          'roles':  [request['role']],
-          'permissions':  db_default_profile_permissions(request['role'], user_session)
-        }
-
-        db_create_user_profile(session, tid, profile)
+        db_new_user_profile(session, tid, request, user_session)
 
     if not request['public_name']:
         request['public_name'] = request['name']
@@ -95,18 +227,7 @@ def db_create_user(session, tid, user_session, request, language, defer_password
     # The various options related in manage PGP keys are used here.
     parse_pgp_options(user, request)
 
-    if defer_password_setup:
-        # An empty hash marks an account authenticated elsewhere that must set a password
-        user.hash = ''
-    else:
-        password = request.get('password', '')
-        if not password:
-            password = generateRandomPassword(16)
-            key = Base64Encoder.decode(GCE.derive_key(password, user.salt).encode())
-        else:
-            key = Base64Encoder.decode(password)
-
-        user.hash = sha256(key)
+    key = db_user_key(user, request, defer_password_setup)
 
     session.add(user)
 
@@ -115,40 +236,21 @@ def db_create_user(session, tid, user_session, request, language, defer_password
     # After flush align date to user.creation_date
     user.password_change_date = user.creation_date
 
-    # A receiver bound to a shared profile is a recipient of the channels the
-    # profile is associated to
-    if user.profile_id != user.id:
-        profile = session.query(models.UserProfile) \
-                         .filter(models.UserProfile.id == user.profile_id).one_or_none()
-        if profile is not None:
-            db_attach_user_to_profile_contexts(session, user, profile)
+    db_attach_to_shared_profile(session, user)
 
     if user_session:
         db_log(session, tid=tid, type='create_user', user_id=user_session.user_id, object_id=user.id)
 
-    if request.get('send_activation_link', False):
-        token = db_generate_password_reset_token(session, user)
-        if user_session:
-            db_log(session, tid=tid, type='send_password_reset_email', user_id=user_session.user_id, object_id=user.id)
-    else:
-        token = None
+    token = db_activation_token(session, tid, user, user_session, request)
 
     crypto_escrow_pub_key_tenant_1 = models.config.ConfigFactory(session, 1).get_val('crypto_escrow_pub_key')
     crypto_escrow_pub_key_tenant_n = config.get_val('crypto_escrow_pub_key')
     crypto_support_pub_key = config.get_val('crypto_support_pub_key')
 
-    if not defer_password_setup and \
-       ((encryption and crypto_escrow_pub_key_tenant_1) or crypto_escrow_pub_key_tenant_n or crypto_support_pub_key or (encryption and request.get('password'))):
-        cc, user.crypto_pub_key = GCE.generate_keypair()
-        user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
-        user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(cc)
-
-        if user_session:
-            if token:
-                set_tmp_key(session, user_session, user, token, cc)
-
-            current_user = db_get(session, models.User, models.User.id == user_session.user_id)
-            db_reconcile_statistical_key(session, tid, current_user, user_session.cc)
+    cc = None
+    if db_user_needs_keys(defer_password_setup, encryption, request,
+                          crypto_escrow_pub_key_tenant_1, crypto_escrow_pub_key_tenant_n, crypto_support_pub_key):
+        cc = db_generate_user_keys(session, tid, user, user_session, key, token)
 
     if crypto_support_pub_key and user_session:
         support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
@@ -160,11 +262,7 @@ def db_create_user(session, tid, user_session, request, language, defer_password
     if defer_password_setup or (not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n):
         return user
 
-    if crypto_escrow_pub_key_tenant_1:
-        user.crypto_escrow_bkp1_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key_tenant_1, cc))
-
-    if tid != 1 and crypto_escrow_pub_key_tenant_n:
-        user.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key_tenant_n, cc))
+    db_escrow_user_key(user, tid, cc, crypto_escrow_pub_key_tenant_1, crypto_escrow_pub_key_tenant_n)
 
     return user
 
@@ -298,6 +396,56 @@ def db_update_user_permissions(session, user, request):
     return current_permissions != updated_permissions
 
 
+def db_switch_standard_profile(session, tid, user, request, user_session):
+    """
+    Delete the profile of an account when passing from a standard role to a custom profile, or
+    when the standard role changes; recreate it when passing from a custom profile to a standard
+    role, or between standard roles
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user: The account
+    :param request: The request data
+    :param user_session: The current user session
+    """
+    if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
+        db_del(session, models.UserProfile, models.UserProfile.id == user.id)
+
+    if ((user.id != user.profile_id and request['profile_id'] == user.id) or (user.role != request['role'])):
+        profile = {
+          'id': user.id,
+          'role': request['role'],
+          'roles':  [request['role']],
+          'permissions':  db_default_profile_permissions(request['role'], user_session)
+        }
+
+        db_create_user_profile(session, tid, profile)
+
+
+def db_realign_profile_contexts(session, user, old_profile_id):
+    """
+    A change of profile realigns the channels of an account: detached from the old one, attached
+    to the new one
+
+    :param session: An ORM session
+    :param user: The account
+    :param old_profile_id: The profile the account was bound to
+    """
+    if old_profile_id == user.profile_id:
+        return
+
+    old_profile = session.query(models.UserProfile) \
+                         .filter(models.UserProfile.id == old_profile_id).one_or_none()
+    if old_profile is not None:
+        db_detach_user_from_profile_contexts(session, user, old_profile)
+
+    if user.profile_id != user.id:
+        new_profile = session.query(models.UserProfile) \
+                             .filter(models.UserProfile.id == user.profile_id).one_or_none()
+        if new_profile is not None:
+            db_attach_user_to_profile_contexts(session, user, new_profile)
+
+
 def db_update_user(session, tid, user_session, user_id, request, language):
     """
     Transaction for updating an existing user
@@ -332,22 +480,7 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     was_support_admin = is_support_admin(user)
     support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
 
-    if ((user.id == user.profile_id and request['profile_id'] != user.id) or (user.role != request['role'])):
-        # Delete the profile when passing from a standard role to a custom profile, or when the
-        # standard role changes
-        db_del(session, models.UserProfile, models.UserProfile.id == user.id)
-
-    if ((user.id != user.profile_id and request['profile_id'] == user.id) or (user.role != request['role'])):
-        # Recreate the profile when passing from a custom profile to a standard role, or between
-        # standard roles
-        profile = {
-          'id': user.id,
-          'role': request['role'],
-          'roles':  [request['role']],
-          'permissions':  db_default_profile_permissions(request['role'], user_session)
-        }
-
-        db_create_user_profile(session, tid, profile)
+    db_switch_standard_profile(session, tid, user, request, user_session)
 
     if request['mail_address'] != user.mail_address:
         user.change_email_token = None
@@ -365,18 +498,7 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     session.flush()
     session.expire(user, ['profile'])
 
-    # A change of profile realigns the channels: detached from the old one, attached to the new one
-    if old_profile_id != user.profile_id:
-        old_profile = session.query(models.UserProfile) \
-                             .filter(models.UserProfile.id == old_profile_id).one_or_none()
-        if old_profile is not None:
-            db_detach_user_from_profile_contexts(session, user, old_profile)
-
-        if user.profile_id != user.id:
-            new_profile = session.query(models.UserProfile) \
-                                 .filter(models.UserProfile.id == user.profile_id).one_or_none()
-            if new_profile is not None:
-                db_attach_user_to_profile_contexts(session, user, new_profile)
+    db_realign_profile_contexts(session, user, old_profile_id)
 
     permissions_changed = db_update_user_permissions(session, user, request)
 
