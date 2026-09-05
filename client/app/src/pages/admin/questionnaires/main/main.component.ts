@@ -41,8 +41,9 @@ export class MainComponent {
   }
 
   importQuestionnaire(files: FileList | null) {
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
+    const file = files?.[0];
+    if (file) {
+      this.utilsService.readFileAsText(file).subscribe((txt) => {
         return this.httpService.requestImportAdminQuestionnaire(txt).subscribe({
           next:()=>{
             this.getResolver();

@@ -200,8 +200,9 @@ export class StatisticalReportsTabComponent implements OnInit {
       return "Channel";
     }
 
-    if (this.channelDropdownModel.length === 1) {
-      return this.channelDropdownModel[0].label;
+    const only = this.channelDropdownModel[0];
+    if (this.channelDropdownModel.length === 1 && only) {
+      return only.label;
     }
 
     return `${this.channelDropdownModel.length} selected`;

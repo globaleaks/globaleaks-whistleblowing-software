@@ -176,6 +176,9 @@ export class TipAuditLogComponent implements OnInit {
     let i = 0;
     while (i < sortedEntries.length) {
       const currentEntry = sortedEntries[i];
+      if (currentEntry === undefined) {
+        break;
+      }
 
       // Check if this is an access_report entry
       if (currentEntry.action === 'access_report') {
@@ -186,6 +189,9 @@ export class TipAuditLogComponent implements OnInit {
         let j = i + 1;
         while (j < sortedEntries.length) {
           const nextEntry = sortedEntries[j];
+          if (nextEntry === undefined) {
+            break;
+          }
           const nextDayKey = nextEntry.timestamp.toISOString().split('T')[0];
 
           // Check if next entry is access_report, same user, and same day
@@ -204,12 +210,12 @@ export class TipAuditLogComponent implements OnInit {
         if (groupEntries.length === 1) {
           // Single entry - no need to group
           grouped.push({
-            ...groupEntries[0],
+            ...currentEntry,
             isGroup: false
           });
         } else {
           // Multiple consecutive entries - create a group
-          const earliestEntry = groupEntries[0]; // Already sorted oldest first
+          const earliestEntry = currentEntry; // Already sorted oldest first
 
           grouped.push({
             ...earliestEntry,
