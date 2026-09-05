@@ -21,13 +21,13 @@
       <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="iarResolver.dataModel" [orderBy]="'request_date'" [orderDesc]="true">
         <ng-template #header>
           <tr>
-            <th>{{'Request date'|translate}}</th>
-            <th>{{'ID'|translate}}</th>
-            <th>{{'Report date'|translate}}</th>
-            <th>{{'User'|translate}}</th>
-            <th>{{'Request motivation'|translate}}</th>
-            <th>{{'Reply motivation'|translate}}</th>
-            <th>{{'Authorization'|translate}}</th>
+            <th scope="col">{{'Request date'|translate}}</th>
+            <th scope="col">{{'ID'|translate}}</th>
+            <th scope="col">{{'Report date'|translate}}</th>
+            <th scope="col">{{'User'|translate}}</th>
+            <th scope="col">{{'Request motivation'|translate}}</th>
+            <th scope="col">{{'Reply motivation'|translate}}</th>
+            <th scope="col">{{'Authorization'|translate}}</th>
           </tr>
         </ng-template>
         <ng-template #content let-iar="item" let-index="index">

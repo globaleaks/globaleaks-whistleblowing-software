@@ -8,63 +8,63 @@
       <thead>
         <tr>
           @if (authenticationService.session?.role === 'receiver' || appDataService.public.contexts.length > 1) {
-            <th class="TipInfoContext">
+            <th scope="col" class="TipInfoContext">
               <i class="fas fa-inbox"></i>
               <span>{{'Channel'|translate}}</span>
             </th>
           }
           @if (authenticationService.session?.role === 'receiver') {
-            <th class="TipInfoID">
+            <th scope="col" class="TipInfoID">
               <i class="fas fa-hashtag" aria-hidden="true"></i>
               <span class="visually-hidden">{{'ID' | translate}}</span>
             </th>
           }
-          <th class="TipInfoSubmissionDate">
+          <th scope="col" class="TipInfoSubmissionDate">
             <i class="fas fa-clock"></i>
             <span>{{'Date'|translate}}</span>
           </th>
           @if (isExchange()) {
-            <th class="TipInfoTransmissionFrom">
+            <th scope="col" class="TipInfoTransmissionFrom">
               <i class="fas fa-building"></i>
               <span>{{'From'|translate}}</span>
             </th>
-            <th class="TipInfoTransmissionTo">
+            <th scope="col" class="TipInfoTransmissionTo">
               <i class="fas fa-building"></i>
               <span>{{'To'|translate}}</span>
             </th>
           }
-          <th class="TipInfoLastUpdate">
+          <th scope="col" class="TipInfoLastUpdate">
             <i class="fas fa-clock"></i>
             <span>{{'Last update'|translate}}</span>
           </th>
-          <th class="TipInfoExpirationDate">
+          <th scope="col" class="TipInfoExpirationDate">
             <i class="fas fa-hourglass"></i>
             <span>{{'Expiration date'|translate}}</span>
           </th>
           @if (authenticationService.session?.role === 'receiver' && ownsReport()) {
-            <th class="TipInfoReminderDate">
+            <th scope="col" class="TipInfoReminderDate">
               <i class="fas fa-bell"></i>
               <span>{{'Reminder date'|translate}}</span>
             </th>
           }
           @if (authenticationService.session?.role === 'receiver') {
-            <th class="TipInfoReadReceipt">
+            <th scope="col" class="TipInfoReadReceipt">
               <i class="fas fa-envelope-circle-check" aria-hidden="true"></i>
               <span class="visually-hidden">{{'Read receipt' | translate}}</span>
             </th>
           }
           @if (authenticationService.session?.role === 'receiver' && !isExchange()) {
-            <th class="TipInfoConnection">
+            <th scope="col" class="TipInfoConnection">
               <i class="fas fa-network-wired"></i>
               <span>{{'Tor'|translate}}</span>
             </th>
           }
-          <th class="TipInfoSubmissionStatus">
+          <th scope="col" class="TipInfoSubmissionStatus">
             <i class="fas fa-circle-dot"></i>
             <span>{{'Status'|translate}}</span>
           </th>
           @if (authenticationService.session?.role === 'receiver' && appDataService.public.node.enable_scoring_system) {
-            <th class="TipInfoScore">
+            <th scope="col" class="TipInfoScore">
               <i class="fas fa-ranking-star"></i>
               <span>{{'Score'|translate}}</span>
             </th>
