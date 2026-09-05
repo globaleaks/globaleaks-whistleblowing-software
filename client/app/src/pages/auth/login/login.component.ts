@@ -39,7 +39,7 @@ export class LoginComponent implements OnInit {
       if (publicData.node.idp && !this.idpService.isSignupLoginPending() && !("token" in this.route.snapshot.queryParams) && !this.authentication.session) {
         // The username is asked only when the identity authenticated on the
         // identity provider is not bound to any account of the platform yet
-        this.idpService.startLogin("/login")
+        void this.idpService.startLogin("/login")
           .then(() => this.authentication.checkIdpBinding())
           .then(() => this.changeDetectorRef.detectChanges());
       }
@@ -48,10 +48,10 @@ export class LoginComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if ("token" in params) {
         const token = params["token"];
-        this.authentication.login(0, "", "", "", token);
+        void this.authentication.login(0, "", "", "", token);
       } else {
         if (this.authentication.session && this.authentication.session.role !== "whistleblower" && this.authentication.session.homepage) {
-          this.router.navigateByUrl(this.authentication.session.homepage).then();
+          void this.router.navigateByUrl(this.authentication.session.homepage);
         }
       }
     });

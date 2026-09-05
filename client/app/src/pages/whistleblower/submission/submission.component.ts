@@ -335,7 +335,7 @@ export class SubmissionComponent implements OnInit {
 
     this.submission.submit().subscribe({
       next: () => {
-        this.router.navigate(["/"]).then();
+        void this.router.navigate(["/"]);
         this.titleService.setPage("receiptpage");
       }
     });

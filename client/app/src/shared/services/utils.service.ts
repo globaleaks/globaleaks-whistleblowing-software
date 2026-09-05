@@ -104,7 +104,7 @@ export class UtilsService {
 
   routeGuardRedirect(route="login", skipChange = false){
     const loginUrlWithParam = `/${route}?redirect=${encodeURIComponent(location.hash.substring(1))}`;
-    this.router.navigateByUrl(loginUrlWithParam, { skipLocationChange: skipChange }).then();
+    void this.router.navigateByUrl(loginUrlWithParam, { skipLocationChange: skipChange });
   }
 
   newItemOrder(objects: any[], key: string): number {
@@ -205,8 +205,8 @@ export class UtilsService {
 
   reloadCurrentRoute() {
     const currentUrl = this.router.url;
-    this.router.navigateByUrl("blank", {skipLocationChange: true, replaceUrl: true}).then(() => {
-      this.router.navigate([currentUrl]).then();
+    void this.router.navigateByUrl("blank", {skipLocationChange: true, replaceUrl: true}).then(() => {
+      void this.router.navigate([currentUrl]);
     });
   }
 
@@ -217,10 +217,10 @@ export class UtilsService {
 
     const currentUrl = this.router.url + "?";
 
-    this.router.navigateByUrl(currentUrl)
+    void this.router.navigateByUrl(currentUrl)
       .then(() => {
         this.router.navigated = false;
-        this.router.navigate([this.router.url]).then();
+        void this.router.navigate([this.router.url]);
       });
   }
 
@@ -275,8 +275,8 @@ export class UtilsService {
       currentUrl = this.router.url.split("?")[0];
     }
 
-    this.router.navigateByUrl("/blank", {skipLocationChange: true}).then(() => {
-      this.router.navigateByUrl(currentUrl, {replaceUrl: true}).then();
+    void this.router.navigateByUrl("/blank", {skipLocationChange: true}).then(() => {
+      void this.router.navigateByUrl(currentUrl, {replaceUrl: true});
     });
   }
 
@@ -340,7 +340,7 @@ export class UtilsService {
   }
 
   copyToClipboard(data: string) {
-    navigator.clipboard.writeText(data);
+    void navigator.clipboard.writeText(data);
   }
 
   getSubmissionStatusText(status: string,substatus:string, submission_statuses: Status[]) {
@@ -427,7 +427,7 @@ export class UtilsService {
   }
 
   go(path: string): void {
-    this.router.navigateByUrl(path).then();
+    void this.router.navigateByUrl(path);
   }
 
   print() {
@@ -857,7 +857,7 @@ export class UtilsService {
   public downloadRFile(file: WbFile) {
     const param = JSON.stringify({});
     this.httpService.requestToken(param).subscribe({
-        next: async token => {
+        next: token => {
           this.cryptoService.proofOfWork(token).subscribe(
               (ans) => {
                const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
