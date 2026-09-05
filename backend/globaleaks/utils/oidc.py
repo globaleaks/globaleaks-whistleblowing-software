@@ -13,6 +13,10 @@ from twisted.web.client import FileBodyProducer
 from twisted.web.http_headers import Headers
 
 
+class OIDCError(Exception):
+    """Raised when the IdP or a token does not satisfy the OIDC checks"""
+
+
 # Timeout applied to every request performed towards an identity provider
 REQUEST_TIMEOUT = 15
 
@@ -34,7 +38,7 @@ def validate_endpoint(url):
     if parsed.scheme == 'http' and parsed.hostname in ['127.0.0.1', '::1', 'localhost']:
         return
 
-    raise Exception("The endpoints of the IdP are required to be reached via HTTPS")
+    raise OIDCError("The endpoints of the IdP are required to be reached via HTTPS")
 
 
 class BoundedBodyProtocol(Protocol):
@@ -65,7 +69,7 @@ class BoundedBodyProtocol(Protocol):
             return
 
         if self.size > self.max_size:
-            self.finished.errback(Exception("The document published by the IdP is too big"))
+            self.finished.errback(OIDCError("The document published by the IdP is too big"))
         else:
             self.finished.callback(b''.join(self.chunks))
 
@@ -100,7 +104,7 @@ def rsa_public_key(key):
     Build an RSA public key from its JWK representation (RFC 7518 Section 6.3).
     """
     if key.get('kty') != 'RSA':
-        raise Exception("Unsupported key type in JWKS")
+        raise OIDCError("Unsupported key type in JWKS")
 
     n = int.from_bytes(b64d(key['n']), 'big')
     e = int.from_bytes(b64d(key['e']), 'big')
@@ -204,7 +208,7 @@ class OIDCAuth:
         # OpenID Connect Discovery 1.0 requires the issuer advertised in the
         # metadata to match the one the document has been retrieved for.
         if metadata.get('issuer', '').rstrip('/') != issuer.rstrip('/'):
-            raise Exception("The issuer advertised by the IdP does not match the configured one")
+            raise OIDCError("The issuer advertised by the IdP does not match the configured one")
 
         self.metadata[issuer] = metadata
 
@@ -220,7 +224,7 @@ class OIDCAuth:
 
             jwks_uri = metadata.get('jwks_uri')
             if not jwks_uri:
-                raise Exception("The configured issuer does not advertise a JWKS endpoint")
+                raise OIDCError("The configured issuer does not advertise a JWKS endpoint")
 
             self.jwks[issuer] = yield self.fetch_json(jwks_uri)
         except Exception:
@@ -235,12 +239,12 @@ class OIDCAuth:
         Validate an issuer server-side by fetching its JWKS; this both verifies
         """
         if not issuer:
-            raise Exception("No IdP issuer configured")
+            raise OIDCError("No IdP issuer configured")
 
         yield self.fetch_jwks(issuer)
 
         if not self.jwks.get(issuer, {}).get('keys'):
-            raise Exception("The configured issuer did not return a valid JWKS")
+            raise OIDCError("The configured issuer did not return a valid JWKS")
 
     @inlineCallbacks
     def validate_client(self, issuer, client_id):
@@ -248,13 +252,13 @@ class OIDCAuth:
         Validate that the configured client exists on the identity provider
         """
         if not client_id:
-            raise Exception("No IdP client identifier configured")
+            raise OIDCError("No IdP client identifier configured")
 
         metadata = yield self.fetch_metadata(issuer)
 
         token_endpoint = metadata.get('token_endpoint')
         if not token_endpoint:
-            raise Exception("The configured issuer does not advertise a token endpoint")
+            raise OIDCError("The configured issuer does not advertise a token endpoint")
 
         response = yield self.post_form(token_endpoint, {
             'grant_type': 'authorization_code',
@@ -266,18 +270,18 @@ class OIDCAuth:
         # unauthorized_client identifies a client that exists but is not
         # allowed to use the authorization code grant required by the login
         if response.get('error') in ('invalid_client', 'unauthorized_client'):
-            raise Exception("The configured client is not enabled on the IdP")
+            raise OIDCError("The configured client is not enabled on the IdP")
 
     def verify_token(self, token, issuer, client_id):
         if not issuer:
-            raise Exception("No IdP issuer configured")
+            raise OIDCError("No IdP issuer configured")
 
         if not client_id:
-            raise Exception("No IdP client identifier configured")
+            raise OIDCError("No IdP client identifier configured")
 
         jwks = self.jwks.get(issuer)
         if not jwks:
-            raise Exception("JWKS not available for the configured issuer")
+            raise OIDCError("JWKS not available for the configured issuer")
 
         try:
             signing_input, encoded_signature = token.rsplit('.', 1)
@@ -286,12 +290,12 @@ class OIDCAuth:
             claims = json.loads(b64d(encoded_claims))
             signature = b64d(encoded_signature)
         except Exception:
-            raise Exception("The token is malformed")
+            raise OIDCError("The token is malformed")
 
         # The signature algorithm is pinned to RS256 and never taken from the
         # token header, to avoid algorithm-confusion attacks.
         if headers.get('alg') != 'RS256':
-            raise Exception("The token is not signed with the expected algorithm")
+            raise OIDCError("The token is not signed with the expected algorithm")
 
         # An access token is not an identity: a token typed as an OAuth access
         # token (RFC 9068), or as anything else than a plain JWT, is refused,
@@ -299,7 +303,7 @@ class OIDCAuth:
         # token that attests the authentication
         typ = headers.get('typ')
         if typ is not None and typ.lower() not in ('jwt', 'application/jwt'):
-            raise Exception("The token is not an ID token")
+            raise OIDCError("The token is not an ID token")
 
         key = None
         for jwk_key in jwks.get('keys', []):
@@ -308,7 +312,7 @@ class OIDCAuth:
                 break
 
         if key is None:
-            raise Exception("Public key not found in JWKS")
+            raise OIDCError("Public key not found in JWKS")
 
         try:
             rsa_public_key(key).verify(signature,
@@ -316,10 +320,10 @@ class OIDCAuth:
                                        padding.PKCS1v15(),
                                        hashes.SHA256())
         except InvalidSignature:
-            raise Exception("The token signature is not valid")
+            raise OIDCError("The token signature is not valid")
 
         if claims.get('iss') != issuer:
-            raise Exception("The token has not been issued by the configured issuer")
+            raise OIDCError("The token has not been issued by the configured issuer")
 
         now = time.time()
 
@@ -327,16 +331,16 @@ class OIDCAuth:
         # therefore rejected even though RFC 7519 makes the claim optional.
         try:
             if float(claims['exp']) <= now:
-                raise Exception("The token is expired")
+                raise OIDCError("The token is expired")
         except (KeyError, TypeError, ValueError):
-            raise Exception("The token does not declare a valid expiration")
+            raise OIDCError("The token does not declare a valid expiration")
 
         if 'nbf' in claims:
             try:
                 if float(claims['nbf']) > now:
-                    raise Exception("The token is not valid yet")
+                    raise OIDCError("The token is not valid yet")
             except (TypeError, ValueError):
-                raise Exception("The token does not declare a valid validity start")
+                raise OIDCError("The token does not declare a valid validity start")
 
         # OpenID Connect requires the ID token to be audienced to the client:
         # a token of the same issuer minted for another client - or an access
@@ -348,9 +352,9 @@ class OIDCAuth:
             aud = [aud]
 
         if client_id not in aud:
-            raise Exception("The token has not been issued for the configured client")
+            raise OIDCError("The token has not been issued for the configured client")
 
         if 'azp' in claims and claims['azp'] != client_id:
-            raise Exception("The token has not been issued for the configured client")
+            raise OIDCError("The token has not been issued for the configured client")
 
         return claims

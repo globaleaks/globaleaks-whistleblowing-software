@@ -113,7 +113,7 @@ def perform_data_update(db_file):
     if removed_languages:
         removed_languages.sort()
         removed_languages = ', '.join(removed_languages)
-        raise Exception(f"FATAL: cannot complete the upgrade because the support for some of the enabled languages is currently incomplete ({removed_languages})\n")
+        raise RuntimeError(f"FATAL: cannot complete the upgrade because the support for some of the enabled languages is currently incomplete ({removed_languages})\n")
 
     try:
         original_version = config.ConfigFactory(session, 1).get_val('version')
