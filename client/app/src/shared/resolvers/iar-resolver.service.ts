@@ -23,7 +23,7 @@ export class IarResolver {
   }
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "custodian") {
+    if (this.authenticationService.session?.role === "custodian") {
       return this.httpService.iarResource().pipe(
         map((response: IarData[]) => {
           this.dataModel = response;

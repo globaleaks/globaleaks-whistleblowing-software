@@ -56,7 +56,7 @@ export class PreferenceTab1Component implements OnInit {
   }
 
   ngOnInit(): void {
-    this.role = this.utilsService.rolel10n(this.authenticationService.session?.role);
+    this.role = this.utilsService.rolel10n(this.authenticationService.session?.role ?? "");
     this.role = this.role ? this.translateService.instant(this.role) : '';
     setTimeout(() => {
       this.languageModel = this.preferenceResolver.dataModel.language;
