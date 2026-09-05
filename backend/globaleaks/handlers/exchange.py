@@ -607,6 +607,202 @@ def sanitize_transmission_answers(schema, answers):
     return sanitized
 
 
+def db_new_exchange_report(session, owner_tid, channel, source_user, stage, encryption):
+    """
+    Compose the report an exchange files, on the site that owns it
+
+    :param session: An ORM session
+    :param owner_tid: The tenant ID of the site the report lives on
+    :param channel: The channel the report is filed on
+    :param source_user: The recipient that files
+    :param stage: The stage of the exchange
+    :param encryption: Whether the site encrypts its reports
+    :return: The report and the private key of its encryption, empty when the site does not encrypt
+    """
+    itip = models.InternalTip()
+    itip.tid = owner_tid
+    itip.status = 'new'
+    # A request is decided before the report is entered; what a site files on itself is an ordinary
+    # report
+    itip.type = 'request' if stage == 'request' else 'exchange'
+    itip.allow_transmission = False
+
+    # The operator never receives the announcement of what it filed
+    itip.operator_id = source_user.id
+    itip.creation_date = datetime_now()
+    itip.update_date = itip.creation_date
+    itip.last_access = itip.creation_date
+    itip.context_id = channel.id
+    itip.progressive = db_assign_submission_progressive(session, owner_tid)
+    itip.score = 0
+    itip.receipt_hash = sha256(generateRandomKey()).decode()
+
+    if channel.tip_timetolive > 0:
+        itip.expiration_date = get_expiration(channel.tip_timetolive)
+
+    if channel.tip_reminder > 0:
+        itip.reminder_date = get_expiration(channel.tip_reminder)
+
+    if not encryption:
+        return itip, b''
+
+    crypto_tip_prv_key, itip.crypto_tip_pub_key = GCE.generate_keypair()
+
+    return itip, crypto_tip_prv_key
+
+
+def db_issue_receipt(session, itip, authorization, encryption, crypto_tip_prv_key):
+    """
+    Make a report accessible to the whistleblower through a receipt issued here and kept encrypted
+    on the request that granted it
+
+    :param session: An ORM session
+    :param itip: The report filed
+    :param authorization: The request that granted the report
+    :param encryption: Whether the report is encrypted
+    :param crypto_tip_prv_key: The private key of the report
+    """
+    receipt = GCE.generate_receipt()
+    wb_key, itip.receipt_hash = GCE.calculate_key_and_hash(
+        receipt, State.tenants[itip.tid].cache.receipt_salt)
+    itip.receipt_change_needed = True
+
+    if encryption:
+        cc, itip.crypto_pub_key = GCE.generate_keypair()
+        itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(wb_key, cc))
+        itip.crypto_tip_prv_key = Base64Encoder.encode(
+            GCE.asymmetric_encrypt(itip.crypto_pub_key, crypto_tip_prv_key))
+
+    receipt_data = models.InternalTipData()
+    receipt_data.internaltip_id = authorization.id
+    receipt_data.key = 'receipt'
+    receipt_data.creation_date = itip.creation_date
+    receipt_data.value = Base64Encoder.encode(
+        GCE.asymmetric_encrypt(authorization.crypto_tip_pub_key, receipt.encode())).decode() \
+        if authorization.crypto_tip_pub_key else receipt
+    receipt_data.hash_sha256, receipt_data.hash_sha512 = \
+        data_hashes(receipt, authorization.crypto_tip_pub_key)
+    session.add(receipt_data)
+
+
+def db_store_exchange_answers(session, itip, steps, answers):
+    """
+    Archive the questionnaire a report is composed with and store its answers
+
+    :param session: An ORM session
+    :param itip: The report filed
+    :param steps: The steps of the questionnaire
+    :param answers: The answers given
+    """
+    questionnaire_hash = db_archive_questionnaire_schema(session, steps)
+
+    plaintext_answers = answers
+    if itip.crypto_tip_pub_key:
+        answers = Base64Encoder.encode(
+            GCE.asymmetric_encrypt(itip.crypto_tip_pub_key,
+                                   json.dumps(answers, cls=JSONEncoder).encode())
+        ).decode()
+
+    itip_answers = models.InternalTipAnswers()
+    itip_answers.internaltip_id = itip.id
+    itip_answers.questionnaire_hash = questionnaire_hash
+    itip_answers.creation_date = itip.creation_date
+    itip_answers.answers = answers
+    itip_answers.stat_answers = {}
+    itip_answers.hash_sha256, itip_answers.hash_sha512 = \
+        data_hashes(plaintext_answers, itip.crypto_tip_pub_key)
+    session.add(itip_answers)
+
+
+def db_store_exchange_files(session, itip, user_session, encryption):
+    """
+    Attach to a report the files uploaded while composing it; the ordinary delivery job delivers
+    them
+
+    :param session: An ORM session
+    :param itip: The report filed
+    :param user_session: The session of the recipient that files
+    :param encryption: Whether the report is encrypted
+    """
+    for uploaded_file in user_session.files:
+        if encryption:
+            for k in ['name', 'type', 'size', 'hash_sha256', 'hash_sha512']:
+                uploaded_file[k] = Base64Encoder.encode(
+                    GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, str(uploaded_file[k])))
+
+        new_file = models.InternalFile()
+        new_file.id = uploaded_file['filename']
+        new_file.name = uploaded_file['name']
+        new_file.content_type = uploaded_file['type']
+        new_file.size = uploaded_file['size']
+        new_file.internaltip_id = itip.id
+        new_file.reference_id = uploaded_file['reference_id']
+        new_file.creation_date = itip.creation_date
+        new_file.hash_sha256 = uploaded_file['hash_sha256']
+        new_file.hash_sha512 = uploaded_file['hash_sha512']
+        session.add(new_file)
+
+    user_session.files = []
+
+
+def db_record_exchange_origin(session, itip, stage, tid, target_tid, exchange, source_user,
+                              authorization, source_itip):
+    """
+    Record on a report the exchange it was filed by and name its origin: the report handed over,
+    or the request that granted it
+
+    :param session: An ORM session
+    :param itip: The report filed
+    :param stage: The stage of the exchange
+    :param tid: The tenant ID of the tenant that files
+    :param target_tid: The tenant ID of the destination
+    :param exchange: The exchange
+    :param source_user: The recipient that files
+    :param authorization: The request that granted the report, if any
+    :param source_itip: The report handed over, if any
+    """
+    data = models.InternalTipData()
+    data.internaltip_id = itip.id
+    data.key = 'request' if stage == 'request' else 'transmitted_from'
+    data.creation_date = itip.creation_date
+    data.value = {
+        'source_tid': tid,
+        'target_tid': target_tid,
+        'exchange_id': exchange.id,
+        'requester_user_id': source_user.id,
+        'request_internaltip_id': authorization.id if authorization is not None else ''
+    }
+    data.hash_sha256, data.hash_sha512 = data_hashes(data.value)
+    session.add(data)
+
+    origin = source_itip if source_itip is not None else authorization
+    if origin is None:
+        return
+
+    transmission = models.InternalTipTransmission()
+    transmission.internaltip_id = origin.id
+    transmission.transmitting_internaltip_id = itip.id
+    session.add(transmission)
+
+    origin.update_date = itip.creation_date
+
+
+def db_create_exchange_receivertips(session, receivers, itip, encryption, crypto_tip_prv_key):
+    """
+    Give some recipients access to a report
+
+    :param session: An ORM session
+    :param receivers: The recipients
+    :param itip: The report
+    :param encryption: Whether the report is encrypted
+    :param crypto_tip_prv_key: The private key of the report
+    """
+    for receiver in receivers:
+        receiver_tip_key = GCE.asymmetric_encrypt(receiver.crypto_pub_key, crypto_tip_prv_key) \
+            if encryption else b''
+        db_create_receivertip(session, receiver, itip, receiver_tip_key)
+
+
 def db_create_exchange_report(session, tid, user_session, type, request, language,
                               source_itip=None):
     """
@@ -660,37 +856,8 @@ def db_create_exchange_report(session, tid, user_session, type, request, languag
         # of the exchange take part
         receivers, participants = [], exchange_receivers
 
-    itip = models.InternalTip()
-    itip.tid = owner_tid
-    itip.status = 'new'
-    # A request is decided before the report is entered; what a site files on itself is an ordinary
-    # report
-    if stage == 'request':
-        itip.type = 'request'
-    else:
-        itip.type = 'exchange'
-    itip.allow_transmission = False
-
-    # The operator never receives the announcement of what it filed
-    itip.operator_id = source_user.id
-    itip.creation_date = datetime_now()
-    itip.update_date = itip.creation_date
-    itip.last_access = itip.creation_date
-    itip.context_id = channel.id
-    itip.progressive = db_assign_submission_progressive(session, owner_tid)
-    itip.score = 0
-    itip.receipt_hash = sha256(generateRandomKey()).decode()
-
-    if channel.tip_timetolive > 0:
-        itip.expiration_date = get_expiration(channel.tip_timetolive)
-
-    if channel.tip_reminder > 0:
-        itip.reminder_date = get_expiration(channel.tip_reminder)
-
-    if encryption:
-        crypto_tip_prv_key, itip.crypto_tip_pub_key = GCE.generate_keypair()
-    else:
-        crypto_tip_prv_key = b''
+    itip, crypto_tip_prv_key = db_new_exchange_report(session, owner_tid, channel, source_user,
+                                                      stage, encryption)
 
     # Accessible to the whistleblower through a receipt issued here and kept encrypted on the
     # request
@@ -698,108 +865,21 @@ def db_create_exchange_report(session, tid, user_session, type, request, languag
     if stage == 'report' and exchange.type == 'transmission' and exchange.request_questionnaire:
         authorization = db_get_authorized_request(session, exchange.id, tid, target_tid)
 
-    receipt = ''
     if authorization is not None:
-        receipt = GCE.generate_receipt()
-        wb_key, itip.receipt_hash = GCE.calculate_key_and_hash(
-            receipt, State.tenants[owner_tid].cache.receipt_salt)
-        itip.receipt_change_needed = True
-
-        if encryption:
-            cc, itip.crypto_pub_key = GCE.generate_keypair()
-            itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(wb_key, cc))
-            itip.crypto_tip_prv_key = Base64Encoder.encode(
-                GCE.asymmetric_encrypt(itip.crypto_pub_key, crypto_tip_prv_key))
+        db_issue_receipt(session, itip, authorization, encryption, crypto_tip_prv_key)
 
     session.add(itip)
     session.flush()
 
-    if receipt:
-        receipt_data = models.InternalTipData()
-        receipt_data.internaltip_id = authorization.id
-        receipt_data.key = 'receipt'
-        receipt_data.creation_date = itip.creation_date
-        receipt_data.value = Base64Encoder.encode(
-            GCE.asymmetric_encrypt(authorization.crypto_tip_pub_key, receipt.encode())).decode() \
-            if authorization.crypto_tip_pub_key else receipt
-        receipt_data.hash_sha256, receipt_data.hash_sha512 = \
-            data_hashes(receipt, authorization.crypto_tip_pub_key)
-        session.add(receipt_data)
+    db_store_exchange_answers(session, itip, steps, answers)
 
-    questionnaire_hash = db_archive_questionnaire_schema(session, steps)
+    db_store_exchange_files(session, itip, user_session, encryption)
 
-    plaintext_answers = answers
-    if itip.crypto_tip_pub_key:
-        answers = Base64Encoder.encode(
-            GCE.asymmetric_encrypt(itip.crypto_tip_pub_key,
-                                   json.dumps(answers, cls=JSONEncoder).encode())
-        ).decode()
+    db_record_exchange_origin(session, itip, stage, tid, target_tid, exchange, source_user,
+                              authorization, source_itip)
 
-    itip_answers = models.InternalTipAnswers()
-    itip_answers.internaltip_id = itip.id
-    itip_answers.questionnaire_hash = questionnaire_hash
-    itip_answers.creation_date = itip.creation_date
-    itip_answers.answers = answers
-    itip_answers.stat_answers = {}
-    itip_answers.hash_sha256, itip_answers.hash_sha512 = \
-        data_hashes(plaintext_answers, itip.crypto_tip_pub_key)
-    session.add(itip_answers)
-
-    # Attachments uploaded while composing are delivered by the ordinary delivery job
-    for uploaded_file in user_session.files:
-        if encryption:
-            for k in ['name', 'type', 'size', 'hash_sha256', 'hash_sha512']:
-                uploaded_file[k] = Base64Encoder.encode(
-                    GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, str(uploaded_file[k])))
-
-        new_file = models.InternalFile()
-        new_file.id = uploaded_file['filename']
-        new_file.name = uploaded_file['name']
-        new_file.content_type = uploaded_file['type']
-        new_file.size = uploaded_file['size']
-        new_file.internaltip_id = itip.id
-        new_file.reference_id = uploaded_file['reference_id']
-        new_file.creation_date = itip.creation_date
-        new_file.hash_sha256 = uploaded_file['hash_sha256']
-        new_file.hash_sha512 = uploaded_file['hash_sha512']
-        session.add(new_file)
-
-    user_session.files = []
-
-    data = models.InternalTipData()
-    data.internaltip_id = itip.id
-    data.key = 'request' if stage == 'request' else 'transmitted_from'
-    data.creation_date = itip.creation_date
-    data.value = {
-        'source_tid': tid,
-        'target_tid': target_tid,
-        'exchange_id': exchange.id,
-        'requester_user_id': source_user.id,
-        'request_internaltip_id': authorization.id if authorization is not None else ''
-    }
-    data.hash_sha256, data.hash_sha512 = data_hashes(data.value)
-    session.add(data)
-
-    # The report filed names its origin: the report handed over, or the request that granted it
-    origin = source_itip if source_itip is not None else authorization
-    transmission = None
-    if origin is not None:
-        transmission = models.InternalTipTransmission()
-        transmission.internaltip_id = origin.id
-        transmission.transmitting_internaltip_id = itip.id
-        session.add(transmission)
-
-        origin.update_date = itip.creation_date
-
-    for receiver in receivers:
-        receiver_tip_key = GCE.asymmetric_encrypt(receiver.crypto_pub_key, crypto_tip_prv_key) \
-            if encryption else b''
-        db_create_receivertip(session, receiver, itip, receiver_tip_key)
-
-    for receiver in participants:
-        receiver_tip_key = GCE.asymmetric_encrypt(receiver.crypto_pub_key, crypto_tip_prv_key) \
-            if encryption else b''
-        db_create_receivertip(session, receiver, itip, receiver_tip_key)
+    db_create_exchange_receivertips(session, receivers, itip, encryption, crypto_tip_prv_key)
+    db_create_exchange_receivertips(session, participants, itip, encryption, crypto_tip_prv_key)
 
     db_grant_source_access(session, tid, itip, source_itip, source_user, receivers,
                            encryption, crypto_tip_prv_key)
