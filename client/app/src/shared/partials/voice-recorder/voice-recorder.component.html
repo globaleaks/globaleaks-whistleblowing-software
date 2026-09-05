@@ -28,7 +28,7 @@
       <div class="col-md-12">
         <input class="d-none" [attr.id]="'customFile-' + fileInput" [(ngModel)]="_fakeModel" [required]="entry().required_status || isRecording" [name]="'input-' + fileInput" type="text" />
         @if (audioPlayer) {
-          <iframe #viewer id="{{fieldEntry()}}-audio" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
+          <iframe #viewer id="{{fieldEntry()}}-audio" [title]="'Audio' | translate" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
         }
       </div>
     </div>
