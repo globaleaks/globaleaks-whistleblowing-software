@@ -249,13 +249,18 @@ export class FieldsComponent implements OnInit {
       return;
     }
 
-    const tmp = this.field().options[target];
+    const options = this.field().options;
+    const moved = options[index];
+    const displaced = options[target];
+    if (moved === undefined || displaced === undefined) {
+      return;
+    }
 
-    this.field().options[target] = this.field().options[index];
-    this.field().options[target].order = target;
+    options[target] = moved;
+    moved.order = target;
 
-    this.field().options[index] = tmp;
-    this.field().options[index].order = index;
+    options[index] = displaced;
+    displaced.order = index;
   }
 
   flipBlockSubmission(option: Option): void {
@@ -315,11 +320,12 @@ export class FieldsComponent implements OnInit {
   // One label per line: the options already present are renamed in order and
   // the surplus ones are dropped, so that the file is the list of the options
   importOptions(files: FileList | null): void {
-    if (!files || files.length === 0) {
+    const file = files?.[0];
+    if (!file) {
       return;
     }
 
-    this.utilsService.readFileAsText(files[0]).subscribe((txt: string) => {
+    this.utilsService.readFileAsText(file).subscribe((txt: string) => {
       const labels = txt.replace(/^\uFEFF/, "").split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
 
       if (labels.length === 0) {
@@ -330,8 +336,9 @@ export class FieldsComponent implements OnInit {
       let currentOrder = this.utilsService.newItemOrder(options, "order");
 
       labels.forEach((label, i) => {
-        if (i < options.length) {
-          options[i].label = label;
+        const option = options[i];
+        if (option) {
+          option.label = label;
         } else {
           options.push({id: "", label: label, hint1: "", hint2: "", block_submission: false, score_points: 0, score_type: "none", trigger_receiver: [], order: currentOrder++});
         }

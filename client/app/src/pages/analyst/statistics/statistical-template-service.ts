@@ -166,7 +166,7 @@ export class StatisticalTemplateService {
     if (card.chartType === 'percentage' && card.customData?.data?.length) {
       const values = card.customData.data.map((value: unknown) => Number(value) || 0);
       const total = values.reduce((sum: number, value: number) => sum + value, 0);
-      const share = total > 0 ? (values[0] / total) * 100 : 0;
+      const share = total > 0 ? ((values[0] ?? 0) / total) * 100 : 0;
       return { ...card, value: `${share.toFixed(1)}% ${card.customData.labels[0] || ''}`.trim() };
     }
     return card;
@@ -242,10 +242,10 @@ export class StatisticalTemplateService {
               if (labels.length && data.datasets.length) {
                 return labels.map((rawLabel, i) => {
                   const label = String(rawLabel);
-                  const value = data.datasets[0].data[i];
+                  const value = data.datasets[0]?.data[i];
                   return {
                     text: preview ? label : `${label}: ${value}`,
-                    fillStyle: (data.datasets[0].backgroundColor as string[])[i],
+                    fillStyle: (data.datasets[0]?.backgroundColor as string[] | undefined)?.[i],
                     hidden: false,
                     index: i
                   };

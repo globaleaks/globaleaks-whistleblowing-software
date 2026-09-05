@@ -167,7 +167,7 @@ export class UtilsService {
 
   getAuditLogCategory(type: string): string {
     for (const category in this.auditLogCategories) {
-      if (this.auditLogCategories[category][type]) {
+      if (this.auditLogCategories[category]?.[type]) {
         return category;
       }
     }
@@ -243,8 +243,14 @@ export class UtilsService {
       return;
     }
 
-    [questionnaire.steps[index], questionnaire.steps[target]] =
-      [questionnaire.steps[target], questionnaire.steps[index]];
+    const steps = questionnaire.steps;
+    const moved = steps[index];
+    const displaced = steps[target];
+    if (moved === undefined || displaced === undefined) {
+      return;
+    }
+    steps[index] = displaced;
+    steps[target] = moved;
 
     this.httpService.requestReorderAdminQuestionnaireSteps({
       operation: "order_elements",
@@ -272,7 +278,7 @@ export class UtilsService {
   reloadCurrentRouteFresh(removeQueryParam = false) {
     let currentUrl = this.router.url;
     if (removeQueryParam) {
-      currentUrl = this.router.url.split("?")[0];
+      currentUrl = this.router.url.split("?")[0] ?? currentUrl;
     }
 
     void this.router.navigateByUrl("/blank", {skipLocationChange: true}).then(() => {
@@ -755,11 +761,12 @@ export class UtilsService {
   }
 
   assignUniqueOrderIndex(elements: Option[]): void {
-    if (elements.length <= 0) {
+    const first = elements[0];
+    if (first === undefined) {
         return;
     }
 
-    const key: keyof Option = this.getYOrderProperty(elements[0]) as keyof Option;
+    const key: keyof Option = this.getYOrderProperty(first) as keyof Option;
     if (elements.length) {
         let i = 0;
         elements = elements.sort((a, b) => (a[key] as number) - (b[key] as number));
@@ -899,7 +906,7 @@ export class UtilsService {
       // resulting DPoP proof is stashed on the chunk for headers() to read.
       preprocess: (chunk: any) => {
         const target = chunk?.fileObj?.flowObj?.opts?.target || "";
-        let path = "/" + String(target).split("?")[0].split("#")[0].replace(/^\/+/, "");
+        let path = "/" + (String(target).split(/[?#]/)[0] ?? "").replace(/^\/+/, "");
         // Match the backend htu: the request path only (no scheme/host), with the
         // tenant prefix stripped. The proof binds method + path so it survives the
         // proxies that commonly front GlobaLeaks and rewrite the origin.

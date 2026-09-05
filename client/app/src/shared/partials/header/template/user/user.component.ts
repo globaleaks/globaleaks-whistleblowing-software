@@ -68,7 +68,7 @@ export class UserComponent {
         const hash = window.location.hash; // e.g., "#!/some/path?lang=en&foo=bar"
 
         // Split path and query
-        const [path, query] = hash.split('?');
+        const [path = "", query] = hash.split('?');
 
         // Remove the 'lang' param from the query if present
         const newQuery = query

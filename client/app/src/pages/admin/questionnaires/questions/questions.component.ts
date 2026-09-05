@@ -41,8 +41,9 @@ export class QuestionsComponent implements OnInit {
   };
 
   importQuestion(files: FileList | null): void {
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
+    const file = files?.[0];
+    if (file) {
+      this.utilsService.readFileAsText(file).subscribe((txt) => {
         return this.httpService.requestImportAdminFieldTemplate(txt).subscribe({
           next:()=>{
             this.utilsService.reloadComponent();

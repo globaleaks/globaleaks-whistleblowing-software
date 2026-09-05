@@ -70,7 +70,7 @@ describe("globaleaks process", function () {
         inputElement.files = dataTransfer.files;
 
         const changeEvent = new Event("change", { bubbles: true });
-        input[0].dispatchEvent(changeEvent);
+        input[0]!.dispatchEvent(changeEvent);
       });
 
       cy.get("#files-action-confirm").click();
@@ -139,7 +139,7 @@ describe("globaleaks process", function () {
     cy.get('.modal').should('be.visible');
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const formattedDate = tomorrow.toISOString().split('T')[0];
+    const formattedDate = tomorrow.toISOString().split('T')[0] ?? "";
     cy.get('input[name="dp"]').click().clear();
     cy.get('input[name="dp"]').click().type(formattedDate);
     cy.get('#modal-action-ok').click();

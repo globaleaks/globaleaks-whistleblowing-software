@@ -179,11 +179,11 @@ export class ExchangeReportComponent implements OnInit, OnDestroy {
 
   lastStepIndex() {
     let lastEnabled = 0;
-    for (let i = 0; i < this.questionnaire.steps.length; i++) {
-      if (this.questionnaire.steps[i].enabled) {
+    this.questionnaire.steps.forEach((step, i) => {
+      if (step.enabled) {
         lastEnabled = i;
       }
-    }
+    });
 
     return lastEnabled;
   }

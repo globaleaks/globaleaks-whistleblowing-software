@@ -57,7 +57,7 @@ const WARP_CONTROL_POINTS = 5;
 const WARP_MAX_LOG_SHIFT = 0.10;
 // Section quality factors of a 4th-order Butterworth low-pass, realized as two cascaded
 // biquads at the same cutoff: maximally flat passband, no resonant peak, 24dB per octave.
-const BUTTERWORTH_4TH_ORDER_Q = [0.54119610, 1.30656296];
+const BUTTERWORTH_4TH_ORDER_Q: readonly [number, number] = [0.54119610, 1.30656296];
 // Pre-emphasis applied to the analysis (modulator) path only, never the carriers. Speech has a
 // roughly -6dB/octave spectral tilt, so the high formants F2-F4 that carry most consonant and
 // vowel-identity cues sit well below F1 in energy; their band envelopes come out weak and the
@@ -132,7 +132,9 @@ function createCarrierWarp(minHz: number, maxHz: number): (freq: number) => numb
     }
     const t = seg - k;
     const s = t * t * (3 - 2 * t);
-    const shift = shifts[k] + (shifts[k + 1] - shifts[k]) * s;
+    const from = shifts[k] ?? 0;
+    const to = shifts[k + 1] ?? from;
+    const shift = from + (to - from) * s;
     return Math.exp(u + shift);
   };
 }
@@ -282,13 +284,13 @@ function anonymizeSpeaker(audioContext: AudioContext) {
   preEmphasis.gain.value = PRE_EMPHASIS_GAIN_DB;
   input.connect(preEmphasis);
 
-  for (let i = 0; i < vocoderBands.length; i++) {
-    const Q = vocoderBands[i].Q;
-    const warpedFreq = warpCarrier(vocoderBands[i].freq);
+  for (const [i, band] of vocoderBands.entries()) {
+    const Q = band.Q;
+    const warpedFreq = warpCarrier(band.freq);
 
     let carrier: AudioNode;
     let carrierLevel: number;
-    if (vocoderBands[i].freq > NOISE_CARRIER_THRESHOLD_HZ) {
+    if (band.freq > NOISE_CARRIER_THRESHOLD_HZ) {
       const noiseOffset = (i / vocoderBands.length) * noiseBuffer.duration;
       const noiseSource = generateNoiseSource(audioContext, noiseBuffer, noiseOffset);
       const carrierBandFilter: BiquadFilterNode = audioContext.createBiquadFilter();
@@ -311,7 +313,7 @@ function anonymizeSpeaker(audioContext: AudioContext) {
     // Modulator: extract the amplitude envelope of the input in this band
     const modulatorBandFilter: BiquadFilterNode = audioContext.createBiquadFilter();
     modulatorBandFilter.type = 'bandpass';
-    modulatorBandFilter.frequency.value = vocoderBands[i].freq;
+    modulatorBandFilter.frequency.value = band.freq;
     modulatorBandFilter.Q.value = Q;
     const rectifier: WaveShaperNode = audioContext.createWaveShaper();
     rectifier.curve = rectifierCurve as Float32Array<ArrayBuffer>;
