@@ -1,8 +1,8 @@
-<a routerLink="/auditor/home" routerLinkActive="active" id="auditor_home" [attr.aria-current]="isActive('/auditor/home') ? 'page' : 'false'">
+<a routerLink="/auditor/home" routerLinkActive="active" ariaCurrentWhenActive="page" id="auditor_home">
   <i class="fas fa-house"></i>
   <span>{{'Home' | translate}}</span>
 </a>
-<a routerLink="/auditor/auditlog" routerLinkActive="active" id="auditor_audit_log" [attr.aria-current]="isActive('/auditor/auditlog') ? 'page' : 'false'">
+<a routerLink="/auditor/auditlog" routerLinkActive="active" ariaCurrentWhenActive="page" id="auditor_audit_log">
   <i class="fas fa-clipboard-list"></i>
   <span>{{'Audit log' | translate}}</span>
 </a>

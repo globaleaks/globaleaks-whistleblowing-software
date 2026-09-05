@@ -42,6 +42,8 @@ module.exports = tseslint.config(
       // A member assigned once and never reassigned is readonly: keeps the
       // SonarQube S2933 debt from growing back.
       "@typescript-eslint/prefer-readonly": "error",
+      // Deprecated APIs break at the next major: fix them as they appear.
+      "@typescript-eslint/no-deprecated": "error",
     },
   },
   {
