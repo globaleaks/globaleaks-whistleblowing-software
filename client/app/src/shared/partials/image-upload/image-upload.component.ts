@@ -18,10 +18,10 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
     imports: [FormsModule, NgbTooltipModule, NgxFlowModule, TranslateModule]
 })
 export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
-  private renderScheduler = inject(RenderSchedulerService);
+  private readonly renderScheduler = inject(RenderSchedulerService);
   protected authenticationService = inject(AuthenticationService);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
 
   readonly flow = viewChild.required<FlowConfig>("flowAdvanced");
 

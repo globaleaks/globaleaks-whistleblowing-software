@@ -12,8 +12,8 @@ import {HttpService} from "@app/shared/services/http.service";
     imports: [TranslatePipe]
 })
 export class HttpsSetupComponent {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   readonly updated = output<string | void>();
   fileResources: FileResources = {

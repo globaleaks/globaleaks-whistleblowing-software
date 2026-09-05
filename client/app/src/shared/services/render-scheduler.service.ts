@@ -22,7 +22,7 @@ import {ApplicationRef, Injectable, Injector, inject} from "@angular/core";
 export class RenderSchedulerService {
   // ApplicationRef is resolved lazily: this service is reached through the
   // HTTP interceptors, which may run before ApplicationRef is constructed.
-  private injector = inject(Injector);
+  private readonly injector = inject(Injector);
 
   schedule(): void {
     const appRef = this.injector.get(ApplicationRef);

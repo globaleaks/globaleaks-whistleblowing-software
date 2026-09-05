@@ -22,10 +22,10 @@ import {SupportThreadComponent} from "@app/shared/partials/support-thread/suppor
 export class RequestSupportComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);
   protected authenticationService = inject(AuthenticationService);
-  private appDataService = inject(AppDataService);
-  private httpService = inject(HttpService);
-  private preferenceResolver = inject(PreferenceResolver);
-  private changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly appDataService = inject(AppDataService);
+  private readonly httpService = inject(HttpService);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
 
   protected readonly Constants = Constants;
   markingReadIds = new Set<string>();

@@ -30,9 +30,9 @@ const protectedUrls = [
 
 @Injectable()
 export class appInterceptor implements HttpInterceptor {
-  private authenticationService = inject(AuthenticationService);
-  private httpClient = inject(HttpClient);
-  private cryptoService = inject(CryptoService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly httpClient = inject(HttpClient);
+  private readonly cryptoService = inject(CryptoService);
 
   /**
    * A proof of work protects the endpoints reachable without authentication;
@@ -168,8 +168,8 @@ export class appInterceptor implements HttpInterceptor {
 
 @Injectable()
 export class ErrorCatchingInterceptor implements HttpInterceptor {
-  private authenticationService = inject(AuthenticationService);
-  private appDataService = inject(AppDataService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly appDataService = inject(AppDataService);
 
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -192,8 +192,8 @@ export class ErrorCatchingInterceptor implements HttpInterceptor {
 
 @Injectable()
 export class CompletedInterceptor implements HttpInterceptor {
-  private appDataService = inject(AppDataService);
-  private renderScheduler = inject(RenderSchedulerService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly renderScheduler = inject(RenderSchedulerService);
 
   count = 0;
 

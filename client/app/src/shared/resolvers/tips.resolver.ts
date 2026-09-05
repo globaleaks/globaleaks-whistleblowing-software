@@ -10,8 +10,8 @@ import {map} from "rxjs/operators";
   providedIn: "root"
 })
 export class TipsResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: tipsResolverModel = new tipsResolverModel();
 

@@ -22,12 +22,12 @@ import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
     imports: [FormsModule, NgFormChangeDirective, FormComponent, RFilesUploadStatusComponent, TranslateModule, OrderByPipe]
 })
 export class TipAdditionalQuestionnaireFormComponent implements OnInit {
-  private renderScheduler = inject(RenderSchedulerService);
+  private readonly renderScheduler = inject(RenderSchedulerService);
   protected whistleblowerSubmissionService = inject(WhistleblowerSubmissionService);
-  private wbTipResolver = inject(WbTipResolver);
-  private httpService = inject(HttpService);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
-  private utilsService = inject(UtilsService);
+  private readonly wbTipResolver = inject(WbTipResolver);
+  private readonly httpService = inject(HttpService);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly utilsService = inject(UtilsService);
   protected wbTipService = inject(WbtipService);
   protected activeModal = inject(NgbActiveModal);
 

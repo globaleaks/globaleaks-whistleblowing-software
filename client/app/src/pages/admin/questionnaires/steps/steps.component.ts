@@ -17,7 +17,7 @@ import {TranslateModule} from "@ngx-translate/core";
 export class StepsComponent implements OnInit {
   protected node = inject(NodeResolver);
   protected utilsService = inject(UtilsService);
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
 
   readonly deleted = output<string>();
   readonly questionnaire = input.required<questionnaireResolverModel>();

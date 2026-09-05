@@ -5,7 +5,7 @@ import { Directive, ElementRef, HostListener, AfterViewInit, inject } from '@ang
 })
 export class AutoExpandDirective implements AfterViewInit {
 
-  private el = inject(ElementRef);
+  private readonly el = inject(ElementRef);
 
   ngAfterViewInit() {
     this.adjustHeight();

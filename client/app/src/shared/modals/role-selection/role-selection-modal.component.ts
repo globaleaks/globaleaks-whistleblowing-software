@@ -16,7 +16,7 @@ import { AuthenticationService } from "@app/services/helper/authentication.servi
   ]
 })
 export class RoleSelectionModalComponent implements OnInit {
-  private activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
   protected authenticationService = inject(AuthenticationService);
 
   @Input() roles: { value: string; role: string }[] = [];

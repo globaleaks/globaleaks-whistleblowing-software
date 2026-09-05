@@ -33,13 +33,13 @@ interface SupportRequestRow extends SupportRequest {
   imports: [DatePipe, FormsModule, NgbTooltipModule, NgClass, PaginatedInterfaceComponent, RouterLink, SupportThreadComponent, TableHeaderComponent, TranslateModule]
 })
 export class SupportTab1Component implements OnInit {
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
-  private translateService = inject(TranslateService);
-  private utilsService = inject(UtilsService);
-  private authenticationService = inject(AuthenticationService);
-  private preferenceResolver = inject(PreferenceResolver);
-  private activatedRoute = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly translateService = inject(TranslateService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly activatedRoute = inject(ActivatedRoute);
   protected nodeResolver = inject(NodeResolver);
 
   requests: SupportRequestRow[] = [];

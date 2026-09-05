@@ -78,21 +78,21 @@ import {
     ],
 })
 export class TipComponent implements OnInit {
-  private translateService = inject(TranslateService);
-  private tipService = inject(TipService);
-  private appConfigServices = inject(AppConfigService);
-  private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
-  private cryptoService = inject(CryptoService);
+  private readonly translateService = inject(TranslateService);
+  private readonly tipService = inject(TipService);
+  private readonly appConfigServices = inject(AppConfigService);
+  private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly cryptoService = inject(CryptoService);
   protected utils = inject(UtilsService);
   protected preferencesService = inject(PreferenceResolver);
   protected modalService = inject(NgbModal);
-  private activatedRoute = inject(ActivatedRoute);
+  private readonly activatedRoute = inject(ActivatedRoute);
   protected httpService = inject(HttpService);
   protected appDataService = inject(AppDataService);
   protected RTipService = inject(ReceiverTipService);
   protected authenticationService = inject(AuthenticationService);
-  private titleService = inject(TitleService);
+  private readonly titleService = inject(TitleService);
 
 
   tip_id: string | null;

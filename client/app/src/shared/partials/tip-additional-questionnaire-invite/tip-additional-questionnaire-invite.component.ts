@@ -16,7 +16,7 @@ import {TranslateModule} from "@ngx-translate/core";
 })
 export class TipAdditionalQuestionnaireInviteComponent {
   protected utilsService = inject(UtilsService);
-  private modalService = inject(NgbModal);
+  private readonly modalService = inject(NgbModal);
 
   // Whoever is asked fills the questionnaire, whoever asked edits it; the sentence is the same for
   // both

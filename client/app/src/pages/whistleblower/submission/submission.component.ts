@@ -38,20 +38,20 @@ import {firstValueFrom} from "rxjs";
     imports: [ContextSelectionComponent, FormsModule, ReceiverSelectionComponent, NgFormChangeDirective, MarkdownComponent, FormComponent, RFilesUploadStatusComponent, TranslateModule, StripHtmlPipe, OrderByPipe]
 })
 export class SubmissionComponent implements OnInit {
-  private renderScheduler = inject(RenderSchedulerService);
-  private route = inject(ActivatedRoute);
+  private readonly renderScheduler = inject(RenderSchedulerService);
+  private readonly route = inject(ActivatedRoute);
   protected whistleblowerSubmissionService = inject(WhistleblowerSubmissionService);
-  private titleService = inject(TitleService);
-  private router = inject(Router);
-  private appConfigService = inject(AppConfigService);
-  private modalService = inject(NgbModal);
-  private whistleblowerLoginResolver = inject(WhistleblowerLoginResolver);
+  private readonly titleService = inject(TitleService);
+  private readonly router = inject(Router);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly modalService = inject(NgbModal);
+  private readonly whistleblowerLoginResolver = inject(WhistleblowerLoginResolver);
   protected authenticationService = inject(AuthenticationService);
   protected appDataService = inject(AppDataService);
-  private utilsService = inject(UtilsService);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
-  private httpService = inject(HttpService);
-  private cryptoService = inject(CryptoService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly httpService = inject(HttpService);
+  private readonly cryptoService = inject(CryptoService);
   submission = inject(SubmissionService);
 
   disclaimerShown = false;

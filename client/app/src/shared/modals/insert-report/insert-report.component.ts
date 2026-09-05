@@ -39,11 +39,11 @@ interface InsertionChannel {
   imports: [FormsModule, NgClass, NgFormChangeDirective, FormComponent, ReceiptComponent, TranslateModule, OrderByPipe]
 })
 export class InsertReportComponent implements OnInit, OnDestroy {
-  private cdr = inject(ChangeDetectorRef);
-  private cryptoService = inject(CryptoService);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
-  private http = inject(HttpClient);
-  private httpService = inject(HttpService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly http = inject(HttpClient);
+  private readonly httpService = inject(HttpService);
   protected activeModal = inject(NgbActiveModal);
   protected utilsService = inject(UtilsService);
   protected whistleblowerSubmissionService = inject(WhistleblowerSubmissionService);

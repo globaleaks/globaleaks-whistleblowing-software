@@ -17,8 +17,8 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
     ],
 })
 export class DisclaimerComponent implements OnInit {
-  private activeModal = inject(NgbActiveModal);
-  private modalService = inject(NgbModal);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly modalService = inject(NgbModal);
   protected appDataService = inject(AppDataService);
 
   nodeData: Node;

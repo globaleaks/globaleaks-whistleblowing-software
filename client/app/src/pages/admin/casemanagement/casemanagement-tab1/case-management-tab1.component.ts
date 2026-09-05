@@ -14,10 +14,10 @@ import {SubStatusManagerComponent} from "../substatusmanager/sub-status-manager.
     imports: [TranslatePipe, FormsModule, NgbTooltipModule, SubStatusManagerComponent]
 })
 export class CaseManagementTab1Component {
-  private utilsService = inject(UtilsService);
+  private readonly utilsService = inject(UtilsService);
   protected appDataServices = inject(AppDataService);
-  private appDataService = inject(AppDataService);
-  private httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly httpService = inject(HttpService);
 
   showAddStatus = false;
   newSubmissionsStatus: { label: string; } = {label: ""};
