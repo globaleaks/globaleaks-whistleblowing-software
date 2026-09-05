@@ -159,7 +159,7 @@
         @if (canChangeLabel()) {
         <div id="TipLabelBox" class="float-start">
           <span class="input-group ms-1">
-            <input id="assignLabelInput" type="text" class="form-control m-0" placeholder="{{'Label' | translate}}" [(ngModel)]="RTipService.tip.label" />
+            <input id="assignLabelInput" type="text" class="form-control m-0" [attr.aria-label]="'Label' | translate" placeholder="{{'Label' | translate}}" [(ngModel)]="RTipService.tip.label" />
             <span class="input-group-append" ngbTooltip="{{'Label the report' | translate}} ">
               <button id="assignLabelButton" class="btn btn-primary rounded-start-0 m-0" name="tip.label" (click)="updateLabel(RTipService.tip.label)" [attr.aria-label]="'Label the report' | translate">
                 <i class="fas fa-tag" aria-hidden="true"></i>

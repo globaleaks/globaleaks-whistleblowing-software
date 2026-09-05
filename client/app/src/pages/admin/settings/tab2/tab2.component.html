@@ -29,6 +29,12 @@
         </div>
         <div class="table-responsive">
           <table class="table" id="fileList">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'Filename' | translate }}</th>
+                <th scope="col">{{ 'Actions' | translate }}</th>
+              </tr>
+            </thead>
             <tbody id="fileListBody">
               @for (file of files | orderBy:'name'; track file) {
                 @if (special_files_names.indexOf(file.name) === -1) {

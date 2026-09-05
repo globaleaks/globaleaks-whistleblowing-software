@@ -8,6 +8,7 @@ import {Field} from "@app/models/resolvers/field-template-model";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ControlContainer, FormsModule, NgForm} from "@angular/forms";
+import {TranslateModule} from "@ngx-translate/core";
 
 // Filterbank span and resolution. Log-spacing over this range gives a constant-Q filterbank
 // (Q is about 10.3 at 48 bands). The band count is mostly a naturalness, CPU and anonymity
@@ -362,7 +363,7 @@ function anonymizeSpeaker(audioContext: AudioContext) {
     templateUrl: "./voice-recorder.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [FormsModule]
+    imports: [FormsModule, TranslateModule]
 })
 export class VoiceRecorderComponent implements OnInit, OnDestroy {
   private readonly renderScheduler = inject(RenderSchedulerService);

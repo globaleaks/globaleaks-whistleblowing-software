@@ -1,7 +1,7 @@
 <div class="row">
   <div class="col-md-6">
-    <input name="node.dataModel.languages_enabled" [(ngModel)]="nodeResolver.dataModel.languages_enabled" class="d-none" />
-    <input name="node.dataModel.default_language" [(ngModel)]="nodeResolver.dataModel.default_language" class="d-none" />
+    <input name="node.dataModel.languages_enabled" [(ngModel)]="nodeResolver.dataModel.languages_enabled" type="hidden" />
+    <input name="node.dataModel.default_language" [(ngModel)]="nodeResolver.dataModel.default_language" type="hidden" />
     <src-selection-editor
       label="Languages"
       [hideLabel]="true"

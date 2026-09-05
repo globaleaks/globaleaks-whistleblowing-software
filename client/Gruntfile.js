@@ -967,7 +967,7 @@ module.exports = function(grunt) {
       });
 
       let langs = Object.keys(langsSet)
-        .sort()
+        .sort(function(a, b) { return a.localeCompare(b); })
         .filter(function(c) { return c !== weblateSourceLang; });
 
       if (!langs.length) {

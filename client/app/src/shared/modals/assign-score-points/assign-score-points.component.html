@@ -4,8 +4,8 @@
 </div>
 <div class="modal-body">
   <span class="">
-    <span>{{ 'Type' | translate }}</span>
-    <select class="form-control" [(ngModel)]="arg.score_type">
+    <label for="scoreType">{{ 'Type' | translate }}</label>
+    <select id="scoreType" class="form-control" [(ngModel)]="arg.score_type">
       <option value="none">{{ 'None' | translate }}</option>
       <option value="addition">{{ 'Addition' | translate }}</option>
       <option value="multiplier">{{ 'Multiplier' | translate }}</option>
@@ -13,7 +13,7 @@
     <br>
       @if (arg.score_type !== 'none') {
         <div>
-          <span>{{ 'Value' | translate }}</span>
+          <label for="score_points">{{ 'Value' | translate }}</label>
           <input id="score_points" class="form-control" [(ngModel)]="arg.score_points" type="number" />
         </div>
       }
