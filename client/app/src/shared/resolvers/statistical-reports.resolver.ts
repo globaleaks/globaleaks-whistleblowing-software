@@ -15,7 +15,7 @@ export class StatisticalReportsResolver {
   dataModel: statisticalReportResolverModel[] = [];
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "analyst") {
+    if (this.authenticationService.session?.role === "analyst") {
       return this.httpService.requestStatisticalReports().pipe(
         map((response) => {
           this.dataModel = response;

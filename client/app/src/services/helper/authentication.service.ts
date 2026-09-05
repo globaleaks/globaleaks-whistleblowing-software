@@ -31,7 +31,7 @@ export class AuthenticationService {
   private readonly oauthService = inject(OAuthService);
   private readonly idpService = inject(IdpService);
 
-  public session: any = undefined;
+  public session: Session | null = null;
   permissions: { can_upload_files: boolean }
   loginInProgress = false;
   requireAuthCode = false;
@@ -229,7 +229,7 @@ export class AuthenticationService {
               return;
             }
 
-            if (this.session.role === "whistleblower") {
+            if (response.role === "whistleblower") {
               if (password) {
                 // A receipt was provided: a report exists and is the page to
                 // reach
@@ -240,12 +240,12 @@ export class AuthenticationService {
               if (!callback) {
                 this.reset();
 
-                if (this.session.properties.password_change_needed) {
+                if (response.properties.password_change_needed) {
                   // A confined session must reach the forced page directly: the
                   // role landing route runs sibling resolvers that the backend
                   // now rejects, which would otherwise tear down the session.
                   void this.router.navigate(['/action/forcedpasswordchange']);
-                } else if (this.session.properties.require_two_factor) {
+                } else if (response.properties.require_two_factor) {
                   void this.router.navigate(['/action/forcedtwofactor']);
                 } else {
                 let redirect = this.activatedRoute.snapshot.queryParams['redirect'] || '/';
@@ -262,7 +262,7 @@ export class AuthenticationService {
                     void this.router.navigateByUrl(redirect);
                   }
                 } else {
-                void this.router.navigate([this.session.homepage], {
+                void this.router.navigate([response.homepage], {
                     queryParams: this.activatedRoute.snapshot.queryParams,
                     queryParamsHandling: "merge"
                   }).then();
