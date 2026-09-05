@@ -145,6 +145,32 @@ class Model:
 
         self.properties = self.__mapper__.column_attrs.keys()
 
+    @staticmethod
+    def _bool_value(value):
+        """
+        A boolean carried by a request may travel as the string the client sends
+        """
+        if value == 'true':
+            return True
+
+        if value == 'false':
+            return False
+
+        return bool(value)
+
+    def _localized_value(self, key, value):
+        """
+        A localized value is merged onto the translations the model already holds, so that a
+        language left out of a request is not dropped
+        """
+        previous = copy.deepcopy(getattr(self, key))
+
+        if previous and isinstance(previous, dict):
+            previous.update(value)
+            return previous
+
+        return value
+
     def update(self, values=None):
         """
         Updated Models attributes from dict.
@@ -152,55 +178,29 @@ class Model:
         if values is None:
             return
 
-        if 'id' in values and values['id']:
-            self.id = values['id']
-
-        if 'tid' in values and values['tid']:
-            self.tid = values['tid']
-
-        for k in self.unicode_keys:
-            if k in values and values[k] is not None:
+        for k in ('id', 'tid'):
+            if values.get(k):
                 setattr(self, k, values[k])
 
-        for k in self.int_keys:
-            if k in values and values[k] is not None:
-                setattr(self, k, int(values[k]))
+        # Each group of keys is read as it is, or through the reader its type asks for
+        groups = [(self.unicode_keys, None),
+                  (self.datetime_keys, None),
+                  (self.json_keys, None),
+                  (self.int_keys, lambda _, value: int(value)),
+                  (self.bool_keys, lambda _, value: self._bool_value(value)),
+                  (self.localized_keys, self._localized_value)]
 
-        for k in self.datetime_keys:
-            if k in values and values[k] is not None:
-                setattr(self, k, values[k])
+        for keys, read in groups:
+            for k in keys:
+                if k not in values or values[k] is None:
+                    continue
 
-        for k in self.bool_keys:
-            if k in values and values[k] is not None:
-                if values[k] == 'true':
-                    value = True
-                elif values[k] == 'false':
-                    value = False
-                else:
-                    value = bool(values[k])
-                setattr(self, k, value)
+                setattr(self, k, read(k, values[k]) if read is not None else values[k])
 
-        for k in self.localized_keys:
-            if k in values and values[k] is not None:
-                value = values[k]
-                previous = copy.deepcopy(getattr(self, k))
-
-                if previous and isinstance(previous, dict):
-                    previous.update(value)
-                    value = previous
-
-                setattr(self, k, value)
-
-        for k in self.json_keys:
-            if k in values and values[k] is not None:
-                setattr(self, k, values[k])
-
+        # An emptied reference is cleared rather than left untouched
         for k in self.optional_references:
             if k in values:
-                if values[k]:
-                    setattr(self, k, values[k])
-                else:
-                    setattr(self, k, None)
+                setattr(self, k, values[k] or None)
 
     def __setattr__(self, name, value):
         if isinstance(value, bytes):
