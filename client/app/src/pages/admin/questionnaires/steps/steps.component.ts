@@ -1,4 +1,4 @@
-import {Component, OnInit, inject, input, output} from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -14,7 +14,7 @@ import {TranslateModule} from "@ngx-translate/core";
     standalone: true,
     imports: [FormsModule, StepsListComponent, TranslateModule]
 })
-export class StepsComponent implements OnInit {
+export class StepsComponent {
   protected node = inject(NodeResolver);
   protected utilsService = inject(UtilsService);
   private readonly httpService = inject(HttpService);
@@ -22,13 +22,8 @@ export class StepsComponent implements OnInit {
   readonly deleted = output<string>();
   readonly questionnaire = input.required<questionnaireResolverModel>();
   showAddStep = false;
-  step: Step;
   editing = false;
   new_step: { label: string } = {label: ""};
-
-  ngOnInit(): void {
-    this.step = this.questionnaire().steps[0];
-  }
 
   toggleAddStep() {
     this.showAddStep = !this.showAddStep;

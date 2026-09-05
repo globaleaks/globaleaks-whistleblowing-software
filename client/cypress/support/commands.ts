@@ -66,7 +66,7 @@ Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
   } else {
     cy.url().should("include", "#/login").then(() => {
       cy.url().should("not.include", "#/login").then((currentURL) => {
-        const hashPart = currentURL.split("#")[1];
+        const hashPart = currentURL.split("#")[1] ?? "";
         finalURL = hashPart === "login" ? "/admin/home" : hashPart;
         cy.waitForUrl(finalURL);
       });
@@ -89,7 +89,7 @@ Cypress.Commands.add("login_user", (username, password, url, firstlogin, home) =
   if (!firstlogin) {
     cy.url().should("include", "/login").then(() => {
       cy.url().should("not.include", "/login").then((currentURL) => {
-        const hashPart = currentURL.split("#")[1];
+        const hashPart = currentURL.split("#")[1] ?? "";
         cy.waitForUrl(hashPart === "login" ? home : hashPart);
       });
     });
@@ -124,7 +124,7 @@ Cypress.Commands.add("login_receiver", (username, password, url, firstlogin) => 
   if (!firstlogin) {
     cy.url().should("include", "#/login").then(() => {
       cy.url().should("not.include", "#/login").then((currentURL) => {
-        const hashPart = currentURL.split("#")[1];
+        const hashPart = currentURL.split("#")[1] ?? "";
         finalURL = hashPart === "login" ? "/recipient/home" : hashPart;
         cy.waitForUrl(finalURL);
       });
@@ -168,7 +168,7 @@ Cypress.Commands.add("simple_login_admin", (username, password, url, firstlogin)
   } else {
     cy.url().should("include", "#/admin").then(() => {
       cy.url().should("not.include", "#/login").then((currentURL) => {
-        const hashPart = currentURL.split("#")[1];
+        const hashPart = currentURL.split("#")[1] ?? "";
         finalURL = hashPart === "login" ? "/admin/home" : hashPart;
       });
     });
@@ -191,7 +191,7 @@ Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlog
   if (!firstlogin) {
     cy.url().should("include", "#/login").then(() => {
       cy.url().should("not.include", "#/login").then((currentURL) => {
-        const hashPart = currentURL.split("#")[1];
+        const hashPart = currentURL.split("#")[1] ?? "";
         finalURL = hashPart === "login" ? "/recipient/home" : hashPart;
         cy.waitForUrl(finalURL);
       });
@@ -252,7 +252,7 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
         const padding = /modal/.test(locator) ? 16 : 0;
         return cy.get(locator)
           .should(($el) => {
-            const box = $el[0].getBoundingClientRect();
+            const box = $el[0]!.getBoundingClientRect();
             expect(box.width, `width of the capture ${screenshotPath} (${locator})`).to.be.greaterThan(16);
             expect(box.height, `height of the capture ${screenshotPath} (${locator})`).to.be.greaterThan(16);
           })

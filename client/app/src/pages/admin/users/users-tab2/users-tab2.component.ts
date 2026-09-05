@@ -68,8 +68,9 @@ export class UsersTab2Component implements OnInit {
 
   importProfile(input: HTMLInputElement) {
     const files = input.files;
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
+    const file = files?.[0];
+    if (file) {
+      this.utilsService.readFileAsText(file).subscribe((txt) => {
         return this.http.post("api/admin/users/profiles", txt).subscribe({
           next:()=>{
             this.getResolver();

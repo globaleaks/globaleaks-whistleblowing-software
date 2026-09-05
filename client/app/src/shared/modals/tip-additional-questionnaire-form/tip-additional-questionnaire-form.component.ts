@@ -81,11 +81,14 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   lastStepIndex() {
     let last_enabled = 0;
 
-    for (let i = 0; i < this.questionnaire.steps.length; i++) {
-      if (this.questionnaire.steps[i].enabled) {
+    this.questionnaire.steps.forEach((step, i) => {
+
+      if (step.enabled) {
         last_enabled = i;
+
       }
-    }
+
+    });
 
     return last_enabled;
   };

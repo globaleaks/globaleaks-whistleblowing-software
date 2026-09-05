@@ -59,16 +59,18 @@ export class CryptoService {
     window.crypto.getRandomValues(array);
 
     const chars = Array.from(array, (n, i) => {
-      const set = i < required.length ? required[i] : all;
-      return set[n % set.length];
+      const set = required[i] ?? all;
+      return set.charAt(n % set.length);
     });
 
     // Shuffle so the guaranteed characters are not always at the beginning.
     const shuffle = new Uint32Array(length);
     window.crypto.getRandomValues(shuffle);
     for (let i = chars.length - 1; i > 0; i--) {
-      const j = shuffle[i] % (i + 1);
-      [chars[i], chars[j]] = [chars[j], chars[i]];
+      const j = (shuffle[i] ?? 0) % (i + 1);
+      const swapped = chars[j] ?? "";
+      chars[j] = chars[i] ?? "";
+      chars[i] = swapped;
     }
 
     return chars.join("");
@@ -103,7 +105,7 @@ export class CryptoService {
     // Combine bytes (random or deterministic based on the seed)
     const combinedBytes = new Uint8Array(
       Array.from({ length: 16 }, (_, i) =>
-        seed ? seedHash[i] : randomBytes[i]
+        (seed ? seedHash[i] : randomBytes[i]) ?? 0
       )
     );
 
