@@ -1,6 +1,5 @@
 # This filte contains routines dealing with texts templates and variables replacement used
 # mainly in mail notifications.
-import collections
 import copy
 import re
 
@@ -223,6 +222,106 @@ class UserNodeKeyword(NodeKeyword, UserKeyword):
     data_keys = NodeKeyword.data_keys + UserKeyword.data_keys
 
 
+def _fields_in_display_order(fields):
+    """
+    Yield the fields of a step in the order they are displayed in, by row and by column
+
+    :param fields: The fields of the step
+    """
+    rows = {}
+    for f in fields:
+        rows.setdefault(f['y'], []).append(f)
+
+    for y in sorted(rows):
+        for field in sorted(rows[y], key=lambda k: k['x']):
+            yield field
+
+
+def _dump_checkbox_answer(field, entry, indent_n):
+    """
+    Return the labels of the options a checkbox answer selects
+    """
+    output = ''
+
+    for k, v in entry.items():
+        for option in field['options']:
+            if k == option.get('id', '') and v is True:
+                output += indent(indent_n) + option['label'] + '\n'
+
+    return output
+
+
+def _dump_choice_answer(field, entry, indent_n):
+    """
+    Return the label of the option a single choice answer selects
+    """
+    output = ''
+
+    for option in field['options']:
+        if entry.get('value', '') == option['id']:
+            output += indent(indent_n) + option['label'] + '\n'
+
+    return output
+
+
+def _dump_date_answer(entry, indent_n):
+    """
+    Return the day a date answer carries
+    """
+    date = entry.get('value')
+
+    return indent(indent_n) + iso8601_to_day_str(date) + '\n' if date is not None else ''
+
+
+def _dump_daterange_answer(entry, indent_n):
+    """
+    Return the two days a date range answer carries
+    """
+    daterange = entry.get('value')
+
+    if daterange is None:
+        return ''
+
+    daterange = daterange.split(':')
+
+    return (indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[0])/1000)) + '\n' +
+            indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[1])/1000)) + '\n')
+
+
+def _dump_tos_answer(entry, indent_n):
+    """
+    Return the box a terms of service answer is rendered as
+    """
+    return indent(indent_n) + ('☑' if entry.get('value', '') is True else '☐') + '\n'
+
+
+def _dump_answer(field_type, field, entry, indent_n):
+    """
+    Return the text an answer of a field is rendered as, apart from a field group
+
+    :param field_type: The type of the field
+    :param field: The field the answer belongs to
+    :param entry: The answer
+    :param indent_n: The depth the answer is rendered at
+    """
+    if field_type == 'checkbox':
+        return _dump_checkbox_answer(field, entry, indent_n)
+
+    if field_type in ['multichoice', 'selectbox']:
+        return _dump_choice_answer(field, entry, indent_n)
+
+    if field_type == 'date':
+        return _dump_date_answer(entry, indent_n)
+
+    if field_type == 'daterange':
+        return _dump_daterange_answer(entry, indent_n)
+
+    if field_type == 'tos':
+        return _dump_tos_answer(entry, indent_n)
+
+    return indent_text(entry.get('value', ''), indent_n) + '\n'
+
+
 class TipKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + tip_keywords
     data_keys = UserNodeKeyword.data_keys + ['tip']
@@ -231,32 +330,10 @@ class TipKeyword(UserNodeKeyword):
         try:
             field_type = field['type']
 
-            if field_type == 'checkbox':
-                for k, v in entry.items():
-                    for option in field['options']:
-                        if k == option.get('id', '') and v is True:
-                            output += indent(indent_n) + option['label'] + '\n'
-            elif field_type in ['multichoice', 'selectbox']:
-                for option in field['options']:
-                    if entry.get('value', '') == option['id']:
-                        output += indent(indent_n) + option['label'] + '\n'
-            elif field_type == 'date':
-                date = entry.get('value')
-                if date is not None:
-                    output += indent(indent_n) + iso8601_to_day_str(date) + '\n'
-            elif field_type == 'daterange':
-                daterange = entry.get('value')
-                if daterange is not None:
-                    daterange = daterange.split(':')
-                    output += indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[0])/1000)) + '\n'
-                    output += indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[1])/1000)) + '\n'
-            elif field_type == 'tos':
-                answer = '☑' if entry.get('value', '') is True else '☐'
-                output += indent(indent_n) + answer + '\n'
-            elif field_type == 'fieldgroup':
+            if field_type == 'fieldgroup':
                 output = self.dump_fields(output, field['children'], entry, indent_n)
             else:
-                output += indent_text(entry.get('value', ''), indent_n) + '\n'
+                output += _dump_answer(field_type, field, entry, indent_n)
         except (KeyError, TypeError, AttributeError, ValueError, OverflowError, OSError):
             # KeyError/TypeError/AttributeError: malformed field or answer dict.
             # ValueError/OverflowError/OSError: the 'daterange' branch can fail in
@@ -269,37 +346,34 @@ class TipKeyword(UserNodeKeyword):
 
         return output + '\n'
 
+    def dump_field(self, output, field, entries, indent_n):
+        """
+        Return the text a field and the answers given to it are rendered as
+
+        :param output: The text the report is being rendered into
+        :param field: The field
+        :param entries: The answers given to the field
+        :param indent_n: The depth the field is rendered at
+        """
+        output += indent(indent_n) + field['label'] + '\n'
+
+        if len(entries) == 1:
+            return self.dump_field_entry(output, field, entries[0], indent_n + 1)
+
+        for i, entry in enumerate(entries, start=1):
+            output += indent(indent_n) + '#' + str(i) + '\n'
+            output = self.dump_field_entry(output, field, entry, indent_n + 2)
+
+        return output
+
     def dump_fields(self, output, fields, answers, indent_n):
-        rows = {}
-        for f in fields:
-            y = f['y']
-            if y not in rows:
-                rows[y] = []
-            rows[y].append(f)
+        for field in _fields_in_display_order(fields):
+            if field['id'] not in answers or \
+               field['type'] == 'fileupload' or \
+               field['template_id'] == 'whistleblower_identity':
+                continue
 
-        rows = collections.OrderedDict(sorted(rows.items()))
-
-        for r in rows:
-            rows[r] = sorted(rows[r], key=lambda k: k['x'])
-
-        for _, row in rows.items():
-            for field in row:
-                if field['id'] not in answers or \
-                   field['type'] == 'fileupload' or \
-                   field['template_id'] == 'whistleblower_identity':
-                    continue
-
-                if field['id'] in answers:
-                    output += indent(indent_n) + field['label'] + '\n'
-                    entries = answers[field['id']]
-                    if len(entries) == 1:
-                        output = self.dump_field_entry(output, field, entries[0], indent_n + 1)
-                    else:
-                        i = 1
-                        for entry in entries:
-                            output += indent(indent_n) + '#' + str(i) + '\n'
-                            output = self.dump_field_entry(output, field, entry, indent_n + 2)
-                            i += 1
+            output = self.dump_field(output, field, answers[field['id']], indent_n)
 
         return output
 

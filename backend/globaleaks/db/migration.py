@@ -141,6 +141,91 @@ def perform_data_update(db_file):
         session.close()
 
 
+def _migration_engine(version, j, new_db_file):
+    """
+    Return the engine holding the database at the version a migration step produces
+
+    :param version: The version the migration step starts from
+    :param j: The index of the version among the supported ones
+    :param new_db_file: The path of the database file the last step writes
+    :return: An engine with the schema of the produced version already created
+    """
+    if version == DATABASE_VERSION - 1:
+        engine = get_engine(make_db_uri(new_db_file), foreign_keys=False, orm_lockdown=False)
+    else:
+        engine = create_engine("sqlite:///:memory:")
+
+    if FIRST_DATABASE_VERSION_SUPPORTED + j + 1 == DATABASE_VERSION:
+        Base.metadata.create_all(engine)
+    else:
+        Bases[j+1].metadata.create_all(engine)
+
+    return engine
+
+
+def _migrated_models(migration_script):
+    """
+    Return the name of the models that the migration step both reads and writes
+
+    :param migration_script: The migration script of the step
+    """
+    for model_name in migration_mapping:
+        if migration_script.model_from[model_name] is not None and migration_script.model_to[model_name] is not None:
+            yield model_name
+
+
+def _run_migration_script(migration_script):
+    """
+    Run a migration step: its prologue, every table it migrates and its epilogue
+
+    :param migration_script: The migration script of the step
+    """
+    try:
+        migration_script.prologue()
+    except Exception as exception:
+        log.err(f"Failure while executing migration prologue: {exception}")
+        raise exception
+
+    for model_name in _migrated_models(migration_script):
+        try:
+            migration_script.migrate_model(model_name)
+
+            # Commit at every table migration in order to be able to detect
+            # the precise migration that may fail.
+            migration_script.commit()
+        except Exception as exception:
+            log.err(f"Failure while migrating table {model_name}: {exception} ")
+            raise exception
+
+    try:
+        migration_script.epilogue()
+        migration_script.commit()
+    except Exception as exception:
+        log.err(f"Failure while executing migration epilogue: {exception} ")
+        raise exception
+
+
+def _check_migration_stats(migration_script, session_new):
+    """
+    Verify that every migrated table holds the number of entries it started from
+
+    :param migration_script: The migration script of the step
+    :param session_new: An ORM session on the database the step produced
+    """
+    log.info("Migration stats:")
+
+    for model_name in _migrated_models(migration_script):
+        expected = migration_script.entries_count[model_name]
+        count = session_new.query(migration_script.model_to[model_name]).count()
+
+        if expected == count:
+            log.info(f" * {model_name} table migrated ({expected} entry(s))")
+        elif migration_script.skip_count_check.get(model_name, False):
+            log.info(f" * {model_name} table migrated (entries count changed from {expected} to {count})")
+        else:
+            raise AssertionError(f"Integrity check failed on count equality for table {model_name}: {count} != {expected}")
+
+
 def perform_migration(version):
     """
     Utility function for performing a database migration
@@ -169,15 +254,7 @@ def perform_migration(version):
 
             j = version - FIRST_DATABASE_VERSION_SUPPORTED
 
-            if version == DATABASE_VERSION - 1:
-                engine = get_engine(make_db_uri(new_db_file), foreign_keys=False, orm_lockdown=False)
-            else:
-                engine = create_engine("sqlite:///:memory:")
-
-            if FIRST_DATABASE_VERSION_SUPPORTED + j + 1 == DATABASE_VERSION:
-                Base.metadata.create_all(engine)
-            else:
-                Bases[j+1].metadata.create_all(engine)
+            engine = _migration_engine(version, j, new_db_file)
 
             if session_new:
                 session_old = session_new
@@ -185,36 +262,13 @@ def perform_migration(version):
             session_new = sessionmaker(bind=engine)()
 
             # Here is instanced the migration script
-            MigrationModule = importlib.import_module(f"globaleaks.db.migrations.update_{version + 1}")
-            migration_script = MigrationModule.MigrationScript(migration_mapping, version, session_old, session_new)
+            migration_module = importlib.import_module(f"globaleaks.db.migrations.update_{version + 1}")
+            migration_script = migration_module.MigrationScript(migration_mapping, version, session_old, session_new)
 
             log.info("Migrating table:")
 
             try:
-                try:
-                    migration_script.prologue()
-                except Exception as exception:
-                    log.err(f"Failure while executing migration prologue: {exception}")
-                    raise exception
-
-                for model_name, _ in migration_mapping.items():
-                    if migration_script.model_from[model_name] is not None and migration_script.model_to[model_name] is not None:
-                        try:
-                            migration_script.migrate_model(model_name)
-
-                            # Commit at every table migration in order to be able to detect
-                            # the precise migration that may fail.
-                            migration_script.commit()
-                        except Exception as exception:
-                            log.err(f"Failure while migrating table {model_name}: {exception} ")
-                            raise exception
-                try:
-                    migration_script.epilogue()
-                    migration_script.commit()
-                except Exception as exception:
-                    log.err(f"Failure while executing migration epilogue: {exception} ")
-                    raise exception
-
+                _run_migration_script(migration_script)
             finally:
                 # the database should be always closed before leaving the application
                 # in order to not keep leaking journal files.
@@ -222,18 +276,7 @@ def perform_migration(version):
 
             log.info("Migration completed with success.")
 
-            log.info("Migration stats:")
-
-            for model_name, _ in migration_mapping.items():
-                if migration_script.model_from[model_name] is not None and migration_script.model_to[model_name] is not None:
-                    count = session_new.query(migration_script.model_to[model_name]).count()
-                    if migration_script.entries_count[model_name] != count:
-                        if migration_script.skip_count_check.get(model_name, False):
-                            log.info(f" * {model_name} table migrated (entries count changed from {migration_script.entries_count[model_name]} to {count})")
-                        else:
-                            raise AssertionError(f"Integrity check failed on count equality for table {model_name}: {count} != {migration_script.entries_count[model_name]}")
-                    else:
-                        log.info(f" * {model_name} table migrated ({migration_script.entries_count[model_name]} entry(s))")
+            _check_migration_stats(migration_script, session_new)
 
             version += 1
 
