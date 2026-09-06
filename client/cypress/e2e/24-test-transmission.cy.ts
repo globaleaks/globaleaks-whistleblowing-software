@@ -143,6 +143,68 @@ describe("recipient exchange workflow", function () {
       cy.logout();
     });
   });
+
+  // the Authority communicates outwards: what its recipients send lands on the channel of the
+  // organization that receives, and the two sides talk on the communication itself
+  it("should communicate a report of the Authority to an external organization", function () {
+    open_platform_f();
+
+    cy.then(() => {
+      // the channel the communications of the Authority land on names who reads them: a channel
+      // names user profiles, and the recipient reads by belonging to one
+      cy.visit(`${platformFUrl}/#/admin/channels`);
+      cy.contains("form[name='editContext']", "Communications of the Authority").within(() => {
+        cy.get("[data-action='edit']").click();
+        cy.get(".add-receiver-btn").click();
+        cy.get('ng-select[name="selected.value"]').click();
+        cy.get('ng-select[name="selected.value"]').contains("Platform F Transmission Profile").click();
+        cy.get("[data-action='save']").click();
+      });
+      cy.logout();
+
+      // a recipient of the Authority communicates one of its reports: what arrives through an
+      // exchange belongs to the site that filed it, and the newest row is one of those. A report
+      // of the Authority is filed here, so the one opened is one it owns
+      pages.WhistleblowerPage.performSubmission(0);
+
+      cy.login_receiver();
+      cy.visit("/#/recipient/reports");
+      cy.waitForUrl("/recipient/reports");
+      cy.get("#tip-0").first().click();
+      cy.get("#TipInfoBox").should("be.visible");
+
+      // the address is kept: the communication files a report and the page moves onto it
+      cy.url().as("authorityReportUrl");
+
+      clickReportAction('#tip-action-communicate');
+
+      cy.get("#TransmitForm").find("input, select, textarea").should("have.length.greaterThan", 0);
+      cy.get("#TransmitForm").should("be.visible");
+
+      submitCommunication(Cypress.config().baseUrl as string, 'authorityCommunication');
+
+      // what a report has been communicated to is listed on the report itself
+      cy.get("@authorityReportUrl").then((url) => {
+        cy.visit(String(url));
+      });
+      cy.get("#TipInfoBox").should("be.visible");
+      cy.get("#TipCommunicationsBox").should("be.visible");
+
+      cy.logout();
+
+      // on the other side the communication is a report of the channel it arrived on
+      cy.login_receiver("Platform F Recipient", Cypress.env("user_password"), `${platformFUrl}/#/login`);
+      cy.visit(`${platformFUrl}/#/recipient/reports`);
+      cy.waitForUrl("/recipient/reports");
+      cy.get("#tip-0").should("be.visible");
+
+
+      cy.get("#tip-0").click();
+      cy.get("#TipInfoBox").should("be.visible");
+
+      cy.logout();
+    });
+  });
 });
 
 // Transmission workflow on Platform G: a request, its authorization, the report and the access of
