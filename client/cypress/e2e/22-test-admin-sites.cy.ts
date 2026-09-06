@@ -449,7 +449,12 @@ describe("admin configure exchanges", () => {
     add_exchange("transmission", "site-site", "Platform G", "GLOBALEAKS",
                  "Exchange channel");
 
-    cy.get("tr.exchange-row").should("have.length", 3);
+    // the Authority communicates outwards as well: the exchange runs the other way and its
+    // channel lives on the organization that receives
+    add_exchange("communication", "site-site", "GLOBALEAKS", "Platform F",
+                 "new", "Communications of the Authority");
+
+    cy.get("tr.exchange-row").should("have.length", 4);
 
     cy.takeScreenshot("admin/sites_exchanges");
     cy.takeScreenshot("admin/sites_exchanges_detail", "table.table");
@@ -493,6 +498,18 @@ describe("admin configure exchanges", () => {
       cy.get('ng-select[name="selected.value"]').click();
       cy.get('ng-select[name="selected.value"]').contains("Profile1").click();
       cy.get("[data-action='save']").click();
+    });
+
+    // and carrying a report of the Authority outwards is a permission of its own, held by the
+    // profile the recipients belong to
+    cy.openAdminUsers();
+    cy.get('[data-cy="profiles"]').click();
+    cy.contains(".profileList", "Profile1").within(() => {
+      // the card expands from its title: there is no edit button
+      cy.get(".editorTitle").click();
+      // the checkbox binds its name through NgModel: reached by its label
+      cy.contains(".permission-group-items .form-group", "Send communication to other organizations").find("input").check();
+      cy.get("#save_profile").click();
     });
 
     cy.visit("/#/admin/sites");
