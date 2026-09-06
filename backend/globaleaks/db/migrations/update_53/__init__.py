@@ -133,7 +133,7 @@ class MigrationScript(MigrationBase):
         'https_priv_key': 'https_key'
     }
 
-    def migrate_Tenant(self):
+    def migrate_tenant(self):
         for old_obj in self.session_old.query(self.model_from['Tenant']):
             self.add_entry('Config', self.model_to['Config']({'tid': old_obj.id, 'var_name': 'subdomain', 'value': old_obj.subdomain}))
 
