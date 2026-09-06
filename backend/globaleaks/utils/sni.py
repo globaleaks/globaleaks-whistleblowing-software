@@ -19,18 +19,18 @@ class _NegotiationData:
     A container for the negotiation data.
     """
     __slots__ = [
-        'alpnSelectCallback',
-        'alpnProtocols'
+        'alpn_select_callback',
+        'alpn_protocols'
     ]
 
     def __init__(self):
-        self.alpnSelectCallback = None
-        self.alpnProtocols = None
+        self.alpn_select_callback = None
+        self.alpn_protocols = None
 
-    def negotiateALPN(self, context):
-        if self.alpnSelectCallback and self.alpnProtocols:
-            context.set_alpn_select_callback(self.alpnSelectCallback)
-            context.set_alpn_protos(self.alpnProtocols)
+    def negotiate_alpn(self, context):
+        if self.alpn_select_callback and self.alpn_protocols:
+            context.set_alpn_select_callback(self.alpn_select_callback)
+            context.set_alpn_protos(self.alpn_protocols)
 
 
 class _ContextProxy:
@@ -45,11 +45,11 @@ class _ContextProxy:
         self._factory = factory
 
     def set_alpn_select_callback(self, cb):
-        self._factory._alpnSelectCallbackForContext(self._obj, cb)
+        self._factory._alpn_select_callback_for_context(self._obj, cb)
         return self._obj.set_alpn_select_callback(cb)
 
     def set_alpn_protos(self, protocols):
-        self._factory._alpnProtocolsForContext(self._obj, protocols)
+        self._factory._alpn_protocols_for_context(self._obj, protocols)
         return self._obj.set_alpn_protos(protocols)
 
     def __getattr__(self, attr):
@@ -103,12 +103,12 @@ class SNIMap:
         self.default_context = None
         self.configs_by_tid = {}
         self.contexts_by_hostname = {}
-        self._negotiationDataForContext = collections.defaultdict(_NegotiationData)
+        self._negotiation_data_for_context = collections.defaultdict(_NegotiationData)
         self.set_default_context(new_tls_server_context())
 
     def set_default_context(self, context):
         self.default_context = context
-        self.default_context.set_tlsext_servername_callback(self.selectContext)
+        self.default_context.set_tlsext_servername_callback(self.select_context)
 
     def load(self, tid, conf):
         chnv = ChainValidator()
@@ -132,12 +132,12 @@ class SNIMap:
         if conf:
             context = self.contexts_by_hostname.pop(conf['hostname'], None)
             if context:
-                self._negotiationDataForContext.pop(context.getContext(), None)
+                self._negotiation_data_for_context.pop(context.getContext(), None)
 
         if tid == 1:
             self.set_default_context(new_tls_server_context())
 
-    def selectContext(self, connection):
+    def select_context(self, connection):
         try:
             common_name = connection.get_servername().decode().lower()
         except (AttributeError, UnicodeDecodeError):
@@ -148,16 +148,16 @@ class SNIMap:
         context_factory = self.contexts_by_hostname.get(common_name)
         context = context_factory.getContext() if context_factory else self.default_context
 
-        negotiationData = self._negotiationDataForContext.get(connection.get_context())
-        if negotiationData:
-            negotiationData.negotiateALPN(context)
+        negotiation_data = self._negotiation_data_for_context.get(connection.get_context())
+        if negotiation_data:
+            negotiation_data.negotiate_alpn(context)
         connection.set_context(context)
 
     def serverConnectionForTLS(self, protocol):
         return _ConnectionProxy(Connection(self.default_context, None), self)
 
-    def _alpnSelectCallbackForContext(self, context, callback):
-        self._negotiationDataForContext[context].alpnSelectCallback = callback
+    def _alpn_select_callback_for_context(self, context, callback):
+        self._negotiation_data_for_context[context].alpn_select_callback = callback
 
-    def _alpnProtocolsForContext(self, context, protocols):
-        self._negotiationDataForContext[context].alpnProtocols = protocols
+    def _alpn_protocols_for_context(self, context, protocols):
+        self._negotiation_data_for_context[context].alpn_protocols = protocols

@@ -24,7 +24,7 @@ class TestORM(helpers.TestGL):
 
     def db_add_config(self, session):
         tenant_data = {'active': True, 'name': 'GlobaLeaks', 'profile': 'default', 'subdomain': 'subdomain'}
-        db_create_tenant(session, tenant_data, isTenant=True)
+        db_create_tenant(session, tenant_data, is_tenant=True)
 
     @inlineCallbacks
     def test_transact_with_stuff(self):

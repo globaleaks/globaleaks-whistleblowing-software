@@ -88,7 +88,7 @@ class TestCleaning(helpers.TestGLWithPopulatedDB):
 
     @inlineCallbacks
     def test_an_invitation_lasts_a_week(self):
-        session = Sessions.new(1, self.dummyAdmin['id'], 1, 'admin', 'admin')
+        session = Sessions.new(1, self.dummy_admin['id'], 1, 'admin', 'admin')
 
         yield invite.create_invite(1, session, {'organization_name': 'Invited Organization',
                                                 'email': 'invited@example.org',

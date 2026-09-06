@@ -13,10 +13,10 @@ class TestIdentityAccessRequestInstance(helpers.TestHandlerWithPopulatedDB):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
         yield self.perform_full_submission_actions()
 
-        dummyRTips = yield self.get_rtips()
+        dummy_rtips = yield self.get_rtips()
         self.iars = []
 
-        for rtip_desc in dummyRTips:
+        for rtip_desc in dummy_rtips:
             user_session = Sessions.new(1,
                                         rtip_desc['receiver_id'],
                                         1,
@@ -38,7 +38,7 @@ class TestIdentityAccessRequestInstance(helpers.TestHandlerWithPopulatedDB):
           'reply_motivation': 'oh yeah!'
         }
 
-        handler = self.request(reply, user_id=self.dummyCustodian['id'], role='custodian')
+        handler = self.request(reply, user_id=self.dummy_custodian['id'], role='custodian')
 
         yield handler.put(self.iars[0])
 
@@ -52,5 +52,5 @@ class TestIdentityAccessRequestsCollection(helpers.TestHandlerWithPopulatedDB):
         yield self.perform_full_submission_actions()
 
     def test_get(self):
-        handler = self.request(user_id=self.dummyCustodian['id'], role='custodian')
+        handler = self.request(user_id=self.dummy_custodian['id'], role='custodian')
         return handler.get()

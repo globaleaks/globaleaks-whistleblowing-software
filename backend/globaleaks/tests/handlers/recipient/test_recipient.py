@@ -18,7 +18,7 @@ class TestTipsCollection(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
         rtips = yield handler.get()
         for idx in range(len(rtips)):
             self.assertEqual(rtips[idx]['receiver_count'], 2)
@@ -45,7 +45,7 @@ class TestTipsCollection(helpers.TestHandlerWithPopulatedDB):
         # for a non-privileged recipient exactly as on the report detail;
         # otherwise the mask is bypassed through GET /api/recipient/rtips.
         mask = chr(0x2591)
-        receiver_id = self.dummyReceiver_1['id']
+        receiver_id = self.dummy_receiver_1['id']
 
         handler = self.request(user_id=receiver_id, role='receiver')
         rtips = yield handler.get()

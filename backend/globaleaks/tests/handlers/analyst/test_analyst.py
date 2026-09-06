@@ -65,7 +65,7 @@ class TestStatistics(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get(self):
-        handler = self.request(user_id=self.dummyAnalyst['id'], role='analyst')
+        handler = self.request(user_id=self.dummy_analyst['id'], role='analyst')
         stats = yield handler.get()
         self.assertEqual(stats['reports_count'], 2)
         self.assertEqual(stats['reports_with_no_access'], 2)
@@ -101,7 +101,7 @@ class TestStatisticalTemplates(helpers.TestHandlerWithPopulatedDB):
 
     def analyst(self, body='', handler_cls=None, permissions=None):
         return self.request(body,
-                            user_id=self.dummyAnalyst['id'],
+                            user_id=self.dummy_analyst['id'],
                             role='analyst',
                             permissions=permissions,
                             handler_cls=handler_cls)
