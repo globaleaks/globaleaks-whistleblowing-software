@@ -16,7 +16,7 @@ def null_function(*args, **kw):
     pass
 
 
-def mock_Request_gotLength(self, length):
+def mock_request_got_length(self, length):
     # length is None only for Transfer-Encoding: chunked requests, which the
     # application never issues; rejecting them keeps the size cap below from
     # being bypassed by a body streamed without a declared Content-Length.
@@ -26,12 +26,12 @@ def mock_Request_gotLength(self, length):
     self.content = StringIO()
 
 
-def mock_Request_redirect(self, url):
+def mock_request_redirect(self, url):
     self.setResponseCode(301)
     self.setHeader(b"location", url)
 
 
-def mock_HTTPChannel_finishRequestBody(self, data):
+def mock_http_channel_finish_request_body(self, data):
     # Backport CVE-2024-41671 (GHSA-c8m8-j448-xjx7) from Twisted 24.7.0.
     # In affected versions (<= 24.3.0) allContentReceived() was invoked
     # before the body was appended to the buffer, which under HTTP/1.1
@@ -53,25 +53,25 @@ def _sanitize_linear_whitespace(value):
 
 
 _orig_Headers_setRawHeaders = Headers.setRawHeaders
-def mock_Headers_setRawHeaders(self, name, values):
+def mock_headers_set_raw_headers(self, name, values):
     return _orig_Headers_setRawHeaders(self, name, [_sanitize_linear_whitespace(v) for v in values])
 
 
 _orig_Headers_addRawHeader = Headers.addRawHeader
-def mock_Headers_addRawHeader(self, name, value):
+def mock_headers_add_raw_header(self, name, value):
     return _orig_Headers_addRawHeader(self, name, _sanitize_linear_whitespace(value))
 
 
-Request.gotLength = mock_Request_gotLength
+Request.gotLength = mock_request_got_length
 Request.parseCookies = null_function
-Request.redirect = mock_Request_redirect
+Request.redirect = mock_request_redirect
 
 if (_twisted_version.major, _twisted_version.minor) < (24, 7):
-    HTTPChannel._finishRequestBody = mock_HTTPChannel_finishRequestBody
+    HTTPChannel._finishRequestBody = mock_http_channel_finish_request_body
 
 if not hasattr(http_headers, "_sanitizeLinearWhitespace"):
-    Headers.setRawHeaders = mock_Headers_setRawHeaders
-    Headers.addRawHeader = mock_Headers_addRawHeader
+    Headers.setRawHeaders = mock_headers_set_raw_headers
+    Headers.addRawHeader = mock_headers_add_raw_header
 
 
 @implementer(ILogObserver)

@@ -20,7 +20,7 @@ class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
     def test_get_success(self):
         handler = self.request()
         yield set_email_validation_token(
-            self.dummyReceiver_1['id'],
+            self.dummy_receiver_1['id'],
             "token",
             "test@changeemail.com"
         )
@@ -29,7 +29,7 @@ class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
 
         # Now we check if the token was update
         for r in (yield tw(user.db_get_users, 1, 'receiver', 'en')):
-            if r['id'] == self.dummyReceiver_1['id']:
+            if r['id'] == self.dummy_receiver_1['id']:
                 self.assertEqual(r['mail_address'], 'test@changeemail.com')
                 break
 
@@ -37,7 +37,7 @@ class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
     def test_get_failure(self):
         handler = self.request()
         yield set_email_validation_token(
-            self.dummyReceiver_1['id'],
+            self.dummy_receiver_1['id'],
             "token",
             "test@changeemail.com"
         )
@@ -46,6 +46,6 @@ class TestEmailValidationInstance(helpers.TestHandlerWithPopulatedDB):
 
         # Now we check if the token was update
         for r in (yield tw(user.db_get_users, 1, 'receiver', 'en')):
-            if r['id'] == self.dummyReceiver_1['id']:
+            if r['id'] == self.dummy_receiver_1['id']:
                 self.assertNotEqual(r['mail_address'], 'test@changeemail.com')
                 break

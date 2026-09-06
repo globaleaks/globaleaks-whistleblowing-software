@@ -40,7 +40,7 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
         self.tenant_admin = yield self.get_administrator(2)
 
     def tearDown(self):
-        GCE.generate_keypair = helpers.mock_GCE_generate_keypair
+        GCE.generate_keypair = helpers.mock_gce_generate_keypair
 
         return helpers.TestHandlerWithPopulatedDB.tearDown(self)
 
@@ -331,7 +331,7 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
         # A support notice is a notification like the others: its subject and its body
         # come from the templates of the site, where they are translated and customized,
         # not from words written in the code
-        user_session = Session(1, self.dummyReceiver_1['id'], 1, 'receiver1', 'receiver', helpers.USER_PRV_KEY)
+        user_session = Session(1, self.dummy_receiver_1['id'], 1, 'receiver1', 'receiver', helpers.USER_PRV_KEY)
 
         yield support.create_support_request(1, user_session, '', 'User message')
         yield self.state.schedule_support_reply_email(1, 'someone@example.org')
@@ -351,7 +351,7 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
     #
     @inlineCallbacks
     def test_authenticated_support_conversation(self):
-        user_session = Session(1, self.dummyReceiver_1['id'], 1, 'receiver1', 'receiver', helpers.USER_PRV_KEY)
+        user_session = Session(1, self.dummy_receiver_1['id'], 1, 'receiver1', 'receiver', helpers.USER_PRV_KEY)
 
         created, _ = yield support.create_support_request(1, user_session, '', 'User message')
         yield support.create_admin_support_message(1, self.admin_session(), created['id'], 'Admin reply')
@@ -371,7 +371,7 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
     #
     @inlineCallbacks
     def test_request_of_an_account_still_completing_its_access(self):
-        user_id = self.dummyReceiver_1['id']
+        user_id = self.dummy_receiver_1['id']
         yield self.drop_user_keypair(user_id)
 
         # the session is keyed on the keypair the account adopts when it sets
@@ -399,7 +399,7 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
     #
     @inlineCallbacks
     def test_request_of_an_identity_bound_to_an_account(self):
-        user_id = self.dummyReceiver_1['id']
+        user_id = self.dummy_receiver_1['id']
         yield self.bind_idp_identity(user_id, 'idp-subject-receiver1')
 
         handler = self.request({'text': 'I lost my password'})

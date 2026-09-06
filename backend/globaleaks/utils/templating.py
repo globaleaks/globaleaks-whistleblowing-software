@@ -9,12 +9,12 @@ from datetime import datetime, timedelta
 from globaleaks import __version__
 from globaleaks.rest import errors
 from globaleaks.utils.pgp import PGPContext
-from globaleaks.utils.sock import isIPAddress
+from globaleaks.utils.sock import is_ip_address
 from globaleaks.utils.utility import \
     datetime_to_pretty_str, \
     datetime_to_day_str, \
     bytes_to_pretty_str, \
-    ISO8601_to_day_str
+    iso8601_to_day_str
 
 node_keywords = [
     '{NodeName}',
@@ -172,7 +172,7 @@ class NodeKeyword(Keyword):
 
     def HTTPSSite(self):
         if self.data['node']['hostname']:
-            if isIPAddress(self.data['node']['hostname']):
+            if is_ip_address(self.data['node']['hostname']):
                 return 'http://' + self.data['node']['hostname']
             else:
                 return 'https://' + self.data['node']['hostname']
@@ -243,7 +243,7 @@ class TipKeyword(UserNodeKeyword):
             elif field_type == 'date':
                 date = entry.get('value')
                 if date is not None:
-                    output += indent(indent_n) + ISO8601_to_day_str(date) + '\n'
+                    output += indent(indent_n) + iso8601_to_day_str(date) + '\n'
             elif field_type == 'daterange':
                 daterange = entry.get('value')
                 if daterange is not None:
