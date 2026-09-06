@@ -83,7 +83,7 @@ class TestInsertedReport(helpers.TestGLWithPopulatedDB):
     def setUp(self):
         yield helpers.TestGLWithPopulatedDB.setUp(self)
 
-        self.operator = FakeUserSession(self.dummyReceiver_1['id'])
+        self.operator = FakeUserSession(self.dummy_receiver_1['id'])
 
     def options(self, channel_id=''):
         return insertion.get_insertion_options(1, self.operator, channel_id, 'en')
@@ -103,7 +103,7 @@ class TestInsertedReport(helpers.TestGLWithPopulatedDB):
         options = yield self.options()
 
         offered = [channel['id'] for channel in options['channels']]
-        self.assertIn(self.dummyContext['id'], offered)
+        self.assertIn(self.dummy_context['id'], offered)
 
         # a channel of the exchanges receives what the other sites file and is
         # not one a report is entered on
@@ -111,21 +111,21 @@ class TestInsertedReport(helpers.TestGLWithPopulatedDB):
 
     @inlineCallbacks
     def test_the_channel_chosen_composes_the_report(self):
-        options = yield self.options(self.dummyContext['id'])
+        options = yield self.options(self.dummy_context['id'])
 
-        self.assertEqual(options['channel_id'], self.dummyContext['id'])
+        self.assertEqual(options['channel_id'], self.dummy_context['id'])
         self.assertTrue(len(options['questionnaire']['steps']) > 0)
 
     @inlineCallbacks
     def test_the_report_entered_is_a_report_of_the_site(self):
-        result = yield self.enter(self.dummyContext['id'])
+        result = yield self.enter(self.dummy_context['id'])
 
         report = yield report_of(result['id'])
         self.assertEqual(report['tid'], 1)
         self.assertEqual(report['type'], 'submission')
-        self.assertEqual(report['context_id'], self.dummyContext['id'])
+        self.assertEqual(report['context_id'], self.dummy_context['id'])
 
         # the recipient that entered it is the operator of what it entered,
         # and the report reaches the recipients of the channel
-        self.assertEqual(report['operator_id'], self.dummyReceiver_1['id'])
-        self.assertIn(self.dummyReceiver_1['id'], report['receivers'])
+        self.assertEqual(report['operator_id'], self.dummy_receiver_1['id'])
+        self.assertIn(self.dummy_receiver_1['id'], report['receivers'])

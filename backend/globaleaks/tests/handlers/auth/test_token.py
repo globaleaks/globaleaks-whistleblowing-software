@@ -5,7 +5,7 @@ from globaleaks.jobs import anomalies
 from globaleaks.tests import helpers
 
 
-class Test_Token(helpers.TestHandlerWithPopulatedDB):
+class TestToken(helpers.TestHandlerWithPopulatedDB):
     _handler = token.TokenHandler
 
     @inlineCallbacks

@@ -32,14 +32,14 @@ class BrotliEncoder:
 
 @implementer(iweb._IRequestEncoderFactory)
 class BrotliEncoderFactory:
-    _brotliCheckRegex = re.compile(rb"(:?^|[\s,])br(:?$|[\s,])")
+    _brotli_check_regex = re.compile(rb"(:?^|[\s,])br(:?$|[\s,])")
 
     def encoderForRequest(self, request):
         """
         Check the headers if the client accepts Brotli encoding, and return an encoder if so.
         """
         accept_headers = b",".join(request.requestHeaders.getRawHeaders(b"accept-encoding", []))
-        if self._brotliCheckRegex.search(accept_headers) and not request.path.endswith((b".woff", b".woff2")):
+        if self._brotli_check_regex.search(accept_headers) and not request.path.endswith((b".woff", b".woff2")):
             request.responseHeaders.setRawHeaders(b"content-encoding", [b"br"])
             return BrotliEncoder(request)
 

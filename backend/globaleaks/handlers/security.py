@@ -2,7 +2,7 @@
 from datetime import timedelta
 
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.utils.utility import datetime_now, datetime_to_ISO8601
+from globaleaks.utils.utility import datetime_now, datetime_to_iso8601
 
 
 class SecuritytxtHandler(BaseHandler):
@@ -21,5 +21,5 @@ class SecuritytxtHandler(BaseHandler):
 
         return "Policy: https://github.com/globaleaks/globaleaks-whistleblowing-software/security/policy\n" \
                "Contact: https://github.com/globaleaks/globaleaks-whistleblowing-software/security/advisories/new\n" \
-               "Expires: " + datetime_to_ISO8601(date) + "\n"
+               "Expires: " + datetime_to_iso8601(date) + "\n"
 

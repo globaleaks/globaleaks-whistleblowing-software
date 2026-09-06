@@ -12,9 +12,9 @@ from globaleaks.utils.brotli import BrotliEncoderFactory
 class BrotliEncoderTests(unittest.TestCase):
     def setUp(self):
         self.channel = DummyChannel()
-        staticResource = Data(b"Some data", "text/plain")
+        static_resource = Data(b"Some data", "text/plain")
         wrapped = resource.EncodingResourceWrapper(
-            staticResource, [BrotliEncoderFactory()]
+            static_resource, [BrotliEncoderFactory()]
         )
         self.channel.site.resource.putChild(b"foo", wrapped)
         self.channel.site.resource.putChild(b"file.woff2", wrapped)

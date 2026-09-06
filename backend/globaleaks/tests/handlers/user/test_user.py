@@ -21,20 +21,20 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         yield handler.get()
 
     @inlineCallbacks
     def test_handler_update_key(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         response = yield handler.get()
 
         # perform and test key update
         response['pgp_key_public'] = helpers.PGPKEYS['VALID_PGP_KEY2_PUB']
         response['pgp_key_remove'] = False
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver')
         response = yield handler.put()
 
         self.assertEqual(response['pgp_key_fingerprint'],
@@ -45,7 +45,7 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
         # perform and test key removal
         response['pgp_key_remove'] = True
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver')
         response = yield handler.put()
 
         self.assertEqual(response['pgp_key_fingerprint'], '')
@@ -54,22 +54,22 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_load_malformed_key(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         response = yield handler.get()
 
         response['pgp_key_public'] = helpers.PGPKEYS['VALID_PGP_KEY1_PUB'].replace('A', 'B')
         response['pgp_key_remove'] = False
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver')
         yield self.assertFailure(handler.put(), errors.InputValidationError)
 
     @inlineCallbacks
     def test_change_name(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         response = yield handler.get()
         response['name'] = "Test Name"
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver',
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver',
                                permissions={'can_manage_settings': True})
 
         response = yield handler.put()
@@ -78,13 +78,13 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_start_email_change_process(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         response = yield handler.get()
 
         email = "change1@test.com"
         response['mail_address'] = email
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver',
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver',
                                permissions={'can_manage_settings': True})
         response = yield handler.put()
 
@@ -93,7 +93,7 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
         email = "change2@test.com"
         response['mail_address'] = email
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver',
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver',
                                permissions={'can_manage_settings': True})
         response = yield handler.put()
 
@@ -260,7 +260,7 @@ class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
         self.assertIsNone((yield handler.put()))
 
         # The password change itself remains available
-        self.write_reset_token(reset_token, self.dummyReceiver_1['id'])
+        self.write_reset_token(reset_token, self.dummy_receiver_1['id'])
 
         new_key = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
         handler = self.request({'operation': 'change_password', 'args': {'new_password': new_key}},
