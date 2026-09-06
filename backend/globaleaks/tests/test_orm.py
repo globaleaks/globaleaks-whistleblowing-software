@@ -67,22 +67,22 @@ class TestORM(helpers.TestGL):
         # Connect to the database
         with engine.connect() as conn:
             result = conn.execute(text("PRAGMA secure_delete")).fetchone()
-            self.assertEqual(result[0], 1)  # ON = 1
+            self.assertEqual(result[0], 1)  # 1 stands for ON
 
             result = conn.execute(text("PRAGMA temp_store")).fetchone()
-            self.assertEqual(result[0], 2)  # MEMORY = 2
+            self.assertEqual(result[0], 2)  # 2 stands for MEMORY
 
             result = conn.execute(text("PRAGMA trusted_schema")).fetchone()
-            self.assertEqual(result[0], 0)  # OFF = 0
+            self.assertEqual(result[0], 0)  # 0 stands for OFF
 
             result = conn.execute(text("PRAGMA foreign_keys")).fetchone()
-            self.assertEqual(result[0], 1)  # ON = 1
+            self.assertEqual(result[0], 1)  # 1 stands for ON
 
             result = conn.execute(text("PRAGMA journal_mode")).fetchone()
             self.assertEqual(result[0].upper(), "DELETE")
 
             result = conn.execute(text("PRAGMA synchronous")).fetchone()
-            self.assertEqual(result[0], 2)  # FULL = 2
+            self.assertEqual(result[0], 2)  # 2 stands for FULL
 
             result = conn.execute(text("PRAGMA cache_size")).fetchone()
             self.assertEqual(result[0], -32000) # 32MB

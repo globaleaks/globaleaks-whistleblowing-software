@@ -256,8 +256,6 @@ def update_cache(tid, cfg):
         tenant_cache[cfg.var_name] = cfg.value
     elif cfg.var_name in ConfigFilters['notification']:
         tenant_cache.setdefault('notification', {})[cfg.var_name] = cfg.value
-    elif cfg.var_name in ConfigFilters['node']:
-        tenant_cache[cfg.var_name] = cfg.value
 
 
 def db_unload_tenants(tids):

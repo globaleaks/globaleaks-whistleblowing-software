@@ -417,9 +417,9 @@ class BaseHandler:
                 log.err("Success counter double check failure: %d", success_check)
                 raise errors.InputValidationError("Success counter double check failure")
 
-        elif isinstance(request_template, list):
-            if not all(BaseHandler.validate_type(x, request_template[0]) for x in request):
-                raise errors.InputValidationError(f"Not every element in {request} is {request_template[0]}")
+        elif (isinstance(request_template, list)
+                and not all(BaseHandler.validate_type(x, request_template[0]) for x in request)):
+            raise errors.InputValidationError(f"Not every element in {request} is {request_template[0]}")
 
         return request
 
