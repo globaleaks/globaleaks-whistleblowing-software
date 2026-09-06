@@ -29,11 +29,11 @@ class DummyProtocol(Protocol):
 
 class TestSOCKS5ClientProtocol(unittest.TestCase):
     def setUp(self):
-        self.wrappedProtocol = DummyProtocol()
+        self.wrapped_protocol = DummyProtocol()
         self.deferred = Deferred()
         self.factory = DummyFactory()
         self.factory.registerProtocol = lambda _: None
-        self.protocol = SOCKS5ClientProtocol(self.factory, self.wrappedProtocol, self.deferred, b"example.com", 80)
+        self.protocol = SOCKS5ClientProtocol(self.factory, self.wrapped_protocol, self.deferred, b"example.com", 80)
         self.transport = StringTransportWithDisconnection()
         self.transport.protocol = self.protocol  # This line ensures the transport has a protocol attached
         self.protocol.makeConnection(self.transport)
@@ -55,7 +55,7 @@ class TestSOCKS5ClientProtocol(unittest.TestCase):
         """Test that data is correctly passed through after connection."""
         self.protocol.state = 4  # Simulate a successful handshake
         self.protocol.dataReceived(b"hello")
-        self.assertEqual(self.wrappedProtocol.data, b"hello")
+        self.assertEqual(self.wrapped_protocol.data, b"hello")
 
     def test_invalid_auth_response(self):
         """Test that an invalid authentication response results in error."""
@@ -79,7 +79,7 @@ class TestSOCKS5ClientProtocol(unittest.TestCase):
         self.deferred.addCallback(results.append)
         self.protocol.state = 3
         self.protocol.dataReceived(b"\x00" * 8)
-        self.assertEqual(results, [self.wrappedProtocol])
+        self.assertEqual(results, [self.wrapped_protocol])
 
     def test_transport_disconnection(self):
         """Test that the transport is properly disconnected on error."""
@@ -90,7 +90,7 @@ class TestSOCKS5ClientProtocol(unittest.TestCase):
         self.protocol.state = 3
         self.protocol.dataReceived(b"\x00" * 8 + b"hello")
         self.assertEqual(self.protocol.state, 4)
-        self.assertEqual(self.wrappedProtocol.data, b"hello")
+        self.assertEqual(self.wrapped_protocol.data, b"hello")
         self.assertEqual(self.protocol._buf, b"")
 
     def test_the_error_state_aborts_the_connection(self):
@@ -114,8 +114,8 @@ class FakeProxyEndpoint:
 
 class TestSOCKS5ClientFactory(unittest.TestCase):
     def setUp(self):
-        self.wrappedFactory = Factory.forProtocol(DummyProtocol)
-        self.factory = SOCKS5ClientFactory(b"example.com", 80, self.wrappedFactory)
+        self.wrapped_factory = Factory.forProtocol(DummyProtocol)
+        self.factory = SOCKS5ClientFactory(b"example.com", 80, self.wrapped_factory)
 
     def test_the_protocol_wraps_the_one_of_the_wrapped_factory(self):
         protocol = self.factory.buildProtocol(None)
@@ -130,7 +130,7 @@ class TestSOCKS5ClientFactory(unittest.TestCase):
         def failing(addr):
             raise ValueError("no protocol")
 
-        self.wrappedFactory.buildProtocol = failing
+        self.wrapped_factory.buildProtocol = failing
 
         self.assertIsNone(self.factory.buildProtocol(None))
 
@@ -207,13 +207,13 @@ class TestTLSWrapClientEndpoint(unittest.TestCase):
 class TestSOCKS5Agent(unittest.TestCase):
     def setUp(self):
         self.proxy = FakeProxyEndpoint()
-        self.agent = SOCKS5Agent(Clock(), proxyEndpoint=self.proxy)
+        self.agent = SOCKS5Agent(Clock(), proxy_endpoint=self.proxy)
 
     def test_the_context_factory_is_required_to_be_a_policy(self):
-        self.assertIsInstance(self.agent._policyForHTTPS, BrowserLikePolicyForHTTPS)
-        self.assertEqual(self.agent.endpointArgs, {})
+        self.assertIsInstance(self.agent._policy_for_https, BrowserLikePolicyForHTTPS)
+        self.assertEqual(self.agent.endpoint_args, {})
 
-        self.assertRaises(NotImplementedError, SOCKS5Agent, Clock(), contextFactory=object())
+        self.assertRaises(NotImplementedError, SOCKS5Agent, Clock(), context_factory=object())
 
     def test_a_plaintext_uri_is_reached_through_the_proxy(self):
         endpoint = self.agent.endpointForURI(URI.fromBytes(b"http://example.com:8080/path"))
@@ -221,15 +221,15 @@ class TestSOCKS5Agent(unittest.TestCase):
         self.assertIsInstance(endpoint, SOCKS5ClientEndpoint)
         self.assertEqual(endpoint.host, b"example.com")
         self.assertEqual(endpoint.port, 8080)
-        self.assertIs(endpoint.proxyEndpoint, self.proxy)
+        self.assertIs(endpoint.proxy_endpoint, self.proxy)
 
     def test_a_protected_uri_is_reached_through_the_proxy_under_tls(self):
         endpoint = self.agent.endpointForURI(URI.fromBytes(b"https://example.com/path"))
 
         self.assertIsInstance(endpoint, TLSWrapClientEndpoint)
-        self.assertIsInstance(endpoint.wrappedEndpoint, SOCKS5ClientEndpoint)
-        self.assertEqual(endpoint.wrappedEndpoint.host, b"example.com")
-        self.assertEqual(endpoint.wrappedEndpoint.port, 443)
+        self.assertIsInstance(endpoint.wrapped_endpoint, SOCKS5ClientEndpoint)
+        self.assertEqual(endpoint.wrapped_endpoint.host, b"example.com")
+        self.assertEqual(endpoint.wrapped_endpoint.port, 443)
 
     def test_the_requests_are_delegated_to_the_wrapped_agent(self):
         requests = []
@@ -239,7 +239,7 @@ class TestSOCKS5Agent(unittest.TestCase):
                 requests.append((args, kwargs))
                 return fail(Exception("no network"))
 
-        self.agent._wrappedAgent = WrappedAgent()
+        self.agent._wrapped_agent = WrappedAgent()
 
         d = self.agent.request(b"GET", b"http://example.com/", headers=None)
 

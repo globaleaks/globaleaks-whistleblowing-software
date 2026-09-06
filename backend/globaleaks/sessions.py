@@ -71,7 +71,7 @@ class Session(dict):
         self.ek = GCE.symmetric_decrypt(key, self.ek)
         self.sk = GCE.symmetric_decrypt(key, self.sk).decode()
 
-    def getTime(self):
+    def get_time(self):
         return self.expireCall.getTime() if self.expireCall else 0
 
     def has_permission(self, permission):
@@ -83,7 +83,7 @@ class Session(dict):
             'user_id': self.user_id,
             'username': self.username,
             'role': self.role,
-            'session_expiration': self.getTime(),
+            'session_expiration': self.get_time(),
             'properties': self.properties,
             'permissions': self.permissions,
             'token': self.token.serialize()

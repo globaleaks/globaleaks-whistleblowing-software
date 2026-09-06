@@ -18,7 +18,7 @@ def base64url(data):
     return base64.urlsafe_b64encode(data).rstrip(b'=')
 
 
-class Test_OIDCAuth(helpers.TestGL):
+class TestOIDCAuth(helpers.TestGL):
     """
     The identity token is the only thing that attests an authentication, and
     """

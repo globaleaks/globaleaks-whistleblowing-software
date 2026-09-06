@@ -23,7 +23,7 @@ from globaleaks.transactions import db_schedule_email
 from globaleaks.utils.agent import get_tor_agent, get_web_agent
 from globaleaks.utils.crypto import sha256, totpVerify
 from globaleaks.utils.fs import read_json_file
-from globaleaks.utils.log import log, openLogFile
+from globaleaks.utils.log import log, open_log_file
 from globaleaks.utils.mail import sendmail
 from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.oidc import OIDCAuth
@@ -32,7 +32,7 @@ from globaleaks.utils.ratelimit import RateLimit
 from globaleaks.utils.singleton import Singleton
 from globaleaks.utils.sni import SNIMap
 from globaleaks.utils import dpop
-from globaleaks.utils.sock import isIPAddress, reserve_tcp_socket
+from globaleaks.utils.sock import is_ip_address, reserve_tcp_socket
 from globaleaks.utils.tempdict import TempDict
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.token import TokenList
@@ -131,7 +131,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
         self.settings.eval_paths()
         self.create_directories()
         self.field_attrs = read_json_file(self.settings.field_attrs_file)
-        self.csp_report_log = openLogFile(Settings.csp_report_file, self.settings.log_file_size, self.settings.num_log_files)
+        self.csp_report_log = open_log_file(Settings.csp_report_file, self.settings.log_file_size, self.settings.num_log_files)
 
     def set_orm_tp(self, orm_tp):
         self.orm_tp = orm_tp
@@ -291,7 +291,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
         cache = self.tenants[tid].cache
 
         if cache.hostname:
-            site = ('http://' if isIPAddress(cache.hostname) else 'https://') + cache.hostname
+            site = ('http://' if is_ip_address(cache.hostname) else 'https://') + cache.hostname
         elif cache.onionservice:
             site = 'http://' + cache.onionservice
         else:

@@ -123,13 +123,13 @@ class TestExportHandler(helpers.TestHandlerWithPopulatedDB):
             yield mask_internalfile(itip_id, ifile_id)
 
         # The privileged receiver must not receive the masked files on export.
-        names = yield self.export_zip_names(itip_id, self.dummyReceiver_1['id'])
+        names = yield self.export_zip_names(itip_id, self.dummy_receiver_1['id'])
         self.assertFalse(any(n.startswith('files/') for n in names))
 
         # The unprivileged receiver must not receive them either.
-        yield set_redaction_privileges(self.dummyReceiver_2['id'], False)
+        yield set_redaction_privileges(self.dummy_receiver_2['id'], False)
 
-        names = yield self.export_zip_names(itip_id, self.dummyReceiver_2['id'])
+        names = yield self.export_zip_names(itip_id, self.dummy_receiver_2['id'])
         self.assertFalse(any(n.startswith('files/') for n in names))
 
     @inlineCallbacks

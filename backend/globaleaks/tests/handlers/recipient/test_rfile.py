@@ -127,7 +127,7 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
         rtip_desc = rtips_desc[0]
         attachment = self.get_dummy_attachment(content=file_content)
         attachment['visibility'] = b'personal'
-        handler = self.request(role='receiver', user_id=self.dummyReceiver_1['id'], attachment=attachment)
+        handler = self.request(role='receiver', user_id=self.dummy_receiver_1['id'], attachment=attachment)
         yield handler.post(rtip_desc['id'])
 
         # The upload only registers the file: the delivery job is what writes
@@ -139,12 +139,12 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
 
         # The author can download their own personal file.
         self._handler = rtip.ReceiverFileDownload
-        handler = self.request(role='receiver', user_id=self.dummyReceiver_1['id'])
+        handler = self.request(role='receiver', user_id=self.dummy_receiver_1['id'])
         yield handler.get(rfile_id)
         self.assertTrue(handler.request.getResponseBody())
 
         # Another recipient on the same report cannot, even knowing its UUID.
-        handler = self.request(role='receiver', user_id=self.dummyReceiver_2['id'])
+        handler = self.request(role='receiver', user_id=self.dummy_receiver_2['id'])
         yield self.assertFailure(handler.get(rfile_id), errors.ResourceNotFound)
 
 

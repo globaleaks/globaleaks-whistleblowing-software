@@ -218,14 +218,14 @@ class TestPeriodicExpirationReminders(helpers.TestGLWithPopulatedDB):
     @inlineCallbacks
     def _test_threshold(self, threshold, downtime_hours=None, downtime_every_x_days=1, offset=0):
         """Core test logic parameterized by threshold and downtime"""
-        context_id = self.dummyContext['id']
+        context_id = self.dummy_context['id']
 
         # Alternate every 5 days between sending to both users and to user 1 only.
         for i in range(1, 30, 5):
             if i % 2:
-                user_ids = [self.dummyReceiver_1['id'], self.dummyReceiver_2['id']]
+                user_ids = [self.dummy_receiver_1['id'], self.dummy_receiver_2['id']]
             else:
-                user_ids = [self.dummyReceiver_1['id']]
+                user_ids = [self.dummy_receiver_1['id']]
 
             yield self.create_expiring_tip(1, context_id, user_ids, days_until_exp=threshold + i)
 
