@@ -180,6 +180,8 @@ describe("recipient exchange workflow", function () {
 
       cy.get("#TransmitForm").find("input, select, textarea").should("have.length.greaterThan", 0);
       cy.get("#TransmitForm").should("be.visible");
+      cy.takeScreenshot("recipient/communication_form", ".modal-dialog");
+      cy.takeScreenshot("recipient/communication_form_detail", "#TransmitForm");
 
       submitCommunication(Cypress.config().baseUrl as string, 'authorityCommunication');
 
@@ -189,6 +191,7 @@ describe("recipient exchange workflow", function () {
       });
       cy.get("#TipInfoBox").should("be.visible");
       cy.get("#TipCommunicationsBox").should("be.visible");
+      cy.takeScreenshot("recipient/communications_list_detail", "#TipCommunicationsBox");
 
       cy.logout();
 
@@ -198,9 +201,13 @@ describe("recipient exchange workflow", function () {
       cy.waitForUrl("/recipient/reports");
       cy.get("#tip-0").should("be.visible");
 
+      cy.takeScreenshot("forward/communications_list");
+      cy.takeScreenshot("forward/communications_list_channel_detail", "#TipList");
 
       cy.get("#tip-0").click();
       cy.get("#TipInfoBox").should("be.visible");
+      cy.takeScreenshot("forward/communication_report");
+      cy.takeScreenshot("forward/communication_report_messages_detail", "#TipCommentsBox");
 
       cy.logout();
     });
