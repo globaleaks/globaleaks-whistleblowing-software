@@ -308,7 +308,7 @@ class MigrationScript(MigrationBase):
 
         return permissions
 
-    def migrate_User(self):
+    def migrate_user(self):
         from globaleaks.models import UserProfile, UserProfileRole, UserProfilePermission
 
         for old_obj in self.session_old.query(self.model_from['User']):
@@ -420,21 +420,21 @@ class MigrationScript(MigrationBase):
         the ones of the questionnaire composing it, the following ones those of
         the additional questionnaire its channel asked.
         """
-        InternalTip = self.model_to['InternalTip']
-        InternalTipAnswers = self.model_to['InternalTipAnswers']
-        Questionnaire = self.model_to['Questionnaire']
+        internal_tip_model = self.model_to['InternalTip']
+        internal_tip_answers_model = self.model_to['InternalTipAnswers']
+        questionnaire_model = self.model_to['Questionnaire']
 
-        known = {questionnaire.id for questionnaire in self.session_new.query(Questionnaire)}
+        known = {questionnaire.id for questionnaire in self.session_new.query(questionnaire_model)}
 
         questionnaires = self.elect_additional_questionnaires(self.model_to['Context'], known)
 
         answers = {}
-        for row in self.session_new.query(InternalTipAnswers) \
-                                   .order_by(InternalTipAnswers.internaltip_id,
-                                             InternalTipAnswers.creation_date):
+        for row in self.session_new.query(internal_tip_answers_model) \
+                                   .order_by(internal_tip_answers_model.internaltip_id,
+                                             internal_tip_answers_model.creation_date):
             answers.setdefault(row.internaltip_id, []).append(row)
 
-        for itip in self.session_new.query(InternalTip):
+        for itip in self.session_new.query(internal_tip_model):
             main, automatic = questionnaires.get(itip.context_id, ('', ''))
 
             filled = answers.get(itip.id, [])

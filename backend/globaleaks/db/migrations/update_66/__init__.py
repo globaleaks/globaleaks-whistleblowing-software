@@ -25,7 +25,7 @@ class SubmissionSubStatus_v_65(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_InternalTipData(self):
+    def migrate_internal_tip_data(self):
         for old_obj, old_tip in self.session_old.query(self.model_from['InternalTipData'], self.model_from['InternalTip']) \
                                        .filter(self.model_from['InternalTipData'].internaltip_id == self.model_from['InternalTip'].id):
             new_obj = self.copy('InternalTipData', old_obj)
