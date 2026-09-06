@@ -102,6 +102,17 @@ def is_expired(check_date, seconds=0, minutes=0, hours=0, days=0):
     return datetime_now() > check
 
 
+def snake_case(name):
+    """
+    Return a name written in camel case as the same name written in snake case
+
+    :param name: The name in camel case
+    """
+    name = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
+
+    return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+
+
 def datetime_to_iso8601(date):
     """
     Convert a datetime into ISO8601 date

@@ -28,7 +28,7 @@ class Subscriber_v_67(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_Subscriber(self):
+    def migrate_subscriber(self):
         used_values = {}
 
         for old_obj in self.session_old.query(self.model_from['Subscriber']):
