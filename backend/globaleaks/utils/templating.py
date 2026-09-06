@@ -160,16 +160,16 @@ class NodeKeyword(Keyword):
     keyword_list = node_keywords
     data_keys = ['node', 'notification']
 
-    def NodeName(self):
+    def node_name(self):
         return self.data['node']['name']
 
-    def TorSite(self):
+    def tor_site(self):
         if self.data['node']['onionservice']:
             return 'http://' + self.data['node']['onionservice']
 
         return '[UNDEFINED]'
 
-    def HTTPSSite(self):
+    def https_site(self):
         if self.data['node']['hostname']:
             if is_ip_address(self.data['node']['hostname']):
                 return 'http://' + self.data['node']['hostname']
@@ -178,42 +178,42 @@ class NodeKeyword(Keyword):
 
         return '[UNDEFINED]'
 
-    def Site(self):
+    def site(self):
         if self.data['node']['hostname']:
-            return self.HTTPSSite()
+            return self.https_site()
 
         elif self.data['node']['onionservice']:
-            return self.TorSite()
+            return self.tor_site()
 
         return ''
 
-    def UrlPath(self):
+    def url_path(self):
         return '/'
 
-    def Url(self):
-        return self.Site() + self.UrlPath()
+    def url(self):
+        return self.site() + self.url_path()
 
-    def TorUrl(self):
-        return self.TorSite() + self.UrlPath()
+    def tor_url(self):
+        return self.tor_site() + self.url_path()
 
-    def HTTPSUrl(self):
-        return self.HTTPSSite() + self.UrlPath()
+    def https_url(self):
+        return self.https_site() + self.url_path()
 
-    def DocumentationUrl(self):
+    def documentation_url(self):
         return 'https://docs.globaleaks.org'
 
-    def LoginUrl(self):
-        return self.Site() + '/#/login'
+    def login_url(self):
+        return self.site() + '/#/login'
 
 
 class UserKeyword(Keyword):
     keyword_list = user_keywords
     data_keys = ['user']
 
-    def RecipientName(self):
+    def recipient_name(self):
         return self.data['user']['name']
 
-    def Username(self):
+    def username(self):
         return '{}'.format(self.data['user']['username'])
 
 
@@ -403,19 +403,19 @@ class TipKeyword(UserNodeKeyword):
 
         return ret
 
-    def TipID(self):
+    def tip_id(self):
         return self.data['tip']['id']
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/reports/' + self.data['tip']['id']
 
-    def TipNum(self):
+    def tip_num(self):
         return str(self.data['tip']['progressive'])
 
-    def TipLabel(self):
+    def tip_label(self):
         return self.data['tip']['label']
 
-    def TipStatus(self):
+    def tip_status(self):
         ret = ''
 
         status = None
@@ -434,16 +434,16 @@ class TipKeyword(UserNodeKeyword):
 
         return ret
 
-    def EventTime(self):
+    def event_time(self):
         return datetime_to_pretty_str(self.data['tip']['creation_date'])
 
-    def SubmissionDate(self):
-        return self.EventTime()
+    def submission_date(self):
+        return self.event_time()
 
-    def QuestionnaireAnswers(self):
+    def questionnaire_answers(self):
         return self.dump_questionnaire_answers(self.data['tip']['questionnaires'][0]['steps'], self.data['tip']['questionnaires'][0]['answers'])
 
-    def Comments(self):
+    def comments(self):
         comments = self.data.get('comments', [])
         comments = self.dump_comments(comments)
         return 'Comments\n' + comments + '\n' if comments else ''
@@ -455,7 +455,7 @@ class TransmissionKeyword(TipKeyword):
     """
     keyword_list = TipKeyword.keyword_list + transmission_keywords
 
-    def TransmissionTenantName(self):
+    def transmission_tenant_name(self):
         return (self.data['tip'].get('exchange') or {}).get('to_tenant_name', '')
 
 
@@ -463,13 +463,13 @@ class ExportMessageKeyword(TipKeyword):
     keyword_list = TipKeyword.keyword_list + export_comment_keywords
     data_keys = TipKeyword.data_keys + ['comment']
 
-    def Author(self):
+    def author(self):
         return 'Recipient' if self.data['comment']['author_id'] else 'Reporting person'
 
-    def Content(self):
+    def content(self):
         return self.data['comment']['content']
 
-    def EventTime(self):
+    def event_time(self):
         return datetime_to_pretty_str(self.data['comment']['creation_date'])
 
 
@@ -477,13 +477,13 @@ class ExpirationSummaryKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + expiration_summary_keywords
     data_keys = UserNodeKeyword.data_keys + ['expiring_submission_count', 'earliest_expiration_date']
 
-    def ExpiringSubmissionCount(self):
+    def expiring_submission_count(self):
         return str(self.data['expiring_submission_count'])
 
-    def EarliestExpirationDate(self):
+    def earliest_expiration_date(self):
         return datetime_to_pretty_str(self.data['earliest_expiration_date'])
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/recipient/reports'
 
 
@@ -491,7 +491,7 @@ class AdminPGPAlertKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + admin_pgp_alert_keywords
     data_keys = UserNodeKeyword.data_keys + ['users']
 
-    def PGPKeyInfoList(self):
+    def pgp_key_info_list(self):
         ret = ''
         for r in self.data['users']:
             fingerprint = r['pgp_key_fingerprint']
@@ -506,7 +506,7 @@ class AdminPGPAlertKeyword(UserNodeKeyword):
 class PGPAlertKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + user_pgp_alert_keywords
 
-    def PGPKeyInfo(self):
+    def pgp_key_info(self):
         fingerprint = self.data['user']['pgp_key_fingerprint']
         key = fingerprint[:7] if fingerprint is not None else ''
 
@@ -517,7 +517,7 @@ class AnomalyKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + admin_anomaly_keywords
     data_keys = UserNodeKeyword.data_keys + ['alert']
 
-    def AnomalyDetailDisk(self):
+    def anomaly_detail_disk(self):
         # This happens all the time anomalies are present but disk is ok
         if self.data['alert']['alarm_level_disk'] == 0:
             return ''
@@ -527,10 +527,10 @@ class AnomalyKeyword(UserNodeKeyword):
         else:
             return self.data['notification']['admin_anomaly_disk_high']
 
-    def FreeMemory(self):
+    def free_memory(self):
         return '{}'.format(bytes_to_pretty_str(self.data['alert']['measured_freespace']))
 
-    def TotalMemory(self):
+    def total_memory(self):
         return '{}'.format(bytes_to_pretty_str(self.data['alert']['measured_totalspace']))
 
 
@@ -538,10 +538,10 @@ class CertificateExprKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + https_expr_keywords
     data_keys = UserNodeKeyword.data_keys + ['expiration_date']
 
-    def ExpirationDate(self):
+    def expiration_date(self):
         return datetime_to_pretty_str(self.data['expiration_date'])
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/admin/network'
 
 
@@ -549,16 +549,16 @@ class SoftwareUpdateKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + software_update_keywords
     data_keys = UserNodeKeyword.data_keys + ['latest_version']
 
-    def LatestVersion(self):
+    def latest_version(self):
         return '{}'.format(self.data['latest_version'])
 
-    def InstalledVersion(self):
+    def installed_version(self):
         return f'{__version__}'
 
-    def ChangeLogUrl(self):
+    def change_log_url(self):
         return 'https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CHANGELOG'
 
-    def UpdateGuideUrl(self):
+    def update_guide_url(self):
         return 'https://docs.globaleaks.org/en/stable/setup/update.html'
 
 
@@ -566,13 +566,13 @@ class UserCredentials(Keyword):
     keyword_list = user_credentials_keywords
     data_keys = ['role', 'username', 'password']
 
-    def Role(self):
+    def role(self):
         return '{}'.format(self.data['role'])
 
-    def Username(self):
+    def username(self):
         return '{}'.format(self.data['username'])
 
-    def Password(self):
+    def password(self):
         return '{}'.format(self.data['password'])
 
 
@@ -580,16 +580,16 @@ class PlatformSignupKeyword(NodeKeyword):
     keyword_list = NodeKeyword.keyword_list + platform_signup_keywords
     data_keys = NodeKeyword.data_keys + ['signup']
 
-    def TorSite(self):
+    def tor_site(self):
         return 'http://' + self.data['signup']['subdomain'] + '.' + self.data['node']['onionservice']
 
-    def HTTPSSite(self):
+    def https_site(self):
         return 'https://' + self.data['signup']['subdomain'] + '.' + self.data['node']['rootdomain']
 
-    def RecipientName(self):
+    def recipient_name(self):
         return self.data['signup']['name'] + ' ' + self.data['signup']['surname']
 
-    def ActivationUrl(self):
+    def activation_url(self):
         if self.data['node']['hostname']:
             site = 'https://' + self.data['node']['hostname']
         elif self.data['node']['onionservice']:
@@ -599,20 +599,20 @@ class PlatformSignupKeyword(NodeKeyword):
 
         return site + '/#/activation?token=' + self.data['signup']['activation_token']
 
-    def ExpirationDate(self):
+    def expiration_date(self):
         date = self.data['signup']['registration_date'] + timedelta(30)
         return datetime_to_pretty_str(date)
 
-    def Name(self):
+    def name(self):
         return self.data['signup']['name'] + ' ' + self.data['signup']['surname']
 
-    def Email(self):
+    def email(self):
         return self.data['signup']['email']
 
-    def Language(self):
+    def language(self):
         return self.data['signup']['language']
 
-    def Credentials(self):
+    def credentials(self):
         # Credentials are rendered only in the notification carrying the generated password
         if not self.data.get('password'):
             return ''
@@ -626,7 +626,7 @@ class PlatformSignupKeyword(NodeKeyword):
 
         return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
 
-    def AdminCredentials(self):
+    def admin_credentials(self):
         if not self.data['password_admin']:
             return ''
 
@@ -639,7 +639,7 @@ class PlatformSignupKeyword(NodeKeyword):
 
         return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
 
-    def RecipientCredentials(self):
+    def recipient_credentials(self):
         if not self.data['password_recipient']:
             return ''
 
@@ -654,7 +654,7 @@ class PlatformSignupKeyword(NodeKeyword):
 
 
 class AdminPlatformSignupKeyword(PlatformSignupKeyword):
-    def RecipientName(self):
+    def recipient_name(self):
         return self.data['user']['name']
 
 
@@ -663,20 +663,20 @@ class EmailValidationKeyword(UserNodeKeyword):
     data_keys = NodeKeyword.data_keys + \
         ['new_email_address', 'validation_token']
 
-    def NewEmailAddress(self):
+    def new_email_address(self):
         return self.data['new_email_address']
 
-    def UrlPath(self):
+    def url_path(self):
         return '/api/user/validate/email/' + self.data['validation_token']
 
 
 class AccountActivationKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + account_activation_keywords
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/password/reset' + '?token=' + self.data['reset_token']
 
-    def AccountRecoveryKeyInstructions(self):
+    def account_recovery_key_instructions(self):
         if not self.data['node']['encryption']:
             return ''
 
@@ -690,7 +690,7 @@ class PasswordResetValidationKeyword(UserNodeKeyword):
 
     data_keys = UserNodeKeyword.data_keys + ['reset_token']
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/password/reset?token=' + self.data['reset_token']
 
 
@@ -698,10 +698,10 @@ class IdentityAccessRequestKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + identity_access_request_keywords
     data_keys = UserNodeKeyword.data_keys + ['iar', 'tip', 'user']
 
-    def TipNum(self):
+    def tip_num(self):
         return str(self.data['tip']['progressive'])
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/custodian/requests/'
 
 
@@ -709,13 +709,13 @@ class TenantInviteKeyword(NodeKeyword):
     keyword_list = NodeKeyword.keyword_list + signup_invite_keywords
     data_keys = NodeKeyword.data_keys + ['invite']
 
-    def RecipientName(self):
+    def recipient_name(self):
         return self.data['invite']['organization_email']
 
-    def OrganizationName(self):
+    def organization_name(self):
         return self.data['invite']['organization_name']
 
-    def InviteUrl(self):
+    def invite_url(self):
         if self.data['node']['hostname']:
             site = 'https://' + self.data['node']['hostname']
         else:
@@ -723,7 +723,7 @@ class TenantInviteKeyword(NodeKeyword):
 
         return site + '/#/signup?token=' + self.data['invite']['token']
 
-    def ExpirationDate(self):
+    def expiration_date(self):
         return datetime_to_pretty_str(self.data['invite']['expiration_date'])
 
 
@@ -770,14 +770,28 @@ def mail_uses_smtp2(notification, mail_type):
         mail_type in notification.get('smtp2_template_types', [])
 
 
+def keyword_to_method_name(keyword):
+    """
+    Return the name of the method that renders a keyword of a template
+
+    The keyword names the method in the words of the template, in camel case and
+    between braces: {SomeKeyword} is rendered by the method some_keyword.
+
+    :param keyword: The keyword, braces included
+    """
+    name = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', keyword[1:-1])
+
+    return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+
+
 class Templating:
     def format_template(self, raw_template, data):
         keyword_converter = supported_template_types[data['type']](data)
 
         for kw in keyword_converter.keyword_list:
             if raw_template.count(kw):
-                # if {SomeKeyword} matches, call keyword_converter.SomeKeyword function
-                variable_content = getattr(keyword_converter, kw[1:-1])()
+                # if {SomeKeyword} matches, call keyword_converter.some_keyword function
+                variable_content = getattr(keyword_converter, keyword_to_method_name(kw))()
                 variable_content = re.sub("{", "(", variable_content)
                 variable_content = re.sub("}", ")", variable_content)
                 raw_template = raw_template.replace(kw, variable_content)
