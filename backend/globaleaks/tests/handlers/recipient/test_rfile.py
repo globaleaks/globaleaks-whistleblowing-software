@@ -47,6 +47,68 @@ def set_redaction_privileges(session, user_id, value):
 class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
     _handler = None
 
+    @staticmethod
+    def downloaded_content(body):
+        """
+        Return the file a download carries, taken out of the archive when it is one
+
+        :param body: The body of the response to the download
+        """
+        if not body.startswith(b'PK\x03\x04'):
+            return body
+
+        z = zipfile.ZipFile(io.BytesIO(body))
+
+        for info in z.infolist():
+            # The archive carries the file beside the entries the
+            # application adds to describe it.
+            if info.filename.upper() not in ('README.TXT', 'METADATA.CSV'):
+                return z.read(info)
+
+        return z.read(z.infolist()[0]) if z.infolist() else None
+
+    @inlineCallbacks
+    def check_wb_downloads(self, expected_content):
+        """
+        Check what the whistleblower gets when downloading every recipient file
+
+        :param expected_content: The content every download carries, None when
+                                 the files are masked and no download is allowed
+        """
+        self._handler = wbtip.ReceiverFileDownload
+        wbtips_desc = yield self.get_wbtips()
+        for wbtip_desc in wbtips_desc:
+            rfiles_desc = yield self.get_rfiles(wbtip_desc['id'])
+            for rfile_desc in rfiles_desc:
+                handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
+                if expected_content is None:
+                    yield self.assertFailure(handler.get(rfile_desc['id']), errors.ForbiddenOperation)
+                else:
+                    yield handler.get(rfile_desc['id'])
+                    self.assertEqual(self.downloaded_content(handler.request.getResponseBody()), expected_content)
+
+    @inlineCallbacks
+    def check_recipient_downloads(self, entitled):
+        """
+        Check what a recipient gets when downloading every masked recipient file
+
+        :param entitled: Whether the recipient holds the redaction privileges;
+                         when it does not they are revoked before downloading
+        """
+        self._handler = rtip.ReceiverFileDownload
+        rtips_desc = yield self.get_rtips()
+        for rtip_desc in rtips_desc:
+            if not entitled:
+                yield set_redaction_privileges(rtip_desc['receiver_id'], False)
+
+            for rfile_desc in rtip_desc['rfiles']:
+                handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+                if entitled:
+                    yield handler.get(rfile_desc['id'])
+                    self.assertTrue(handler.request.getResponseBody())
+                else:
+                    yield self.assertFailure(handler.get(rfile_desc['id']), errors.ForbiddenOperation)
+
     @inlineCallbacks
     def test_get(self):
         yield self.perform_full_submission_actions()
@@ -61,28 +123,7 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
         yield Delivery().run()
 
         # The whistleblower can download recipient files until they are masked.
-        self._handler = wbtip.ReceiverFileDownload
-        wbtips_desc = yield self.get_wbtips()
-        for wbtip_desc in wbtips_desc:
-            rfiles_desc = yield self.get_rfiles(wbtip_desc['id'])
-            for rfile_desc in rfiles_desc:
-                handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-                yield handler.get(rfile_desc['id'])
-                body = handler.request.getResponseBody()
-                if body.startswith(b'PK\x03\x04'):
-                    z = zipfile.ZipFile(io.BytesIO(body))
-                    content = None
-                    for info in z.infolist():
-                        # The archive carries the file beside the entries the
-                        # application adds to describe it.
-                        if info.filename.upper() not in ('README.TXT', 'METADATA.CSV'):
-                            content = z.read(info)
-                            break
-                    if content is None and z.infolist():
-                        content = z.read(z.infolist()[0])
-                else:
-                    content = body
-                self.assertEqual(content, file_content)
+        yield self.check_wb_downloads(file_content)
 
         # A recipient masks every recipient file.
         rtips_desc = yield self.get_rtips()
@@ -91,31 +132,14 @@ class TestWBFileWorkFlow(helpers.TestHandlerWithPopulatedDB):
                 yield mask_receiverfile(rtip_desc['id'], rfile_desc['id'])
 
         # The whistleblower can no longer download the masked files.
-        self._handler = wbtip.ReceiverFileDownload
-        wbtips_desc = yield self.get_wbtips()
-        for wbtip_desc in wbtips_desc:
-            rfiles_desc = yield self.get_rfiles(wbtip_desc['id'])
-            for rfile_desc in rfiles_desc:
-                handler = self.request(role='whistleblower', user_id=wbtip_desc['id'])
-                yield self.assertFailure(handler.get(rfile_desc['id']), errors.ForbiddenOperation)
+        yield self.check_wb_downloads(None)
 
         # A recipient entitled to mask/redact keeps access to the masked file
         # (the populated recipient holds both permissions).
-        self._handler = rtip.ReceiverFileDownload
-        rtips_desc = yield self.get_rtips()
-        for rtip_desc in rtips_desc:
-            for rfile_desc in rtip_desc['rfiles']:
-                handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-                yield handler.get(rfile_desc['id'])
-                self.assertTrue(handler.request.getResponseBody())
+        yield self.check_recipient_downloads(True)
 
         # A recipient without the permission cannot download the masked file.
-        rtips_desc = yield self.get_rtips()
-        for rtip_desc in rtips_desc:
-            yield set_redaction_privileges(rtip_desc['receiver_id'], False)
-            for rfile_desc in rtip_desc['rfiles']:
-                handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-                yield self.assertFailure(handler.get(rfile_desc['id']), errors.ForbiddenOperation)
+        yield self.check_recipient_downloads(False)
 
     @inlineCallbacks
     def test_personal_rfile_not_accessible_to_other_recipients(self):

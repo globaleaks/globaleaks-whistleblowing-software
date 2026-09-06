@@ -81,6 +81,46 @@ def _parse_filters(raw_filters):
     return raw_filters
 
 
+def _strptime_any(text, date_formats):
+    """
+    Return the date a text carries in one of the given formats, None when in none
+
+    :param text: The text carrying the date
+    :param date_formats: The formats the date is looked for in
+    """
+    for date_format in date_formats:
+        try:
+            return datetime.strptime(text, date_format)
+        except ValueError:
+            continue
+
+    return None
+
+
+def _parse_filter_date_str(text, field_name):
+    """
+    Return the date a filter carries as a text
+
+    :param text: The text carrying the date, already stripped
+    :param field_name: The name of the filter, named in the error it raises
+    """
+    if not text:
+        return None
+
+    if text.isdigit():
+        timestamp = float(text)
+        return datetime.fromtimestamp(timestamp / 1000.0 if timestamp > 10**11 else timestamp)
+
+    parsed = _strptime_any(text, ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%S.%f'))
+    if parsed is not None:
+        return parsed
+
+    try:
+        return datetime.fromisoformat(text.replace('Z', '+00:00')).replace(tzinfo=None)
+    except ValueError:
+        raise errors.InputValidationError(f"Invalid {field_name} format")
+
+
 def _parse_filter_date(value, field_name):
     if value in (None, ''):
         return None
@@ -93,30 +133,7 @@ def _parse_filter_date(value, field_name):
         return datetime.fromtimestamp(timestamp)
 
     if isinstance(value, str):
-        parsed = None
-        text = value.strip()
-        if not text:
-            return None
-
-        if text.isdigit():
-            timestamp = float(text)
-            timestamp = timestamp / 1000.0 if timestamp > 10**11 else timestamp
-            return datetime.fromtimestamp(timestamp)
-
-        for date_format in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%S.%f'):
-            try:
-                parsed = datetime.strptime(text, date_format)
-                break
-            except ValueError:
-                continue
-
-        if parsed is not None:
-            return parsed
-
-        try:
-            return datetime.fromisoformat(text.replace('Z', '+00:00')).replace(tzinfo=None)
-        except ValueError:
-            raise errors.InputValidationError(f"Invalid {field_name} format")
+        return _parse_filter_date_str(value.strip(), field_name)
 
     raise errors.InputValidationError(f"Invalid {field_name} type")
 
@@ -311,6 +328,94 @@ def db_get_metric_catalog(session, tid, language='en'):
     }
 
 
+def _stat_answer_template_id(answer_key, field_to_template, template_metrics, stat_answers_dict):
+    """
+    Return the question template an answer counts towards, None when it counts for none
+
+    An answer is keyed by its template, by the field that carries it or by the
+    template identifier alone; a key that is not the explicit template one is
+    ignored when the explicit one is present, so that an answer is counted once.
+
+    :param answer_key: The key of the answer among the statistical ones
+    :param field_to_template: The map from the fields to the templates they instance
+    :param template_metrics: The metrics being accumulated, keyed by template
+    :param stat_answers_dict: The statistical answers of the report
+    """
+    key_is_field_mapping = False
+
+    if answer_key.startswith('template:'):
+        template_id = answer_key.split('template:', 1)[1]
+    elif answer_key in field_to_template:
+        template_id = field_to_template[answer_key]
+        key_is_field_mapping = True
+    elif answer_key in template_metrics:
+        template_id = answer_key
+    else:
+        return None
+
+    if template_id not in template_metrics:
+        return None
+
+    if (key_is_field_mapping or answer_key == template_id) and f'template:{template_id}' in stat_answers_dict:
+        return None
+
+    return template_id
+
+
+def _tally_stat_answer(metric_data, answer_value):
+    """
+    Count an answer among the metrics of the question template it belongs to
+
+    :param metric_data: The metrics of the question template
+    :param answer_value: The answer, one option or the list of the selected ones
+    """
+    # checkbox answers carry a list of selected option ids; single-choice
+    # answers (selectbox/multichoice) carry a single option id.
+    selected_values = answer_value if isinstance(answer_value, list) else [answer_value]
+
+    for selected_value in selected_values:
+        if selected_value in (None, ''):
+            continue
+
+        answer_value_key = str(selected_value)
+        metric_data['total_answers'] += 1
+
+        if answer_value_key not in metric_data['option_counts']:
+            metric_data['option_counts'][answer_value_key] = 0
+            metric_data['option_labels'][answer_value_key] = answer_value_key
+
+        metric_data['option_counts'][answer_value_key] += 1
+
+
+def _serialize_dropdown_metrics(template_metrics):
+    """
+    Return the accumulated metrics as the catalog the client renders
+
+    :param template_metrics: The metrics accumulated, keyed by question template
+    """
+    dropdown_metrics = []
+
+    for template_id, metric_data in sorted(template_metrics.items(), key=lambda x: x[1]['title'].lower()):
+        total_answers = metric_data['total_answers']
+
+        option_entries = [{
+            'id': option_id,
+            'label': metric_data['option_labels'].get(option_id, option_id),
+            'count': count,
+            'percentage': round((count * 100.0 / total_answers), 1) if total_answers else 0
+        } for option_id, count in sorted(metric_data['option_counts'].items(), key=lambda x: x[1], reverse=True)]
+
+        dropdown_metrics.append({
+            'id': f'question_template_dropdown_{template_id}',
+            'template_id': template_id,
+            'title': metric_data['title'] or template_id,
+            'total_answers': total_answers,
+            'options': option_entries
+        })
+
+    return dropdown_metrics
+
+
 def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, language='en', user_id=None, user_cc=None):
     questions = db_get_statistical_questions(session, tid, language)
     if not questions:
@@ -351,67 +456,12 @@ def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, la
         for answer_key, answer_value in stat_answers_dict.items():
             if answer_value in (None, ''):
                 continue
-            answer_key_str = str(answer_key).strip()
-            template_id = None
-            key_is_field_mapping = False
 
-            if answer_key_str.startswith('template:'):
-                template_id = answer_key_str.split('template:', 1)[1]
-            elif answer_key_str in field_to_template:
-                template_id = field_to_template[answer_key_str]
-                key_is_field_mapping = True
-            elif answer_key_str in template_metrics:
-                template_id = answer_key_str
+            template_id = _stat_answer_template_id(str(answer_key).strip(), field_to_template, template_metrics, stat_answers_dict)
+            if template_id is not None:
+                _tally_stat_answer(template_metrics[template_id], answer_value)
 
-            if template_id not in template_metrics:
-                continue
-
-            template_answer_key = f'template:{template_id}'
-            if key_is_field_mapping and template_answer_key in stat_answers_dict:
-                continue
-
-            if answer_key_str == template_id and template_answer_key in stat_answers_dict:
-                continue
-
-            metric_data = template_metrics[template_id]
-
-            # checkbox answers carry a list of selected option ids; single-choice
-            # answers (selectbox/multichoice) carry a single option id.
-            selected_values = answer_value if isinstance(answer_value, list) else [answer_value]
-            for selected_value in selected_values:
-                if selected_value in (None, ''):
-                    continue
-
-                answer_value_key = str(selected_value)
-                metric_data['total_answers'] += 1
-
-                if answer_value_key not in metric_data['option_counts']:
-                    metric_data['option_counts'][answer_value_key] = 0
-                    metric_data['option_labels'][answer_value_key] = answer_value_key
-
-                metric_data['option_counts'][answer_value_key] += 1
-
-    dropdown_metrics = []
-    for template_id, metric_data in sorted(template_metrics.items(), key=lambda x: x[1]['title'].lower()):
-        total_answers = metric_data['total_answers']
-        option_entries = []
-        for option_id, count in sorted(metric_data['option_counts'].items(), key=lambda x: x[1], reverse=True):
-            option_entries.append({
-                'id': option_id,
-                'label': metric_data['option_labels'].get(option_id, option_id),
-                'count': count,
-                'percentage': round((count * 100.0 / total_answers), 1) if total_answers else 0
-            })
-
-        dropdown_metrics.append({
-            'id': f'question_template_dropdown_{template_id}',
-            'template_id': template_id,
-            'title': metric_data['title'] or template_id,
-            'total_answers': total_answers,
-            'options': option_entries
-        })
-
-    return dropdown_metrics
+    return _serialize_dropdown_metrics(template_metrics)
 
 
 def _get_filtered_tips_subquery(session, tid, filters):
@@ -446,6 +496,43 @@ def _count_identity_tips(session, tid, filtered_tips_subquery, equals_creation_d
                   .scalar() or 0
 
 
+def _filtered_context_ids(session, tid, channel_filter):
+    """
+    Return the channels a filter names, by identity or by name
+
+    :param session: An ORM session
+    :param tid: The tenant the channels belong to
+    :param channel_filter: The channels the filter names
+    """
+    channel_values = _normalize_channel_filters(channel_filter)
+
+    contexts = session.query(models.Context.id, models.Context.name).filter(models.Context.tid == tid).all()
+
+    context_id_list = []
+    for ctx_id, ctx_name in contexts:
+        ctx_name_values = _context_name_candidates(ctx_name)
+        if str(ctx_id) in channel_values or bool(ctx_name_values.intersection(channel_values)):
+            context_id_list.append(ctx_id)
+
+    return context_id_list
+
+
+def _filter_date_to(date_to_value):
+    """
+    Return the instant a date filter ends at, the whole day when it names a day
+
+    :param date_to_value: The end of the interval, as the filter carries it
+    """
+    date_to = _parse_filter_date(date_to_value, 'date_to')
+
+    if isinstance(date_to_value, str):
+        date_to_text = date_to_value.strip()
+        if date_to_text and len(date_to_text) == 10 and date_to_text[4] == '-' and date_to_text[7] == '-':
+            date_to = date_to + timedelta(days=1)
+
+    return date_to
+
+
 def apply_filters_to_query(session, query, filters, tid):
     if not filters:
         return query
@@ -454,16 +541,7 @@ def apply_filters_to_query(session, query, filters, tid):
         query = query.filter(models.InternalTip.context_id == filters['context_id'])
 
     if 'channel' in filters and filters['channel']:
-        channel_values = _normalize_channel_filters(filters['channel'])
-
-        contexts = session.query(models.Context.id, models.Context.name).filter(models.Context.tid == tid).all()
-
-        context_id_list = []
-        for ctx_id, ctx_name in contexts:
-            ctx_id_str = str(ctx_id)
-            ctx_name_values = _context_name_candidates(ctx_name)
-            if ctx_id_str in channel_values or bool(ctx_name_values.intersection(channel_values)):
-                context_id_list.append(ctx_id)
+        context_id_list = _filtered_context_ids(session, tid, filters['channel'])
 
         if context_id_list:
             query = query.filter(models.InternalTip.context_id.in_(context_id_list))
@@ -475,13 +553,7 @@ def apply_filters_to_query(session, query, filters, tid):
         query = query.filter(models.InternalTip.creation_date >= date_from)
 
     if 'date_to' in filters and filters['date_to']:
-        date_to_value = filters['date_to']
-        date_to = _parse_filter_date(date_to_value, 'date_to')
-        if isinstance(date_to_value, str):
-            date_to_text = date_to_value.strip()
-            if date_to_text and len(date_to_text) == 10 and date_to_text[4] == '-' and date_to_text[7] == '-':
-                date_to = date_to + timedelta(days=1)
-        query = query.filter(models.InternalTip.creation_date < date_to)
+        query = query.filter(models.InternalTip.creation_date < _filter_date_to(filters['date_to']))
 
     return query
 

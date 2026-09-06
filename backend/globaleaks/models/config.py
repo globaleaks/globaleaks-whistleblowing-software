@@ -344,24 +344,31 @@ class ConfigL10NFactory:
         else:
             return config.get(DEFAULT_PROFILE_ID).value
 
+    def inherits_value(self, config, value):
+        """
+        Tell whether the text the tenant inherits is already the given one
+
+        The text is inherited from the profile of the tenant, or from the default
+        profile when the profile of the tenant does not override it.
+
+        :param config: The entries of the variable, keyed by the tenant they belong to
+        :param value: The text being set
+        """
+        if self.pid in config:
+            return config[self.pid].value == value
+
+        return DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value
+
     def set_val(self, lang, var_name, value):
         config = self.get_cfg(lang, var_name)
-        if config:
+
+        # A text equal to the inherited one is not stored as an override of the
+        # tenant, and an override that became equal to it is dropped
+        if config and self.inherits_value(config, value):
             if self.tid in config:
-                if self.pid in config:
-                    if config[self.pid].value == value:
-                        self.session.delete(config[self.tid])
-                        return
+                self.session.delete(config[self.tid])
 
-                elif DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value:
-                    self.session.delete(config[self.tid])
-                    return
-            elif self.pid in config:
-                if config[self.pid].value == value:
-                    return
-
-            elif DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value:
-                return
+            return
 
         self.session.merge(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': var_name, 'value': value}))
 
@@ -383,27 +390,57 @@ class ConfigL10NFactory:
             if (entry.var_name not in protected_keys and entry.var_name in t_result and t_result[entry.var_name] == entry.value) or (entry.var_name not in t_result and entry.var_name in d_result and d_result[entry.var_name] == entry.value):
                 self.remove_val(entry.tid, lang, entry.var_name)
 
+    def update_own_value(self, k, data, lang, c_map, t_result):
+        """
+        Store the text of a tenant that inherits none, adding the entry when it is missing
+
+        :param k: The name of the variable
+        :param data: The texts being set, keyed by variable
+        :param lang: The language of the texts
+        :param c_map: The entries in force for the tenant, keyed by variable
+        :param t_result: The texts the tenant overrides, keyed by variable
+        """
+        if k in c_map:
+            c_map[k].set_v(data[k])
+            t_result[k] = data[k]
+        else:
+            self.session.add(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': k, 'value': data[k]}))
+
+    def update_inheriting_value(self, k, data, lang, c_map, results):
+        """
+        Store the text of a tenant that inherits from a profile
+
+        An empty text, or one equal to the inherited one, drops the override of
+        the tenant instead of storing it, so that the tenant keeps inheriting.
+
+        :param k: The name of the variable
+        :param data: The texts being set, keyed by variable
+        :param lang: The language of the texts
+        :param c_map: The entries in force for the tenant, keyed by variable
+        :param results: The texts the tenant overrides, the ones of its profile
+                        and the ones of the default profile, keyed by variable
+        """
+        t_result, p_result, d_result = results
+
+        if k in t_result:
+            if not data[k] or (k in p_result and data[k] == p_result[k].value) or (k not in p_result and k in d_result and data[k] == d_result[k].value):
+                self.remove_val(self.tid, lang, k)
+                del t_result[k]
+            else:
+                c_map[k].set_v(data[k])
+                t_result[k] = data[k]
+        elif (k in p_result and data[k] != p_result[k].value) or (k not in p_result and data[k] != d_result[k].value):
+            self.session.add(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': k, 'value': data[k]}))
+
     def update(self, filter_name, data, lang):
         result, t_result, p_result, d_result = self.get_all(filter_name, lang)
         c_map = {c.var_name: c for c in result}
 
         for k in (x for x in ConfigL10NFilters[filter_name] if x in data):
-            if k in c_map:
-                if self.tid != self.pid:
-                    if k in t_result:
-                        if not data[k] or (k in p_result and data[k] == p_result[k].value) or (k not in p_result and k in d_result and data[k] == d_result[k].value):
-                            self.remove_val(self.tid, lang, k)
-                            del t_result[k]
-                        else:
-                            c_map[k].set_v(data[k])
-                            t_result[k] = data[k]
-                    elif (k in p_result and data[k] != p_result[k].value) or (k not in p_result and data[k] != d_result[k].value):
-                        self.session.add(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': k, 'value': data[k]}))
-                else:
-                    c_map[k].set_v(data[k])
-                    t_result[k] = data[k]
+            if k not in c_map or self.tid == self.pid:
+                self.update_own_value(k, data, lang, c_map, t_result)
             else:
-                self.session.add(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': k, 'value': data[k]}))
+                self.update_inheriting_value(k, data, lang, c_map, (t_result, p_result, d_result))
 
         # The default profile has children too: the sites that name no other profile
         if self.tid >= DEFAULT_PROFILE_ID:
