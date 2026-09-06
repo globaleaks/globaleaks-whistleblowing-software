@@ -99,7 +99,7 @@ def content_disposition_attachment(filename):
     return f'attachment; filename={quote_header_value(filename)}'
 
 
-def decodeString(string):
+def decode_utf16_string(string):
     string = Base64Encoder.decode(string)
     uint8_array = [c for c in string]
     uint16_array = []
@@ -434,7 +434,7 @@ class BaseHandler:
     def check_confirmation(self):
         user_id = self.session.user_id
 
-        secret = decodeString(self.request.headers.get(b'x-confirmation', b''))
+        secret = decode_utf16_string(self.request.headers.get(b'x-confirmation', b''))
 
         try:
             sync_confirmation_check(self.session.user_tid, user_id, secret)

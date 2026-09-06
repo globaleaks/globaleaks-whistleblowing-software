@@ -95,14 +95,14 @@ class TestSignup(helpers.TestHandler):
     _handler = signup.Signup
 
     def test_post_with_signup_disabled(self):
-        handler = self.request(self.dummySignup)
+        handler = self.request(self.dummy_signup)
         return self.assertFailure(handler.post(), errors.ForbiddenOperation)
 
     @inlineCallbacks
     def test_post_with_signup_enabled(self):
         yield tw(db_set_config_variable, 1, 'enable_signup', True)
 
-        handler = self.request(self.dummySignup)
+        handler = self.request(self.dummy_signup)
         yield handler.post()
 
     @inlineCallbacks
@@ -111,10 +111,10 @@ class TestSignup(helpers.TestHandler):
 
         # An administrator-created tenant already owns the requested subdomain
         yield tenant.create({'active': True, 'profile': 'default',
-                             'name': 'victim', 'subdomain': self.dummySignup['subdomain']})
+                             'name': 'victim', 'subdomain': self.dummy_signup['subdomain']})
 
         # A public signup must not be able to hijack the same subdomain
-        handler = self.request(self.dummySignup)
+        handler = self.request(self.dummy_signup)
         yield self.assertFailure(handler.post(), errors.ForbiddenOperation)
 
 
@@ -125,7 +125,7 @@ class TestSignupWithInvitation(helpers.TestHandler):
         """
         Session of the administrator issuing the invitation, that the audit log
         """
-        return Session(1, self.dummyAdmin['id'], 1, 'admin', 'admin', '')
+        return Session(1, self.dummy_admin['id'], 1, 'admin', 'admin', '')
 
     @inlineCallbacks
     def _invite(self):
@@ -156,17 +156,17 @@ class TestSignupActivation(helpers.TestHandlerWithPopulatedDB):
         yield tw(db_set_config_variable, DEFAULT_PROFILE_ID, 'default_user_profile', 'admin')
 
         self._handler = signup.Signup
-        handler = self.request(self.dummySignup)
+        handler = self.request(self.dummy_signup)
         yield handler.post()
 
         self._handler = signup.SignupActivation
-        handler = self.request(self.dummySignup)
+        handler = self.request(self.dummy_signup)
         token = yield get_signup_token()
         self.assertTrue(token)
         yield handler.post(token)
 
     def test_get_with_signup_disabled(self):
-        handler = self.request(self.dummySignup)
+        handler = self.request(self.dummy_signup)
         return self.assertFailure(handler.post('valid_or_invalid'), errors.ForbiddenOperation)
 
 
@@ -174,7 +174,7 @@ class TestSignupActivation(helpers.TestHandlerWithPopulatedDB):
     def test_invalid_signup_with_invalid_activation_token(self):
         yield tw(db_set_config_variable, 1, 'enable_signup', True)
 
-        handler = self.request(self.dummySignup)
+        handler = self.request(self.dummy_signup)
         r = yield handler.post('invalid')
 
         self.assertTrue(not r)
@@ -244,18 +244,18 @@ class TestSignupFromAProfile(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def _complete_signup(self):
         self._handler = signup.Signup
-        yield self.request(self.dummySignup).post()
+        yield self.request(self.dummy_signup).post()
 
         self._handler = signup.SignupActivation
         token = yield get_signup_token()
         self.assertTrue(token)
-        yield self.request(self.dummySignup).post(token)
+        yield self.request(self.dummy_signup).post(token)
 
     @inlineCallbacks
     def test_the_site_created_is_made_as_the_profile(self):
         yield self._complete_signup()
 
-        provisioned = yield db_provisioned_site(self.dummySignup['subdomain'])
+        provisioned = yield db_provisioned_site(self.dummy_signup['subdomain'])
 
         self.assertIn('Channel of the profile',
                       [name.get('en') for name in provisioned['channels'].values()])
@@ -264,7 +264,7 @@ class TestSignupFromAProfile(helpers.TestHandlerWithPopulatedDB):
     def test_the_account_provisioned_carries_the_profile_of_the_profile(self):
         yield self._complete_signup()
 
-        provisioned = yield db_provisioned_site(self.dummySignup['subdomain'])
+        provisioned = yield db_provisioned_site(self.dummy_signup['subdomain'])
 
         self.assertEqual(provisioned['role'], 'receiver')
         self.assertEqual(provisioned['profile_name'], 'Recipients of the profile')
@@ -273,7 +273,7 @@ class TestSignupFromAProfile(helpers.TestHandlerWithPopulatedDB):
     def test_the_account_provisioned_receives_on_the_channel_of_the_profile(self):
         yield self._complete_signup()
 
-        provisioned = yield db_provisioned_site(self.dummySignup['subdomain'])
+        provisioned = yield db_provisioned_site(self.dummy_signup['subdomain'])
 
         named = [context_id for context_id, name in provisioned['channels'].items()
                  if name.get('en') == 'Channel of the profile']

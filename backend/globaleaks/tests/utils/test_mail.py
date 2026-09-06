@@ -5,13 +5,13 @@ from twisted.trial import unittest
 from twisted.mail.smtp import ESMTPSenderFactory
 from unittest.mock import patch
 
-from globaleaks.utils.mail import MIME_mail_build, sendmail
+from globaleaks.utils.mail import mime_mail_build, sendmail
 
 
 class TestMailUtils(unittest.TestCase):
     def test_mime_mail_build(self):
-        """Test that MIME_mail_build constructs a valid email."""
-        mail = MIME_mail_build("Sender", "sender@example.com", "Receiver", "receiver@example.com", "Test Subject", "Test Body")
+        """Test that mime_mail_build constructs a valid email."""
+        mail = mime_mail_build("Sender", "sender@example.com", "Receiver", "receiver@example.com", "Test Subject", "Test Body")
         mail_content = message_from_bytes(mail.getvalue())
 
         self.assertEqual(mail_content["From"], "=?utf-8?q?Sender?= <sender@example.com>")
@@ -20,8 +20,8 @@ class TestMailUtils(unittest.TestCase):
         self.assertEqual(mail_content.get_payload()[0].get_payload(decode=True).decode(), "Test Body")
 
     def test_mime_mail_build_non_ascii(self):
-        """Test that MIME_mail_build correctly encodes non-ASCII characters."""
-        mail = MIME_mail_build("Sènder", "sender@example.com", "Réceiver", "receiver@example.com", "Tëst Subject", "Bødÿ")
+        """Test that mime_mail_build correctly encodes non-ASCII characters."""
+        mail = mime_mail_build("Sènder", "sender@example.com", "Réceiver", "receiver@example.com", "Tëst Subject", "Bødÿ")
         mail_content = message_from_bytes(mail.getvalue())
 
         self.assertIn("=?utf-8?", mail_content["From"])
@@ -40,7 +40,7 @@ class TestMailUtils(unittest.TestCase):
             password=b"pass",
             fromEmail="sender@example.com",
             toEmail=["receiver@example.com"],  # Should be a list
-            file=MIME_mail_build("Sender", "sender@example.com", "Receiver", "receiver@example.com", "Test Subject", "Test Body"),
+            file=mime_mail_build("Sender", "sender@example.com", "Receiver", "receiver@example.com", "Test Subject", "Test Body"),
             deferred=Deferred()
         )
 

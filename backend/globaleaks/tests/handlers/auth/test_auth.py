@@ -411,10 +411,10 @@ class TestAuthenticationWithIdp(helpers.TestHandlerWithPopulatedDB):
     def test_a_bound_identity_resolves_its_account_whatever_the_username(self):
         yield set_idp_id('admin', 'subject-1')
 
-        response = yield self.login_request(self.dummyReceiver_1['username'], 'subject-1').post()
+        response = yield self.login_request(self.dummy_receiver_1['username'], 'subject-1').post()
 
         self.assertEqual(response['username'], 'admin')
-        self.assertEqual((yield get_idp_id(self.dummyReceiver_1['username'])), '')
+        self.assertEqual((yield get_idp_id(self.dummy_receiver_1['username'])), '')
 
     @inlineCallbacks
     def test_a_wrong_password_binds_nothing(self):
@@ -593,7 +593,7 @@ class TestReceiptAuth(helpers.TestHandlerWithPopulatedDB):
     def test_successful_whistleblower_login(self):
         yield self.perform_full_submission_actions()
         handler = self.request({
-            'receipt': self.dummySubmission['receipt']
+            'receipt': self.dummy_submission['receipt']
         })
         handler.request.client_using_tor = True
         response = yield handler.post()
@@ -602,7 +602,7 @@ class TestReceiptAuth(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_accept_whistleblower_login_in_https(self):
         yield self.perform_full_submission_actions()
-        handler = self.request({'receipt': self.dummySubmission['receipt']})
+        handler = self.request({'receipt': self.dummy_submission['receipt']})
         State.tenants[1].cache['https_whistleblower'] = True
         response = yield handler.post()
         self.assertTrue('id' in response)
@@ -610,7 +610,7 @@ class TestReceiptAuth(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_deny_whistleblower_login_in_https(self):
         yield self.perform_full_submission_actions()
-        handler = self.request({'receipt': self.dummySubmission['receipt']})
+        handler = self.request({'receipt': self.dummy_submission['receipt']})
         State.tenants[1].cache['https_whistleblower'] = False
         yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
 
@@ -623,7 +623,7 @@ class TestReceiptAuth(helpers.TestHandlerWithPopulatedDB):
         yield self.perform_full_submission_actions()
 
         handler = self.request({
-            'receipt': self.dummySubmission['receipt']
+            'receipt': self.dummy_submission['receipt']
         })
 
         handler.request.client_using_tor = True
@@ -635,7 +635,7 @@ class TestReceiptAuth(helpers.TestHandlerWithPopulatedDB):
         yield wbtip_handler.get()
 
         handler = self.request({
-            'receipt': self.dummySubmission['receipt']
+            'receipt': self.dummy_submission['receipt']
         })
 
         response = yield handler.post()
@@ -727,7 +727,7 @@ class TestSessionHandler(helpers.TestHandlerWithPopulatedDB):
         yield self.perform_full_submission_actions()
 
         handler = self.request({
-            'receipt': self.dummySubmission['receipt']
+            'receipt': self.dummy_submission['receipt']
         })
 
         handler.request.client_using_tor = True
@@ -752,7 +752,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def setUp(self):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
-        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, self.dummyReceiver_1['username'], 'receiver')
+        session = Sessions.new(1, self.dummy_receiver_1['id'], 1, self.dummy_receiver_1['username'], 'receiver')
         session.properties['authtoken'] = True
         self.authtoken = session.id
 
@@ -775,7 +775,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
         # A primary session id (not issued for the redirect login flow) must not
         # be adoptable through tokenauth: this prevents a captured session id from
         # being bound to a client-supplied key without proof of possession.
-        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, self.dummyReceiver_1['username'], 'receiver')
+        session = Sessions.new(1, self.dummy_receiver_1['id'], 1, self.dummy_receiver_1['username'], 'receiver')
 
         handler = self.request({'authtoken': session.id})
         yield self.assertFailure(handler.post(), errors.InvalidAuthentication)
@@ -788,7 +788,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
     def test_session_use_enforces_tenant_connection_policy(self):
         # Every authenticated request must honour the session-owning tenant's
         # connection policy, not only the login/redemption step.
-        session = Sessions.new(1, self.dummyReceiver_1['id'], 1, self.dummyReceiver_1['username'], 'receiver')
+        session = Sessions.new(1, self.dummy_receiver_1['id'], 1, self.dummy_receiver_1['username'], 'receiver')
 
         State.tenants[1].cache['https_receiver'] = True
         user_handler = self.request({}, headers={'x-session': session.id},
@@ -805,7 +805,7 @@ class TestTokenAuth(helpers.TestHandlerWithPopulatedDB):
     def test_redemption_enforces_session_tenant_connection_policy(self):
         # A session bound to tenant 2 must be validated against tenant 2's
         # connection policy even when redeemed through a more permissive tenant.
-        session = Sessions.new(2, self.dummyReceiver_1['id'], 2, self.dummyReceiver_1['username'], 'receiver')
+        session = Sessions.new(2, self.dummy_receiver_1['id'], 2, self.dummy_receiver_1['username'], 'receiver')
         session.properties['authtoken'] = True
 
         State.tenants[1].cache['https_receiver'] = True

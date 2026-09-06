@@ -12,9 +12,9 @@ from twisted.internet.defer import inlineCallbacks
 class HiddenContextMixin:
     @inlineCallbacks
     def create_hidden_context(self):
-        request = dict(self.dummyContext)
+        request = dict(self.dummy_context)
         request.pop('id', None)
-        request['receivers'] = [self.dummyReceiver_1['id']]
+        request['receivers'] = [self.dummy_receiver_1['id']]
         request['hidden'] = True
         context = yield create_context(1, None, request, 'en')
         return context

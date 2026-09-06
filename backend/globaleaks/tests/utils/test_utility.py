@@ -46,13 +46,13 @@ class TestUtility(unittest.TestCase):
         self.assertEqual(utility.datetime_to_pretty_str(utility.datetime_null()),
                          'Thursday 01 January 1970 00:00 (UTC)')
 
-    def test_ISO8601_to_pretty_str(self):
-        self.assertEqual(utility.ISO8601_to_pretty_str(None), 'Thursday 01 January 1970 00:00 (UTC)')
-        self.assertEqual(utility.ISO8601_to_pretty_str('1970-01-01T00:00:00Z'), 'Thursday 01 January 1970 00:00 (UTC)')
-        self.assertEqual(utility.ISO8601_to_pretty_str(None, 1), 'Thursday 01 January 1970 01:00')
-        self.assertEqual(utility.ISO8601_to_pretty_str(None, 2), 'Thursday 01 January 1970 02:00')
-        self.assertEqual(utility.ISO8601_to_pretty_str('1970-01-01T00:00:00Z', 1), 'Thursday 01 January 1970 01:00')
-        self.assertEqual(utility.ISO8601_to_pretty_str('1970-01-01T00:00:00Z', 2), 'Thursday 01 January 1970 02:00')
+    def test_iso8601_to_pretty_str(self):
+        self.assertEqual(utility.iso8601_to_pretty_str(None), 'Thursday 01 January 1970 00:00 (UTC)')
+        self.assertEqual(utility.iso8601_to_pretty_str('1970-01-01T00:00:00Z'), 'Thursday 01 January 1970 00:00 (UTC)')
+        self.assertEqual(utility.iso8601_to_pretty_str(None, 1), 'Thursday 01 January 1970 01:00')
+        self.assertEqual(utility.iso8601_to_pretty_str(None, 2), 'Thursday 01 January 1970 02:00')
+        self.assertEqual(utility.iso8601_to_pretty_str('1970-01-01T00:00:00Z', 1), 'Thursday 01 January 1970 01:00')
+        self.assertEqual(utility.iso8601_to_pretty_str('1970-01-01T00:00:00Z', 2), 'Thursday 01 January 1970 02:00')
 
     def test_bytes_to_pretty_str(self):
         self.assertEqual(utility.bytes_to_pretty_str("60000000001"), "60GB")

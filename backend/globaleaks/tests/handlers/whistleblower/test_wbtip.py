@@ -103,7 +103,7 @@ class WBTipIdentityHandler(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_post(self):
-        identity_field_id = yield self.get_whistleblower_identity_field_id(self.dummyContext['id'])
+        identity_field_id = yield self.get_whistleblower_identity_field_id(self.dummy_context['id'])
 
         body = {
           'identity_field_id': identity_field_id,
@@ -124,7 +124,7 @@ class WBTipIdentityHandler(helpers.TestHandlerWithPopulatedDB):
         # schema-driven traversal drops the nested payload (the identity field is
         # not a child of itself) so the operation succeeds carrying no such data,
         # without ever recursing to the attacker-controlled depth.
-        identity_field_id = yield self.get_whistleblower_identity_field_id(self.dummyContext['id'])
+        identity_field_id = yield self.get_whistleblower_identity_field_id(self.dummy_context['id'])
 
         body = {
           'identity_field_id': identity_field_id,
@@ -170,7 +170,7 @@ class TestWBTipAdditionalQuestionnaire(helpers.TestHandlerWithPopulatedDB):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
         # The elected questionnaire reuses the schema composing the reports so
         # that the fill-form endpoint stores answers
-        yield ask_of_every_report(self.dummyContext['id'], self.dummyContext['questionnaire_id'])
+        yield ask_of_every_report(self.dummy_context['id'], self.dummy_context['questionnaire_id'])
         yield self.perform_full_submission_actions()
 
     @inlineCallbacks
@@ -178,11 +178,11 @@ class TestWBTipAdditionalQuestionnaire(helpers.TestHandlerWithPopulatedDB):
         wbtips_desc = yield self.get_wbtips()
         for wbtip_desc in wbtips_desc:
             self.assertEqual(wbtip_desc['additional_questionnaire_id'],
-                             self.dummyContext['questionnaire_id'])
+                             self.dummy_context['questionnaire_id'])
 
     @inlineCallbacks
     def test_post(self):
-        answers = yield self.fill_random_answers(self.dummyContext['questionnaire_id'])
+        answers = yield self.fill_random_answers(self.dummy_context['questionnaire_id'])
 
         body = {
           'cmd': 'fill',
@@ -269,7 +269,7 @@ class TestWBTipAdditionalQuestionnaireRequestedOnTheReport(helpers.TestHandlerWi
         for wbtip_desc in wbtips_desc:
             yield self.fill(wbtip_desc, answers)
 
-        second = yield self.copy_questionnaire(self.dummyContext['questionnaire_id'], 'second')
+        second = yield self.copy_questionnaire(self.dummy_context['questionnaire_id'], 'second')
         yield ask_of_the_report(second['id'])
 
         answers = yield self.fill_random_answers(second['id'])
@@ -285,7 +285,7 @@ class TestWBTipAdditionalQuestionnaireRequestedOnTheReport(helpers.TestHandlerWi
             # The questionnaire composing the report and the two it has been
             # asked since, each named by the questionnaire it was given to
             self.assertEqual([questionnaire['questionnaire_id'] for questionnaire in wbtip_desc['questionnaires']],
-                             [self.dummyContext['questionnaire_id'], 'default', second['id']])
+                             [self.dummy_context['questionnaire_id'], 'default', second['id']])
 
             self.assertEqual(wbtip_desc['additional_questionnaire_id'], '')
 
@@ -312,7 +312,7 @@ class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_put(self):
-        old_receipt = self.dummySubmission['receipt']
+        old_receipt = self.dummy_submission['receipt']
         new_receipt = '1234123412341234'
 
         if self.clientside_hashing:

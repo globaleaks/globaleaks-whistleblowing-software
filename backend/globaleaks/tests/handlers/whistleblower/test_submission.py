@@ -745,20 +745,20 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def create_submission(self, request):
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         handler = self.request(self.submission_desc, role='whistleblower')
         yield handler.post()
 
     @inlineCallbacks
     def create_submission_with_files(self, request):
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         handler = self.request(self.submission_desc, role='whistleblower')
         self.emulate_file_upload(handler.session, 3)
         yield handler.post()
 
     @inlineCallbacks
     def test_create_submission_with_no_recipients(self):
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         self.submission_desc['receivers'] = []
         handler = self.request(self.submission_desc, role='whistleblower')
         yield self.assertFailure(handler.post(), errors.InputValidationError)
@@ -767,14 +767,14 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
     def test_create_submission_with_recipients_subset_rejected_when_selection_disabled(self):
         # The dummy context disables recipients selection: the backend must
         # reject a client-supplied subset of the configured recipients.
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
-        self.submission_desc['receivers'] = [self.dummyReceiver_1['id']]
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
+        self.submission_desc['receivers'] = [self.dummy_receiver_1['id']]
         handler = self.request(self.submission_desc, role='whistleblower')
         yield self.assertFailure(handler.post(), errors.InputValidationError)
 
     @inlineCallbacks
     def test_create_submission_with_recipient_not_configured_on_the_context_rejected(self):
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         self.submission_desc['receivers'].append('00000000-0000-0000-0000-000000000000')
         handler = self.request(self.submission_desc, role='whistleblower')
         yield self.assertFailure(handler.post(), errors.InputValidationError)
@@ -787,7 +787,7 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         # traversal drops the nested payload at the first level (the forged field
         # is not defined there) so the submission succeeds carrying no such data,
         # without ever recursing to the attacker-controlled depth.
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         self.submission_desc['answers'] = helpers.forge_nested_answers('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
         before = yield self.get_model_count(models.InternalTip)
         handler = self.request(self.submission_desc, role='whistleblower')
@@ -796,18 +796,18 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_create_submission_must_include_mandatory_recipients_when_selection_allowed(self):
-        yield set_context_selection_policy(self.dummyContext['id'], True)
-        yield set_receiver_forcefully_selected(self.dummyReceiver_2['id'], False)
+        yield set_context_selection_policy(self.dummy_context['id'], True)
+        yield set_receiver_forcefully_selected(self.dummy_receiver_2['id'], False)
 
         # A selection omitting the mandatory recipient is rejected
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
-        self.submission_desc['receivers'] = [self.dummyReceiver_2['id']]
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
+        self.submission_desc['receivers'] = [self.dummy_receiver_2['id']]
         handler = self.request(self.submission_desc, role='whistleblower')
         yield self.assertFailure(handler.post(), errors.InputValidationError)
 
         # A selection omitting an optional recipient is accepted
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
-        self.submission_desc['receivers'] = [self.dummyReceiver_1['id']]
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
+        self.submission_desc['receivers'] = [self.dummy_receiver_1['id']]
         handler = self.request(self.submission_desc, role='whistleblower')
         yield handler.post()
 
@@ -816,11 +816,11 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         # allow_recipients_selection=False + select_all_receivers=True (the
         # dummy context default): the client selects every configured recipient,
         # so the backend accepts exactly the full set and rejects a subset.
-        yield validate_submission_receivers(self.dummyContext['id'], [], {},
-                                            {self.dummyReceiver_1['id'], self.dummyReceiver_2['id']})
+        yield validate_submission_receivers(self.dummy_context['id'], [], {},
+                                            {self.dummy_receiver_1['id'], self.dummy_receiver_2['id']})
 
-        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], [], {},
-                                                               {self.dummyReceiver_1['id']}),
+        yield self.assertFailure(validate_submission_receivers(self.dummy_context['id'], [], {},
+                                                               {self.dummy_receiver_1['id']}),
                                  errors.InputValidationError)
 
     @inlineCallbacks
@@ -829,58 +829,58 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         # client pre-selects only the forcefully selected recipients, so the
         # backend must accept exactly that set and reject the full one that the
         # client would never submit in this configuration.
-        yield set_context_select_all_receivers(self.dummyContext['id'], False)
-        yield set_receiver_forcefully_selected(self.dummyReceiver_2['id'], False)
+        yield set_context_select_all_receivers(self.dummy_context['id'], False)
+        yield set_receiver_forcefully_selected(self.dummy_receiver_2['id'], False)
 
         # Only the mandatory recipient is accepted
-        yield validate_submission_receivers(self.dummyContext['id'], [], {},
-                                            {self.dummyReceiver_1['id']})
+        yield validate_submission_receivers(self.dummy_context['id'], [], {},
+                                            {self.dummy_receiver_1['id']})
 
         # The full set, that the client would not submit, is rejected
-        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], [], {},
-                                                               {self.dummyReceiver_1['id'], self.dummyReceiver_2['id']}),
+        yield self.assertFailure(validate_submission_receivers(self.dummy_context['id'], [], {},
+                                                               {self.dummy_receiver_1['id'], self.dummy_receiver_2['id']}),
                                  errors.InputValidationError)
 
         # An empty selection, omitting the mandatory recipient, is rejected
-        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], [], {}, set()),
+        yield self.assertFailure(validate_submission_receivers(self.dummy_context['id'], [], {}, set()),
                                  errors.InputValidationError)
 
     @inlineCallbacks
     def test_triggered_recipients_override_takes_precedence(self):
-        steps = trigger_steps([self.dummyReceiver_2['id']])
+        steps = trigger_steps([self.dummy_receiver_2['id']])
         answers = {'f-select': [{'value': 'opt-trigger'}]}
 
         # The triggered override derogates both the mandatory recipients
         # and the disabled recipients selection configured on the context
-        yield validate_submission_receivers(self.dummyContext['id'], steps, answers,
-                                            {self.dummyReceiver_2['id']})
+        yield validate_submission_receivers(self.dummy_context['id'], steps, answers,
+                                            {self.dummy_receiver_2['id']})
 
         # A selection not matching the triggered override is rejected, both
         # when missing a triggered recipient and when adding an extra one
-        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], steps, answers,
-                                                               {self.dummyReceiver_1['id']}),
+        yield self.assertFailure(validate_submission_receivers(self.dummy_context['id'], steps, answers,
+                                                               {self.dummy_receiver_1['id']}),
                                  errors.InputValidationError)
 
-        yield self.assertFailure(validate_submission_receivers(self.dummyContext['id'], steps, answers,
-                                                               {self.dummyReceiver_1['id'], self.dummyReceiver_2['id']}),
+        yield self.assertFailure(validate_submission_receivers(self.dummy_context['id'], steps, answers,
+                                                               {self.dummy_receiver_1['id'], self.dummy_receiver_2['id']}),
                                  errors.InputValidationError)
 
     @inlineCallbacks
     def test_create_simple_submission(self):
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         yield self.create_submission(self.submission_desc)
 
     @inlineCallbacks
     def test_create_submission_attach_files_finalize_and_verify_file_creation(self):
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         yield self.create_submission_with_files(self.submission_desc)
         yield delivery.Delivery().run()
 
     @inlineCallbacks
     def test_update_submission(self):
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
 
-        self.submission_desc['answers'] = yield self.fill_random_answers(self.dummyContext['questionnaire_id'])
+        self.submission_desc['answers'] = yield self.fill_random_answers(self.dummy_context['questionnaire_id'])
 
         yield self.create_submission(self.submission_desc)
 
@@ -895,7 +895,7 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         # An existing submission session must not be able to finalize a report
         # once intake has been disabled, either administratively or by the
         # low-disk lockout that flips State.accept_submissions to False.
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         handler = self.request(self.submission_desc, role='whistleblower')
 
         self.state.accept_submissions = False
@@ -918,7 +918,7 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
 
         self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'key')
 
-        self.submission_desc = yield self.get_dummy_submission(self.dummyContext['id'])
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         self.submission_desc['receipt'] = '1234123412341234'
         handler = self.request(self.submission_desc, role='whistleblower')
         yield self.assertFailure(handler.post(), errors.InputValidationError)
@@ -931,10 +931,10 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
             return
 
         yield self.perform_full_submission_actions()
-        receipt = self.dummySubmission['receipt']
+        receipt = self.dummy_submission['receipt']
 
         # A legacy-format report switches the tenant to password mode
-        malicious_id = yield inject_legacy_receipt_report(self.dummyContext['id'])
+        malicious_id = yield inject_legacy_receipt_report(self.dummy_context['id'])
         self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'password')
         yield self.assertFailure(auth.login_whistleblower(1, receipt, True),
                                  errors.InvalidAuthentication)
