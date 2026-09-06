@@ -161,8 +161,8 @@ class TestCommunication(ExchangeTest):
 
         tid, type, sites, holders = yield sides_of(filed['id'])
         self.assertEqual((tid, type, sites), (1, 'exchange', {1, 2}))
-        self.assertEqual(holders, {self.dummyReceiver_1['id'],
-                                   self.dummyReceiver_2['id'],
+        self.assertEqual(holders, {self.dummy_receiver_1['id'],
+                                   self.dummy_receiver_2['id'],
                                    self.destination['id']})
 
     @inlineCallbacks

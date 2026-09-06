@@ -279,15 +279,15 @@ class TestParseIssuerName(unittest.TestCase):
         pem = cert.public_bytes(serialization.Encoding.PEM)
         return load_certificate(FILETYPE_PEM, pem)
 
-    def test_parse_issuer_name_with_O(self):
+    def test_parse_issuer_name_with_o(self):
         x = self._cert_with_issuer(O='Acme Corp', CN='cn.example')
         self.assertEqual(tls.parse_issuer_name(x), 'Acme Corp')
 
-    def test_parse_issuer_name_with_OU_only(self):
+    def test_parse_issuer_name_with_ou_only(self):
         x = self._cert_with_issuer(OU='Engineering')
         self.assertEqual(tls.parse_issuer_name(x), 'Engineering')
 
-    def test_parse_issuer_name_with_CN_only(self):
+    def test_parse_issuer_name_with_cn_only(self):
         x = self._cert_with_issuer(CN='cn.example')
         self.assertEqual(tls.parse_issuer_name(x), 'cn.example')
 
@@ -331,16 +331,16 @@ class TestTLSContexts(unittest.TestCase):
         ctx = tls.new_tls_client_context()
         self.assertIsInstance(ctx, SSL.Context)
 
-    def test_TLSClientContextFactory_getContext(self):
+    def test_tls_client_context_factory_get_context(self):
         f = tls.TLSClientContextFactory()
         self.assertIsInstance(f.getContext(), SSL.Context)
 
-    def test_TLSServerContextFactory_with_selfsigned(self):
+    def test_tls_server_context_factory_with_selfsigned(self):
         key_pem, cert_pem = tls.gen_selfsigned_certificate()
         f = tls.TLSServerContextFactory(key_pem, cert_pem, b'')
         self.assertIsInstance(f.getContext(), SSL.Context)
 
-    def test_TLSServerContextFactory_with_intermediate(self):
+    def test_tls_server_context_factory_with_intermediate(self):
         """Exercising the intermediate-chain loop path."""
         key_pem, cert_pem = tls.gen_selfsigned_certificate()
         # Use the cert itself as a fake intermediate chain (single PEM)

@@ -48,7 +48,7 @@ from globaleaks.rest import decorators, errors
 from globaleaks.state import State, extract_exception_traceback_and_schedule_email
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.oidc import extract_bearer_token
-from globaleaks.utils.sock import isIPAddress
+from globaleaks.utils.sock import is_ip_address
 from globaleaks.orm import db_log
 
 tid_regexp = r'([0-9]+)'
@@ -498,7 +498,7 @@ class APIResourceWrapper(Resource):
 
         if not State.tenants[1].cache.wizard_done or \
           request.hostname.lower() in (b'127.0.0.1', b'localhost') or \
-          (State.tenants[1].cache.hostname == '' and isIPAddress(request.hostname)):
+          (State.tenants[1].cache.hostname == '' and is_ip_address(request.hostname)):
             request.tid = 1
         else:
             request.tid = State.tenant_hostname_id_map.get(request.hostname)
@@ -544,7 +544,7 @@ class APIResourceWrapper(Resource):
 
         self.set_headers(request)
 
-        if isIPAddress(request.hostname) and 1 in State.tenants:
+        if is_ip_address(request.hostname) and 1 in State.tenants:
             hostname = State.tenants[1].cache['hostname']
             https_enabled = State.tenants[1].cache['https_enabled']
             if hostname and https_enabled:

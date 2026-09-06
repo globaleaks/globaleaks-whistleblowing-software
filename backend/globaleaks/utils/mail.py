@@ -16,7 +16,7 @@ from globaleaks.utils.tls import client_tls_options, new_tls_client_context
 from globaleaks.utils.log import log
 
 
-def MIME_mail_build(src_name, src_mail, dest_name, dest_mail, mail_subject, mail_body):
+def mime_mail_build(src_name, src_mail, dest_name, dest_mail, mail_subject, mail_body):
     """
     Prepare the mail headers
 
@@ -61,7 +61,7 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
     """
     try:
         timeout = 30
-        message = MIME_mail_build(from_name,
+        message = mime_mail_build(from_name,
                                   from_address,
                                   to_address,
                                   to_address,
@@ -91,8 +91,8 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
             factory = tls.TLSMemoryBIOFactory(context_factory, True, factory)
 
         if anonymize:
-            socksProxy = UNIXClientEndpoint(reactor, socks_socket, timeout=timeout)
-            endpoint = SOCKS5ClientEndpoint(smtp_host.encode('utf-8'), smtp_port, socksProxy)
+            socks_proxy = UNIXClientEndpoint(reactor, socks_socket, timeout=timeout)
+            endpoint = SOCKS5ClientEndpoint(smtp_host.encode('utf-8'), smtp_port, socks_proxy)
         else:
             endpoint = TCP4ClientEndpoint(reactor, smtp_host, smtp_port, timeout=timeout)
 

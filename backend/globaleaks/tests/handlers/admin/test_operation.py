@@ -157,7 +157,7 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         confirmation = helpers.VALID_CONFIRMATION
 
         return self._test_operation_handler('set_user_password',
-                                           {'user_id': self.dummyReceiver_1['id'],
+                                           {'user_id': self.dummy_receiver_1['id'],
                                             'password': helpers.VALID_KEY},
                                            headers={'x-confirmation': confirmation})
 
@@ -169,12 +169,12 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         self.assertRaises(errors.InvalidAuthentication,
                           self._test_operation_handler,
                           'set_user_password',
-                          {'user_id': self.dummyReceiver_1['id'],
+                          {'user_id': self.dummy_receiver_1['id'],
                            'password': helpers.VALID_KEY})
 
     def test_admin_disable_2fa(self):
         return self._test_operation_handler('disable_2fa',
-                                           {'value': self.dummyReceiver_1['id']})
+                                           {'value': self.dummy_receiver_1['id']})
 
     def test_admin_send_password_reset_email(self):
         # Issuing a password reset link is a sensitive operation that requires
@@ -184,7 +184,7 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         confirmation = helpers.VALID_CONFIRMATION
 
         return self._test_operation_handler('send_password_reset_email',
-                                           {'value': self.dummyReceiver_1['id']},
+                                           {'value': self.dummy_receiver_1['id']},
                                            headers={'x-confirmation': confirmation})
 
     def test_admin_send_password_reset_email_requires_confirmation(self):
@@ -195,7 +195,7 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         self.assertRaises(errors.InvalidAuthentication,
                           self._test_operation_handler,
                           'send_password_reset_email',
-                          {'value': self.dummyReceiver_1['id']})
+                          {'value': self.dummy_receiver_1['id']})
 
     def test_admin_send_password_reset_email_skips_confirmation_in_management_session(self):
         # A root administrator operating on a secondary tenant through a
@@ -205,7 +205,7 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
 
         return self._test_operation_handler('send_password_reset_email',
-                                           {'value': self.dummyReceiver_1['id']},
+                                           {'value': self.dummy_receiver_1['id']},
                                            tid=2,
                                            properties={'management_session': True})
 
@@ -228,12 +228,12 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
     @defer.inlineCallbacks
     def test_admin_toggle_user_escrow_on_a_user(self):
         # double toggle is needed to test disabling and enabling
-        yield self._test_operation_handler('toggle_user_escrow', {'value': self.dummyReceiver_1['id']})
-        yield self._test_operation_handler('toggle_user_escrow', {'value': self.dummyReceiver_1['id']})
+        yield self._test_operation_handler('toggle_user_escrow', {'value': self.dummy_receiver_1['id']})
+        yield self._test_operation_handler('toggle_user_escrow', {'value': self.dummy_receiver_1['id']})
 
     def test_admin_toggle_user_escrow_prevents_auto_revocation(self):
         return self.assertFailure(self._test_operation_handler('toggle_user_escrow',
-                                                               {'value': self.dummyAdmin['id']}),
+                                                               {'value': self.dummy_admin['id']}),
                                   errors.InputValidationError)
 
     def test_admin_reset_templates(self):
@@ -267,18 +267,18 @@ class TestAdminProtectedUsers(helpers.TestHandlerWithPopulatedDB):
     @defer.inlineCallbacks
     def test_set_user_password_forbidden_for_protected_user(self):
         # Setting the password of a protected user must be forbidden
-        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummyReceiver_1['id']])
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummy_receiver_1['id']])
 
         yield self.assertFailure(self._test_operation_handler('set_user_password',
-                                                             {'user_id': self.dummyReceiver_1['id'],
+                                                             {'user_id': self.dummy_receiver_1['id'],
                                                               'password': helpers.VALID_KEY}),
                                  errors.ForbiddenOperation)
 
     @defer.inlineCallbacks
     def test_send_password_reset_email_forbidden_for_protected_user(self):
         # Issuing a password reset link to a protected user must be forbidden
-        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummyReceiver_1['id']])
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummy_receiver_1['id']])
 
         yield self.assertFailure(self._test_operation_handler('send_password_reset_email',
-                                                             {'value': self.dummyReceiver_1['id']}),
+                                                             {'value': self.dummy_receiver_1['id']}),
                                  errors.ForbiddenOperation)

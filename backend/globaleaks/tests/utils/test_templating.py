@@ -8,7 +8,7 @@ from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.templating import Templating, mail_uses_smtp2, supported_template_types
 
 
-class notifTemplateTest(helpers.TestGLWithPopulatedDB):
+class NotificationTemplateTest(helpers.TestGLWithPopulatedDB):
     @inlineCallbacks
     def test_keywords_conversion(self):
         tip_id = ''
@@ -18,18 +18,18 @@ class notifTemplateTest(helpers.TestGLWithPopulatedDB):
 
         data = {}
         data['type'] = 'tip'
-        data['user'] = yield user.get_user(1, self.dummyReceiver_1['id'], 'en')
-        data['context'] = yield admin.context.get_context(1, self.dummyContext['id'], 'en')
+        data['user'] = yield user.get_user(1, self.dummy_receiver_1['id'], 'en')
+        data['context'] = yield admin.context.get_context(1, self.dummy_context['id'], 'en')
         data['notification'] = yield tw(admin.notification.db_get_notification, 1, 'en')
         data['node'] = yield tw(admin.node.db_admin_serialize_node, 1, 'en')
         data['submission_statuses'] = yield tw(public.db_get_submission_statuses, 1, 'en')
 
-        for tip in self.dummyRTips:
-            if tip['receiver_id'] == self.dummyReceiver_1['id']:
+        for tip in self.dummy_rtips:
+            if tip['receiver_id'] == self.dummy_receiver_1['id']:
                 tip_id = tip['id']
                 break
 
-        data['tip'], _ = yield recipient.rtip.get_rtip(1, self.dummyReceiver_1['id'], tip_id, 'en')
+        data['tip'], _ = yield recipient.rtip.get_rtip(1, self.dummy_receiver_1['id'], tip_id, 'en')
 
         data['comments'] = data['tip']['comments']
 

@@ -21,7 +21,7 @@ class TestNetworkInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_put(self):
-        config = copy.deepcopy(self.dummyNetwork)
+        config = copy.deepcopy(self.dummy_network)
         config['ip_filter_custodian_enable'] = True
         config['ip_filter_custodian'] = '10.0.0.0/24'
         config['anonymize_outgoing_connection'] = True

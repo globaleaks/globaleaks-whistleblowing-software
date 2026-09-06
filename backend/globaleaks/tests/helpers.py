@@ -99,16 +99,16 @@ def mock_nullfunction(*args, **kwargs):
     return
 
 
-def mock_GCE_generate_key():
+def mock_gce_generate_key():
     return KEY
 
 
-def mock_GCE_generate_keypair():
+def mock_gce_generate_keypair():
     return USER_PRV_KEY, USER_PUB_KEY
 
 
-GCE.generate_key = mock_GCE_generate_key
-GCE.generate_keypair = mock_GCE_generate_keypair
+GCE.generate_key = mock_gce_generate_key
+GCE.generate_keypair = mock_gce_generate_keypair
 # END MOCKS NECESSARY FOR DETERMINISTIC ENCRYPTION
 ################################################################################
 
@@ -334,7 +334,7 @@ class MockDict:
     """
 
     def __init__(self):
-        self.dummyUser = {
+        self.dummy_user = {
             'id': '',
             'username': 'maker@iz.cool.yeah',
             'password': VALID_KEY,
@@ -366,12 +366,12 @@ class MockDict:
             'can_redact_information': True
         }
 
-        self.dummyQuestionnaire = {
+        self.dummy_questionnaire = {
             'id': 'test',
             'name': 'test'
         }
 
-        self.dummyContext = {
+        self.dummy_context = {
             'id': '',
             'name': 'Already localized name',
             'description': 'Already localized desc',
@@ -390,14 +390,14 @@ class MockDict:
             'provide_access_code': True,
         }
 
-        self.dummySubmission = {
+        self.dummy_submission = {
             'context_id': '',
             'answers': {},
             'receivers': [],
             'mobile': False
         }
 
-        self.dummyNode = {
+        self.dummy_node = {
             'name': 'Please, set me: name/title',
             'description': 'Platform description',
             'presentation': 'This is whæt æpp€ærs on top',
@@ -488,7 +488,7 @@ class MockDict:
             'signup_request_subdomain': True,
         }
 
-        self.dummyNetwork = {
+        self.dummy_network = {
             'anonymize_outgoing_connections': True,
             'hostname': 'globaleaks.org',
             'https_admin': True,
@@ -510,7 +510,7 @@ class MockDict:
             'reachable_via_web': True
         }
 
-        self.dummyWizard = {
+        self.dummy_wizard = {
             'node_language': 'en',
             'node_name': 'test',
             'admin_username': 'admin',
@@ -528,7 +528,7 @@ class MockDict:
             'enable_developers_exception_notification': True
         }
 
-        self.dummySignup = {
+        self.dummy_signup = {
             'name': 'Responsabile',
             'surname': 'Anticorruzione',
             'role': '',
@@ -659,7 +659,7 @@ def forge_request(uri=b'https://globaleaks.org/', tid=1,
 
     request.headers = request.getAllHeaders()
 
-    class fakeBody:
+    class FakeBody:
         def read(self):
             ret = body
             if isinstance(ret, dict):
@@ -670,7 +670,7 @@ def forge_request(uri=b'https://globaleaks.org/', tid=1,
 
             return ret
 
-    request.content = fakeBody()
+    request.content = FakeBody()
 
     return request
 
@@ -710,7 +710,7 @@ class TestGL(unittest.TestCase):
 
         init_state()
 
-        self.setUp_dummy()
+        self.setup_dummies()
 
         if self.initialize_test_database_using_archived_db:
             shutil.copy(
@@ -746,38 +746,38 @@ class TestGL(unittest.TestCase):
         db_set_config_variable(session, i, 'hostname', hostname)
         db_set_config_variable(session, i, 'onionservice', onionservice)
 
-    def setUp_dummy(self):
-        dummyStuff = MockDict()
+    def setup_dummies(self):
+        dummy_stuff = MockDict()
 
-        self.dummyWizard = dummyStuff.dummyWizard
-        self.dummySignup = dummyStuff.dummySignup
-        self.dummyNetwork = dummyStuff.dummyNetwork
-        self.dummyQuestionnaire = dummyStuff.dummyQuestionnaire
-        self.dummyContext = dummyStuff.dummyContext
-        self.dummySubmission = dummyStuff.dummySubmission
-        self.dummyAdmin = self.get_dummy_user('admin', 'admin')
-        self.dummyAnalyst = self.get_dummy_user('analyst', 'analyst')
-        self.dummyCustodian = self.get_dummy_user('custodian', 'custodian')
-        self.dummyReceiver_1 = self.get_dummy_receiver('receiver1')
-        self.dummyReceiver_2 = self.get_dummy_receiver('receiver2')
+        self.dummy_wizard = dummy_stuff.dummy_wizard
+        self.dummy_signup = dummy_stuff.dummy_signup
+        self.dummy_network = dummy_stuff.dummy_network
+        self.dummy_questionnaire = dummy_stuff.dummy_questionnaire
+        self.dummy_context = dummy_stuff.dummy_context
+        self.dummy_submission = dummy_stuff.dummy_submission
+        self.dummy_admin = self.get_dummy_user('admin', 'admin')
+        self.dummy_analyst = self.get_dummy_user('analyst', 'analyst')
+        self.dummy_custodian = self.get_dummy_user('custodian', 'custodian')
+        self.dummy_receiver_1 = self.get_dummy_receiver('receiver1')
+        self.dummy_receiver_2 = self.get_dummy_receiver('receiver2')
 
         if self.pgp_configuration == 'ALL':
-            self.dummyReceiver_1['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY1_PUB']
-            self.dummyReceiver_2['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY2_PUB']
+            self.dummy_receiver_1['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY1_PUB']
+            self.dummy_receiver_2['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY2_PUB']
         elif self.pgp_configuration == 'ONE_VALID_ONE_EXPIRED':
-            self.dummyReceiver_1['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY1_PUB']
-            self.dummyReceiver_2['pgp_key_public'] = PGPKEYS['EXPIRED_PGP_KEY_PUB']
+            self.dummy_receiver_1['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY1_PUB']
+            self.dummy_receiver_2['pgp_key_public'] = PGPKEYS['EXPIRED_PGP_KEY_PUB']
         elif self.pgp_configuration == 'NONE':
-            self.dummyReceiver_1['pgp_key_public'] = ''
-            self.dummyReceiver_2['pgp_key_public'] = ''
+            self.dummy_receiver_1['pgp_key_public'] = ''
+            self.dummy_receiver_2['pgp_key_public'] = ''
 
-        self.dummyNode = dummyStuff.dummyNode
+        self.dummy_node = dummy_stuff.dummy_node
 
         self.assertEqual(os.listdir(Settings.attachments_path), [])
         self.assertEqual(os.listdir(Settings.tmp_path), [])
 
     def get_dummy_user(self, role, username):
-        new_u = dict(MockDict().dummyUser)
+        new_u = dict(MockDict().dummy_user)
         new_u['id'] = username
         new_u['role'] = role
 
@@ -797,7 +797,7 @@ class TestGL(unittest.TestCase):
 
     def get_dummy_receiver(self, username):
         new_u = self.get_dummy_user('receiver', username)
-        new_r = dict(MockDict().dummyUser)
+        new_r = dict(MockDict().dummy_user)
 
         return {**new_r, **new_u}
 
@@ -912,7 +912,7 @@ class TestGL(unittest.TestCase):
         ret = []
         for i, r in session.query(models.InternalTip, models.ReceiverTip) \
                          .filter(models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                 models.ReceiverTip.receiver_id == self.dummyReceiver_1['id'],
+                                 models.ReceiverTip.receiver_id == self.dummy_receiver_1['id'],
                                  models.InternalTip.tid == 1):
             ret.append(serializers.serialize_rtip(session, i, r, 'en'))
 
@@ -1027,7 +1027,7 @@ class TestGLWithPopulatedDB(TestGL):
                                          self.clientside_hashing,
                                          # a population whose keys are all the same
                                          # is not the population of one whose keys differ
-                                         GCE.generate_keypair is mock_GCE_generate_keypair))
+                                         GCE.generate_keypair is mock_gce_generate_keypair))
 
     @inlineCallbacks
     def setUp(self):
@@ -1065,7 +1065,7 @@ class TestGLWithPopulatedDB(TestGL):
         db_set_config_variable(session, 1, 'crypto_stat_pub_key', STAT_PUB_KEY)
 
         for user in session.query(models.User):
-            if user.id == self.dummyAdmin['id']:
+            if user.id == self.dummy_admin['id']:
                 user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, ESCROW_PRV_KEY))
                 user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, STAT_PRV_KEY))
 
@@ -1087,26 +1087,26 @@ class TestGLWithPopulatedDB(TestGL):
     @inlineCallbacks
     def fill_data(self):
         # fill_data/create_admin
-        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
+        self.dummy_admin = yield create_user(1, None, self.dummy_admin, 'en')
 
         # fill_data/create_analyst
-        self.dummyAnalyst = yield create_user(1, None, self.dummyAnalyst, 'en')
+        self.dummy_analyst = yield create_user(1, None, self.dummy_analyst, 'en')
 
         # fill_data/create_custodian
-        self.dummyCustodian = yield create_user(1, None, self.dummyCustodian, 'en')
+        self.dummy_custodian = yield create_user(1, None, self.dummy_custodian, 'en')
 
         # fill_data/create_receiver
-        self.dummyReceiver_1 = yield create_user(1, None, self.dummyReceiver_1, 'en')
-        self.dummyReceiver_2 = yield create_user(1, None, self.dummyReceiver_2, 'en')
+        self.dummy_receiver_1 = yield create_user(1, None, self.dummy_receiver_1, 'en')
+        self.dummy_receiver_2 = yield create_user(1, None, self.dummy_receiver_2, 'en')
 
         yield self.mock_users_keys()
 
         # fill_data/create 'test' questionnaire'
-        self.dummyQuestionnaire = yield create_questionnaire(1, None, self.dummyQuestionnaire, 'en')
+        self.dummy_questionnaire = yield create_questionnaire(1, None, self.dummy_questionnaire, 'en')
 
         # create a first step including every type of question
         step = get_dummy_step()
-        step['questionnaire_id'] = self.dummyQuestionnaire['id']
+        step['questionnaire_id'] = self.dummy_questionnaire['id']
         step = yield tw(db_create_step, 1, step, 'en')
         fieldgroup_id = ''
         for t in models.field_types:
@@ -1124,19 +1124,19 @@ class TestGLWithPopulatedDB(TestGL):
 
         # create a second step including the whistleblower identity question
         step = get_dummy_step()
-        step['questionnaire_id'] = self.dummyQuestionnaire['id']
+        step['questionnaire_id'] = self.dummy_questionnaire['id']
         step = yield tw(db_create_step, 1, step, 'en')
         yield self.add_whistleblower_identity_field_to_step(step['id'])
 
         # fill_data/create_context
-        self.dummyContext['receivers'] = [self.dummyReceiver_1['id'], self.dummyReceiver_2['id']]
-        self.dummyContext = yield create_context(1, None, self.dummyContext, 'en')
+        self.dummy_context['receivers'] = [self.dummy_receiver_1['id'], self.dummy_receiver_2['id']]
+        self.dummy_context = yield create_context(1, None, self.dummy_context, 'en')
 
         # fill_data create_tenant
         for i in range(1, self.population_of_tenants):
             name = 'tenant-' + str(i+1)
             t = yield create_tenant({'name': name, 'active': True, 'subdomain': name, 'profile': 'default'})
-            yield tw(db_wizard, t['id'], '127.0.0.1', self.dummyWizard)
+            yield tw(db_wizard, t['id'], '127.0.0.1', self.dummy_wizard)
             yield self.set_hostnames(i)
 
         if self.wb_legacy_receipt_seed:
@@ -1146,7 +1146,7 @@ class TestGLWithPopulatedDB(TestGL):
     def mock_whistleblower_legacy_receipt_mode(self, session):
         itip = models.InternalTip()
         itip.tid = 1
-        itip.context_id = self.dummyContext['id']
+        itip.context_id = self.dummy_context['id']
         itip.progressive = -1
         _, itip.receipt_hash = GCE.calculate_key_and_hash(GCE.generate_receipt(), VALID_SALT)
         session.add(itip)
@@ -1181,27 +1181,27 @@ class TestGLWithPopulatedDB(TestGL):
 
         session = Sessions.get(session_id)
 
-        self.dummySubmission['context_id'] = self.dummyContext['id']
-        self.dummySubmission['receivers'] = self.dummyContext['receivers']
-        self.dummySubmission['identity_provided'] = False
-        self.dummySubmission['answers'] = yield self.fill_random_answers(self.dummyContext['questionnaire_id'])
-        self.dummySubmission['receipt'] = receipt
+        self.dummy_submission['context_id'] = self.dummy_context['id']
+        self.dummy_submission['receivers'] = self.dummy_context['receivers']
+        self.dummy_submission['identity_provided'] = False
+        self.dummy_submission['answers'] = yield self.fill_random_answers(self.dummy_context['questionnaire_id'])
+        self.dummy_submission['receipt'] = receipt
 
-        yield create_submission(1, self.dummySubmission, session, True, False)
+        yield create_submission(1, self.dummy_submission, session, True, False)
 
     @inlineCallbacks
     def perform_post_submission_actions(self):
-        self.dummyRTips = yield self.get_rtips()
+        self.dummy_rtips = yield self.get_rtips()
 
-        for rtip_desc in self.dummyRTips:
+        for rtip_desc in self.dummy_rtips:
             yield rtip.create_comment(1,
                                       rtip_desc['receiver_id'],
                                       rtip_desc['id'],
                                       'comment')
 
-        self.dummyWBTips = yield self.get_wbtips()
+        self.dummy_wbtips = yield self.get_wbtips()
 
-        for wbtip_desc in self.dummyWBTips:
+        for wbtip_desc in self.dummy_wbtips:
             yield wbtip.create_comment(1,
                                        wbtip_desc['id'],
                                        'comment')
@@ -1283,13 +1283,13 @@ class TestHandler(TestGLWithPopulatedDB):
 
         if user_id is None and role is not None:
             if role == 'admin':
-                user_id = self.dummyAdmin['id']
+                user_id = self.dummy_admin['id']
             elif role == 'analyst':
-                user_id = self.dummyAnalyst['id']
+                user_id = self.dummy_analyst['id']
             elif role == 'receiver':
-                user_id = self.dummyReceiver_1['id']
+                user_id = self.dummy_receiver_1['id']
             elif role == 'custodian':
-                user_id = self.dummyCustodian['id']
+                user_id = self.dummy_custodian['id']
 
         if role is not None:
             if role == 'whistleblower' and user_id is None:
@@ -1398,7 +1398,7 @@ class TestCollectionHandler(TestHandler):
     @inlineCallbacks
     def fill_data(self):
         # fill_data/create_admin
-        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
+        self.dummy_admin = yield create_user(1, None, self.dummy_admin, 'en')
 
     @inlineCallbacks
     def test_get(self):
@@ -1440,7 +1440,7 @@ class TestInstanceHandler(TestHandler):
     @inlineCallbacks
     def fill_data(self):
         # fill_data/create_admin
-        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
+        self.dummy_admin = yield create_user(1, None, self.dummy_admin, 'en')
 
     @inlineCallbacks
     def test_get(self):

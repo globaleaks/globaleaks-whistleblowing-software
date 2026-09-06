@@ -26,7 +26,7 @@ from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.log import log
-from globaleaks.utils.sock import isIPAddress
+from globaleaks.utils.sock import is_ip_address
 from globaleaks.utils.tls import gen_selfsigned_certificate
 from globaleaks.utils.utility import datetime_null, uuid4
 
@@ -46,8 +46,8 @@ def db_initialize_tenant_submission_statuses(session, tid):
         session.add(models.SubmissionStatus(s))
 
 
-def get_tenant_id(session, isTenant, is_profile):
-    id_key = 'counter_tenants' if isTenant and not is_profile else 'counter_profiles'
+def get_tenant_id(session, is_tenant, is_profile):
+    id_key = 'counter_tenants' if is_tenant and not is_profile else 'counter_profiles'
     tid = db_get_config_variable(session, 1, id_key)
     return id_key, tid
 
@@ -80,10 +80,10 @@ def db_subdomain_in_use(session, subdomain, excluded_tids=None):
     return session.query(query.exists()).scalar()
 
 
-def db_create(session, desc, isTenant = True, **kwargs):
+def db_create(session, desc, is_tenant = True, **kwargs):
     is_profile = kwargs.get('is_profile', False)
 
-    id_key, tid = get_tenant_id(session, isTenant, is_profile)
+    id_key, tid = get_tenant_id(session, is_tenant, is_profile)
 
     tenant_id = calculate_tenant_id(tid, is_profile)
 
@@ -459,7 +459,7 @@ def db_wizard(session, tid, hostname, request):
     node.set_val('wizard_done', True)
     node.set_val('enable_developers_exception_notification', request['enable_developers_exception_notification'])
 
-    if tid == 1 and not isIPAddress(hostname):
+    if tid == 1 and not is_ip_address(hostname):
        node.set_val('hostname', hostname)
 
     crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key = \

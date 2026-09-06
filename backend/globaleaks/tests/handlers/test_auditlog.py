@@ -46,7 +46,7 @@ class AuditLogBehaviour:
     role = None
 
     def audit_request(self):
-        user_id = None if self.role == 'admin' else self.dummyAnalyst['id']
+        user_id = None if self.role == 'admin' else self.dummy_analyst['id']
         return self.request({}, user_id=user_id, role=self.role)
 
     @inlineCallbacks
@@ -105,7 +105,7 @@ class TestAuditorAuditLog(AuditLogBehaviour, helpers.TestHandlerWithPopulatedDB)
         # The auditor reads the log by the role it holds: the permission
         # scoping the administrators says nothing about it
         handler = self.request({},
-                               user_id=self.dummyAnalyst['id'],
+                               user_id=self.dummy_analyst['id'],
                                role='auditor',
                                permissions={'can_manage_auditlog': False})
 
@@ -118,7 +118,7 @@ class AccessLogBehaviour:
     role = None
 
     def test_get(self):
-        user_id = None if self.role == 'admin' else self.dummyAnalyst['id']
+        user_id = None if self.role == 'admin' else self.dummy_analyst['id']
         handler = self.request({}, user_id=user_id, role=self.role)
 
         # During tests the file does not exists but this is enought to test
@@ -152,7 +152,7 @@ class TipsCollectionBehaviour:
     def test_get(self):
         yield self.perform_full_submission_actions()
 
-        user_id = None if self.role == 'admin' else self.dummyAnalyst['id']
+        user_id = None if self.role == 'admin' else self.dummy_analyst['id']
         handler = self.request({}, user_id=user_id, role=self.role)
         response = yield handler.get()
 
@@ -175,7 +175,7 @@ class UsersAuditBehaviour:
 
     @inlineCallbacks
     def test_get(self):
-        user_id = None if self.role == 'admin' else self.dummyAnalyst['id']
+        user_id = None if self.role == 'admin' else self.dummy_analyst['id']
         handler = self.request({}, user_id=user_id, role=self.role)
         response = yield handler.get()
 
@@ -203,7 +203,7 @@ class JobsTimingBehaviour:
 
     @inlineCallbacks
     def test_get(self):
-        user_id = None if self.role == 'admin' else self.dummyAnalyst['id']
+        user_id = None if self.role == 'admin' else self.dummy_analyst['id']
         handler = self.request({}, user_id=user_id, role=self.role)
 
         yield handler.get()

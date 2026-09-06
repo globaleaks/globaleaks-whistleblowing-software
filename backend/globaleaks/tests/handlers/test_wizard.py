@@ -15,7 +15,7 @@ class TestWizard(helpers.TestHandler):
     def test_post_config1(self):
         yield self.test_model_count(models.User, 0)
 
-        handler = self.request(self.dummyWizard)
+        handler = self.request(self.dummy_wizard)
         yield handler.post()
 
         yield self.test_model_count(models.User, 2)
@@ -25,12 +25,12 @@ class TestWizard(helpers.TestHandler):
 
     @inlineCallbacks
     def test_post_config2(self):
-        dummyWizardConfig = copy.deepcopy(self.dummyWizard)
-        dummyWizardConfig['skip_recipient_account_creation'] = True
+        dummy_wizard_config = copy.deepcopy(self.dummy_wizard)
+        dummy_wizard_config['skip_recipient_account_creation'] = True
 
         yield self.test_model_count(models.User, 0)
 
-        handler = self.request(dummyWizardConfig)
+        handler = self.request(dummy_wizard_config)
         yield handler.post()
 
         yield self.test_model_count(models.User, 1)
@@ -40,12 +40,12 @@ class TestWizard(helpers.TestHandler):
 
     @inlineCallbacks
     def test_post_config3(self):
-        dummyWizardConfig = copy.deepcopy(self.dummyWizard)
-        dummyWizardConfig['admin_escrow'] = False
+        dummy_wizard_config = copy.deepcopy(self.dummy_wizard)
+        dummy_wizard_config['admin_escrow'] = False
 
         yield self.test_model_count(models.User, 0)
 
-        handler = self.request(dummyWizardConfig)
+        handler = self.request(dummy_wizard_config)
         yield handler.post()
 
         yield self.test_model_count(models.User, 2)

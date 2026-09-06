@@ -492,27 +492,27 @@ def get_new_temporary_redaction(current_mask, new_mask):
 
 
 def db_redact_comment(session, tid, user_id, itip_id, redaction, redaction_data, tip_data):
-    currentMaskedData = next((masked_content for masked_content in tip_data['redactions'] if
+    current_masked_data = next((masked_content for masked_content in tip_data['redactions'] if
                               masked_content['id'] == redaction_data['id']), None)
 
-    if not currentMaskedData or not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
+    if not current_masked_data or not validate_ranges(current_masked_data['temporary_redaction'], redaction_data['permanent_redaction']):
         return
 
-    currentMaskedContent = next((masked_content for masked_content in tip_data.get('comments', []) if
+    current_masked_content = next((masked_content for masked_content in tip_data.get('comments', []) if
                                  masked_content['id'] == redaction_data['reference_id']), None)
 
-    if not currentMaskedContent:
+    if not current_masked_content:
         return
 
-    new_temporary_redaction = get_new_temporary_redaction(currentMaskedData['temporary_redaction'],
+    new_temporary_redaction = get_new_temporary_redaction(current_masked_data['temporary_redaction'],
                                                           redaction_data['permanent_redaction'])
 
-    new_permanent_redaction = merge_and_sort_ranges(currentMaskedData['permanent_redaction'],
+    new_permanent_redaction = merge_and_sort_ranges(current_masked_data['permanent_redaction'],
                                                     redaction_data['permanent_redaction'])
 
     db_redact_data(session, tid, user_id, redaction, new_temporary_redaction, new_permanent_redaction)
 
-    content = redact_content(currentMaskedContent.get('content'), new_permanent_redaction)
+    content = redact_content(current_masked_content.get('content'), new_permanent_redaction)
 
     comment = session.get(models.Comment, redaction_data['reference_id'])
     comment.content = Base64Encoder.encode(GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, content)).decode()
@@ -567,10 +567,10 @@ def db_redact_whistleblower_identities(whistleblower_identities, redaction, rang
 
 
 def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, redaction_data, tip_data):
-    currentMaskedData = next((masked_content for masked_content in tip_data['redactions'] if
+    current_masked_data = next((masked_content for masked_content in tip_data['redactions'] if
                               masked_content['id'] == redaction_data['id']), None)
 
-    if not currentMaskedData or not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
+    if not current_masked_data or not validate_ranges(current_masked_data['temporary_redaction'], redaction_data['permanent_redaction']):
         return
 
     index = next((i for i, q in enumerate(tip_data['questionnaires'])
@@ -578,10 +578,10 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
     if index is None:
         return
 
-    new_temporary_redaction = get_new_temporary_redaction(currentMaskedData['temporary_redaction'],
+    new_temporary_redaction = get_new_temporary_redaction(current_masked_data['temporary_redaction'],
                                                           copy.deepcopy(redaction_data['permanent_redaction']))
 
-    new_permanent_redaction = merge_and_sort_ranges(currentMaskedData['permanent_redaction'],
+    new_permanent_redaction = merge_and_sort_ranges(current_masked_data['permanent_redaction'],
                                                     redaction_data['permanent_redaction'])
 
     db_redact_data(session, tid, user_id, redaction, new_temporary_redaction, new_permanent_redaction)
@@ -597,7 +597,7 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
             GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, json.dumps(_content, cls=JSONEncoder).encode())).decode()
 
     itip_answers = session.query(models.InternalTipAnswers) \
-                          .filter_by(internaltip_id=currentMaskedData['internaltip_id']) \
+                          .filter_by(internaltip_id=current_masked_data['internaltip_id']) \
                           .order_by(models.InternalTipAnswers.creation_date.asc()) \
                           .offset(index).limit(1).one_or_none()
 
@@ -606,16 +606,16 @@ def db_redact_answers_recursively(session, tid, user_id, itip_id, redaction, red
 
 
 def db_redact_whistleblower_identity(session, tid, user_id, itip_id, redaction, redaction_data, tip_data):
-    currentMaskedData = next((masked_content for masked_content in tip_data['redactions'] if
+    current_masked_data = next((masked_content for masked_content in tip_data['redactions'] if
                               masked_content['id'] == redaction_data['id']), None)
 
-    if not currentMaskedData or not validate_ranges(currentMaskedData['temporary_redaction'], redaction_data['permanent_redaction']):
+    if not current_masked_data or not validate_ranges(current_masked_data['temporary_redaction'], redaction_data['permanent_redaction']):
         return
 
-    new_temporary_redaction = get_new_temporary_redaction(currentMaskedData['temporary_redaction'],
+    new_temporary_redaction = get_new_temporary_redaction(current_masked_data['temporary_redaction'],
                                                           copy.deepcopy(redaction_data['permanent_redaction']))
 
-    new_permanent_redaction = merge_and_sort_ranges(currentMaskedData['permanent_redaction'],
+    new_permanent_redaction = merge_and_sort_ranges(current_masked_data['permanent_redaction'],
                                                     redaction_data['permanent_redaction'])
 
     db_redact_data(session, tid, user_id, redaction, new_temporary_redaction, new_permanent_redaction)
@@ -629,7 +629,7 @@ def db_redact_whistleblower_identity(session, tid, user_id, itip_id, redaction, 
             GCE.asymmetric_encrypt(itip_id.crypto_tip_pub_key, json.dumps(_content, cls=JSONEncoder).encode())).decode()
 
     itip_whistleblower_identity = session.query(models.InternalTipData) \
-                        .filter_by(internaltip_id=currentMaskedData['internaltip_id'],
+                        .filter_by(internaltip_id=current_masked_data['internaltip_id'],
                                    key='whistleblower_identity').first()
     if itip_whistleblower_identity:
         itip_whistleblower_identity.value = _content

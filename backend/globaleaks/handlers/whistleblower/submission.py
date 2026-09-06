@@ -21,7 +21,7 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.crypto import sha256, sha512, GCE
 from globaleaks.utils.json import JSONEncoder
-from globaleaks.utils.utility import get_expiration, datetime_null, parse_ISO8601
+from globaleaks.utils.utility import get_expiration, datetime_null, parse_iso8601
 
 
 # Maximum nesting depth traversed when indexing/masking questionnaire answers.
@@ -709,14 +709,14 @@ def _validate_checkbox_entry(field, entry):
 def _validate_date_entry(value):
     """
     A date answer is the ISO 8601 datetime string produced by the client; require it to be
-    parseable exactly as the recipient-side reader does (see ISO8601_to_day_str) so a malformed
+    parseable exactly as the recipient-side reader does (see iso8601_to_day_str) so a malformed
     value cannot break the export
     """
     if not isinstance(value, str):
         raise errors.InputValidationError("Invalid date value")
 
     try:
-        parse_ISO8601(value)
+        parse_iso8601(value)
     except (TypeError, ValueError):
         raise errors.InputValidationError("Invalid date value")
 

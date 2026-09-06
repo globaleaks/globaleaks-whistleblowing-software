@@ -5,7 +5,7 @@ from twisted.internet import abstract
 from twisted.protocols import tls
 from urllib.parse import urlparse
 
-def isIPAddress(hostname):
+def is_ip_address(hostname):
     return abstract.isIPAddress(hostname) or abstract.isIPv6Address(hostname)
 
 
@@ -13,9 +13,9 @@ def listen_tcp_on_sock(reactor, fd, factory):
     return reactor.adoptStreamPort(fd, socket.AF_INET6, factory)
 
 
-def listen_tls_on_sock(reactor, fd, contextFactory, factory):
-    tlsFactory = tls.TLSMemoryBIOFactory(contextFactory, False, factory)
-    port = listen_tcp_on_sock(reactor, fd, tlsFactory)
+def listen_tls_on_sock(reactor, fd, context_factory, factory):
+    tls_factory = tls.TLSMemoryBIOFactory(context_factory, False, factory)
+    port = listen_tcp_on_sock(reactor, fd, tls_factory)
     port._type = 'TLS'
     return port
 
