@@ -5,7 +5,7 @@ from globaleaks.models.properties import Boolean, Column, DateTime, UnicodeText,
 from globaleaks.utils.utility import datetime_null
 
 
-class ReceiverTip_v_58(Model):
+class ReceiverTipV58(Model):
     __tablename__ = 'receivertip'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_id = Column(UnicodeText(36), nullable=False)
@@ -20,7 +20,7 @@ class ReceiverTip_v_58(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_InternalTip(self):
+    def migrate_internal_tip(self):
         for old_obj in self.session_old.query(self.model_from['InternalTip']):
             new_obj = self.copy('InternalTip', old_obj)
 

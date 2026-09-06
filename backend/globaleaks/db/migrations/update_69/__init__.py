@@ -35,7 +35,7 @@ from globaleaks.models.properties import *
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
-class Subscriber_v_68(Model):
+class SubscriberV68(Model):
     __tablename__ = 'subscriber'
 
     tid = Column(Integer, primary_key=True)
@@ -57,7 +57,7 @@ class Subscriber_v_68(Model):
     tos2 = Column(UnicodeText, default='', nullable=False)
 
 
-class Tenant_v_68(Model):
+class TenantV68(Model):
     __tablename__ = 'tenant'
 
     id = Column(Integer, primary_key=True)
@@ -65,7 +65,7 @@ class Tenant_v_68(Model):
     active = Column(Boolean, default=False, nullable=False)
 
 
-class Field_v_68(Model):
+class FieldV68(Model):
     __tablename__ = 'field'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -89,7 +89,7 @@ class Field_v_68(Model):
     template_override_id = Column(UnicodeText(36), index=True)
 
 
-class InternalFile_v_68(Model):
+class InternalFileV68(Model):
     """
     This model keeps track of submission files
     """
@@ -105,7 +105,7 @@ class InternalFile_v_68(Model):
     reference_id = Column(UnicodeText(36), default='', nullable=False)
 
 
-class InternalTipAnswers_v_68(Model):
+class InternalTipAnswersV68(Model):
     """
     This is the internal representation of Tip Questionnaire Answers
     """
@@ -117,7 +117,7 @@ class InternalTipAnswers_v_68(Model):
     answers = Column(JSON, default=dict, nullable=False)
 
 
-class Mail_v_68(Model):
+class MailV68(Model):
     __tablename__ = 'mail'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -128,7 +128,7 @@ class Mail_v_68(Model):
     body = Column(UnicodeText, nullable=False)
 
 
-class ReceiverFile_v_68(Model):
+class ReceiverFileV68(Model):
     """
     This models stores metadata of files uploaded by recipients intended to bes
     delivered to the whistleblower. This file is not encrypted and nor is it
@@ -149,7 +149,7 @@ class ReceiverFile_v_68(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
-class User_v_68(Model):
+class UserV68(Model):
     """
     This model keeps track of users.
     """

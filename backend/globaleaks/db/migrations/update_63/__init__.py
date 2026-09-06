@@ -6,7 +6,7 @@ from globaleaks.models.properties import Column, DateTime, Integer, UnicodeText
 from globaleaks.utils.utility import datetime_now
 
 
-class Subscriber_v_62(Model):
+class SubscriberV62(Model):
     __tablename__ = 'subscriber'
     tid = Column(Integer, primary_key=True)
     subdomain = Column(UnicodeText, unique=True, nullable=False)

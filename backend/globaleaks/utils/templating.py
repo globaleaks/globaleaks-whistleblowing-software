@@ -13,7 +13,8 @@ from globaleaks.utils.utility import \
     datetime_to_pretty_str, \
     datetime_to_day_str, \
     bytes_to_pretty_str, \
-    iso8601_to_day_str
+    iso8601_to_day_str, \
+    snake_case
 
 node_keywords = [
     '{NodeName}',
@@ -770,20 +771,6 @@ def mail_uses_smtp2(notification, mail_type):
         mail_type in notification.get('smtp2_template_types', [])
 
 
-def keyword_to_method_name(keyword):
-    """
-    Return the name of the method that renders a keyword of a template
-
-    The keyword names the method in the words of the template, in camel case and
-    between braces: {SomeKeyword} is rendered by the method some_keyword.
-
-    :param keyword: The keyword, braces included
-    """
-    name = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', keyword[1:-1])
-
-    return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name).lower()
-
-
 class Templating:
     def format_template(self, raw_template, data):
         keyword_converter = supported_template_types[data['type']](data)
@@ -791,7 +778,7 @@ class Templating:
         for kw in keyword_converter.keyword_list:
             if raw_template.count(kw):
                 # if {SomeKeyword} matches, call keyword_converter.some_keyword function
-                variable_content = getattr(keyword_converter, keyword_to_method_name(kw))()
+                variable_content = getattr(keyword_converter, snake_case(kw[1:-1]))()
                 variable_content = re.sub("{", "(", variable_content)
                 variable_content = re.sub("}", ")", variable_content)
                 raw_template = raw_template.replace(kw, variable_content)

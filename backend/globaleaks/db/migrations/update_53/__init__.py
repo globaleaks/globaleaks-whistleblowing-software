@@ -7,7 +7,7 @@ from globaleaks.models.properties import Boolean, Column, DateTime, Integer, JSO
 from globaleaks.utils.utility import datetime_now, datetime_never, datetime_null
 
 
-class FieldAttr_v_52(Model):
+class FieldAttrV52(Model):
     __tablename__ = 'fieldattr'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4, nullable=False)
     field_id = Column(UnicodeText(36), nullable=False)
@@ -16,7 +16,7 @@ class FieldAttr_v_52(Model):
     value = Column(JSON, default=dict, nullable=False)
 
 
-class InternalTip_v_52(Model):
+class InternalTipV52(Model):
     __tablename__ = 'internaltip'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -37,7 +37,7 @@ class InternalTip_v_52(Model):
     crypto_tip_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
 
-class ReceiverTip_v_52(Model):
+class ReceiverTipV52(Model):
     __tablename__ = 'receivertip'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_id = Column(UnicodeText(36), nullable=False)
@@ -50,7 +50,7 @@ class ReceiverTip_v_52(Model):
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
 
 
-class Subscriber_v_52(Model):
+class SubscriberV52(Model):
     __tablename__ = 'signup'
 
     id = Column(Integer, primary_key=True)
@@ -71,7 +71,7 @@ class Subscriber_v_52(Model):
     tos2 = Column(UnicodeText, default='', nullable=False)
 
 
-class Tenant_v_52(Model):
+class TenantV52(Model):
     __tablename__ = 'tenant'
 
     id = Column(Integer, primary_key=True, nullable=False)
@@ -81,7 +81,7 @@ class Tenant_v_52(Model):
     subdomain = Column(UnicodeText, default='', nullable=False)
 
 
-class User_v_52(Model):
+class UserV52(Model):
     __tablename__ = 'user'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -133,7 +133,7 @@ class MigrationScript(MigrationBase):
         'https_priv_key': 'https_key'
     }
 
-    def migrate_Tenant(self):
+    def migrate_tenant(self):
         for old_obj in self.session_old.query(self.model_from['Tenant']):
             self.add_entry('Config', self.model_to['Config']({'tid': old_obj.id, 'var_name': 'subdomain', 'value': old_obj.subdomain}))
 

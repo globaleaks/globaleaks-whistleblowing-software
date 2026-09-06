@@ -6,7 +6,7 @@ from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_never, datetime_now, datetime_null
 
 
-class InternalTip_v_59(Model):
+class InternalTipV59(Model):
     __tablename__ = 'internaltip'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -27,7 +27,7 @@ class InternalTip_v_59(Model):
     crypto_tip_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
 
-class ReceiverTip_v_59(Model):
+class ReceiverTipV59(Model):
     __tablename__ = 'receivertip'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_id = Column(UnicodeText(36), nullable=False)
@@ -39,7 +39,7 @@ class ReceiverTip_v_59(Model):
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
 
 
-class WhistleblowerTip_v_59(Model):
+class WhistleblowerTipV59(Model):
     __tablename__ = 'whistleblowertip'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -58,7 +58,7 @@ class MigrationScript(MigrationBase):
         }
     }
 
-    def migrate_InternalTip(self):
+    def migrate_internal_tip(self):
         wbtips_by_id = {}
         for old_obj in self.session_old.query(self.model_from['WhistleblowerTip']):
             wbtips_by_id[old_obj.id] = old_obj

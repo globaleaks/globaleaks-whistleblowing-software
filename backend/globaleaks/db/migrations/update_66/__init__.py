@@ -7,7 +7,7 @@ from globaleaks.utils.onion import generate_onion_service_v3
 from globaleaks.models.properties import Column, Integer, JSON, UnicodeText, uuid4
 
 
-class SubmissionStatus_v_65(Model):
+class SubmissionStatusV65(Model):
     __tablename__ = 'submissionstatus'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, primary_key=True, default=1)
@@ -15,7 +15,7 @@ class SubmissionStatus_v_65(Model):
     order = Column(Integer, default=0, nullable=False)
 
 
-class SubmissionSubStatus_v_65(Model):
+class SubmissionSubStatusV65(Model):
     __tablename__ = 'submissionsubstatus'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, primary_key=True, default=1)
@@ -25,7 +25,7 @@ class SubmissionSubStatus_v_65(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_InternalTipData(self):
+    def migrate_internal_tip_data(self):
         for old_obj, old_tip in self.session_old.query(self.model_from['InternalTipData'], self.model_from['InternalTip']) \
                                        .filter(self.model_from['InternalTipData'].internaltip_id == self.model_from['InternalTip'].id):
             new_obj = self.copy('InternalTipData', old_obj)

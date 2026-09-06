@@ -6,7 +6,7 @@ from globaleaks.models.properties import Boolean, Column, DateTime, Enum, Intege
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
-class User_v_56(Model):
+class UserV56(Model):
     __tablename__ = 'user'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
