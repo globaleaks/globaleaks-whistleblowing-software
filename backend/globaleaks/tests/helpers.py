@@ -801,14 +801,27 @@ class TestGL(unittest.TestCase):
 
         return {**new_r, **new_u}
 
-    def fill_random_field_recursively(self, answers, field):
-        value = {'value': ''}
+    @staticmethod
+    def random_text_answer(field):
+        """
+        Return a text answer, as long as the field admits
 
+        :param field: The field being answered
+        """
+        text = ''.join(chr(x) for x in range(0x400, 0x4FF))
+
+        try:
+            max_len = int(field.get('attrs', {}).get('max_len', {}).get('value'))
+        except (TypeError, ValueError):
+            max_len = -1
+
+        return {'value': text[:max_len] if 0 <= max_len < len(text) else text}
+
+    def fill_random_field_recursively(self, answers, field):
         field_type = field['type']
+
         if field_type == 'checkbox':
-            value = {}
-            for option in field['options']:
-                value[option['id']] = True
+            value = {option['id']: True for option in field['options']}
         elif field_type in {'selectbox', 'multichoice'}:
             value = {'value': field['options'][0]['id']}
         elif field_type == 'date':
@@ -818,20 +831,14 @@ class TestGL(unittest.TestCase):
         elif field_type == 'tos':
             value = {'value': True}
         elif field_type in {'fileupload', 'voice'}:
-            pass
+            # A file and a recording are attached apart from the answers: nothing to fill in here
+            value = {'value': ''}
         elif field_type == 'fieldgroup':
             value = {}
             for child in field['children']:
                 self.fill_random_field_recursively(value, child)
         else:
-            text = ''.join(chr(x) for x in range(0x400, 0x4FF))
-            try:
-                max_len = int(field.get('attrs', {}).get('max_len', {}).get('value'))
-            except (TypeError, ValueError):
-                max_len = -1
-            if 0 <= max_len < len(text):
-                text = text[:max_len]
-            value = {'value': text}
+            value = self.random_text_answer(field)
 
         answers[field['id']] = [value]
 
@@ -1262,6 +1269,90 @@ class TestHandler(TestGLWithPopulatedDB):
     def setUp(self):
         return TestGL.setUp(self)
 
+    def _dummy_user_id(self, role):
+        """
+        Return the identifier of the dummy user that impersonates a role
+        """
+        return {'admin': lambda: self.dummy_admin['id'],
+                'analyst': lambda: self.dummy_analyst['id'],
+                'receiver': lambda: self.dummy_receiver_1['id'],
+                'custodian': lambda: self.dummy_custodian['id']}.get(role, lambda: None)()
+
+    def _new_session(self, tid, user_id, role, permissions, properties):
+        """
+        Open the session a mock request is performed with
+        """
+        if role == 'whistleblower' and user_id is None:
+            session = initialize_submission_session(1, dpop_jkt=DPOP_JKT)
+        else:
+            escrow_prv_key = USER_ESCROW_PRV_KEY if role == 'admin' else ''
+            session = Sessions.new(tid, user_id, 1, user_id, role, USER_PRV_KEY, escrow_prv_key, [role], permissions, dpop_jkt=DPOP_JKT)
+
+        session.permissions = self._session_permissions(role, permissions)
+
+        if properties:
+            session.properties.update(properties)
+
+        return session
+
+    @staticmethod
+    def _session_permissions(role, permissions):
+        """
+        Return the permissions the session of a mock request is opened with
+
+        :param role: The role the request is performed with
+        :param permissions: The permissions a test scopes the session to
+        """
+        if permissions:
+            for p in user_permissions:
+                if p not in permissions:
+                    permissions[p] = user_permissions[p]
+
+        ret = copy.deepcopy(user_permissions)
+
+        # An administrator is provisioned with the whole set of
+        # administrative permissions, exactly as the wizard does for the
+        # first administrator of a tenant; a test that needs a scoped
+        # administrator overrides them through the permissions argument.
+        if role == 'admin':
+            for p in models.admin_permissions:
+                ret[p] = True
+
+        if permissions:
+            ret.update(permissions)
+
+        return ret
+
+    @staticmethod
+    def _dpop_session_id(session, headers):
+        """
+        Return the session the DPoP proof of a mock request is bound to
+        """
+        if session is not None:
+            return session.id
+
+        raw_sid = headers.get(b'x-session', headers.get('x-session'))
+        if raw_sid is None:
+            return None
+
+        return raw_sid.decode() if isinstance(raw_sid, bytes) else raw_sid
+
+    @staticmethod
+    def _decorate_once(handler_cls):
+        """
+        Decorate a handler class with the same guard attribute as the production
+        decoration path (APIResourceWrapper) so that registry handlers are not
+        decorated twice; double decoration would run check_dpop twice and reject
+        the second pass as a jti replay.
+        """
+        if getattr(handler_cls, '_decorated', False):
+            return
+
+        handler_cls._decorated = True
+        for method in ['get', 'post', 'put', 'delete']:
+            if getattr(handler_cls, method, None) is not None:
+                decorators.decorate_method(handler_cls, method)
+
     def request(self, body='', uri=b'https://globaleaks.org/', tid=1,
                 user_id=None, role=None, multilang=False, headers=None, token=False, permissions=None, properties=None,
                 client_addr=b'127.0.0.1',
@@ -1279,44 +1370,12 @@ class TestHandler(TestGLWithPopulatedDB):
         if kwargs is None:
             kwargs = {}
 
+        if user_id is None:
+            user_id = self._dummy_user_id(role)
+
         session = None
-
-        if user_id is None and role is not None:
-            if role == 'admin':
-                user_id = self.dummy_admin['id']
-            elif role == 'analyst':
-                user_id = self.dummy_analyst['id']
-            elif role == 'receiver':
-                user_id = self.dummy_receiver_1['id']
-            elif role == 'custodian':
-                user_id = self.dummy_custodian['id']
-
         if role is not None:
-            if role == 'whistleblower' and user_id is None:
-                session = initialize_submission_session(1, dpop_jkt=DPOP_JKT)
-            else:
-                session = Sessions.new(tid, user_id, 1, user_id, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '', [role], permissions, dpop_jkt=DPOP_JKT)
-
-            if permissions:
-                for p in user_permissions:
-                    if p not in permissions:
-                        permissions[p] = user_permissions[p]
-
-            session.permissions = copy.deepcopy(user_permissions)
-            # An administrator is provisioned with the whole set of
-            # administrative permissions, exactly as the wizard does for the
-            # first administrator of a tenant; a test that needs a scoped
-            # administrator overrides them through the permissions argument.
-            if role == 'admin':
-                for p in models.admin_permissions:
-                    session.permissions[p] = True
-            if permissions:
-                for p in permissions:
-                    session.permissions[p] = permissions[p]
-
-            if properties:
-                session.properties.update(properties)
-
+            session = self._new_session(tid, user_id, role, permissions, properties)
             headers[b'x-session'] = session.id
 
         # during unit tests a token is always provided to any handler
@@ -1327,13 +1386,7 @@ class TestHandler(TestGLWithPopulatedDB):
         # X-Session header) so that the strict per-request enforcement is
         # satisfied. Session-binding handlers (login, submission) consume a proof
         # without a session.
-        dpop_session_id = None
-        if session is not None:
-            dpop_session_id = session.id
-        else:
-            raw_sid = headers.get(b'x-session', headers.get('x-session'))
-            if raw_sid is not None:
-                dpop_session_id = raw_sid.decode() if isinstance(raw_sid, bytes) else raw_sid
+        dpop_session_id = self._dpop_session_id(session, headers)
 
         if handler_cls is None:
             handler_cls = self._handler
@@ -1352,15 +1405,7 @@ class TestHandler(TestGLWithPopulatedDB):
 
         api.APIResourceWrapper()
 
-        # Use the same guard attribute as the production decoration path
-        # (APIResourceWrapper, invoked above) so that registry handlers are not
-        # decorated twice; double decoration would run check_dpop twice and
-        # reject the second pass as a jti replay.
-        if not getattr(handler_cls, '_decorated', False):
-            handler_cls._decorated = True
-            for method in ['get', 'post', 'put', 'delete']:
-                if getattr(handler_cls, method, None) is not None:
-                    decorators.decorate_method(handler_cls, method)
+        self._decorate_once(handler_cls)
 
         handler = handler_cls(self.state, request, **kwargs)
 

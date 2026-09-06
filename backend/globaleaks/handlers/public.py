@@ -208,6 +208,22 @@ def db_prepare_receivers_serialization(session, receivers):
     return data
 
 
+def _collect_field_ids(f, ids):
+    """
+    Collect the identity of a field and of the templates it is derived from
+
+    :param f: The field
+    :param ids: The list the identities are collected into
+    """
+    ids.append(f.id)
+
+    if f.template_id is not None:
+        ids.append(f.template_id)
+
+    if f.template_override_id is not None:
+        ids.append(f.template_override_id)
+
+
 def db_prepare_fields_serialization(session, fields):
     """
     Transaction to prepare and optimize fields serialization
@@ -224,11 +240,7 @@ def db_prepare_fields_serialization(session, fields):
 
     fields_ids = []
     for f in fields:
-        fields_ids.append(f.id)
-        if f.template_id is not None:
-            fields_ids.append(f.template_id)
-        if f.template_override_id is not None:
-            fields_ids.append(f.template_override_id)
+        _collect_field_ids(f, fields_ids)
 
     tmp = copy.deepcopy(fields_ids)
     visited = set()
@@ -241,32 +253,22 @@ def db_prepare_fields_serialization(session, fields):
                 continue
             visited.add(f.id)
 
-            tmp.append(f.id)
-            if f.template_id is not None:
-                tmp.append(f.template_id)
-            if f.template_override_id is not None:
-                tmp.append(f.template_override_id)
+            _collect_field_ids(f, tmp)
 
-            if f.fieldgroup_id not in ret['fields']:
-                ret['fields'][f.fieldgroup_id] = []
-            ret['fields'][f.fieldgroup_id].append(f)
+            ret['fields'].setdefault(f.fieldgroup_id, []).append(f)
 
         fields_ids.extend(tmp)
 
     if fields_ids:
         objs = session.query(models.FieldAttr).filter(models.FieldAttr.field_id.in_(fields_ids))
         for obj in objs:
-            if obj.field_id not in ret['attrs']:
-                ret['attrs'][obj.field_id] = []
-            ret['attrs'][obj.field_id].append(obj)
+            ret['attrs'].setdefault(obj.field_id, []).append(obj)
 
         objs = session.query(models.FieldOption)\
                     .filter(models.FieldOption.field_id.in_(fields_ids)) \
                     .order_by(models.FieldOption.order)
         for obj in objs:
-            if obj.field_id not in ret['options']:
-                ret['options'][obj.field_id] = []
-            ret['options'][obj.field_id].append(obj)
+            ret['options'].setdefault(obj.field_id, []).append(obj)
 
     return ret
 
@@ -397,6 +399,51 @@ def serialize_field_attr(attr, language):
     return ret
 
 
+def _db_field_to_serialize(session, field):
+    """
+    Return the field the serialization takes its type and its children from
+
+    A field that instances a template is serialized as the template it overrides,
+    or as the one it instances; a field of its own is serialized as itself.
+
+    :param session: An ORM session
+    :param field: The field being serialized
+    """
+    if field.template_override_id is not None:
+        return session.query(models.Field).filter(models.Field.id == field.template_override_id).one_or_none()
+
+    if field.template_id is not None:
+        return session.query(models.Field).filter(models.Field.id == field.template_id).one_or_none()
+
+    return field
+
+
+def _serialize_field_attrs(field, f_to_serialize, data, language):
+    """
+    Return the attributes of a field, completed with the ones its descriptor declares
+
+    :param field: The field being serialized
+    :param f_to_serialize: The field the serialization is taken from
+    :param data: The dictionary of prefetched resources
+    :param language: The language to be used during serialization
+    """
+    if field.template_id is None or field.template_id in default_questions:
+        attrs_id = field.id
+    else:
+        attrs_id = field.template_id
+
+    attrs = {attr.name: serialize_field_attr(attr, language) for attr in data['attrs'].get(attrs_id, {})}
+
+    if field.template_id and field.template_id in ['whistleblower_identity']:
+        # correct attributes for questions using default templates
+        descriptor = State.field_attrs.get(field.template_id, {})
+    else:
+        # correct the attributes based on the actual descriptor
+        descriptor = State.field_attrs.get(f_to_serialize.type, {})
+
+    return {k: attrs.get(k, v) for k, v in descriptor.items()}
+
+
 def serialize_field(session, tid, field, language, data=None, serialize_templates=False, include_scoring=True, depth=0):
     """
     Serialize a field
@@ -413,26 +460,9 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
     if data is None:
         data = db_prepare_fields_serialization(session, [field])
 
-    f_to_serialize = field
-    if field.template_override_id is not None:
-        f_to_serialize = session.query(models.Field).filter(models.Field.id == field.template_override_id).one_or_none()
-    elif field.template_id is not None:
-        f_to_serialize = session.query(models.Field).filter(models.Field.id == field.template_id).one_or_none()
+    f_to_serialize = _db_field_to_serialize(session, field)
 
-    attrs = {}
-    if field.template_id is None or field.template_id in default_questions:
-        for attr in data['attrs'].get(field.id, {}):
-            attrs[attr.name] = serialize_field_attr(attr, language)
-    else:
-        for attr in data['attrs'].get(field.template_id, {}):
-            attrs[attr.name] = serialize_field_attr(attr, language)
-
-    if field.template_id and field.template_id in ['whistleblower_identity']:
-        # correct attributes for questions using default templates
-        attrs = {k: attrs.get(k, v) for k, v in State.field_attrs.get(field.template_id, {}).items()}
-    else:
-        # correct the attributes based on the actual descriptor
-        attrs = {k: attrs.get(k, v) for k, v in State.field_attrs.get(f_to_serialize.type, {}).items()}
+    attrs = _serialize_field_attrs(field, f_to_serialize, data, language)
 
     children = []
     if (field.instance != 'reference' or serialize_templates) and depth < MAX_SERIALIZATION_DEPTH:

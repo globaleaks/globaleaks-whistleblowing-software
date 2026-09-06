@@ -197,6 +197,31 @@ class TestAPI(TestGL):
         request = forge_request(headers={'Accept-Language': 'antani1,antani2;q=0.8,antani3;q=0.6'})
         self.assertEqual(self.api.detect_language(request), 'en')
 
+    def check_status_and_headers(self, uri, test_cases, server_headers, path=None):
+        """
+        Check the status and the headers every method of a resource is answered with
+
+        :param uri: The uri of the resource
+        :param test_cases: The methods and the status they are answered with
+        :param server_headers: The headers the answer carries, keyed by name
+        :param path: The path the request is expected to be canonicalized to
+        """
+        for method, status_code in test_cases:
+            request = forge_request(uri=uri, method=method)
+            self.api.render(request)
+            self.assertEqual(request.responseCode, status_code)
+
+            if path is not None:
+                self.assertEqual(request.path, path)
+
+            for header_name, expected_header_value in server_headers.items():
+                returned_header_value = request.responseHeaders.getRawHeaders(header_name)[-1]
+
+                if 'random-nonce' in expected_header_value:
+                    expected_header_value = expected_header_value.replace('random-nonce', f"nonce-{request.nonce.decode()}")  # noqa: PLW2901
+
+                self.assertEqual(returned_header_value, expected_header_value)
+
     def test_status_codes_and_headers(self):
         test_cases = [
             (b'', 501),
@@ -276,17 +301,7 @@ class TestAPI(TestGL):
         # '/' and '/index.html' are both served as the entry point: '/index.html'
         # is canonicalized to '/' and must not redirect.
         for entrypoint in (b"https://globaleaks.org/", b"https://globaleaks.org/index.html"):
-            for method, status_code in test_cases:
-                request = forge_request(uri=entrypoint, method=method)
-                self.api.render(request)
-                self.assertEqual(request.responseCode, status_code)
-                self.assertEqual(request.path, b'/')
-                for headerName, expectedHeaderValue in server_headers.items():
-                    returnedHeaderValue = request.responseHeaders.getRawHeaders(headerName)[-1]
-
-                    if headerName == 'Content-Security-Policy':
-                        expectedHeaderValue = expectedHeaderValue.replace('random-nonce', f"nonce-{request.nonce.decode()}")  # noqa: PLW2901
-                    self.assertEqual(returnedHeaderValue, expectedHeaderValue)
+            self.check_status_and_headers(entrypoint, test_cases, server_headers, path=b'/')
 
         server_headers = copy.copy(default_server_headers)
         server_headers['Content-Security-Policy'] = 'base-uri \'none\';' \
@@ -299,23 +314,11 @@ class TestAPI(TestGL):
                                                     'require-trusted-types-for \'script\';' \
                                                     'report-to csp-endpoint'
 
-        for method, status_code in test_cases:
-            request = forge_request(uri=b"https://globaleaks.org/workers/crypto.worker.js", method=method)
-            self.api.render(request)
-            self.assertEqual(request.responseCode, status_code)
-            for headerName, expectedHeaderValue in server_headers.items():
-                returnedHeaderValue = request.responseHeaders.getRawHeaders(headerName)[-1]
-                self.assertEqual(returnedHeaderValue, expectedHeaderValue)
+        self.check_status_and_headers(b"https://globaleaks.org/workers/crypto.worker.js", test_cases, server_headers)
 
         server_headers = copy.copy(default_server_headers)
 
-        for method, status_code in test_cases:
-            request = forge_request(uri=b"https://globaleaks.org/api/public", method=method)
-            self.api.render(request)
-            self.assertEqual(request.responseCode, status_code)
-            for headerName, expectedHeaderValue in server_headers.items():
-                returnedHeaderValue = request.responseHeaders.getRawHeaders(headerName)[-1]
-                self.assertEqual(returnedHeaderValue, expectedHeaderValue)
+        self.check_status_and_headers(b"https://globaleaks.org/api/public", test_cases, server_headers)
 
         server_headers = copy.copy(default_server_headers)
         server_headers['Content-Security-Policy'] = 'base-uri \'none\';' \
@@ -334,24 +337,12 @@ class TestAPI(TestGL):
 
         server_headers['Cross-Origin-Resource-Policy'] = 'cross-origin'
 
-        for method, status_code in test_cases:
-            request = forge_request(uri=b"https://globaleaks.org/viewer/index.html", method=method)
-            self.api.render(request)
-            self.assertEqual(request.responseCode, status_code)
-            for headerName, expectedHeaderValue in server_headers.items():
-                returnedHeaderValue = request.responseHeaders.getRawHeaders(headerName)[-1]
-                self.assertEqual(returnedHeaderValue, expectedHeaderValue)
+        self.check_status_and_headers(b"https://globaleaks.org/viewer/index.html", test_cases, server_headers)
 
         server_headers = copy.copy(default_server_headers)
         server_headers['Access-Control-Allow-Origin'] = 'null'
 
-        for method, status_code in test_cases:
-            request = forge_request(uri=b"https://globaleaks.org/viewer/script.js", method=method)
-            self.api.render(request)
-            self.assertEqual(request.responseCode, status_code)
-            for headerName, expectedHeaderValue in server_headers.items():
-                returnedHeaderValue = request.responseHeaders.getRawHeaders(headerName)[-1]
-                self.assertEqual(returnedHeaderValue, expectedHeaderValue)
+        self.check_status_and_headers(b"https://globaleaks.org/viewer/script.js", test_cases, server_headers)
 
     def test_request_state_and_redirects(self):
         # Remote HTTP connection is always redirected to HTTPS
@@ -390,6 +381,44 @@ class TestPermissionEnforcement(helpers.TestHandler):
     REFUSING_FOR_THEIR_OWN_REASONS = {"AdminInviteInstance.delete"}
 
     @inlineCallbacks
+    def check_permission_is_demanded(self, handler, method, arguments, demanded):
+        """
+        Check that a method refuses whoever lacks the permissions it declares
+
+        :param handler: The handler the method belongs to
+        :param method: The name of the method
+        :param arguments: The arguments the route of the handler takes
+        :param demanded: The permissions the method declares
+        """
+        # The session holds every permission but the ones the method
+        # demands: what is refused is refused for that reason alone
+        request = self.request(role='admin',
+                               handler_cls=handler,
+                               permissions={p: False for p in demanded})
+
+        yield self.assertFailure(
+            maybeDeferred(getattr(request, method), *arguments),
+            errors.ForbiddenOperation)
+
+        # The counter-proof, without which the check above would pass
+        # on a method that refuses everything: holding the permission,
+        # the same call is no longer refused for lack of it.
+        granted = self.request(role='admin',
+                               handler_cls=handler,
+                               permissions={p: True for p in demanded})
+
+        try:
+            yield maybeDeferred(getattr(granted, method), *arguments)
+        except errors.ForbiddenOperation:
+            self.assertIn(f"{handler.__name__}.{method}",
+                          self.REFUSING_FOR_THEIR_OWN_REASONS,
+                          f"{handler.__name__}.{method} refuses even to whoever holds {sorted(demanded)}")
+        except Exception:  # noqa: S110
+            # Refused for anything else - a made up identifier, an empty
+            # body: what matters is that it is not the permission
+            pass
+
+    @inlineCallbacks
     def test_the_declared_permission_is_demanded_by_every_method(self):
         exercised = 0
 
@@ -408,33 +437,7 @@ class TestPermissionEnforcement(helpers.TestHandler):
                 if not demanded:
                     continue
 
-                # The session holds every permission but the ones the method
-                # demands: what is refused is refused for that reason alone
-                request = self.request(role='admin',
-                                       handler_cls=handler,
-                                       permissions={p: False for p in demanded})
-
-                yield self.assertFailure(
-                    maybeDeferred(getattr(request, method), *arguments),
-                    errors.ForbiddenOperation)
-
-                # The counter-proof, without which the check above would pass
-                # on a method that refuses everything: holding the permission,
-                # the same call is no longer refused for lack of it.
-                granted = self.request(role='admin',
-                                       handler_cls=handler,
-                                       permissions={p: True for p in demanded})
-
-                try:
-                    yield maybeDeferred(getattr(granted, method), *arguments)
-                except errors.ForbiddenOperation:
-                    self.assertIn(f"{handler.__name__}.{method}",
-                                  self.REFUSING_FOR_THEIR_OWN_REASONS,
-                                  f"{handler.__name__}.{method} refuses even to whoever holds {sorted(demanded)}")
-                except Exception:  # noqa: S110
-                    # Refused for anything else - a made up identifier, an empty
-                    # body: what matters is that it is not the permission
-                    pass
+                yield self.check_permission_is_demanded(handler, method, arguments, demanded)
 
                 exercised += 1
 
