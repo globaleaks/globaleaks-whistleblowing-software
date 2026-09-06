@@ -1,3 +1,5 @@
+import operator
+
 from twisted.trial import unittest
 
 from globaleaks.utils.lrucache import LRUCache
@@ -18,8 +20,8 @@ class TestLRUCache(unittest.TestCase):
         cache['b'] = 2
         cache['c'] = 3
         # Access 'a' and 'b' so 'c' is least recently used
-        _ = cache['a']
-        _ = cache['b']
+        self.assertEqual(cache['a'], 1)
+        self.assertEqual(cache['b'], 2)
         # Insert new item, should evict 'c'
         cache['d'] = 4
         self.assertNotIn('c', cache)
@@ -45,6 +47,5 @@ class TestLRUCache(unittest.TestCase):
     def test_access_non_existent_key_raises(self):
         cache = LRUCache(max_size=2)
         cache['a'] = 1
-        with self.assertRaises(KeyError):
-            _ = cache['nonexistent']
+        self.assertRaises(KeyError, operator.getitem, cache, 'nonexistent')
 
