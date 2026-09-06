@@ -5,7 +5,7 @@ from globaleaks.models.properties import Boolean, Column, DateTime, Integer, Uni
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never
 
 
-class InternalTip_v_57(Model):
+class InternalTipV57(Model):
     __tablename__ = 'internaltip'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -26,7 +26,7 @@ class InternalTip_v_57(Model):
     crypto_tip_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
 
-class WhistleblowerFile_v_57(Model):
+class WhistleblowerFileV57(Model):
     __tablename__ = 'receiverfile'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internalfile_id = Column(UnicodeText(36), nullable=False)
@@ -36,7 +36,7 @@ class WhistleblowerFile_v_57(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
-class ReceiverTip_v_57(Model):
+class ReceiverTipV57(Model):
     __tablename__ = 'receivertip'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_id = Column(UnicodeText(36), nullable=False)
@@ -50,7 +50,7 @@ class ReceiverTip_v_57(Model):
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
 
 
-class ReceiverFile_v_57(Model):
+class ReceiverFileV57(Model):
     __tablename__ = 'whistleblowerfile'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     receivertip_id = Column(UnicodeText(36), nullable=False)

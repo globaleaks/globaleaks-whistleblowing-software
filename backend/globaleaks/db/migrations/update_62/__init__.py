@@ -6,7 +6,7 @@ from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
-class AuditLog_v_61(Model):
+class AuditLogV61(Model):
     __tablename__ = 'auditlog'
 
     id = Column(UnicodeText, primary_key=True, default=uuid4)
@@ -18,7 +18,7 @@ class AuditLog_v_61(Model):
     data = Column(JSON, nullable=True)
 
 
-class Context_v_61(Model):
+class ContextV61(Model):
     __tablename__ = 'context'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -39,7 +39,7 @@ class Context_v_61(Model):
     order = Column(Integer, default=0, nullable=False)
 
 
-class ReceiverTip_v_61(Model):
+class ReceiverTipV61(Model):
     __tablename__ = 'receivertip'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -53,7 +53,7 @@ class ReceiverTip_v_61(Model):
     crypto_files_prv_key = Column(UnicodeText(84), default='', nullable=False)
 
 
-class User_v_61(Model):
+class UserV61(Model):
     __tablename__ = 'user'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -103,7 +103,7 @@ class MigrationScript(MigrationBase):
         'User': {'enabled': lambda o: o.state == 1}
     }
 
-    def migrate_InternalTip(self):
+    def migrate_internal_tip(self):
         ctx_ids = [c[0] for c in self.session_old.query(self.model_from['Context'].id).all()]
 
         for old_obj in self.session_old.query(self.model_from['InternalTip']):

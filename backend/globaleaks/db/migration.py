@@ -22,7 +22,7 @@ from globaleaks.utils.utility import datetime_now
 
 
 # The schema of a table at a given version is described by the snapshot of
-# its model archived by the migration that changed it: the class X_v_N in the
+# its model archived by the migration that changed it: the class XVN in the
 # module update_{N+1} is the model of X up to version N included. A table
 # lacking a snapshot from a version on is described by its current model.
 #
@@ -59,7 +59,7 @@ def load_snapshots():
         module = importlib.import_module(f"globaleaks.db.migrations.update_{version + 1}")
 
         for name, cls in vars(module).items():
-            match = re.fullmatch(r'(\w+)_v_(\d+)', name)
+            match = re.fullmatch(r'(\w+)V(\d+)', name)
             if match and isinstance(cls, type) and issubclass(cls, Model) and cls.__module__ == module.__name__:
                 snapshots.setdefault(match.group(1), {})[int(match.group(2))] = cls
 

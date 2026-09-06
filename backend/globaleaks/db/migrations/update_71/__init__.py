@@ -43,7 +43,7 @@ from globaleaks.utils.utility import datetime_never, datetime_now, datetime_null
 EXPIRATION_ALERT_DAYS = [3, 7, 14, 28]
 
 
-class ReceiverTip_v_70(Model):
+class ReceiverTipV70(Model):
     __tablename__ = 'receivertip'
 
     id = Column(UnicodeText(36), primary_key=True)
@@ -58,14 +58,14 @@ class ReceiverTip_v_70(Model):
     deprecated_crypto_files_prv_key = Column(UnicodeText(84), default='', nullable=False)
 
 
-class InternalTipTransmission_v_70(Model):
+class InternalTipTransmissionV70(Model):
     __tablename__ = 'internaltip_forwarding'
 
     internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
     forwarding_internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
 
 
-class Tenant_v_70(Model):
+class TenantV70(Model):
     __tablename__ = 'tenant'
     __table_args__ = {'sqlite_autoincrement': False}
 
@@ -74,7 +74,7 @@ class Tenant_v_70(Model):
     active = Column(Boolean, default=False, nullable=False)
 
 
-class Comment_v_70(Model):
+class CommentV70(Model):
     __tablename__ = 'comment'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -86,7 +86,7 @@ class Comment_v_70(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
-class InternalTipAnswers_v_70(Model):
+class InternalTipAnswersV70(Model):
     __tablename__ = 'internaltipanswers'
 
     internaltip_id = Column(UnicodeText(36), primary_key=True)
@@ -96,7 +96,7 @@ class InternalTipAnswers_v_70(Model):
     stat_answers = Column(JSON, default=dict, nullable=False)
 
 
-class InternalTipData_v_70(Model):
+class InternalTipDataV70(Model):
     __tablename__ = 'internaltipdata'
 
     internaltip_id = Column(UnicodeText(36), primary_key=True)
@@ -105,7 +105,7 @@ class InternalTipData_v_70(Model):
     value = Column(JSON, default=dict, nullable=False)
 
 
-class InternalFile_v_70(Model):
+class InternalFileV70(Model):
     __tablename__ = 'internalfile'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -120,7 +120,7 @@ class InternalFile_v_70(Model):
     state = Column(Enum(EnumStateFile), default='pending', nullable=False)
 
 
-class ReceiverFile_v_70(Model):
+class ReceiverFileV70(Model):
     __tablename__ = 'receiverfile'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -136,7 +136,7 @@ class ReceiverFile_v_70(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
-class Context_v_70(Model):
+class ContextV70(Model):
     __tablename__ = 'context'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -158,7 +158,7 @@ class Context_v_70(Model):
     order = Column(Integer, default=0, nullable=False)
 
 
-class InternalTip_v_70(Model):
+class InternalTipV70(Model):
     __tablename__ = 'internaltip'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -189,7 +189,7 @@ class InternalTip_v_70(Model):
     deprecated_crypto_files_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
 
-class User_v_70(Model):
+class UserV70(Model):
     """
     This model keeps track of users.
     """
@@ -308,7 +308,7 @@ class MigrationScript(MigrationBase):
 
         return permissions
 
-    def migrate_User(self):
+    def migrate_user(self):
         from globaleaks.models import UserProfile, UserProfileRole, UserProfilePermission
 
         for old_obj in self.session_old.query(self.model_from['User']):
@@ -420,21 +420,21 @@ class MigrationScript(MigrationBase):
         the ones of the questionnaire composing it, the following ones those of
         the additional questionnaire its channel asked.
         """
-        InternalTip = self.model_to['InternalTip']
-        InternalTipAnswers = self.model_to['InternalTipAnswers']
-        Questionnaire = self.model_to['Questionnaire']
+        internal_tip_model = self.model_to['InternalTip']
+        internal_tip_answers_model = self.model_to['InternalTipAnswers']
+        questionnaire_model = self.model_to['Questionnaire']
 
-        known = {questionnaire.id for questionnaire in self.session_new.query(Questionnaire)}
+        known = {questionnaire.id for questionnaire in self.session_new.query(questionnaire_model)}
 
         questionnaires = self.elect_additional_questionnaires(self.model_to['Context'], known)
 
         answers = {}
-        for row in self.session_new.query(InternalTipAnswers) \
-                                   .order_by(InternalTipAnswers.internaltip_id,
-                                             InternalTipAnswers.creation_date):
+        for row in self.session_new.query(internal_tip_answers_model) \
+                                   .order_by(internal_tip_answers_model.internaltip_id,
+                                             internal_tip_answers_model.creation_date):
             answers.setdefault(row.internaltip_id, []).append(row)
 
-        for itip in self.session_new.query(InternalTip):
+        for itip in self.session_new.query(internal_tip_model):
             main, automatic = questionnaires.get(itip.context_id, ('', ''))
 
             filled = answers.get(itip.id, [])

@@ -34,7 +34,7 @@ from globaleaks.models.properties import *
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
-class InternalTipAnswers_v_69(Model):
+class InternalTipAnswersV69(Model):
     __tablename__ = 'internaltipanswers'
 
     internaltip_id = Column(UnicodeText(36), primary_key=True)
@@ -44,7 +44,7 @@ class InternalTipAnswers_v_69(Model):
     stat_answers = Column(UnicodeText, default='{}', nullable=False)
 
 
-class InternalTipTransmission_v_69(Model):
+class InternalTipTransmissionV69(Model):
     __tablename__ = 'internaltip_forwarding'
 
     internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)

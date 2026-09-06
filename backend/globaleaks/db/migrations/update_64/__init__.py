@@ -6,7 +6,7 @@ from globaleaks.models.properties import Boolean, Column, DateTime, Integer, JSO
 from globaleaks.utils.utility import datetime_never, datetime_now
 
 
-class Context_v_63(Model):
+class ContextV63(Model):
     __tablename__ = 'context'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -26,7 +26,7 @@ class Context_v_63(Model):
     order = Column(Integer, default=0, nullable=False)
 
 
-class InternalTip_v_63(Model):
+class InternalTipV63(Model):
     __tablename__ = 'internaltip'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)

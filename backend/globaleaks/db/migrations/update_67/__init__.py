@@ -6,7 +6,7 @@ from globaleaks.models.properties import Boolean, Column, DateTime, Enum, Intege
 from globaleaks.utils.utility import datetime_never, datetime_now, datetime_null
 
 
-class InternalTip_v_66(Model):
+class InternalTipV66(Model):
     __tablename__ = 'internaltip'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -33,7 +33,7 @@ class InternalTip_v_66(Model):
     deprecated_crypto_files_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
 
-class ReceiverFile_v_66(Model):
+class ReceiverFileV66(Model):
     __tablename__ = 'whistleblowerfile'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
@@ -47,7 +47,7 @@ class ReceiverFile_v_66(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
-class Redaction_v_66(Model):
+class RedactionV66(Model):
     __tablename__ = 'redaction'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     reference_id = Column(UnicodeText(36), nullable=False, index=True)
@@ -57,7 +57,7 @@ class Redaction_v_66(Model):
     update_date = Column(DateTime, default=datetime_now, nullable=False)
 
 
-class User_v_66(Model):
+class UserV66(Model):
     __tablename__ = 'user'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -99,7 +99,7 @@ class User_v_66(Model):
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
 
 
-class WhistleblowerFile_v_66(Model):
+class WhistleblowerFileV66(Model):
     __tablename__ = 'receiverfile'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internalfile_id = Column(UnicodeText(36), nullable=False, index=True)
