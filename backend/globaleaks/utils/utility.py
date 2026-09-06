@@ -102,7 +102,7 @@ def is_expired(check_date, seconds=0, minutes=0, hours=0, days=0):
     return datetime_now() > check
 
 
-def datetime_to_ISO8601(date):
+def datetime_to_iso8601(date):
     """
     Convert a datetime into ISO8601 date
     """
@@ -140,7 +140,7 @@ def datetime_to_day_str(date, tz=0):
     return date.strftime("%d/%m/%Y")
 
 
-def parse_ISO8601(isodate):
+def parse_iso8601(isodate):
     """
     Parse the date/time portion of an ISO 8601 string into a datetime.
     """
@@ -152,14 +152,14 @@ def parse_ISO8601(isodate):
                     second=int(isodate[17:19]))
 
 
-def ISO8601_to_pretty_str(isodate, tz=0):
+def iso8601_to_pretty_str(isodate, tz=0):
     """
     convert a ISO8601 in pretty formatted str format
     """
     if isodate is None:
         isodate = datetime_null().isoformat()
 
-    date = parse_ISO8601(isodate)
+    date = parse_iso8601(isodate)
 
     if tz != 0:
         tz_i, tz_d = divmod(tz, 1)
@@ -170,14 +170,14 @@ def ISO8601_to_pretty_str(isodate, tz=0):
     return datetime_to_pretty_str(date)
 
 
-def ISO8601_to_day_str(isodate, tz=0):
+def iso8601_to_day_str(isodate, tz=0):
     """
     convert a ISO8601 in DD/MM/YYYY formatted str
     """
     if isodate is None:
         isodate = datetime_null().isoformat()
 
-    date = parse_ISO8601(isodate)
+    date = parse_iso8601(isodate)
 
     return datetime_to_day_str(date, tz)
 

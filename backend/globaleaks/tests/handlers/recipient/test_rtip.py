@@ -200,7 +200,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
                 operation = {
                     'operation': 'revoke',
                     'args': {
-                        'receiver':  self.dummyReceiver_2['id']
+                        'receiver':  self.dummy_receiver_2['id']
                     }
                 }
 
@@ -220,7 +220,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
                 operation = {
                     'operation': 'grant',
                     'args': {
-                        'receiver':  self.dummyReceiver_2['id']
+                        'receiver':  self.dummy_receiver_2['id']
                     }
                 }
 
@@ -238,7 +238,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             operation = {
               'operation': 'revoke',
               'args': {
-                'receiver':  self.dummyReceiver_2['id']
+                'receiver':  self.dummy_receiver_2['id']
               }
             }
 
@@ -254,7 +254,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             operation = {
               'operation': 'transfer',
               'args': {
-                'receiver':  self.dummyReceiver_2['id']
+                'receiver':  self.dummy_receiver_2['id']
               }
             }
 
@@ -503,9 +503,9 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         # Drop receiver2's access to the report so it becomes a report the
         # receiver is logged in but not entitled to.
         itip_id = rtip_descs[0]['id']
-        yield remove_receivertip(itip_id, self.dummyReceiver_2['id'])
+        yield remove_receivertip(itip_id, self.dummy_receiver_2['id'])
 
-        handler = self.request(role='receiver', user_id=self.dummyReceiver_2['id'])
+        handler = self.request(role='receiver', user_id=self.dummy_receiver_2['id'])
         yield self.assertFailure(handler.delete(itip_id), NoResultFound)
 
     @inlineCallbacks
@@ -514,9 +514,9 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
 
         # A receiver without a ReceiverTip on the report cannot read it.
         itip_id = rtip_descs[0]['id']
-        yield remove_receivertip(itip_id, self.dummyReceiver_2['id'])
+        yield remove_receivertip(itip_id, self.dummy_receiver_2['id'])
 
-        handler = self.request(role='receiver', user_id=self.dummyReceiver_2['id'])
+        handler = self.request(role='receiver', user_id=self.dummy_receiver_2['id'])
         yield self.assertFailure(handler.get(itip_id), NoResultFound)
 
     @inlineCallbacks
@@ -576,9 +576,9 @@ class TestRTipAdditionalQuestionnaireRequest(helpers.TestHandlerWithPopulatedDB)
         # The questionnaire composing the reports is answered by them from the
         # moment they are filed and is never among what they can be asked: the
         # channel names two others
-        self.second = yield self.copy_questionnaire(self.dummyContext['questionnaire_id'], 'second')
+        self.second = yield self.copy_questionnaire(self.dummy_context['questionnaire_id'], 'second')
 
-        yield set_context_additional_questionnaires(self.dummyContext['id'],
+        yield set_context_additional_questionnaires(self.dummy_context['id'],
                                                     ['default', self.second['id']])
 
     def request_operation(self, rtip_desc, questionnaire_id):
@@ -635,7 +635,7 @@ class TestRTipAdditionalQuestionnaireRequest(helpers.TestHandlerWithPopulatedDB)
 
     @inlineCallbacks
     def test_a_questionnaire_the_channel_does_not_name_is_rejected(self):
-        yield set_context_additional_questionnaires(self.dummyContext['id'], ['default'])
+        yield set_context_additional_questionnaires(self.dummy_context['id'], ['default'])
 
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
@@ -659,7 +659,7 @@ class TestRTipAdditionalQuestionnaireRequest(helpers.TestHandlerWithPopulatedDB)
 
     @inlineCallbacks
     def test_a_channel_naming_nothing_leaves_nothing_to_decide(self):
-        yield set_context_additional_questionnaires(self.dummyContext['id'], [])
+        yield set_context_additional_questionnaires(self.dummy_context['id'], [])
 
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
@@ -693,7 +693,7 @@ class TestRTipQuestionnairesCollection(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_the_channel_decides_what_can_be_asked(self):
-        yield set_context_additional_questionnaires(self.dummyContext['id'], ['default'])
+        yield set_context_additional_questionnaires(self.dummy_context['id'], ['default'])
 
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
@@ -713,9 +713,9 @@ class TestRTipQuestionnairesCollection(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_an_answered_questionnaire_is_not_offered_again(self):
-        second = yield self.copy_questionnaire(self.dummyContext['questionnaire_id'], 'second')
+        second = yield self.copy_questionnaire(self.dummy_context['questionnaire_id'], 'second')
 
-        yield set_context_additional_questionnaires(self.dummyContext['id'], ['default', second['id']])
+        yield set_context_additional_questionnaires(self.dummy_context['id'], ['default', second['id']])
 
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
@@ -731,8 +731,8 @@ class TestRTipQuestionnairesCollection(helpers.TestHandlerWithPopulatedDB):
         """
         The report answers it from the moment it is filed: a questionnaire is
         """
-        yield set_context_additional_questionnaires(self.dummyContext['id'],
-                                                    ['default', self.dummyContext['questionnaire_id']])
+        yield set_context_additional_questionnaires(self.dummy_context['id'],
+                                                    ['default', self.dummy_context['questionnaire_id']])
 
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
@@ -1041,7 +1041,7 @@ class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
         # per-recipient visibility filter -- while a public object of the same
         # kind stays referenceable.
         itip_id = (yield self.get_rtips())[0]['id']
-        other = self.dummyReceiver_2['id']
+        other = self.dummy_receiver_2['id']
 
         references = {'personal': [], 'public': []}
 
@@ -1064,13 +1064,13 @@ class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
         # Personal objects owned by the other recipient are rejected.
         for reference_id in references['personal']:
             body['reference_id'] = reference_id
-            handler = self.request(body, role='receiver', user_id=self.dummyReceiver_1['id'])
+            handler = self.request(body, role='receiver', user_id=self.dummy_receiver_1['id'])
             yield self.assertFailure(handler.post(), errors.InputValidationError)
 
         # Public objects of the same kinds stay referenceable.
         for reference_id in references['public']:
             body['reference_id'] = reference_id
-            handler = self.request(body, role='receiver', user_id=self.dummyReceiver_1['id'])
+            handler = self.request(body, role='receiver', user_id=self.dummy_receiver_1['id'])
             yield handler.post()
 
     @inlineCallbacks
