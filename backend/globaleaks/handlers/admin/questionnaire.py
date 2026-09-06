@@ -99,6 +99,45 @@ def db_update_questionnaire(session, tid, questionnaire_id, request, language):
     return serialize_questionnaire(session, tid, questionnaire, language)
 
 
+def _reidentify_field(field, new_step_id, id_map):
+    """
+    Give a field, its options and its attributes an identity of their own
+
+    :param field: The field being imported
+    :param new_step_id: The identity the step the field belongs to is imported under
+    :param id_map: The map from the identities of the source to the imported ones
+    """
+    new_field_id = str(uuid4())
+    id_map[field['id']] = new_field_id
+    field['id'] = new_field_id
+    field['step_id'] = new_step_id
+
+    # Update option IDs
+    for option in field.get('options', []):
+        if 'id' in option:
+            new_option_id = str(uuid4())
+            id_map[option['id']] = new_option_id
+            option['id'] = new_option_id
+
+    # Update field attributes
+    for attr in field.get('attrs', {}).values():
+        if 'id' in attr:
+            attr['id'] = str(uuid4())
+
+
+def _remap_triggers(obj, id_map):
+    """
+    Point the triggers of a step or of a field to the imported fields and options
+
+    :param obj: The step or the field carrying the triggers
+    :param id_map: The map from the identities of the source to the imported ones
+    """
+    for trigger in obj.get('triggered_by_options', []):
+        for key in ['field', 'option']:
+            if trigger.get(key) in id_map:
+                trigger[key] = id_map[trigger[key]]
+
+
 def db_import_questionnaire(session, tid, questionnaire):
     """
     Duplicate questionnaire for a new tenant
@@ -118,46 +157,20 @@ def db_import_questionnaire(session, tid, questionnaire):
     id_map = {old_questionnaire_id: q['id']}
 
     for step in q['steps']:
-        old_step_id = step['id']
         new_step_id = str(uuid4())
-        id_map[old_step_id] = new_step_id
+        id_map[step['id']] = new_step_id
         step['id'] = new_step_id
         step['questionnaire_id'] = q['id']
 
         for field in step['children']:
-            old_field_id = field['id']
-            new_field_id = str(uuid4())
-            id_map[old_field_id] = new_field_id
-            field['id'] = new_field_id
-            field['step_id'] = new_step_id
-
-            # Update option IDs
-            for option in field.get('options', []):
-                if 'id' in option:
-                    old_option_id = option['id']
-                    new_option_id = str(uuid4())
-                    id_map[old_option_id] = new_option_id
-                    option['id'] = new_option_id
-
-            # Update field attributes
-            for attr in field.get('attrs', {}).values():
-                if 'id' in attr:
-                    attr['id'] = str(uuid4())
+            _reidentify_field(field, new_step_id, id_map)
 
     # Update trigger references
     for step in q['steps']:
-        for trigger in step.get('triggered_by_options', []):
-            if trigger.get('field') in id_map:
-                trigger['field'] = id_map[trigger['field']]
-            if trigger.get('option') in id_map:
-                trigger['option'] = id_map[trigger['option']]
+        _remap_triggers(step, id_map)
 
         for field in step['children']:
-            for trigger in field.get('triggered_by_options', []):
-                if trigger.get('field') in id_map:
-                    trigger['field'] = id_map[trigger['field']]
-                if trigger.get('option') in id_map:
-                    trigger['option'] = id_map[trigger['option']]
+            _remap_triggers(field, id_map)
 
     # Create the new questionnaire in the database
     db_create_questionnaire(session, tid, None, q, 'en')
@@ -177,6 +190,63 @@ def import_questionnaires(session, tid, questionnaire):
     :return: The identity the questionnaire had and the one it is imported under
     """
     return db_import_questionnaire(session, tid, questionnaire)
+
+
+def _reidentify_duplicated_field(field, id_map):
+    """
+    Give a duplicated field, its options, its attributes and its children an identity of their own
+
+    :param field: The field being duplicated
+    :param id_map: The map from the identities of the source to the duplicated ones
+    """
+    new_child_id = uuid4()
+    id_map[field['id']] = new_child_id
+    field['id'] = new_child_id
+
+    # Tweak the field in order to make a raw copy
+    field['instance'] = 'instance'
+
+    # Rewrite the option ID if it exists
+    for option in field['options']:
+        if option.get('id', None) is not None:
+            new_option_id = uuid4()
+            id_map[option['id']] = new_option_id
+            option['id'] = new_option_id
+
+    # And now we need to keep going down the latter
+    for attr in field['attrs'].values():
+        attr['id'] = uuid4()
+
+    # Recursion!
+    for child in field['children']:
+        child['field_id'] = new_child_id
+        _reidentify_duplicated_field(child, id_map)
+
+
+def _rewire_triggers(obj, id_map):
+    """
+    Point the triggers of a duplicated step or field to the duplicated fields and options
+
+    :param obj: The step or the field carrying the triggers
+    :param id_map: The map from the identities of the source to the duplicated ones
+    """
+    for trigger in obj.get('triggered_by_options', []):
+        trigger['field'] = id_map[trigger['field']]
+        trigger['option'] = id_map[trigger['option']]
+
+
+def _rewire_field_triggers(field, id_map):
+    """
+    Point the triggers of a duplicated field and of its children to the duplicated ones
+
+    :param field: The field carrying the triggers
+    :param id_map: The map from the identities of the source to the duplicated ones
+    """
+    _rewire_triggers(field, id_map)
+
+    # Recursion!
+    for child in field['children']:
+        _rewire_field_triggers(child, id_map)
 
 
 @transact
@@ -202,44 +272,7 @@ def duplicate_questionnaire(session, tid, user_session, questionnaire_id, new_na
     # as a new questionnaire
     q['id'] = uuid4()
 
-    # Each step has a UUID that needs to be replaced
-
-    def fix_field_pass_1(field):
-        new_child_id = uuid4()
-        id_map[field['id']] = new_child_id
-        field['id'] = new_child_id
-
-        # Tweak the field in order to make a raw copy
-        field['instance'] = 'instance'
-
-        # Rewrite the option ID if it exists
-        for option in field['options']:
-            option_id = option.get('id', None)
-            if option_id is not None:
-                new_option_id = uuid4()
-                id_map[option['id']] = new_option_id
-                option['id'] = new_option_id
-
-        # And now we need to keep going down the latter
-        for attr in field['attrs'].values():
-            attr['id'] = uuid4()
-
-        # Recursion!
-        for child in field['children']:
-            child['field_id'] = new_child_id
-            fix_field_pass_1(child)
-
-    def fix_field_pass_2(field):
-        # Fix triggers references
-        for trigger in field.get('triggered_by_options', []):
-            trigger['field'] = id_map[trigger['field']]
-            trigger['option'] = id_map[trigger['option']]
-
-        # Recursion!
-        for child in field['children']:
-            fix_field_pass_2(child)
-
-    # Step1: replacement of IDs
+    # Step1: replacement of IDs; each step has a UUID that needs to be replaced
     for step in q['steps']:
         new_step_id = uuid4()
         id_map[step['id']] = new_step_id
@@ -248,17 +281,15 @@ def duplicate_questionnaire(session, tid, user_session, questionnaire_id, new_na
         # Each field has a UUID that needs to be replaced
         for field in step['children']:
             field['step_id'] = step['id']
-            fix_field_pass_1(field)
+            _reidentify_duplicated_field(field, id_map)
 
     # Step2: fix of fields triggers following IDs replacement
     for step in q['steps']:
         # Fix triggers references
-        for trigger in step.get('triggered_by_options', []):
-            trigger['field'] = id_map[trigger['field']]
-            trigger['option'] = id_map[trigger['option']]
+        _rewire_triggers(step, id_map)
 
         for field in step['children']:
-            fix_field_pass_2(field)
+            _rewire_field_triggers(field, id_map)
 
     q['name'] = new_name
 
