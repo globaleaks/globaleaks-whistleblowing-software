@@ -153,6 +153,35 @@ def create_pdf_report(input_text, data):
     return BytesIO(pdf.output())
 
 
+def _attach_file_keys(user_session, tip_export):
+    """
+    Attach to every file of the report the key and the path it is exported from
+
+    :param user_session: The session of the recipient performing the export
+    :param tip_export: The report being exported
+    """
+    for file_dict in tip_export['tip']['wbfiles']:
+        if tip_export['deprecated_crypto_files_prv_key']:
+            files_prv_key = GCE.asymmetric_decrypt(user_session.cc, tip_export['deprecated_crypto_files_prv_key'])
+        else:
+            files_prv_key = GCE.asymmetric_decrypt(user_session.cc, tip_export['crypto_tip_prv_key'])
+
+        filelocation = os.path.join(Settings.attachments_path, file_dict['id'])
+        if not os.path.exists(filelocation):
+            filelocation = os.path.join(Settings.attachments_path, file_dict['ifile_id'])
+
+        directory_traversal_check(Settings.attachments_path, filelocation)
+        file_dict['key'] = files_prv_key
+        file_dict['path'] = filelocation
+
+    for file_dict in tip_export['tip']['rfiles']:
+        tip_prv_key = GCE.asymmetric_decrypt(user_session.cc, tip_export['crypto_tip_prv_key'])
+        filelocation = os.path.join(Settings.attachments_path, file_dict['id'])
+        directory_traversal_check(Settings.attachments_path, filelocation)
+        file_dict['key'] = tip_prv_key
+        file_dict['path'] = filelocation
+
+
 @inlineCallbacks
 def prepare_tip_export(user_session, tip_export):
     tip_export['tip']['rfiles'] = list(filter(lambda x: x['visibility'] != 'personal', tip_export['tip']['rfiles']))
@@ -165,44 +194,21 @@ def prepare_tip_export(user_session, tip_export):
     tip_export['tip'] = yield redact_report(user_session, tip_export['tip'])
 
     if tip_export['crypto_tip_prv_key']:
-        for file_dict in tip_export['tip']['wbfiles']:
-            if tip_export['deprecated_crypto_files_prv_key']:
-                files_prv_key = GCE.asymmetric_decrypt(user_session.cc, tip_export['deprecated_crypto_files_prv_key'])
-            else:
-                files_prv_key = GCE.asymmetric_decrypt(user_session.cc, tip_export['crypto_tip_prv_key'])
-
-            filelocation = os.path.join(Settings.attachments_path, file_dict['id'])
-            if not os.path.exists(filelocation):
-                filelocation = os.path.join(Settings.attachments_path, file_dict['ifile_id'])
-
-            directory_traversal_check(Settings.attachments_path, filelocation)
-            file_dict['key'] = files_prv_key
-            file_dict['path'] = filelocation
-            del filelocation
-
-        for file_dict in tip_export['tip']['rfiles']:
-            tip_prv_key = GCE.asymmetric_decrypt(user_session.cc, tip_export['crypto_tip_prv_key'])
-            filelocation = os.path.join(Settings.attachments_path, file_dict['id'])
-            directory_traversal_check(Settings.attachments_path, filelocation)
-            file_dict['key'] = tip_prv_key
-            file_dict['path'] = filelocation
-            del filelocation
+        _attach_file_keys(user_session, tip_export)
 
     # Masked files are listed in the report but their content is never exported.
     files = [f for f in tip_export['tip']['wbfiles'] + tip_export['tip']['rfiles']
              if not f.get('masked')]
 
     for file_dict in tip_export['tip'].pop('wbfiles'):
-        if file_dict.get('masked'):
-            continue
-        file_dict['name'] = 'files/' + file_dict['name']
-        if file_dict.get('status', '') == 'encrypted':
-            file_dict['name'] += '.pgp'
+        if not file_dict.get('masked'):
+            file_dict['name'] = 'files/' + file_dict['name']
+            if file_dict.get('status', '') == 'encrypted':
+                file_dict['name'] += '.pgp'
 
     for file_dict in tip_export['tip'].pop('rfiles'):
-        if file_dict.get('masked'):
-            continue
-        file_dict['name'] = 'files_attached_from_recipients/' + file_dict['name']
+        if not file_dict.get('masked'):
+            file_dict['name'] = 'files_attached_from_recipients/' + file_dict['name']
 
     metadata_rows = [{'name': f.get('name', ''),
                       'type': f.get('type', ''),
