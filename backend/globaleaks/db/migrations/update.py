@@ -1,6 +1,7 @@
 from globaleaks import DATABASE_VERSION, FIRST_DATABASE_VERSION_SUPPORTED
 from globaleaks.db.appdata import load_appdata
 from globaleaks.utils.log import log
+from globaleaks.utils.utility import snake_case
 
 
 class MigrationBase(object):
@@ -142,7 +143,7 @@ class MigrationBase(object):
 
         log.info(' * %s [#%d]' % (model_name, self.entries_count[model_name]))
 
-        specific_migration_function = getattr(self, 'migrate_%s' % model_name, None)
+        specific_migration_function = getattr(self, 'migrate_' + snake_case(model_name), None)
         if specific_migration_function is None:
             self.generic_migration_function(model_name)
         else:

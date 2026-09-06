@@ -103,7 +103,7 @@ class MigrationScript(MigrationBase):
         'User': {'enabled': lambda o: o.state == 1}
     }
 
-    def migrate_InternalTip(self):
+    def migrate_internal_tip(self):
         ctx_ids = [c[0] for c in self.session_old.query(self.model_from['Context'].id).all()]
 
         for old_obj in self.session_old.query(self.model_from['InternalTip']):

@@ -58,7 +58,7 @@ class MigrationScript(MigrationBase):
         }
     }
 
-    def migrate_InternalTip(self):
+    def migrate_internal_tip(self):
         wbtips_by_id = {}
         for old_obj in self.session_old.query(self.model_from['WhistleblowerTip']):
             wbtips_by_id[old_obj.id] = old_obj
