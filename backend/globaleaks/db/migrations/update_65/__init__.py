@@ -183,7 +183,7 @@ class MigrationScript(MigrationBase):
         'Config': True
     }
 
-    def migrate_IdentityAccessRequest(self):
+    def migrate_identity_access_request(self):
         for old_obj, rtip in self.session_old.query(self.model_from['IdentityAccessRequest'], self.model_from['ReceiverTip']) \
                                             .filter(self.model_from['IdentityAccessRequest'].receivertip_id == self.model_from['ReceiverTip'].id):
             new_obj = self.copy('IdentityAccessRequest', old_obj)
@@ -192,7 +192,7 @@ class MigrationScript(MigrationBase):
 
             self.session_new.add(new_obj)
 
-    def migrate_InternalFile(self):
+    def migrate_internal_file(self):
         for old_obj in self.session_old.query(self.model_from['InternalFile']):
             srcpath = os.path.abspath(os.path.join(Settings.attachments_path, old_obj.filename))
             dstpath = os.path.abspath(os.path.join(Settings.attachments_path, old_obj.id))
@@ -202,7 +202,7 @@ class MigrationScript(MigrationBase):
 
             self.session_new.add(self.copy('InternalFile', old_obj))
 
-    def migrate_InternalTip(self):
+    def migrate_internal_tip(self):
         for old_obj in self.session_old.query(self.model_from['InternalTip']):
             new_obj = self.copy('InternalTip', old_obj)
 
@@ -211,7 +211,7 @@ class MigrationScript(MigrationBase):
 
             self.session_new.add(new_obj)
 
-    def migrate_WhistleblowerFile(self):
+    def migrate_whistleblower_file(self):
         self.entries_count['WhistleblowerFile'] = 0
         for old_obj, old_ifile in self.session_old.query(self.model_from['WhistleblowerFile'], self.model_from['InternalFile']) \
                                                   .filter(self.model_from['WhistleblowerFile'].internalfile_id == self.model_from['InternalFile'].id):
@@ -225,7 +225,7 @@ class MigrationScript(MigrationBase):
             self.session_new.add(new_obj)
             self.entries_count['WhistleblowerFile'] += 1
 
-    def migrate_ReceiverFile(self):
+    def migrate_receiver_file(self):
         for old_obj, r in self.session_old.query(self.model_from['ReceiverFile'], self.model_from['ReceiverTip']) \
                                           .filter(self.model_from['ReceiverFile'].receivertip_id == self.model_from['ReceiverTip'].id):
             new_obj = self.copy('ReceiverFile', old_obj)
@@ -243,12 +243,12 @@ class MigrationScript(MigrationBase):
         self.add_entry('Config', self.model_to['Config']({'tid': 1, 'var_name': 'https_selfsigned_key', 'value': key}))
         self.add_entry('Config', self.model_to['Config']({'tid': 1, 'var_name': 'https_selfsigned_cert', 'value': cert}))
 
-        Message = self.model_from['Message']
-        InternalTip = self.model_from['InternalTip']
-        ReceiverTip = self.model_from['ReceiverTip']
-        for m, i, r in self.session_old.query(Message, InternalTip, ReceiverTip) \
-                                       .filter(Message.receivertip_id == ReceiverTip.id,
-                                               ReceiverTip.internaltip_id == InternalTip.id):
+        message_model = self.model_from['Message']
+        internal_tip_model = self.model_from['InternalTip']
+        receiver_tip_model = self.model_from['ReceiverTip']
+        for m, i, r in self.session_old.query(message_model, internal_tip_model, receiver_tip_model) \
+                                       .filter(message_model.receivertip_id == receiver_tip_model.id,
+                                               receiver_tip_model.internaltip_id == internal_tip_model.id):
             new_obj = self.copy('Comment', m)
             new_obj.internaltip_id = i.id
             new_obj.author_id = r.id if m.type == 'receiver' else None
