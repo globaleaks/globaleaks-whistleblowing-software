@@ -314,14 +314,11 @@ def db_delete_user(session, tid, user_session, user_id, check):
 
     user = db_get(session, models.User, models.User.id == user_id)
 
-    if user_session.user_id == user_id:
-        # Prevent users to delete themeselves
-        raise errors.ForbiddenOperation
-    elif user.crypto_escrow_prv_key and not user_session.ek:
-        # Prevent users to delete privileged users when escrow keys could be invalidated
-        raise errors.ForbiddenOperation
-    elif user.id in db_get_protected_users(session, tid):
-        # Prevent deletion of protected users
+    # A user is never deleted when it is the one asking, when its escrow key would be
+    # lost together with it, or when it is one of the protected users of the site
+    if (user_session.user_id == user_id
+            or (user.crypto_escrow_prv_key and not user_session.ek)
+            or user.id in db_get_protected_users(session, tid)):
         raise errors.ForbiddenOperation
 
     db_enforce_administrable(session, tid, user_session, user.permissions_list, [user.id])
