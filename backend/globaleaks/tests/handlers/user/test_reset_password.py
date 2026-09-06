@@ -16,7 +16,7 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_post(self):
         data_request = {
-            'username': self.dummyReceiver_1['username']
+            'username': self.dummy_receiver_1['username']
         }
 
         handler = self.request(data_request)
@@ -30,7 +30,7 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
     def test_put(self):
         # Use a valid 64-character hex token format
         valid_reset_token = 'a' * 64
-        self.write_reset_token(valid_reset_token, self.dummyReceiver_1['id'])
+        self.write_reset_token(valid_reset_token, self.dummy_receiver_1['id'])
 
         # Wrong token (valid format but non-existent)
         handler = self.request({'reset_token': 'b' * 64, 'recovery_key': '', 'auth_code': ''})
@@ -64,7 +64,7 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
         # /api/auth/tokenauth. The full chain must work -- issuing the reset and
         # then adopting the returned token at the tokenauth endpoint.
         valid_reset_token = 'a' * 64
-        self.write_reset_token(valid_reset_token, self.dummyReceiver_1['id'])
+        self.write_reset_token(valid_reset_token, self.dummy_receiver_1['id'])
 
         handler = self.request({'reset_token': valid_reset_token,
                                 'recovery_key': helpers.USER_REC_KEY_PLAIN,
@@ -80,10 +80,10 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks
     def test_post_disabled_user(self):
         # Disabled users must not be eligible for password reset token issuance
-        yield self.set_user_enabled(self.dummyReceiver_1['id'], False)
+        yield self.set_user_enabled(self.dummy_receiver_1['id'], False)
 
         data_request = {
-            'username': self.dummyReceiver_1['username']
+            'username': self.dummy_receiver_1['username']
         }
 
         handler = self.request(data_request)
@@ -97,10 +97,10 @@ class TestPasswordResetInstance(helpers.TestHandlerWithPopulatedDB):
     def test_put_disabled_user(self):
         # A reset token issued for an account that is later disabled must not
         # validate nor create a session
-        yield self.set_user_enabled(self.dummyReceiver_1['id'], False)
+        yield self.set_user_enabled(self.dummy_receiver_1['id'], False)
 
         valid_reset_token = 'a' * 64
-        self.write_reset_token(valid_reset_token, self.dummyReceiver_1['id'])
+        self.write_reset_token(valid_reset_token, self.dummy_receiver_1['id'])
 
         handler = self.request({'reset_token': valid_reset_token, 'recovery_key': helpers.USER_REC_KEY_PLAIN, 'auth_code': ''})
         ret = yield handler.put()
@@ -135,10 +135,10 @@ class TestProtectedPasswordReset(helpers.TestHandlerWithPopulatedDB):
     def test_post_protected_user(self):
         # Protected users must not be eligible for self-service password reset
         # token issuance, and the generic response must be preserved
-        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummyReceiver_1['id']])
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummy_receiver_1['id']])
 
         data_request = {
-            'username': self.dummyReceiver_1['username']
+            'username': self.dummy_receiver_1['username']
         }
 
         handler = self.request(data_request)

@@ -15,9 +15,9 @@ def get_tor_agent(socks_socket):
     :param socks_socket: the path of the tor SOCKS unix-domain socket
     :return: an initialized agent using the specified socks config
     """
-    torServerEndpoint = UNIXClientEndpoint(reactor, socks_socket)
+    tor_server_endpoint = UNIXClientEndpoint(reactor, socks_socket)
 
-    return SOCKS5Agent(reactor, proxyEndpoint=torServerEndpoint)
+    return SOCKS5Agent(reactor, proxy_endpoint=tor_server_endpoint)
 
 
 def get_web_agent():

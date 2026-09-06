@@ -205,11 +205,11 @@ class TestProtectedUserDeletion(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_delete_forbidden_for_protected_user(self):
-        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummyReceiver_1['id']])
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummy_receiver_1['id']])
 
         handler = self.request(None, role='admin')
 
-        yield self.assertFailure(handler.delete(self.dummyReceiver_1['id']),
+        yield self.assertFailure(handler.delete(self.dummy_receiver_1['id']),
                                  errors.ForbiddenOperation)
 
 @transact

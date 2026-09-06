@@ -132,49 +132,49 @@ class TestContextAdditionalQuestionnaires(helpers.TestGLWithPopulatedDB):
 
     @inlineCallbacks
     def test_the_set_and_its_election_travel_with_the_channel(self):
-        request = self.context_request([self.dummyQuestionnaire['id']], self.dummyQuestionnaire['id'])
+        request = self.context_request([self.dummy_questionnaire['id']], self.dummy_questionnaire['id'])
 
         created = yield context.create_context(1, None, request, 'en')
 
-        self.assertEqual(created['additional_questionnaires'], [self.dummyQuestionnaire['id']])
-        self.assertEqual(created['additional_questionnaire_id'], self.dummyQuestionnaire['id'])
+        self.assertEqual(created['additional_questionnaires'], [self.dummy_questionnaire['id']])
+        self.assertEqual(created['additional_questionnaire_id'], self.dummy_questionnaire['id'])
 
         read = yield context.get_context(1, created['id'], 'en')
-        self.assertEqual(read['additional_questionnaires'], [self.dummyQuestionnaire['id']])
+        self.assertEqual(read['additional_questionnaires'], [self.dummy_questionnaire['id']])
 
     @inlineCallbacks
     def test_a_channel_names_questionnaires_without_electing_any(self):
-        request = self.context_request([self.dummyQuestionnaire['id'], 'default'])
+        request = self.context_request([self.dummy_questionnaire['id'], 'default'])
 
         created = yield context.create_context(1, None, request, 'en')
 
         self.assertEqual(sorted(created['additional_questionnaires']),
-                         sorted([self.dummyQuestionnaire['id'], 'default']))
+                         sorted([self.dummy_questionnaire['id'], 'default']))
         self.assertEqual(created['additional_questionnaire_id'], '')
 
     @inlineCallbacks
     def test_the_election_is_one_of_the_set(self):
-        request = self.context_request([], self.dummyQuestionnaire['id'])
+        request = self.context_request([], self.dummy_questionnaire['id'])
 
         yield self.assertFailure(context.create_context(1, None, request, 'en'),
                                  errors.InputValidationError)
 
     @inlineCallbacks
     def test_the_election_is_cleared_keeping_the_set(self):
-        request = self.context_request([self.dummyQuestionnaire['id']], self.dummyQuestionnaire['id'])
+        request = self.context_request([self.dummy_questionnaire['id']], self.dummy_questionnaire['id'])
         created = yield context.create_context(1, None, request, 'en')
 
-        request = self.context_request([self.dummyQuestionnaire['id']])
+        request = self.context_request([self.dummy_questionnaire['id']])
         request['id'] = created['id']
 
         updated = yield context.update_context(1, created['id'], request, 'en')
 
-        self.assertEqual(updated['additional_questionnaires'], [self.dummyQuestionnaire['id']])
+        self.assertEqual(updated['additional_questionnaires'], [self.dummy_questionnaire['id']])
         self.assertEqual(updated['additional_questionnaire_id'], '')
 
     @inlineCallbacks
     def test_the_set_is_rewritten_by_what_the_channel_is_updated_with(self):
-        request = self.context_request([self.dummyQuestionnaire['id'], 'default'], 'default')
+        request = self.context_request([self.dummy_questionnaire['id'], 'default'], 'default')
         created = yield context.create_context(1, None, request, 'en')
 
         request = self.context_request(['default'], 'default')
@@ -190,13 +190,13 @@ class TestContextAdditionalQuestionnaires(helpers.TestGLWithPopulatedDB):
         """
         The set lives in a table of its own and is not a column of the channel:
         """
-        request = self.context_request([self.dummyQuestionnaire['id'], 'default'], 'default')
+        request = self.context_request([self.dummy_questionnaire['id'], 'default'], 'default')
         template = yield context.create_context(1, None, request, 'en')
 
         derived_id = yield derive_context(1, template['id'])
 
         named = yield named_additional_questionnaires(derived_id)
-        self.assertEqual(named, sorted([self.dummyQuestionnaire['id'], 'default']))
+        self.assertEqual(named, sorted([self.dummy_questionnaire['id'], 'default']))
 
         derived = yield context.get_context(1, derived_id, 'en')
         self.assertEqual(derived['additional_questionnaire_id'], 'default')

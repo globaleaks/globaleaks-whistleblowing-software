@@ -316,13 +316,13 @@ def new_tls_client_context():
     # It'd be nice if pyOpenSSL let us pass None here for this behavior (as
     # the underlying OpenSSL API call allows NULL to be passed).  It
     # doesn't, so we'll supply a function which does the same thing.
-    def _verifyCallback(conn, cert, errno, depth, ok):
+    def _verify_callback(conn, cert, errno, depth, ok):
         if not ok:
             log.err(f"Unable to verify validity of certificate: {cert.get_subject()}")
 
         return ok
 
-    ctx.set_verify(SSL.VERIFY_PEER, _verifyCallback)
+    ctx.set_verify(SSL.VERIFY_PEER, _verify_callback)
     ctx.set_verify_depth(100)
 
     trustRoot._addCACertsToContext(ctx)
