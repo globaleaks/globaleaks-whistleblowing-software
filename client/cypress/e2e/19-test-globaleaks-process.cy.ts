@@ -545,6 +545,7 @@ describe("report audit log", () => {
     cy.get(".modal").should("be.visible");
     cy.takeScreenshot("admin/report_audit_log", ".modal-dialog");
 
+    // the placeholder is written in the language of the run, like the rest of the interface
     cy.get(`.modal input[placeholder*='${t("Search")}']`).first().should("be.visible").type("file");
     cy.contains(".modal", "file").should("be.visible");
     cy.takeScreenshot("admin/report_audit_log_files");
@@ -578,7 +579,8 @@ describe("report audit log", () => {
 
     cy.get(".TipInfoRecipientCount").first().should("be.visible");
     cy.takeScreenshot("recipient/tips_recipients_count");
-    cy.get(".TipInfoRecipientCount .sortable").first().trigger("mouseenter");
+    // the cell of the row, not the header: that one carries a hidden label
+    cy.get("td.TipInfoRecipientCount span").first().trigger("mouseenter");
     cy.takeScreenshot("recipient/tips_recipients_count_detail", "#TipList");
 
     cy.logout();

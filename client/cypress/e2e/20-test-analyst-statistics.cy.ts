@@ -204,9 +204,6 @@ describe("Analyst statistics templates and reports", () => {
     cy.contains("#Content", t("Average time to opening")).should("be.visible");
     cy.contains("#Content", t("Average time to first reply")).should("be.visible");
     cy.contains("#Content", t("Average time to closure")).should("be.visible");
-    cy.contains("#Content", "Average time to opening").should("be.visible");
-    cy.contains("#Content", "Average time to first reply").should("be.visible");
-    cy.contains("#Content", "Average time to closure").should("be.visible");
     cy.takeScreenshot("analyst/statistics_timing_metrics");
     cy.takeScreenshot("analyst/statistics_timing_metrics_detail", ".metrics-section");
     cy.takeScreenshot("analyst/statistics_closure_metric_detail", ".metric-card:eq(2)");
