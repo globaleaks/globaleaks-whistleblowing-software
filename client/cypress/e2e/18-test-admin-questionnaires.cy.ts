@@ -1,3 +1,4 @@
+import {t} from "../support/i18n";
 describe("admin add, configure and delete questionnaires", () => {
   const add_questionnaires = async (questionnaire_name: string) => {
     cy.get(".show-add-questionnaire-btn").click();
@@ -203,12 +204,13 @@ describe("admin add, configure and delete questionnaires", () => {
 
       cy.contains("button", "Add new question").click();
       cy.get("input[name='new_field.label']").first().type("Inner question");
-      cy.get("select[name='new_field.type']").first().select("Single-line text input");
+      cy.get("select[name='new_field.type']").first().select(t("Single-line text input"));
       cy.get("#add-field-btn").first().click();
       cy.contains(".fieldBox", "Inner question").should("be.visible");
 
       cy.contains("button", "Add question from template").click();
-      cy.get("#field-template-select").select("Single-line text input");
+      // the list of the templates is rendered with translate, unlike the title of the box
+      cy.get("#field-template-select").select(t("Single-line text input"));
       cy.get(".add-field-from-template #add-field-btn").click();
 
       // The questions of the group move around one another

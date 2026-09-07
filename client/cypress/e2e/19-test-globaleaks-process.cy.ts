@@ -668,7 +668,8 @@ describe("report audit log", () => {
     cy.get(".modal").should("be.visible");
     cy.takeScreenshot("admin/report_audit_log", ".modal-dialog");
 
-    cy.get(".modal input[placeholder*='Search']").first().should("be.visible").type("file");
+    // the placeholder is written in the language of the run, like the rest of the interface
+    cy.get(`.modal input[placeholder*='${t("Search")}']`).first().should("be.visible").type("file");
     cy.contains(".modal", "file").should("be.visible");
     cy.takeScreenshot("admin/report_audit_log_files");
     cy.takeScreenshot("admin/report_audit_log_files_detail", ".modal-dialog");
@@ -701,7 +702,8 @@ describe("report audit log", () => {
 
     cy.get(".TipInfoRecipientCount").first().should("be.visible");
     cy.takeScreenshot("recipient/tips_recipients_count");
-    cy.get(".TipInfoRecipientCount span").first().trigger("mouseenter");
+    // the cell of the row, not the header: that one carries a hidden label
+    cy.get("td.TipInfoRecipientCount span").first().trigger("mouseenter");
     cy.takeScreenshot("recipient/tips_recipients_count_detail", "#TipList");
 
     cy.logout();
@@ -732,7 +734,7 @@ describe("fingerprints of the deleted content", () => {
 
       // what an entry holds beyond its row is opened from the entry itself: the
       // fingerprints are two, and each one is named
-      cy.contains(".modal tr", "delete_file").find('[data-cy="audit-details-toggle"]').click();
+      cy.contains(".modal tr", "delete_file").find('[data-action="toggle"]').click();
       cy.get('.modal [data-cy="audit-details"]').should("be.visible");
       cy.contains('.modal [data-cy="audit-details"]', "sha256:").should("be.visible");
       cy.contains('.modal [data-cy="audit-details"]', "sha512:").should("be.visible");
@@ -752,7 +754,7 @@ describe("fingerprints of the deleted content", () => {
 
       // what an entry holds beyond its row is opened from the entry itself: the
       // fingerprints are two, and each one is named
-      cy.contains(".modal tr", "delete_file").find('[data-cy="audit-details-toggle"]').click();
+      cy.contains(".modal tr", "delete_file").find('[data-action="toggle"]').click();
       cy.get('.modal [data-cy="audit-details"]').should("be.visible");
       cy.contains('.modal [data-cy="audit-details"]', "sha256:").should("be.visible");
       cy.contains('.modal [data-cy="audit-details"]', "sha512:").should("be.visible");
