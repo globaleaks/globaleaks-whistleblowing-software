@@ -9,7 +9,7 @@
       </div>
       <input id="toMailAddress" class="form-control" name="to_mail_address" [(ngModel)]="to_mail_address" type="email" [pattern]="Constants.emailRegexp" />
       @if (mail_address.form.get('to_mail_address')?.errors?.['pattern']) {
-        <div class="text-danger">Invalid email address</div>
+        <div class="text-danger">{{'Invalid email address'|translate}}</div>
       }
     </div>
   </form>

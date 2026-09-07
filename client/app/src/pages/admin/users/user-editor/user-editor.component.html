@@ -34,7 +34,7 @@
             <label for="user-name-input">{{ 'Name' | translate }}</label>
             <input id="user-name-input" class="form-control" name="name" [(ngModel)]="user().name" type="text" required />
             @if (editUser().form.get('name')?.errors?.['required']) {
-              <div class="text-danger">This field is mandatory </div>
+              <div class="text-danger">{{'This field is mandatory'|translate}}</div>
             }
           </div>
           <div class="form-group">
