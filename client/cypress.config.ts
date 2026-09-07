@@ -46,6 +46,20 @@ export default defineConfig({
       registerCodeCoverageTasks(on, config);
 
       on("before:browser:launch", (browser, launchOptions) => {
+        // Electron accepts no launch arguments: Cypress says so in a warning that scrolls
+        // past — "the following browser launch options were provided but are not supported
+        // by electron" — and the run goes on in a 1280x720 window at one device pixel per
+        // CSS pixel, with the scrollbars in the frame. Every capture of such a run is a
+        // third of the size the manual needs, and nothing fails. The captures are worth
+        // nothing without these arguments, so the run stops here instead of producing them.
+        if (browser.name === "electron" && config.env.takeScreenshots) {
+          throw new Error(
+            "The captures need a browser that accepts launch arguments, and electron does not: " +
+            "run with --browser chromium (or chrome). Under electron every image comes out at " +
+            "1280x720 with the scrollbars in it, and no test fails."
+          );
+        }
+
         if (browser.family === "chromium") {
           // The window is far taller than any page the manual photographs.
           // Cypress cannot grow the viewport beyond the window: a taller page
