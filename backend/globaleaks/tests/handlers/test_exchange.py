@@ -14,6 +14,14 @@ from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
 
+def subject(object_word, status_word):
+    """
+    The subject a notification carries: the object and, isolated as the
+    composition of the titles writes it, the state it is in
+    """
+    return '%s (\u2068%s\u2069)' % (object_word, status_word)
+
+
 @transact
 def uuid_of(session, tid):
     return ConfigFactory(session, tid).get_val('uuid')
@@ -276,12 +284,12 @@ class TestCommunication(ExchangeTest):
 
         announced = {address: subject for _, address, subject in (yield self.announce())}
 
-        self.assertEqual(announced.pop(self.destination['mail_address']), 'New communication')
+        self.assertEqual(announced.pop(self.destination['mail_address']), subject('Communication', 'New'))
 
         # the colleagues of the recipient that sent it read the update of the report it was
         # carried from, and the one that sent it is announced nothing
         self.assertNotIn(self.dummy_receiver_1['mail_address'], announced)
-        self.assertTrue(announced[self.dummy_receiver_2['mail_address']].endswith('Report updated'))
+        self.assertTrue(announced[self.dummy_receiver_2['mail_address']].endswith(subject('Report', 'Updated')))
 
     @inlineCallbacks
     def test_the_origin_lists_what_it_communicated(self):
@@ -444,13 +452,13 @@ class TestRequestAndTransmission(ExchangeTest):
         _, request = yield self.file()
 
         self.assertEqual((yield self.announce()),
-                         {(2, self.destination['mail_address'], 'New transmission request')})
+                         {(2, self.destination['mail_address'], subject('Forward request', 'New'))})
 
         yield self.decide(request['id'], True)
         _, filed = yield self.file()
 
         self.assertEqual((yield self.announce()),
-                         {(2, self.destination['mail_address'], 'New transmission')})
+                         {(2, self.destination['mail_address'], subject('Forward', 'New'))})
         self.assertEqual(filed['type'], 'exchange')
 
     @inlineCallbacks

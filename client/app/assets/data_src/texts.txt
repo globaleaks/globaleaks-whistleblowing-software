@@ -79,6 +79,7 @@ Closed
 Collapse
 Column
 Comments
+Communication
 Computer
 Configure
 Confirm
@@ -173,6 +174,8 @@ Forbidden operation
 Force password change
 Forcefully selected
 Forgot password?
+Forward
+Forward request
 From
 From:
 Generate
