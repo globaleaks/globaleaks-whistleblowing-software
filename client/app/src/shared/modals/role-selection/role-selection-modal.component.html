@@ -12,6 +12,12 @@
       bindLabel="role"
       [clearable]="false"
       [searchable]="false">
+      <ng-template ng-label-tmp let-item="item">
+        <span>{{ item.role | translate }}</span>
+      </ng-template>
+      <ng-template ng-option-tmp let-item="item">
+        <span>{{ item.role | translate }}</span>
+      </ng-template>
     </ng-select>
   </div>
 </div>
