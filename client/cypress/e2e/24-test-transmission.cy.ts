@@ -397,7 +397,9 @@ describe("transmission workflow upon a request", function () {
     });
 
     cy.get("#actionsDropdownButton").scrollIntoView().should("be.visible").click();
-    cy.takeScreenshot("recipient/forward_request_actions_detail", "#TipToolbar");
+    // the open menu: #TipToolbar holds the export, the logs and the refresh, and the capture
+    // of it photographed those three buttons and left the actions out of the frame
+    cy.takeScreenshot("recipient/forward_request_actions_detail", ".dropdown-menu.show");
     cy.get("#tip-action-deny-transmission").should("be.visible").click();
 
     // the modal performs the denial: confirm it
