@@ -6,7 +6,7 @@
           @if (tipService().tip.questionnaires.length > 1) {
             <div>
               @if (questionnaire.name) {
-                <span>{{questionnaire.name}}</span>
+                <span>{{questionnaire.name | translate}}</span>
               } @else {
                 <span>{{'Questionnaire'|translate}}</span>
                 <span>{{index + 1}}</span>
@@ -19,7 +19,7 @@
                 <dl>
                   <dt id="step={{questionare_steps}}">
                     <span>{{'Step'|translate}}</span>
-                    <span>{{questionare_steps + 1}}: {{step.label}}</span>
+                    <span>{{questionare_steps + 1}}: {{step.label | translate}}</span>
                   </dt>
                 </dl>
               }
