@@ -1,6 +1,6 @@
 import { Component, Input, inject, OnInit } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { NgSelectComponent } from "@ng-select/ng-select";
+import { NgSelectComponent, NgLabelTemplateDirective, NgOptionTemplateDirective } from "@ng-select/ng-select";
 import { FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { AuthenticationService } from "@app/services/helper/authentication.service";
@@ -11,6 +11,8 @@ import { AuthenticationService } from "@app/services/helper/authentication.servi
   standalone: true,
   imports: [
     NgSelectComponent,
+    NgLabelTemplateDirective,
+    NgOptionTemplateDirective,
     FormsModule,
     TranslateModule
   ]

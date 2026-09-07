@@ -14,7 +14,7 @@
         <div class="col-md-12">
           <ng-select [(ngModel)]="selection" [ngModelOptions]="{standalone: true}" [items]="stableOptions" bindLabel="label" bindValue="id" [searchable]="true" [placeholder]="'Search' | translate" [ariaLabel]="label() | translate" (ngModelChange)="pick($event)">
             <ng-template ng-option-tmp let-item="item">
-              <span>{{ item.label }}</span>
+              <span>{{ item.label | translate }}</span>
             </ng-template>
           </ng-select>
         </div>
@@ -31,17 +31,17 @@
               </span>
             }
             @if (selectableDefault() && entry.id === defaultId() && clearableDefault()) {
-              <button type="button" class="icon-action default-entry clear-default-btn" ngbTooltip="{{defaultLabel() | translate}}" [attr.aria-pressed]="true" [attr.aria-label]="(defaultLabel() | translate) + ': ' + entry.label" (click)="defaultPicked.emit('')">
+              <button type="button" class="icon-action default-entry clear-default-btn" ngbTooltip="{{defaultLabel() | translate}}" [attr.aria-pressed]="true" [attr.aria-label]="(defaultLabel() | translate) + ': ' + (entry.label | translate)" (click)="defaultPicked.emit('')">
                 <i class="fas fa-check" aria-hidden="true"></i>
               </button>
             }
             @if (selectableDefault() && entry.id !== defaultId()) {
-              <button type="button" class="icon-action non-default-entry" ngbTooltip="{{defaultTooltip() | translate}}" [attr.aria-label]="(defaultTooltip() | translate) + ': ' + entry.label" (click)="defaultPicked.emit(entry.id)">
+              <button type="button" class="icon-action non-default-entry" ngbTooltip="{{defaultTooltip() | translate}}" [attr.aria-label]="(defaultTooltip() | translate) + ': ' + (entry.label | translate)" (click)="defaultPicked.emit(entry.id)">
                 <i class="fas fa-check" aria-hidden="true"></i>
               </button>
             }
             @if (entry.id !== defaultId()) {
-              <button type="button" class="icon-action remove-entry-btn" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="('Remove' | translate) + ': ' + entry.label" (click)="entryRemoved.emit({index: index, id: entry.id})">
+              <button type="button" class="icon-action remove-entry-btn" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="('Remove' | translate) + ': ' + (entry.label | translate)" (click)="entryRemoved.emit({index: index, id: entry.id})">
                 <i class="fas fa-xmark" aria-hidden="true"></i>
               </button>
             }
@@ -49,7 +49,7 @@
               <i class="fas fa-xmark disabled-icon" aria-hidden="true"></i>
             }
           </span>
-          <span>{{ entry.label }}</span>
+          <span>{{ entry.label | translate }}</span>
         </li>
       }
     </ul>
