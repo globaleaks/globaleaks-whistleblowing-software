@@ -120,7 +120,9 @@ describe("admin add, configure, and delete users", () => {
     cy.get(".userList").eq(2).find("[data-action='edit']").click();
     cy.get(".userList").eq(2).within(() => {
       cy.get("#user-description").clear().type("Reads the reports of the second channel");
-      cy.get("#user-language-select").select("en");
+      // the platform offers the languages it has enabled: the run picks the first one it
+      // finds, so the step holds whatever language the platform is configured in
+      cy.get("#user-language-select").select(0);
       cy.get("#user-notification").uncheck();
       cy.get("#user-notification").check();
       cy.get("#user-password-change-needed").then(($box) => {
@@ -131,8 +133,11 @@ describe("admin add, configure, and delete users", () => {
       cy.get("[data-action='save']").click();
     });
 
+    // the profiles are already in memory: the second opening emits no request for
+    // openAdminUsers to wait on, so the page is visited and the list awaited
     cy.visit("/#/admin/home");
-    cy.openAdminUsers();
+    cy.visit("/#/admin/users");
+    cy.get(".userList").should("have.length.greaterThan", 2);
     cy.get(".userList").eq(2).find("[data-action='edit']").click();
     cy.get(".userList").eq(2).find("#user-description").should("have.value", "Reads the reports of the second channel");
     cy.get(".userList").eq(2).find("[data-action='cancel']").click();
@@ -296,7 +301,7 @@ describe("Multiple role profile", () => {
       // the selector of the roles is revealed by the Add button of its section
       cy.get(".add-role-btn").click();
       cy.get("#RoleAdder ng-select").click();
-      cy.get('.ng-dropdown-panel .ng-option').contains('Recipient').click();
+      cy.get('.ng-dropdown-panel .ng-option').contains(t("Recipient")).click();
       cy.get("#save_profile").click();
     });
   });
@@ -325,7 +330,7 @@ describe("Multiple role profile", () => {
     cy.get("#SwitchRoleLink").click();
     cy.get('.modal-title').should('contain', t('Switch role'));
     cy.get('ng-select').click();
-    cy.get('.ng-dropdown-panel .ng-option').contains('Recipient').click();
+    cy.get('.ng-dropdown-panel .ng-option').contains(t("Recipient")).click();
     cy.get('#modal-action-ok').click();
 
     cy.url().should('include', '/recipient/home');
