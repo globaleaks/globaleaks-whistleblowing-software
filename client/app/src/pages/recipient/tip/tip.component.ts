@@ -275,14 +275,19 @@ export class TipComponent implements OnInit {
     modalRef.componentInstance.code = this.tip?.data?.receipt || "";
   }
 
-  // A decided request is not decided again
+  // A decision can be revised in either direction: what a decided request no longer offers is
+  // the decision it already carries. Denying closes the request, authorizing reopens it, so
+  // the state is read from both fields
+  transmissionRequestDenied() {
+    return !this.tip?.allow_transmission && this.tip?.status === "closed";
+  }
+
   canAuthorizeTransmission() {
-    return this.decidesOnTransmissionRequest() && !this.tip?.allow_transmission &&
-           this.tip?.status !== "closed";
+    return this.decidesOnTransmissionRequest() && !this.tip?.allow_transmission;
   }
 
   canDenyTransmission() {
-    return this.decidesOnTransmissionRequest() && this.tip?.status !== "closed";
+    return this.decidesOnTransmissionRequest() && !this.transmissionRequestDenied();
   }
 
   // Until decided, the request has the ordinary status
