@@ -72,6 +72,7 @@ export class UtilsService {
       'enable_2fa',
       'grant_access',
       'send_password_reset_email',
+      'send_signup_invite',
       'signup',
       'transfer_access',
       'version_update',
@@ -81,6 +82,7 @@ export class UtilsService {
     ],
     High: [
       'delete_report',
+      'delete_signup_invite',
       'delete_user',
       'deny_signup',
       'disable_2fa',
