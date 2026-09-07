@@ -36,9 +36,9 @@
               <div>
                 @if (field().options.length < 10) {
                   <select id="{{fieldEntry()}}" [name]="fieldEntry()" class="form-control" [(ngModel)]="entry()['value']" [required]="entry().required_status" [attr.aria-label]="field().label | translate">
-                    <option class="d-none" value="">Select an option</option>
+                    <option class="d-none" value="">{{'Select an option'|translate}}</option>
                     @for (option of field().options | orderBy:field().attrs.display_alphabetically.value ? 'label' : 'order'; track option; let index = $index) {
-                      <option id="{{fieldEntry()}}-option-{{index}}" [value]="option.id">{{option.label}}</option>
+                      <option id="{{fieldEntry()}}-option-{{index}}" [value]="option.id">{{option.label | translate}}</option>
                     }
                   </select>
                 }
@@ -46,7 +46,7 @@
                   <div class="input-group" [class.d-block]="!entry()['value']">
                     <ng-select [attr.id]="fieldEntry()" class="w-75" [clearable]="false" [name]="fieldEntry()" [(ngModel)]="entry()['value']" [ariaLabel]="field().label | translate">
                       @for (option of field().options | orderBy:field().attrs.display_alphabetically.value ? 'label' : 'order'; track option) {
-                        <ng-option [value]="option.id">{{option.label}}</ng-option>
+                        <ng-option [value]="option.id">{{option.label | translate}}</ng-option>
                       }
                     </ng-select>
                     @if (entry()['value']) {
@@ -63,7 +63,7 @@
                 @for (option of field().options | orderBy:'order'; track option; let innerindex = $index) {
                   <div>
                     <input [name]="fieldEntry()" id="{{fieldEntry() + '-option-' + innerindex}}" class="form-control-inputform-check-input" type="radio" [(ngModel)]="entry()['value']" value="{{option.id}}" [required]="field().required" />
-                    <label for="{{fieldEntry() + '-option-' + innerindex}}" ngbTooltip="{{option.hint1}}" [class.text-underline]="option.hint1">{{option.label}}</label>
+                    <label for="{{fieldEntry() + '-option-' + innerindex}}" ngbTooltip="{{option.hint1}}" [class.text-underline]="option.hint1">{{option.label | translate}}</label>
                   </div>
                 }
               </div>
@@ -73,7 +73,7 @@
                 @for (option of field().options | orderBy:field().attrs.display_alphabetically.value ? 'label' : 'order'; track option; let index = $index) {
                   <div>
                     <input id="{{fieldEntry() + '-option-' + index}}" [name]="fieldEntry()" class="form-control-input inputelinem form-check-input" [(ngModel)]="entry()[option.id]" value="{{option.id}}" [required]="entry().required_status" type="checkbox" />
-                    <label for="{{fieldEntry() + '-option-' + index}}" ngbTooltip="{{option.hint1}}" [class.text-underline]="option.hint1">{{option.label}}</label>
+                    <label for="{{fieldEntry() + '-option-' + index}}" ngbTooltip="{{option.hint1}}" [class.text-underline]="option.hint1">{{option.label | translate}}</label>
                   </div>
                 }
               </div>
