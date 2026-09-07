@@ -684,7 +684,10 @@ module.exports = function(grunt) {
       // notification: the panel keeps asking for a title and receives one.
       let composed_titles = {
         "tip_mail_title": ["Report", "New"],
-        "tip_update_mail_title": ["Report", "Updated"]
+        "tip_update_mail_title": ["Report", "Updated"],
+        "transmission_mail_title": ["Forward", "New"],
+        "transmission_request_mail_title": ["Forward request", "New"],
+        "communication_mail_title": ["Communication", "New"]
       };
 
       let translate_object = function(object, keys) {
