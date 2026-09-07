@@ -11,7 +11,7 @@
                     @if (entry()[option.id] === true) {
                       <div>
                         <i class="fas fa-square-check"></i>
-                        <span>{{ option.label }}</span>
+                        <span>{{ option.label | translate }}</span>
                       </div>
                     }
                   </div>
@@ -37,7 +37,7 @@
         @for (option of field().options; track option) {
           <div>
             @if (entry()['value'] === option.id) {
-              <span>{{option.label}}</span>
+              <span>{{option.label | translate}}</span>
             }
           </div>
         }
@@ -48,7 +48,7 @@
         @for (option of field().options; track option) {
           <div>
             @if (entry()['value'] === option.id) {
-              <span>{{option.label}}</span>
+              <span>{{option.label | translate}}</span>
             }
           </div>
         }
