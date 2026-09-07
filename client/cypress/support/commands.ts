@@ -247,16 +247,15 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
 
       if (locator && locator !== ".modal") {
         // A capture of a collapsed panel, of a hidden tab or of a duplicated identifier comes out a
-        // few pixels tall. A modal is photographed with the backdrop around it, so that its border
-        // and its rounded corners are seen: a capture cut on the box shows a bare white rectangle
-        const padding = /modal/.test(locator) ? 16 : 0;
+        // few pixels tall: the size is asserted before photographing. The crop is exact, the modals
+        // included — the backdrop around them adds nothing the chapter needs
         return cy.get(locator)
           .should(($el) => {
             const box = $el[0]!.getBoundingClientRect();
             expect(box.width, `width of the capture ${screenshotPath} (${locator})`).to.be.greaterThan(16);
             expect(box.height, `height of the capture ${screenshotPath} (${locator})`).to.be.greaterThan(16);
           })
-          .screenshot(screenshotPath, { overwrite: true, scale: true, padding });
+          .screenshot(screenshotPath, { overwrite: true, scale: true });
       } else {
         // A full page capture stitches several scrolls: a modal, or anything fixed, breaks it
         return cy.screenshot(screenshotPath, {
