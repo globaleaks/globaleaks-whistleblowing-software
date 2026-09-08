@@ -182,9 +182,10 @@ def signup(session, request, language, bearer_token=None):
     if active:
         db_signup_activation(session, activation_token, language, oidc_token)
     else:
-        # The notification carries the raw token; the database stores its hash
+        # The alert links to the registration, which the administrator reads and
+        # authorizes on the site: the token never leaves the database
         signup_dict = serializers.serialize_signup(signup)
-        signup_dict['activation_token'] = activation_token
+        signup_dict['activation_token'] = ''  # nosec B105
 
         notif = State.tenants[1].cache.notification
         if not notif or notif.enable_admin_notification_emails:
