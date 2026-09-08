@@ -1,13 +1,12 @@
 Dear {RecipientName},
 
-A new whistleblowing site has been registered and is awaiting authorization.
+A new whistleblowing site has been registered.
 
 Registration data:
 Site: {Url}
 Name: {Name}
 Email: {Email}
 
-To authorize the site, click the following link:
 {ActivationUrl}
 
 The platform will be automatically deleted on:
