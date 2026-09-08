@@ -488,6 +488,7 @@ Unhide
 Unread reply
 Unselect
 Update date
+Updated
 Upload
 Upload a file:
 Upload date
