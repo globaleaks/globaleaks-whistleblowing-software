@@ -13,7 +13,7 @@
 <ng-content></ng-content>
 @if (canReply) {
   <div class="form-group">
-    <label class="title" [for]="'support-reply-' + request.id">{{ 'Reply' | translate }}</label>
+    <label class="title" [for]="'support-reply-' + request.id">{{ 'Message' | translate }}</label>
     <textarea [id]="'support-reply-' + request.id" class="form-control" [ngModel]="draft" (ngModelChange)="onDraftChange($event)" maxlength="4096" rows="4"></textarea>
   </div>
   <button type="button" class="btn btn-primary mt-2" data-cy="send-support-reply" [disabled]="!(draft || '').trim()" (click)="sendMessage()">
