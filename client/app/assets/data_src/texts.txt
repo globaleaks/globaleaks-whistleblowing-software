@@ -7,6 +7,7 @@ Access date
 Access requested
 Access to the reporting person's identity has been requested to the custodian.
 Account recovery key
+Activation
 Activities
 Add
 Add custom text
@@ -50,6 +51,7 @@ Authorize
 Authorize access to the reporting person's identity
 Authorized
 Auto-renewal
+Automatic
 Automatic configuration
 Available disk space
 Before proceeding please read carefully the documentation at:
@@ -235,6 +237,7 @@ Low
 Make a copy and store it in a safe place. It will be necessary if you lose your password to recover the access to your account without data loss.
 Make it possible for this admin to reset user passwords.
 Mandatory
+Manual
 Manual configuration
 Mark as important
 Mask
