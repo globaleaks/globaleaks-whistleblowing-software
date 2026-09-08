@@ -518,6 +518,8 @@
   "please enter a valid email address.": "正しいメールアドレスを入力してください。",
   "please enter numbers only.": "数字のみで入力してください。",
   "seconds": "秒",
+  "Customizable": "Customizable",
+  "Not customizable": "Not customizable",
   "Select a reporting channel:": "Select a reporting channel:",
   "Please summarize your report in a few words.": "短く報告を説明してください。",
   "Describe your report in detail.": "詳細に報告を説明してください。",

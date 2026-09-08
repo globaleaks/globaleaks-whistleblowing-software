@@ -518,6 +518,8 @@
   "please enter a valid email address.": "একটি বৈধ ইমেইল ঠিকানা লিখুন। ",
   "please enter numbers only.": "অনুগ্রহ করে শুধু মাত্র নাম্বার প্রবেশ করান।",
   "seconds": "সেকেন্ড",
+  "Customizable": "Customizable",
+  "Not customizable": "Not customizable",
   "Select a reporting channel:": "Select a reporting channel:",
   "Please summarize your report in a few words.": "আপনার রিপোর্টটি সংক্ষেপে বর্ণনা করুন।",
   "Describe your report in detail.": "আপনার রিপোর্টটি বিশদভাবে বর্ণনা করুন।",

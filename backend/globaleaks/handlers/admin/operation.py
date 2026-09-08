@@ -11,8 +11,8 @@ from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
 from globaleaks.handlers.user import get_user
 from globaleaks.handlers.user.operation import disable_2fa, reset_idp_binding
-from globaleaks.models import Config, InternalTip, User
-from globaleaks.models.config import db_get_protected_users, db_set_config_variable, get_default, ConfigDescriptor, ConfigFactory, ConfigL10NFactory
+from globaleaks.models import Config, ConfigL10N, InternalTip, User
+from globaleaks.models.config import configurable_keys, db_get_protected_users, db_get_customizable_keys, db_get_profile_children, db_reset_key, db_set_config_variable, get_default, protected_keys, unlockable_keys, ConfigDescriptor, ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
@@ -248,6 +248,80 @@ def reset_templates(session, tid, user_id):
     db_log(session, tid=tid, type='reset_templates', user_id=user_id)
 
 
+@transact
+def set_key_customizable(session, tid, user_id, var_name, customizable):
+    """
+    Leave to the sites naming a profile a variable they may customize, or take it back
+
+    A site holds what its profile hands it: the profile names here the few variables it does not
+    hold on their behalf, among the ones the application allows to be left free at all.
+
+    Taking a variable back takes it back whole: the value a site configured while it was free is
+    dropped, and the site reads again the one the profile hands. Kept aside, it would stay in force
+    on a site that may no longer change it, or come back unseen the day the variable is left free
+    again.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the profile
+    :param user_id: The id of the user deciding it
+    :param var_name: The name of the variable
+    :param customizable: Whether the sites naming the profile may customize it
+    """
+    # Only a profile hands variables to other sites, and so only a profile withholds them. The
+    # default profile is not one of them: what a site inherits from it, it may write.
+    if tid <= DEFAULT_PROFILE_ID:
+        raise errors.ForbiddenOperation
+
+    if var_name not in unlockable_keys:
+        raise errors.InputValidationError
+
+    keys = set(db_get_customizable_keys(session, tid))
+
+    if customizable:
+        keys.add(var_name)
+    else:
+        keys.discard(var_name)
+
+    db_set_config_variable(session, tid, 'customizable_keys', sorted(keys))
+
+    db_log(session, tid=tid, type='unlock_key' if customizable else 'lock_key', user_id=user_id)
+
+    if customizable:
+        return
+
+    children = db_get_profile_children(session, tid)
+
+    holders = {t for t, in session.query(Config.tid).filter(Config.tid.in_(children),
+                                                            Config.var_name == var_name)}
+    holders.update(t for t, in session.query(ConfigL10N.tid).filter(ConfigL10N.tid.in_(children),
+                                                                    ConfigL10N.var_name == var_name))
+
+    for child in sorted(holders):
+        db_reset_key(session, child, var_name)
+        db_log(session, tid=child, type='reset_key', user_id=user_id)
+
+
+@transact
+def reset_key(session, tid, user_id, var_name):
+    """
+    Give up the value the tenant holds of its own for a variable
+
+    What the profile hands reaches the tenant again, and follows it from then on. A variable the
+    tenant owns in any case is refused: there is no other value for it to go back to.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param user_id: The id of the user asking for it
+    :param var_name: The name of the variable
+    """
+    if var_name in protected_keys or var_name not in configurable_keys:
+        raise errors.InputValidationError
+
+    db_reset_key(session, tid, var_name)
+
+    db_log(session, tid=tid, type='reset_key', user_id=user_id)
+
+
 def db_set_user_password(session, tid, user_session, user_id, key):
     user = db_get_user(session, tid, user_id)
 
@@ -345,7 +419,10 @@ class AdminOperationHandler(OperationHandler):
                                 'reset_backups',
                                 'toggle_escrow',
                                 'toggle_user_escrow',
-                                'validate_idp'],
+                                'validate_idp',
+                                'unlock_key',
+                                'lock_key',
+                                'reset_key'],
         'can_manage_network': ['set_hostname',
                                'reset_onion_private_key'],
         'can_manage_notifications': ['test_mail',
@@ -396,6 +473,15 @@ class AdminOperationHandler(OperationHandler):
 
     def set_default_statistical_template(self, req_args, *args, **kwargs):
         return tw(set_default_statistical_template, self.request.tid, req_args['value'])
+
+    def unlock_key(self, req_args, *args, **kwargs):
+        return set_key_customizable(self.request.tid, self.session.user_id, req_args['value'], True)
+
+    def lock_key(self, req_args, *args, **kwargs):
+        return set_key_customizable(self.request.tid, self.session.user_id, req_args['value'], False)
+
+    def reset_key(self, req_args, *args, **kwargs):
+        return reset_key(self.request.tid, self.session.user_id, req_args['value'])
 
     def set_user_password(self, req_args, *args, **kwargs):
         if self.session.user_id == req_args['user_id']:
@@ -532,5 +618,8 @@ class AdminOperationHandler(OperationHandler):
             'enable_user_permission_file_upload': AdminOperationHandler.enable_user_permission_file_upload,
             'disable_user_permission_file_upload': AdminOperationHandler.disable_user_permission_file_upload,
             'reset_templates': AdminOperationHandler.reset_templates,
-            'set_default_statistical_template': AdminOperationHandler.set_default_statistical_template
+            'set_default_statistical_template': AdminOperationHandler.set_default_statistical_template,
+            'unlock_key': AdminOperationHandler.unlock_key,
+            'lock_key': AdminOperationHandler.lock_key,
+            'reset_key': AdminOperationHandler.reset_key
         }

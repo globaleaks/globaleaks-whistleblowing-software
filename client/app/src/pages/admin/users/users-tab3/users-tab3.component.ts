@@ -4,12 +4,13 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
+import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
 @Component({
     selector: "src-users-tab3",
     templateUrl: "./users-tab3.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule]
+    imports: [HeldByProfileDirective, FormsModule, TranslateModule]
 })
 export class UsersTab3Component implements OnInit {
   private readonly nodeResolver = inject(NodeResolver);

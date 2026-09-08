@@ -2,22 +2,29 @@ import {Component, inject, input} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
+import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
+import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
 @Component({
     selector: "src-notification-tab1",
     templateUrl: "./notification-tab1.component.html",
     standalone: true,
-    imports: [TranslatePipe, FormsModule]
+    imports: [HeldByProfileDirective, TranslatePipe, FormsModule]
 })
 export class NotificationTab1Component {
   protected notificationResolver = inject(NotificationsResolver);
+  private readonly nodeResolver = inject(NodeResolver);
   private readonly utilsService = inject(UtilsService);
 
   readonly notificationForm = input.required<NgForm>();
 
   updateNotification(notification: notificationResolverModel) {
-    this.utilsService.updateAdminNotification(notification).subscribe();
+    // The notification answers with the notification alone, which does not say what the site
+    // holds: the node is asked again, so that the command to give a value up is there as soon as
+    // the save has created one
+    this.utilsService.updateAdminNotification(notification)
+        .subscribe(() => this.nodeResolver.reload());
   }
 }

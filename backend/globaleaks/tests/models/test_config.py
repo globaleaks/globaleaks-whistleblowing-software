@@ -5,8 +5,9 @@ import re
 import globaleaks
 from globaleaks import models
 from globaleaks.models import config
+from globaleaks.handlers.admin import tenant
 from globaleaks.models.config_desc import ConfigDescriptor
-from globaleaks.orm import transact
+from globaleaks.orm import transact, tw
 from globaleaks.tests import helpers
 
 
@@ -177,3 +178,145 @@ class TestConfigInheritance(helpers.TestGLWithPopulatedDB):
         self.assertEqual((yield own_l10n_rows(3, 'en', 'presentation')), 1)
         for var_name in texts[1:]:
             self.assertLessEqual((yield own_l10n_rows(3, 'en', var_name)), before[var_name])
+
+
+@transact
+def held_keys(session, tid):
+    return config.db_get_held_keys(session, tid)
+
+
+@transact
+def update_node(session, tid, data):
+    config.ConfigFactory(session, tid).update('node', data)
+
+
+class TestProfileLock(helpers.TestGLWithPopulatedDB):
+    """
+    A site naming a profile writes only the variables the profile leaves customizable
+    """
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestGLWithPopulatedDB.setUp(self)
+
+        profile = yield tenant.create({'name': 'A profile',
+                                       'active': True,
+                                       'subdomain': '',
+                                       'profile': 'default'}, is_profile=True)
+
+        self.pid = profile['id']
+
+        # the site names the profile by the UUID the profile holds
+        uuid = yield read(self.pid, 'uuid')
+        yield tw(config.db_set_config_variable, 2, 'profile', uuid)
+
+    @inlineCallbacks
+    def leave_customizable(self, keys):
+        yield tw(config.db_set_config_variable, self.pid, 'customizable_keys', keys)
+
+    @inlineCallbacks
+    def test_a_variable_the_profile_keeps_is_not_written(self):
+        inherited = yield read(2, 'custom_support_url')
+
+        yield update_node(2, {'custom_support_url': 'https://support.example.org'})
+
+        self.assertEqual((yield read(2, 'custom_support_url')), inherited)
+        self.assertEqual((yield own_rows(2, 'custom_support_url')), 0)
+
+    @inlineCallbacks
+    def test_a_variable_the_profile_leaves_customizable_is_written(self):
+        yield self.leave_customizable(['custom_support_url'])
+
+        yield update_node(2, {'custom_support_url': 'https://support.example.org'})
+
+        self.assertEqual((yield read(2, 'custom_support_url')), 'https://support.example.org')
+        self.assertEqual((yield own_rows(2, 'custom_support_url')), 1)
+
+    @inlineCallbacks
+    def test_any_variable_a_form_configures_may_be_left_free(self):
+        # what a profile may leave free is not a list drawn by hand: it is every variable a form
+        # configures, and the site writes the one the profile opens, whichever it is
+        inherited = yield read(2, 'enable_signup')
+        yield self.leave_customizable(['enable_signup'])
+
+        yield update_node(2, {'enable_signup': not inherited})
+
+        self.assertEqual((yield read(2, 'enable_signup')), not inherited)
+
+    @inlineCallbacks
+    def test_a_variable_the_application_never_leaves_customizable(self):
+        # the profile names it among the ones it leaves free, and the site does not get it all
+        # the same: the languages of a site are the ones of the profile, which writes its pages
+        yield self.leave_customizable(['languages_enabled', 'custom_support_url'])
+
+        writable = yield tw(config.db_get_writable_keys, 2, self.pid)
+
+        self.assertIn('custom_support_url', writable)
+        self.assertNotIn('languages_enabled', writable)
+
+    @inlineCallbacks
+    def test_a_variable_the_site_owns_stays_writable(self):
+        # the name of a site is its own: no profile hands it, so none withholds it
+        yield update_node(2, {'name': 'The name of the site'})
+
+        self.assertEqual((yield read(2, 'name')), 'The name of the site')
+
+    @inlineCallbacks
+    def test_a_text_the_profile_keeps_is_not_written(self):
+        yield write_l10n(self.pid, 'en', 'header_title_homepage', 'The title of the profile')
+
+        yield update_node_l10n(2, 'en', {'header_title_homepage': 'A title of the site'})
+
+        self.assertEqual((yield read_l10n(2, 'en', 'header_title_homepage')), 'The title of the profile')
+        self.assertEqual((yield own_l10n_rows(2, 'en', 'header_title_homepage')), 0)
+
+    @inlineCallbacks
+    def test_a_text_the_profile_leaves_customizable_is_written(self):
+        yield write_l10n(self.pid, 'en', 'header_title_homepage', 'The title of the profile')
+        yield self.leave_customizable(['header_title_homepage'])
+
+        yield update_node_l10n(2, 'en', {'header_title_homepage': 'A title of the site'})
+
+        self.assertEqual((yield read_l10n(2, 'en', 'header_title_homepage')), 'A title of the site')
+        self.assertEqual((yield own_l10n_rows(2, 'en', 'header_title_homepage')), 1)
+
+    @inlineCallbacks
+    def test_what_the_site_holds_is_what_it_wrote_differently(self):
+        yield self.leave_customizable(['custom_support_url'])
+
+        self.assertNotIn('custom_support_url', (yield held_keys(2)))
+
+        yield update_node(2, {'custom_support_url': 'https://support.example.org'})
+
+        self.assertIn('custom_support_url', (yield held_keys(2)))
+
+    @inlineCallbacks
+    def test_a_value_written_back_to_the_inherited_one_is_not_held(self):
+        yield self.leave_customizable(['custom_support_url'])
+        inherited = yield read(2, 'custom_support_url')
+
+        yield update_node(2, {'custom_support_url': 'https://support.example.org'})
+        yield update_node(2, {'custom_support_url': inherited})
+
+        self.assertNotIn('custom_support_url', (yield held_keys(2)))
+
+    @inlineCallbacks
+    def test_what_no_form_configures_is_not_held(self):
+        # the keys and the counters a site keeps for itself are not a configuration of the site
+        held = yield held_keys(1)
+
+        self.assertNotIn('crypto_stat_prv_key', held)
+        self.assertNotIn('https_selfsigned_key', held)
+
+    @inlineCallbacks
+    def test_the_variables_a_site_owns_in_any_case_are_not_held(self):
+        # the name and the subdomain tell one site from another: they are not a customization
+        held = yield held_keys(2)
+
+        self.assertNotIn('name', held)
+        self.assertNotIn('subdomain', held)
+
+    @inlineCallbacks
+    def test_a_site_naming_no_profile_writes_what_it_likes(self):
+        yield update_node(3, {'custom_support_url': 'https://support.example.org'})
+
+        self.assertEqual((yield read(3, 'custom_support_url')), 'https://support.example.org')

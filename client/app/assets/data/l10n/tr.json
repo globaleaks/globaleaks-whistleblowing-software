@@ -518,6 +518,8 @@
   "please enter a valid email address.": "lütfen geçerli bir e-posta adresi yazın.",
   "please enter numbers only.": "Lütfen yalnızca rakamlar yazın.",
   "seconds": "saniye",
+  "Customizable": "Customizable",
+  "Not customizable": "Not customizable",
   "Select a reporting channel:": "Bir ihbar kanalı seçin:",
   "Please summarize your report in a few words.": "İhbarınızı özetleyen bir kaç sözcük yazın.",
   "Describe your report in detail.": "İhbarınız hakkında ayrıntılı bilgi verin.",

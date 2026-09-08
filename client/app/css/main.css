@@ -202,6 +202,21 @@ table tr td {
   cursor: not-allowed;
 }
 
+/* Every other control one cannot write says so in the same way, as the pointer reaches it. A box
+   to tick is made by Bootstrap deaf to the pointer once spent, and the pointer could then never
+   tell: it is given back its hearing to show the sign, while the browser keeps refusing the click.
+   The words beside the box belong to it and say the same. */
+input:disabled,
+select:disabled,
+textarea:disabled,
+.form-check-input:disabled,
+label:has(> .form-check-input:disabled),
+.form-check-input:disabled ~ .form-check-label,
+.ng-select.ng-select-disabled > .ng-select-container {
+  pointer-events: auto;
+  cursor: not-allowed;
+}
+
 .h1,
 h1 {
   font-size: 1.6em;
@@ -865,6 +880,49 @@ p:last-child {
 
 .field-option {
   margin-bottom: 0.5em;
+}
+
+/* Who decides the value of a field is said at the end of the line of its label, at the opposite
+   edge: the commands never fall over the control, and an area of text finds them in the same
+   place as a line of one. Where no group wraps the field they stay beside the control. */
+.config-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.config-label > .field-actions {
+  margin-left: auto;
+}
+
+.field-actions {
+  display: inline-flex;
+  gap: 0.6em;
+  margin-left: 0.6em;
+  line-height: 1.5;
+}
+
+/* The lock keeps its place whether or not the profile is holding the variable, and the colour
+   says which of the two: a page is then read at a glance instead of being hunted through. The
+   giving up of a value shows itself only when there is a value to give up, and so it is never
+   there to be pressed in vain. */
+.field-action {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+.field-action--off {
+  color: #c8d1e0;
+}
+
+/* The list of what a site holds is read whole: it is given more room than the lists that pick
+   a handful of entries */
+.configuration-list .selection-list {
+  max-height: 20rem;
 }
 
 .selection-list {

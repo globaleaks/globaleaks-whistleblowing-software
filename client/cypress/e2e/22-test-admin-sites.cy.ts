@@ -1,4 +1,9 @@
 describe("admin configure, add, configure and delete tenants", () => {
+  // The address of the support: the profile hands one, the site writes its own, and giving up
+  // its own gets the profile's back
+  const profileSupportURL = "https://support.platform-d.example";
+  const siteSupportURL = "https://support.example.org";
+
   const add_profile = (name: string, tenant?: boolean, profile?: string) => {
     if (tenant) {
       cy.get(".show-add-tenant-btn").click();
@@ -219,13 +224,45 @@ describe("admin configure, add, configure and delete tenants", () => {
     visit_configured_tenant();
 
     cy.get("#admin_settings").click();
+
+    // A value of one's own is held the moment it is saved, and the command to give it up is there
+    // with it, on the page it was saved from and without leaving it
+    cy.contains(".form-group", "Description").find(".config-reset-btn").should("not.exist");
+    cy.get('textarea[name="node.dataModel.description"]').clear().type("Platform D of the tests");
+    cy.get("#save_settings").click();
+    cy.contains(".form-group", "Description").find(".config-reset-btn").should("exist");
+
     cy.get('[data-cy="advanced"]').click();
     cy.get('input[name="disable_submissions"]').click();
     cy.get('input[name="node.dataModel.pgp"]').click();
+
+    // The profile leaves the sites naming it the address of their own support, and holds the
+    // rest: the lock beside the field says which of the two, and says it where the field is
+    cy.contains(".form-group", "Custom support URL").find(".key-lock-btn").click();
+    cy.contains(".form-group", "Custom support URL").find(".key-lock-btn")
+      .should("have.class", "field-action--off");
+
+    // and the same two decisions, read whole in one place: what the profile left free, and what
+    // it holds of its own
+    cy.get("#configuration").click();
+    cy.get("#configuration-customizable .selection-list").should("contain", "custom_support_url");
+    cy.get("#configuration-held .selection-list").should("contain", "description");
+    cy.get("#configuration-customizable .selection-list .remove-entry-btn .fa-xmark").should("exist");
+    cy.get("#configuration-held .selection-list .remove-entry-btn .fa-rotate-left").should("exist");
+    cy.get(".modal .btn-close").click();
+
+    // and it hands one of its own: what a site gets back when it gives up the value it wrote
+    cy.get('input[name="customSupportURL"]').clear().type(profileSupportURL);
+
     cy.get("#save").click();
+
+    // Saving the advanced settings rebuilds the page on the first tab: the command is found again
+    // where the value it gives up is
+    cy.get('[data-cy="advanced"]').click();
+    cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").should("exist");
   });
 
-  it("should add a new tenant from the profile, verify that variables change in the tenant, and update the tenant's variables", () => {
+  it("should add a new tenant from the profile, read there what the profile holds and write what it leaves", () => {
     cy.login_admin();
     cy.visit("/#/admin/sites");
     cy.get('[data-cy="sites"]').click();
@@ -243,12 +280,39 @@ describe("admin configure, add, configure and delete tenants", () => {
     visit_configured_tenant().then(() => {
       cy.get("#admin_settings").click();
       cy.get('[data-cy="advanced"]').click();
-      cy.get('input[name="disable_submissions"]').should('be.checked');
-      cy.get('input[name="node.dataModel.pgp"]').should('be.checked');
+      // What the profile holds reaches the site, which reads it and does not write it
+      cy.get('input[name="disable_submissions"]').should('be.checked').and('be.disabled');
+      cy.get('input[name="node.dataModel.pgp"]').should('be.checked').and('be.disabled');
 
-      cy.get('input[name="disable_submissions"]').click();
-      cy.get('input[name="node.dataModel.pgp"]').click();
+      // What the profile leaves free the site writes, and keeps
+      cy.get('input[name="customSupportURL"]').should('have.value', profileSupportURL)
+        .and('not.be.disabled')
+        .clear().type(siteSupportURL);
+      // Nothing to give up while the site reads what the profile hands it, and no lock either:
+      // a site has nobody to leave anything to
+      cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").should("not.exist");
+      cy.contains(".form-group", "Custom support URL").find(".key-lock-btn").should("not.exist");
       cy.get("#save").click();
+
+      cy.get("#admin_home").click();
+      cy.get("#admin_settings").click();
+      cy.get('[data-cy="advanced"]').click();
+      cy.get('input[name="customSupportURL"]').should('have.value', siteSupportURL);
+
+      // Giving up the value of one's own gives back the one the profile hands, and the page
+      // shows it on the spot: a mark left on the window says whether it was reloaded instead
+      cy.window().then((win: any) => { win.__noReload = true; });
+      cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").click();
+      cy.get('input[name="customSupportURL"]').should('have.value', profileSupportURL);
+      cy.window().its("__noReload").should("eq", true);
+
+      // nothing left to give up: the command goes with the value it gave back
+      cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").should("not.exist");
+
+      // The languages of the site are the ones the profile speaks: they are read and not chosen
+      cy.get('[data-cy="languages"]').click();
+      cy.get(".add-language-btn").should("not.exist");
+
       cy.logout();
     });
   });

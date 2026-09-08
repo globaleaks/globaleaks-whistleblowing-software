@@ -14,12 +14,14 @@ import {UserProfile} from "@app/models/resolvers/user-resolver-model";
 import {SelectableEntry, SelectableUser} from "@app/models/app/selectables";
 import {HttpService} from "@app/shared/services/http.service";
 import {TranslateModule} from "@ngx-translate/core";
+import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
+import {ConfigurationComponent} from "@app/shared/modals/configuration/configuration.component";
 
 @Component({
     selector: "src-tab8",
     templateUrl: "./tab8.component.html",
     standalone: true,
-    imports: [FormsModule, SelectionEditorComponent, TranslateModule]
+    imports: [HeldByProfileDirective, FormsModule, SelectionEditorComponent, TranslateModule]
 })
 export class Tab8Component implements OnInit {
   protected authenticationService = inject(AuthenticationService);
@@ -100,8 +102,18 @@ export class Tab8Component implements OnInit {
     });
   }
 
+  // The variables a profile leaves free, and the ones a site holds of its own: two questions the
+  // same list answers, depending on who is looking
+  openConfiguration() {
+    this.modalService.open(ConfigurationComponent, {backdrop: 'static', keyboard: false});
+  }
+
   updateNode() {
-    this.utilsService.update(this.nodeResolver.dataModel).subscribe(() => {
+    this.utilsService.update(this.nodeResolver.dataModel).subscribe((node) => {
+      // A save is what makes a site start holding a value of its own, and the command to give it
+      // up must be there the moment it does. The answer says what the site holds now: the strips
+      // read it from there, without waiting for the navigation below to bring it again.
+      this.nodeResolver.patch({held_keys: node.held_keys});
       this.appConfigService.reinit();
       if (this.routeReload) {
         this.utilsService.reloadCurrentRoute();

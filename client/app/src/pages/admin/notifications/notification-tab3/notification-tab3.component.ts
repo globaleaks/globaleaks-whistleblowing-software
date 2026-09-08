@@ -2,6 +2,7 @@ import {Component, inject, input} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
 import {Constants} from "@app/shared/constants/constants";
+import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {switchMap} from "rxjs";
@@ -10,15 +11,17 @@ import {TranslatePipe} from "@ngx-translate/core";
 import {SendMailComponent} from "@app/shared/modals/send-mail/send-mail.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
+import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
 @Component({
     selector: "src-notification-tab3",
     templateUrl: "./notification-tab3.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslatePipe, NgSelectComponent, NgOptionTemplateDirective]
+    imports: [HeldByProfileDirective, FormsModule, NgbTooltipModule, TranslatePipe, NgSelectComponent, NgOptionTemplateDirective]
 })
 export class NotificationTab3Component {
   protected notificationResolver = inject(NotificationsResolver);
+  private readonly nodeResolver = inject(NodeResolver);
   private readonly utilsService = inject(UtilsService);
   private readonly modalService = inject(NgbModal);
 
@@ -56,15 +59,26 @@ export class NotificationTab3Component {
   ]
 
   updateNotification(notification: notificationResolverModel) {
-    this.utilsService.updateAdminNotification(notification).subscribe();
+    // The notification answers with the notification alone, which does not say what the site
+    // holds: the node is asked again, so that the command to give a value up is there as soon as
+    // the save has created one
+    this.utilsService.updateAdminNotification(notification)
+        .subscribe(() => this.nodeResolver.reload());
   }
 
   updateThenTestMail(notification: notificationResolverModel,smtp2?: boolean): void {
     const modalRef = this.modalService.open(SendMailComponent, {backdrop: 'static', keyboard: false});
     modalRef.componentInstance.confirmFunction = (email: string) => {
       this.utilsService.updateAdminNotification(notification)
-        .pipe(switchMap(() => this.utilsService.runAdminOperation("test_mail", smtp2 ? {smtp2 : smtp2, to_mail_address : email} : {to_mail_address : email}, false))).subscribe();
+        .pipe(switchMap(() => this.utilsService.runAdminOperation("test_mail", smtp2 ? {smtp2 : smtp2, to_mail_address : email} : {to_mail_address : email}, false)))
+        .subscribe(() => this.nodeResolver.reload());
     };
+  }
+
+  // The notifications sent through the secondary server are a variable as any other: a site
+  // naming a profile reads the ones the profile chose and does not change them
+  heldByProfile(key: string): boolean {
+    return this.nodeResolver.heldByProfile(key);
   }
 
   selectTemplate(template: string) {
