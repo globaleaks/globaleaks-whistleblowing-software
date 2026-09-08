@@ -5,6 +5,7 @@ import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
+import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
 
 @Component({
@@ -12,7 +13,7 @@ import {FormsModule} from "@angular/forms";
     selector: "src-access-control",
     templateUrl: "./access-control.component.html",
     standalone: true,
-    imports: [TranslatePipe, FormsModule]
+    imports: [HeldByProfileDirective, TranslatePipe, FormsModule]
 })
 export class AccessControlComponent {
   private readonly networkResolver = inject(NetworkResolver);

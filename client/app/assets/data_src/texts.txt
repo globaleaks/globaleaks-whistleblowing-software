@@ -695,3 +695,6 @@ accepted
 denied
 invited
 pending
+Configuration
+Customizable
+Not customizable

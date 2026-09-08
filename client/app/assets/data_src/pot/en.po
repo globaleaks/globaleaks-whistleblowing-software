@@ -2211,6 +2211,15 @@ msgstr "invited"
 msgid "pending"
 msgstr "pending"
 
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "Customizable"
+msgstr "Customizable"
+
+msgid "Not customizable"
+msgstr "Not customizable"
+
 msgid "Select a reporting channel:"
 msgstr "Select a reporting channel:"
 

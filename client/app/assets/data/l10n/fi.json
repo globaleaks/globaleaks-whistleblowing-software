@@ -518,6 +518,8 @@
   "please enter a valid email address.": "ole hyvä ja syötä kelvollinen sähköpostiosoite",
   "please enter numbers only.": "ole hyvä ja syötä vain numeroita.",
   "seconds": "sekuntia",
+  "Customizable": "Customizable",
+  "Not customizable": "Not customizable",
   "Select a reporting channel:": "Valitse ilmoituskanava:",
   "Please summarize your report in a few words.": "Kerro asia muutamalla sanalla.",
   "Describe your report in detail.": "Kuvaile asiat yksityiskohtaisesti",

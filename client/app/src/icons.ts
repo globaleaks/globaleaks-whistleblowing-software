@@ -81,6 +81,7 @@ const icons = [
   solidIcons.faRankingStar,
   solidIcons.faRightFromBracket,
   solidIcons.faRightToBracket,
+  solidIcons.faRotateLeft,
   solidIcons.faRotateRight,
   solidIcons.faSitemap,
   solidIcons.faShare,

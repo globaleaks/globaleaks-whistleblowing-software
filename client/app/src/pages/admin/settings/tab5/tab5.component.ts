@@ -40,20 +40,24 @@ export class Tab5Component implements OnInit {
     this.idpProvisioning = this.nodeData.idp_provisioning;
   }
 
-  isInheritedTenantContext() {
-    // The default profile seeds the initialization and carries the defaults: a tenant on it inherits
-    // no managed configuration
-    return !!this.nodeData.tid && this.nodeData.tid !== 1 && !this.nodeData.is_profile &&
-           this.nodeData.profile !== "default";
+  // A site naming a profile writes the variables the profile leaves customizable, one by one
+  heldByProfile(key: string): boolean {
+    return this.nodeResolver.heldByProfile(key);
   }
 
   isConfigurationValid() {
     return !!this.idpIssuer && !!this.idpClientId;
   }
 
-  isLocked() {
+  isLocked(key: string) {
     // The configuration can be modified only while in the Disabled state
-    return this.isInheritedTenantContext() || this.nodeData.idp;
+    return this.heldByProfile(key) || this.nodeData.idp;
+  }
+
+  // Saving writes the three variables of the configuration: there is nothing to save when the
+  // profile keeps all of them
+  isSaveLocked() {
+    return ["idp_issuer", "idp_client_id", "idp_provisioning"].every(key => this.isLocked(key));
   }
 
   save(): void {
