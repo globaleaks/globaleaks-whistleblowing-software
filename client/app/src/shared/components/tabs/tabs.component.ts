@@ -1,4 +1,5 @@
-import {Component, computed, contentChildren, linkedSignal} from "@angular/core";
+import {Component, computed, contentChildren, inject, linkedSignal} from "@angular/core";
+import {ActivatedRoute} from "@angular/router";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NgTemplateOutlet} from "@angular/common";
 import {NgbNav, NgbNavContent, NgbNavItem, NgbNavItemRole, NgbNavLinkBase, NgbNavLinkButton, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
@@ -35,13 +36,19 @@ import {TabDirective} from "@app/shared/components/tabs/tab.directive";
   `
 })
 export class TabsComponent {
+  private readonly activatedRoute = inject(ActivatedRoute);
+
   private readonly declared = contentChildren(TabDirective);
 
   protected readonly tabs = computed(() => this.declared().filter(tab => tab.visible()));
 
-  // The first visible tab by default. A tab chosen stays chosen while it is visible: a tab
-  // appearing or disappearing - the one of the registrations, as the registration is enabled -
-  // does not take the reader elsewhere.
+  // The tab a link asks for, read where the page is entered: a mail pointing at
+  // one tab of a page opens that tab.
+  private readonly requested = this.activatedRoute.snapshot.queryParamMap.get("tab") || "";
+
+  // The tab asked for, else the first visible one. A tab chosen stays chosen while it is
+  // visible: a tab appearing or disappearing - the one of the registrations, as the
+  // registration is enabled - does not take the reader elsewhere.
   protected readonly active = linkedSignal<TabDirective[], string | undefined>({
     source: this.tabs,
     computation: (tabs, previous) => {
@@ -49,7 +56,7 @@ export class TabsComponent {
         return previous.value;
       }
 
-      return tabs[0]?.id();
+      return tabs.find(tab => tab.id() === this.requested)?.id() ?? tabs[0]?.id();
     }
   });
 }

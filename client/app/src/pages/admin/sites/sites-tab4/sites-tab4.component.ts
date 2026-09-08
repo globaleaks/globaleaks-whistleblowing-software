@@ -1,5 +1,6 @@
 import {CollapsibleCardComponent} from "@app/shared/components/collapsible-card/collapsible-card.component";
 import { Component, OnInit, inject } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { HttpService } from "@app/shared/services/http.service";
@@ -17,19 +18,39 @@ export class SitesTab4Component implements OnInit {
 
   private readonly httpService = inject(HttpService);
   private readonly modalService = inject(NgbModal);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   invites: any[] = [];
   expandedRegistration = '';
+  // The alert of a registration links to it: the list opens on it, with its
+  // card expanded, so that the mail lands on the registration it announces
+  focusRegistrationId = '';
 
   ngOnInit(): void {
     this.loadInvites();
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.focusRegistrationId = params['id'] || '';
+      this.focusRegistration();
+    });
   }
 
   loadInvites() {
     this.httpService.requestAdminInvites()
       .subscribe((res: any) => {
         this.invites = res;
+        this.focusRegistration();
       });
+  }
+
+  private focusRegistration() {
+    if (!this.focusRegistrationId || this.expandedRegistration === this.focusRegistrationId) {
+      return;
+    }
+
+    if (this.invites.some(invite => invite.id === this.focusRegistrationId)) {
+      this.expandedRegistration = this.focusRegistrationId;
+    }
   }
 
   openInviteModal() {
