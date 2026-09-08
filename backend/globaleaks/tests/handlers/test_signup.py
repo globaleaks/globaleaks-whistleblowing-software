@@ -1,11 +1,9 @@
-import re
-
 from twisted.internet.defer import inlineCallbacks, returnValue
 from globaleaks import models
 from globaleaks.handlers import signup
 from globaleaks.handlers.admin import tenant
-from globaleaks.handlers.admin.invite import create_invite
-from globaleaks.models.config import ConfigFactory, DEFAULT_PROFILE_ID, db_set_config_variable
+from globaleaks.handlers.admin.invite import create_invite, update_invite
+from globaleaks.models.config import ConfigFactory, db_set_config_variable
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Session
@@ -15,19 +13,11 @@ from globaleaks.tests.handlers.admin.test_tenant import db_compose_profile, \
 
 
 @transact
-def get_signup_token(session):
-    # The raw activation token is delivered via email only (the DB stores
-    # the SHA-256 of the token). Extract it back from the scheduled mails:
-    # the link authorizing the platform is carried by the notification
-    # delivered to the administrators. A registration authorized
-    # automatically is activated on the spot and produces no such mail.
-    for mail in session.query(models.Mail) \
-                       .order_by(models.Mail.creation_date.desc()):
-        match = re.search(r'activation\?token=([A-Za-z0-9]+)', mail.body)
-        if match:
-            return match.group(1)
-
-    return ''
+def get_registration_id(session):
+    """
+    Return the registration awaiting the authorization of an administrator
+    """
+    return session.query(models.Subscriber).one().id
 
 
 @transact
@@ -145,26 +135,6 @@ class TestSignupWithInvitation(helpers.TestHandler):
 class TestSignupActivation(helpers.TestHandlerWithPopulatedDB):
     _handler = signup.SignupActivation
 
-    @inlineCallbacks
-    def _signup(self):
-        yield tw(db_set_config_variable, 1, 'enable_signup', True)
-        # Exercise the explicit activation flow rather than the automatic one,
-        # provisioning the default administrator account upon activation; the
-        # token authorizing the platform is carried by the notification
-        # delivered to the administrators of the root tenant
-        yield tw(db_set_config_variable, 1, 'signup_auto_authorize', False)
-        yield tw(db_set_config_variable, DEFAULT_PROFILE_ID, 'default_user_profile', 'admin')
-
-        self._handler = signup.Signup
-        handler = self.request(self.dummy_signup)
-        yield handler.post()
-
-        self._handler = signup.SignupActivation
-        handler = self.request(self.dummy_signup)
-        token = yield get_signup_token()
-        self.assertTrue(token)
-        yield handler.post(token)
-
     def test_get_with_signup_disabled(self):
         handler = self.request(self.dummy_signup)
         return self.assertFailure(handler.post('valid_or_invalid'), errors.ForbiddenOperation)
@@ -241,15 +211,18 @@ class TestSignupFromAProfile(helpers.TestHandlerWithPopulatedDB):
         yield tw(db_set_config_variable, 1, 'enable_signup', True)
         yield tw(db_set_config_variable, 1, 'signup_auto_authorize', False)
 
+    def admin_session(self):
+        return Session(1, self.dummy_admin['id'], 1, 'admin', 'admin', '')
+
     @inlineCallbacks
     def _complete_signup(self):
         self._handler = signup.Signup
         yield self.request(self.dummy_signup).post()
 
-        self._handler = signup.SignupActivation
-        token = yield get_signup_token()
-        self.assertTrue(token)
-        yield self.request(self.dummy_signup).post(token)
+        # The registration is authorized where it is listed, as the interface
+        # does it: the activation token never leaves the database
+        registration = yield get_registration_id()
+        yield update_invite(1, self.admin_session(), registration, {'action': 'accept'}, 'en')
 
     @inlineCallbacks
     def test_the_site_created_is_made_as_the_profile(self):
