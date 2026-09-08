@@ -36,7 +36,6 @@ export interface SupportRequest {
   status: SupportRequestStatus;
   preview: string;
   messages: SupportMessage[];
-  key_available: boolean;
 }
 
 /**

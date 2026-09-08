@@ -99,7 +99,7 @@
                 </div>
               </div>
               <src-support-thread [request]="request" viewer="admin" [draft]="replyDrafts[request.id] ?? ''" (draftChange)="replyDrafts[request.id] = $event" (send)="sendReply(request, $event)">
-                @if (request.key_available && !request.author_id) {
+                @if (!request.author_id) {
                   <div class="alert alert-warning" role="alert">
                     <i class="fas fa-envelope me-1" aria-hidden="true"></i>
                     <span>{{ "Replies to not authenticated users' requests are sent directly via email." | translate }}</span>
