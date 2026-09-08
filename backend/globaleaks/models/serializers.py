@@ -697,6 +697,7 @@ def serialize_signup(signup):
     :return: A serialization of the provided model
     """
     return {
+        'id': signup.id,
         'name': signup.name,
         'surname': signup.surname,
         'email': signup.email,

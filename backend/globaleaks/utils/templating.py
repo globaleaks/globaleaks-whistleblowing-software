@@ -591,15 +591,22 @@ class PlatformSignupKeyword(NodeKeyword):
     def recipient_name(self):
         return self.data['signup']['name'] + ' ' + self.data['signup']['surname']
 
-    def activation_url(self):
+    def registry_site(self):
+        """
+        The site that collects the registrations, which is the one the mail is
+        sent from: the site of the registration itself is the subdomain being
+        registered and is reached through {Site}
+        """
         if self.data['node']['hostname']:
-            site = 'https://' + self.data['node']['hostname']
-        elif self.data['node']['onionservice']:
-            site = 'http://' + self.data['node']['onionservice']
-        else:
-            site = ''
+            return 'https://' + self.data['node']['hostname']
 
-        return site + '/#/activation?token=' + self.data['signup']['activation_token']
+        if self.data['node']['onionservice']:
+            return 'http://' + self.data['node']['onionservice']
+
+        return ''
+
+    def activation_url(self):
+        return self.registry_site() + '/#/activation?token=' + self.data['signup']['activation_token']
 
     def expiration_date(self):
         date = self.data['signup']['registration_date'] + timedelta(30)
@@ -658,6 +665,14 @@ class PlatformSignupKeyword(NodeKeyword):
 class AdminPlatformSignupKeyword(PlatformSignupKeyword):
     def recipient_name(self):
         return self.data['user']['name']
+
+    def activation_url(self):
+        """
+        The link of the alert opens the registration it announces among the
+        registrations of the site, where an authenticated administrator reads
+        it and authorizes it or denies it
+        """
+        return self.registry_site() + '/#/admin/sites?tab=invites&id=' + self.data['signup']['id']
 
 
 class EmailValidationKeyword(UserNodeKeyword):
