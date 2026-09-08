@@ -29,10 +29,11 @@
               </label>
             </div>
             <div class="form-group">
-              <label>
-                <input name="signup_auto_authorize" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.signup_auto_authorize" type="checkbox" />
-                <span>{{'Automatically authorize newly registered sites'|translate}}</span>
-              </label>
+              <label for="signup-activation-select">{{'Activation'|translate}}</label>
+              <select id="signup-activation-select" name="signup_auto_authorize" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.signup_auto_authorize">
+                <option [ngValue]="true">{{'Automatic'|translate}}</option>
+                <option [ngValue]="false">{{'Manual'|translate}}</option>
+              </select>
             </div>
             <div class="form-group">
               <label for="signup-profile-select">{{'Profile'|translate}}</label>
