@@ -470,10 +470,20 @@ def tenant_name(tid):
 
 
 def serialize_support_request(session, support_request, messages, wrapping_private_key=None, wrapped_thread_key=None):
+    """
+    Serialize a support request for whom holds the key of its thread
 
+    A request whose thread cannot be decrypted is not serialized at all: what a
+    reader is shown is what it may read and answer, so the reader that has no
+    access to the conversation is not offered the request either.
+
+    :return: The serialization of the request, or None when its thread key is
+             not available to the reader
+    """
     thread_private_key = decrypt_private_key(wrapping_private_key, wrapped_thread_key, support_request.crypto_pub_key)
 
-    key_available = thread_private_key is not None
+    if thread_private_key is None:
+        return None
 
     serialized_messages = [serialize_message(message, thread_private_key) for message in messages]
 
@@ -485,14 +495,13 @@ def serialize_support_request(session, support_request, messages, wrapping_priva
                         .one_or_none()
 
     mail_address = ''
-    if key_available:
-        if support_request.mail_address:
-            try:
-                mail_address = decrypt_ciphertext(thread_private_key, support_request.mail_address)
-            except (ValueError, CryptoError):
-                mail_address = ''
-        elif author is not None:
-            mail_address = author[1]
+    if support_request.mail_address:
+        try:
+            mail_address = decrypt_ciphertext(thread_private_key, support_request.mail_address)
+        except (ValueError, CryptoError):
+            mail_address = ''
+    elif author is not None:
+        mail_address = author[1]
 
     preview = next((message['content'][:160] for message in reversed(serialized_messages) if message['content']), '')
 
@@ -508,8 +517,7 @@ def serialize_support_request(session, support_request, messages, wrapping_priva
         'mail_address': mail_address,
         'status': support_request.status,
         'preview': preview,
-        'messages': serialized_messages,
-        'key_available': key_available
+        'messages': serialized_messages
     }
 
 
@@ -536,7 +544,7 @@ def get_admin_support_requests(session, tid, user_session, status=None, tenant_i
 
     messages = load_messages(session, [request.id for request in support_requests])
 
-    return [
+    serialized = [
         serialize_support_request(
             session,
             support_request,
@@ -547,6 +555,8 @@ def get_admin_support_requests(session, tid, user_session, status=None, tenant_i
         )
         for support_request in support_requests
     ]
+
+    return [support_request for support_request in serialized if support_request is not None]
 
 
 @transact
@@ -571,7 +581,7 @@ def update_support_request_status(session, tid, user_session, support_request_id
     db_log(session, tid=request_tid, type='support_status_update', user_id=user_session.user_id, object_id=support_request.id, data={'status': status})
 
     messages = get_support_messages(session, support_request.id)
-    return serialize_support_request(
+    serialized = serialize_support_request(
         session,
         support_request,
         messages,
@@ -580,6 +590,11 @@ def update_support_request_status(session, tid, user_session, support_request_id
         if is_root_management_session(user_session, request_tid)
         else support_request.crypto_prv_key
     )
+
+    if serialized is None:
+        raise errors.ForbiddenOperation
+
+    return serialized
 
 
 @transact
@@ -657,10 +672,12 @@ def get_user_support_requests(session, tid, user_session):
                               .all()
     messages = load_messages(session, [request.id for request in support_requests])
 
-    return [
+    serialized = [
         serialize_support_request(session, support_request, messages[support_request.id], user_session.cc, support_request.crypto_author_prv_key)
         for support_request in support_requests
     ]
+
+    return [support_request for support_request in serialized if support_request is not None]
 
 
 @transact
@@ -705,7 +722,12 @@ def mark_user_support_request_read(session, tid, user_session, support_request_i
 
     messages = get_support_messages(session, support_request.id)
 
-    return serialize_support_request(session, support_request, messages, user_session.cc, support_request.crypto_author_prv_key)
+    serialized = serialize_support_request(session, support_request, messages, user_session.cc, support_request.crypto_author_prv_key)
+
+    if serialized is None:
+        raise errors.ForbiddenOperation
+
+    return serialized
 
 
 @transact
