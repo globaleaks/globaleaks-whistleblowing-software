@@ -567,27 +567,61 @@ def _load_default_texts(session, appdata):
                     session.add(ConfigL10N({'tid': DEFAULT_PROFILE_ID, 'lang': lang, 'var_name': k, 'value': value}))
 
 
+def _held_values(session, tid):
+    """
+    Return the variables a tenant holds and their values, the protected ones excluded
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    """
+    return session.query(Config.var_name, Config.value) \
+                  .filter(Config.tid == tid, Config.var_name.notin_(protected_keys))
+
+
 def _drop_inherited_values(session):
     """
-    Drop from the tenants the values they hold equal to the default, or empty: they resolve them
-    from the default profile
-    """
-    subquery = session.query(
-        Config.var_name,
-        Config.value
-    ).filter(Config.tid == DEFAULT_PROFILE_ID, Config.var_name.notin_(protected_keys))
+    Drop from the tenants the values they hold equal to the ones they inherit, or empty
 
-    stmt = delete(Config).where(
-        and_(
-            Config.tid != DEFAULT_PROFILE_ID,
-            or_(
-                tuple_(Config.var_name, Config.value).in_(subquery),
-                Config.value == ''
-            )
-        )
+    A tenant that does not hold a variable reads it from the profile it names, or from the default
+    profile: a value equal to the one it would read that way is a copy of it, and is dropped so
+    that the tenant follows what it inherits. The comparison is made against the profile of the
+    tenant and not against the default profile alone: a value equal to the default of the
+    application is an override on a tenant whose profile holds a different one, and is kept.
+    """
+    session.execute(delete(Config)
+                    .where(and_(Config.tid != DEFAULT_PROFILE_ID, Config.value == ''))
+                    .execution_options(synchronize_session=False))
+
+    profiles = {tid: uuid for tid, uuid in session.query(Config.tid, Config.value)
+                                                  .filter(Config.var_name == 'uuid',
+                                                          Config.tid > DEFAULT_PROFILE_ID)}
+
+    # The tenants naming no profile, or naming the default one, inherit from the default profile,
+    # and so do the profiles themselves
+    inheriting_from_default = and_(
+        Config.tid != DEFAULT_PROFILE_ID,
+        Config.tid.notin_(session.query(Config.tid)
+                                 .filter(Config.var_name == 'profile',
+                                         Config.value.in_(list(profiles.values()))))
     )
 
-    session.execute(stmt.execution_options(synchronize_session=False))
+    session.execute(delete(Config)
+                    .where(and_(inheriting_from_default,
+                                tuple_(Config.var_name, Config.value).in_(_held_values(session, DEFAULT_PROFILE_ID))))
+                    .execution_options(synchronize_session=False))
+
+    for pid, uuid in profiles.items():
+        members = Config.tid.in_(session.query(Config.tid)
+                                        .filter(Config.var_name == 'profile', Config.value == uuid))
+
+        held_by_profile = session.query(Config.var_name).filter(Config.tid == pid)
+
+        session.execute(delete(Config)
+                        .where(and_(members,
+                                    or_(tuple_(Config.var_name, Config.value).in_(_held_values(session, pid)),
+                                        and_(Config.var_name.notin_(held_by_profile),
+                                             tuple_(Config.var_name, Config.value).in_(_held_values(session, DEFAULT_PROFILE_ID))))))
+                        .execution_options(synchronize_session=False))
 
 
 def load_defaults(session, appdata):
