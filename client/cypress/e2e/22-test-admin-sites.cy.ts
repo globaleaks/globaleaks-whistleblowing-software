@@ -1,10 +1,12 @@
 describe("admin configure, add, configure and delete tenants", () => {
-  const add_profile = (name: string, tenant?: boolean) => {
+  const add_profile = (name: string, tenant?: boolean, profile?: string) => {
     if (tenant) {
       cy.get(".show-add-tenant-btn").click();
       cy.get("[name='newTenant.name']").type(name);
       cy.get('select[name="profile"]').should('be.visible');
-      cy.get('select[name="profile"]').select(1);
+      // The profile is chosen by its name: the list holds the ones shipped with
+      // the application beside the ones the platform composed
+      cy.get('select[name="profile"]').select(profile || "Platform D");
       cy.get("#add-btn").click();
       cy.contains(name).should("exist");
     } else {
@@ -227,7 +229,7 @@ describe("admin configure, add, configure and delete tenants", () => {
     cy.login_admin();
     cy.visit("/#/admin/sites");
     cy.get('[data-cy="sites"]').click();
-    add_profile("Platform E", true);
+    add_profile("Platform E", true, "Platform D");
 
     cy.intercept('GET', '/api/auth/tenantauthswitch/**').as('tenantAuthSwitch');
     cy.window().then((win: any) => {
