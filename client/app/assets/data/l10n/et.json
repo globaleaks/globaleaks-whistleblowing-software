@@ -518,6 +518,8 @@
   "please enter a valid email address.": "sisestage kehtiv meiliaadress.",
   "please enter numbers only.": "sisestage ainult numbreid.",
   "seconds": "sekundit",
+  "Customizable": "Customizable",
+  "Not customizable": "Not customizable",
   "Select a reporting channel:": "Vali teavituskanal",
   "Please summarize your report in a few words.": "Kirjeldage oma teavitust mõne sõnaga.",
   "Describe your report in detail.": "Kirjeldage oma teavitust üksikasjalikult.",

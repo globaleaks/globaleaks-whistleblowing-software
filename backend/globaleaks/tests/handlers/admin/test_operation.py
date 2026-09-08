@@ -1,9 +1,12 @@
 
 from globaleaks import models
+from globaleaks import db
+from globaleaks.handlers.admin import tenant
 from globaleaks.handlers.admin.operation import AdminOperationHandler
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.jobs import delivery
-from globaleaks.models.config import db_get_config_variable, db_set_config_variable, ConfigFactory
+from globaleaks.models import config
+from globaleaks.models.config import db_get_config_variable, db_get_customizable_keys, db_set_config_variable, ConfigFactory
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
@@ -282,3 +285,135 @@ class TestAdminProtectedUsers(helpers.TestHandlerWithPopulatedDB):
         yield self.assertFailure(self._test_operation_handler('send_password_reset_email',
                                                              {'value': self.dummy_receiver_1['id']}),
                                  errors.ForbiddenOperation)
+
+
+class OperationCase(helpers.TestHandlerWithPopulatedDB):
+    """
+    A case that asks the handler of the administrative operations to carry one out
+    """
+    _handler = AdminOperationHandler
+
+    def _test_operation_handler(self, operation, args, tid):
+        handler = self.request({'operation': operation, 'args': args}, role='admin', tid=tid)
+
+        return handler.put()
+
+
+class TestUnlockKey(OperationCase):
+    """
+    A profile names the variables it leaves free to the sites naming it
+    """
+
+    @defer.inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+
+        profile = yield tenant.create({'name': 'A profile',
+                                       'active': True,
+                                       'subdomain': '',
+                                       'profile': 'default'}, is_profile=True)
+
+        self.pid = profile['id']
+
+        # the handler reads the tenant from the cache, and the profile has just been created
+        yield db.refresh_tenant_cache()
+
+    @transact
+    def customizable_keys(self, session, tid):
+        return db_get_customizable_keys(session, tid)
+
+    @defer.inlineCallbacks
+    def test_a_profile_unlocks_and_locks_a_variable(self):
+        yield self._test_operation_handler('unlock_key', {'value': 'footer'}, tid=self.pid)
+        self.assertEqual((yield self.customizable_keys(self.pid)), ['footer'])
+
+        yield self._test_operation_handler('lock_key', {'value': 'footer'}, tid=self.pid)
+        self.assertEqual((yield self.customizable_keys(self.pid)), [])
+
+    @transact
+    def name_the_profile(self, session, tid):
+        db_set_config_variable(session, tid, 'profile', db_get_config_variable(session, self.pid, 'uuid'))
+
+    @transact
+    def customize(self, session, tid, var_name, value):
+        session.merge(models.Config({'tid': tid, 'var_name': var_name, 'value': value}))
+
+    @transact
+    def resets_logged(self, session, tid):
+        return session.query(models.AuditLog).filter(models.AuditLog.tid == tid,
+                                                     models.AuditLog.type == 'reset_key').count()
+
+    @defer.inlineCallbacks
+    def test_locking_a_variable_drops_what_the_sites_naming_the_profile_configured_of_it(self):
+        yield self.name_the_profile(2)
+        yield self._test_operation_handler('unlock_key', {'value': 'custom_support_url'}, tid=self.pid)
+
+        yield self.customize(2, 'custom_support_url', 'https://site.example.org')
+        yield self.customize(3, 'custom_support_url', 'https://other.example.org')
+
+        yield self._test_operation_handler('lock_key', {'value': 'custom_support_url'}, tid=self.pid)
+
+        # the site naming the profile reads again what the profile hands, and is told why
+        self.assertNotIn('custom_support_url', (yield tw(config.db_get_held_keys, 2)))
+        self.assertEqual((yield self.resets_logged(2)), 1)
+
+        # a site naming another profile is none of its business
+        self.assertIn('custom_support_url', (yield tw(config.db_get_held_keys, 3)))
+        self.assertEqual((yield self.resets_logged(3)), 0)
+
+    def test_a_variable_the_application_never_unlocks_is_refused(self):
+        return self.assertFailure(self._test_operation_handler('unlock_key',
+                                                               {'value': 'encryption'},
+                                                               tid=self.pid),
+                                  errors.InputValidationError)
+
+    def test_a_site_unlocks_nothing(self):
+        # only a profile hands variables to other sites, and so only a profile withholds them
+        return self.assertFailure(self._test_operation_handler('unlock_key',
+                                                               {'value': 'footer'},
+                                                               tid=1),
+                                  errors.ForbiddenOperation)
+
+    def test_the_default_profile_unlocks_nothing(self):
+        # what a site inherits from the default profile it may write in any case: unlocking there
+        # would say something the platform does not read
+        return self.assertFailure(self._test_operation_handler('unlock_key',
+                                                               {'value': 'footer'},
+                                                               tid=config.DEFAULT_PROFILE_ID),
+                                  errors.ForbiddenOperation)
+
+
+class TestResetKey(OperationCase):
+    """
+    A site gives up a value of its own and reads again what its profile hands it
+    """
+
+    @transact
+    def held_keys(self, session, tid):
+        return config.db_get_held_keys(session, tid)
+
+    @transact
+    def write(self, session, tid, var_name, value):
+        config.ConfigFactory(session, tid).update('node', {var_name: value})
+
+    @defer.inlineCallbacks
+    def test_a_value_of_its_own_is_given_up(self):
+        yield self.write(2, 'allow_indexing', False)
+        self.assertIn('allow_indexing', (yield self.held_keys(2)))
+
+        yield self._test_operation_handler('reset_key', {'value': 'allow_indexing'}, tid=2)
+
+        self.assertNotIn('allow_indexing', (yield self.held_keys(2)))
+
+    def test_a_variable_the_site_owns_in_any_case_is_refused(self):
+        # there is no other value for the name of a site to go back to
+        return self.assertFailure(self._test_operation_handler('reset_key',
+                                                               {'value': 'name'},
+                                                               tid=2),
+                                  errors.InputValidationError)
+
+    def test_a_variable_no_form_configures_is_refused(self):
+        return self.assertFailure(self._test_operation_handler('reset_key',
+                                                               {'value': 'a_variable_that_is_not'},
+                                                               tid=2),
+                                  errors.InputValidationError)

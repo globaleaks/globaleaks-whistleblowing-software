@@ -518,6 +518,8 @@
   "please enter a valid email address.": "กรุณาใส่ที่อยู่อีเมลที่ถูกรูปแบบ",
   "please enter numbers only.": "กรุณาใส่ตัวเลขเท่านั้น",
   "seconds": "วินาที",
+  "Customizable": "Customizable",
+  "Not customizable": "Not customizable",
   "Select a reporting channel:": "เลือกช่องทางรายงาน:",
   "Please summarize your report in a few words.": "อธิบายรายงานของคุณในไม่กี่คำ",
   "Describe your report in detail.": "อธิบายรายงานของคุณอย่างยละเอียด",

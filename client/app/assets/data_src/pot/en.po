@@ -2214,6 +2214,15 @@ msgstr "invited"
 msgid "pending"
 msgstr "pending"
 
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "Customizable"
+msgstr "Customizable"
+
+msgid "Not customizable"
+msgstr "Not customizable"
+
 msgid "Not in use"
 msgstr "Not in use"
 
