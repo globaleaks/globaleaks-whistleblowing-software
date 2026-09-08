@@ -727,10 +727,13 @@ class TenantInviteKeyword(NodeKeyword):
     data_keys = NodeKeyword.data_keys + ['invite']
 
     def recipient_name(self):
-        return self.data['invite']['organization_email']
+        return self.data['invite']['organization_name'] or self.data['invite']['organization_email']
 
     def organization_name(self):
         return self.data['invite']['organization_name']
+
+    def url(self):
+        return self.invite_url()
 
     def invite_url(self):
         if self.data['node']['hostname']:
