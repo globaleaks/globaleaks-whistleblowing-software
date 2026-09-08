@@ -1,12 +1,10 @@
-Dear {OrganizationName},
+Dear {RecipientName},
 
 You have been invited to create your whistleblowing platform.
 
-Click the link below to complete your registration:
+Activation link: {Url}
 
-{InviteUrl}
-
-This invitation expires on:
+Link expire on:
 {ExpirationDate}
 
 Kind regards,

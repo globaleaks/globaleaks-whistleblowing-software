@@ -1,8 +1,6 @@
 Dear {RecipientName},
 
-This is a confirmation that your whistleblowing platform has been registered.
-
-You will be notified once the platform has been activated.
+Your whistleblowing platform is almost ready!
 
 Kind regards,
 
