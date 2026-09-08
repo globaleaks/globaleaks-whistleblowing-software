@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "ဤသည်မှာ မဖတ်ရသေးသော သို့မဟုတ် အပ်ဒိတ်လုပ်ထားသော အစီရင်ခံစာများ ရှိကြောင်း သင့်အား သတိပေးသည့် အီးမေးလ် ဖြစ်သည်။",
   "Reminder about unread or updated reports": "မဖတ်ရသေးသော သို့မဟုတ် အပ်ဒိတ်လုပ်ထားသော အစီရင်ခံစာများအကြောင်း သတိပေးချက်",
   "Role: {Role}": "အခန်းကဏ္ဍ - {Role}",
-  "Password: {Password}": "စကားဝှက် - {Password}"
+  "Password: {Password}": "စကားဝှက် - {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

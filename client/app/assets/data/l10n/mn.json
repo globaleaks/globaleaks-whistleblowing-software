@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Энэ имэйл нь уншаагүй эсвэл шинэчлэгдсэн мэдээллүүд байгаа эсэхийг танд сануулах зорилготой юм.",
   "Reminder about unread or updated reports": "Уншаагүй эсвэл шинэчлэгдсэн мэдээллийн талаар сануулга",
   "Role: {Role}": "Үүрэг роль: {Role}",
-  "Password: {Password}": "Нууц үг: {Password}"
+  "Password: {Password}": "Нууц үг: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

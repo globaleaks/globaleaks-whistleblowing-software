@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Le but de ce courriel est de vous rappeler la présence de signalements non lus ou mis à jour.",
   "Reminder about unread or updated reports": "Rappel de signalements non lus ou mis à jour",
   "Role: {Role}": "Rôle : {Role}",
-  "Password: {Password}": "Mot de passe : {Password}"
+  "Password: {Password}": "Mot de passe : {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

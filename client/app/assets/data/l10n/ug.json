@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "بۇ ئېلخەت سىزگە نۆۋەتتىكى ئوقۇلمىغان ياكى يېڭىلانغان مەلۇماتلارنى خاتىرىلىتىش ئۈچۈندۇر.",
   "Reminder about unread or updated reports": "ئوقۇلمىغان ياكى يېڭىلانغان مەلۇماتارنى خاتىرىلاتقۇچى",
   "Role: {Role}": "رولى: {Role}",
-  "Password: {Password}": "پارول: {Password}"
+  "Password: {Password}": "پارول: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

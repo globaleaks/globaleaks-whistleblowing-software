@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Posta elektroniko honen bidez irakurri gabeko edo eguneratu gabeko salaketa bat eguneratu dela jakinarazi nahi dizugu.",
   "Reminder about unread or updated reports": "Irakurri edo eguneratu gabeko salaketak daudela gogorarazi.",
   "Role: {Role}": "Betekizuna:{Role}",
-  "Password: {Password}": "Pasahitza:{Password}"
+  "Password: {Password}": "Pasahitza:{Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

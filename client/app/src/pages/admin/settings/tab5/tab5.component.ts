@@ -40,24 +40,24 @@ export class Tab5Component implements OnInit {
     this.idpProvisioning = this.nodeData.idp_provisioning;
   }
 
-  isInheritedTenantContext() {
-    // The default profile seeds the initialization and carries the defaults: a tenant on it inherits
-    // no managed configuration
-    return !!this.nodeData.tid && this.nodeData.tid !== 1 && !this.nodeData.is_profile &&
-           this.nodeData.profile !== "default";
+  // A site naming a profile writes the variables the profile leaves customizable, one by one
+  heldByProfile(key: string): boolean {
+    return this.nodeResolver.heldByProfile(key);
   }
 
   isConfigurationValid() {
     return !!this.idpIssuer && !!this.idpClientId;
   }
 
-  isLocked() {
-    return this.isInheritedTenantContext();
+  isLocked(key: string) {
+    return this.heldByProfile(key);
   }
 
-  // An enabled IdP is never left without an issuer or a client
+  // Saving writes the three variables of the configuration: there is nothing to save when the
+  // profile keeps all of them, and an enabled IdP is never left without an issuer or a client
   isSaveLocked() {
-    return this.isLocked() || (this.nodeData.idp && !this.isConfigurationValid());
+    return ["idp_issuer", "idp_client_id", "idp_provisioning"].every(key => this.isLocked(key)) ||
+      (this.nodeData.idp && !this.isConfigurationValid());
   }
 
   // An enabled IdP is the only way its users log in: a new issuer or client is verified before it

@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Šis el. laiškas skirtas priminti, kad yra neperskaitytų arba atnaujintų pranešimų.",
   "Reminder about unread or updated reports": "Priminimas apie neperskaitytus arba atnaujintus pranešimus",
   "Role: {Role}": "Funkcija: {Role}",
-  "Password: {Password}": "Slaptažodis: {Password}"
+  "Password: {Password}": "Slaptažodis: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

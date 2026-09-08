@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Bu e-posta okunmamış ya da güncellenmiş ihbarların olduğunu anımsatmak için gönderilmiştir.",
   "Reminder about unread or updated reports": "Okunmamış veya güncellenmiş ihbar anımsatıcı",
   "Role: {Role}": "Rol: {Role}",
-  "Password: {Password}": "Parola: {Password}"
+  "Password: {Password}": "Parola: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

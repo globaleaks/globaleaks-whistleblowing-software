@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "هذا البريد الإلكتروني لتذكيرك بوجود تقارير غير مقروءة أو محدّثة.",
   "Reminder about unread or updated reports": "تذكير بشأن التقارير غير المقروءة أو المحدثة",
   "Role: {Role}": "الدور: {Role}",
-  "Password: {Password}": "كلمة السركلمة السر: {Password}"
+  "Password: {Password}": "كلمة السركلمة السر: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

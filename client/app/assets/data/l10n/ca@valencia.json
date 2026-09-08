@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Aquest correu electrònic us recorda la presència de denúncies no llegides o actualitzades.",
   "Reminder about unread or updated reports": "Recordatori sobre les denúncies no llegides o actualitzades",
   "Role: {Role}": "Rol: {Role}",
-  "Password: {Password}": "Contrasenya: {Password}"
+  "Password: {Password}": "Contrasenya: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

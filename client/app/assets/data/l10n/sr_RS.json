@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Овај имејл је да вас подсети на присуство непрочитаних или ажурираних извештаја.",
   "Reminder about unread or updated reports": "Подсетник о непрочитаним или ажурираним извештајима",
   "Role: {Role}": "Улога: {Role}",
-  "Password: {Password}": "Лозинка: {Password}"
+  "Password: {Password}": "Лозинка: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Bu élxet sizge nöwettiki oqulmighan yaki yéngilan’ghan melumatlarni xatirilitish üchündur.",
   "Reminder about unread or updated reports": "Oqulmighan yaki yéngilan’ghan melumatlarni xatirilatquchi",
   "Role: {Role}": "Roli: {Role}",
-  "Password: {Password}": "Parol: {Password}"
+  "Password: {Password}": "Parol: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

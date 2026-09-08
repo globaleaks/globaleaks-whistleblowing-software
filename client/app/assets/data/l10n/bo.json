@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "གློག་འཕྲིན་འདི་ནི་ཁྱེད་ལ་སྙན་ཐོ་མ་ཀློག་པའམ་གསར་སྒྱུར་ཟིན་པ་དག་དྲན་སྐུལ་བྱེད་པའི་ཆེད་དུ་ཡིན། ",
   "Reminder about unread or updated reports": "སྙན་ཐོ་མ་ཀློག་པའམ་གསར་སྒྱུར་ཟིན་པའི་སྐོར་གྱི་དྲན་སྐུལ།",
   "Role: {Role}": "ལས་འགན།: {Role}",
-  "Password: {Password}": "གསང་ཡིག།: {Password}"
+  "Password: {Password}": "གསང་ཡིག།: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

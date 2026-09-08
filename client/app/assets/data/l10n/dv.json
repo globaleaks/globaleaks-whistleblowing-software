@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "މި އީމެއިލަކީ ނުކިޔާ ނުވަތަ އަޕްޑޭޓް ކޮށްފައި ހުރި ރިޕޯޓްތައް ހުރިކަން ހަނދާން ކޮށްދިނުމަށް ފޮނުވިފައިވާ އީމެެއިލެއް",
   "Reminder about unread or updated reports": "ނުކިޔާ ނުވަތަ އަޕްޑޭޓް ނުކުރާ ރިޕޯޓްތައް ހުރިކަން ހަނދާންކޮށްދެން",
   "Role: {Role}": "ރޯލު: {Role}",
-  "Password: {Password}": "ޕާސްވޯޑް: {Password}"
+  "Password: {Password}": "ޕާސްވޯޑް: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

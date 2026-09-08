@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Este correo electrónico es para recordarle que existen denuncias no leídas o actualizadas.",
   "Reminder about unread or updated reports": "Recordar la existencia de denuncias no leídas o actualizadas",
   "Role: {Role}": "Rol: {Role}",
-  "Password: {Password}": "Contraseña: {Password}"
+  "Password: {Password}": "Contraseña: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

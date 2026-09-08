@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Кху электронан кехатца дагадоуьйту хьуна дешаза долчу а, карладаьхначу аьрзнех лаьцна.",
   "Reminder about unread or updated reports": "Дешаза долчу я карладаьхначу аьрзнех лаьцна дагадаийтар",
   "Role: {Role}": "Дакъа: {Role}",
-  "Password: {Password}": "Парол: {Password}"
+  "Password: {Password}": "Парол: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

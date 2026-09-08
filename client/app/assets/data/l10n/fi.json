@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Tämä sähköpostiviesti muistuttaa sinua lukemattomista tai päivitetyistä ilmoituksista.",
   "Reminder about unread or updated reports": "Muistutus lukemattomista tai päivitetyistä ilmoituksista",
   "Role: {Role}": "Rooli: {Role}",
-  "Password: {Password}": "Salasana: {Password}"
+  "Password: {Password}": "Salasana: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

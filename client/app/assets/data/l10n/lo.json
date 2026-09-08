@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "ອີເມວນີ້ແມ່ນເພື່ອເຕືອນທ່ານຊາບວ່າຍັງມີລາຍງານທີ່ຍັງບໍ່ທັນໄດ້ອ່ານ ຫຼື ມີການອັບເດດ.",
   "Reminder about unread or updated reports": "ເຕືອນໃຫ້ຊາບວ່າຍັງມີລາຍງານທີ່ຍັງບໍ່ທັນໄດ້ອ່ານ ຫຼື ມີການອັບເດດ",
   "Role: {Role}": "ບົດບາດ: {Role}",
-  "Password: {Password}": "ລະຫັດຜ່ານ: {Password}"
+  "Password: {Password}": "ລະຫັດຜ່ານ: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

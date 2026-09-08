@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "This email is to remind you the presence of unread or updated reports.",
   "Reminder about unread or updated reports": "Reminder about unread or updated reports",
   "Role: {Role}": "ሚና፡-{Role}",
-  "Password: {Password}": "የይለፍ ቃል፡-{Password}"
+  "Password: {Password}": "የይለፍ ቃል፡-{Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "এই ইমেলটি অপঠিত বা আপডেট হওয়া প্রতিবেদনগুলির উপস্থিতি আপনাকে স্মরণ করিয়ে দেওয়ার জন্য।",
   "Reminder about unread or updated reports": "অপঠিত বা আপডেট হওয়া প্রতিবেদনগুলির বিষয়ে অনুস্মারক",
   "Role: {Role}": "রোল: {Role}",
-  "Password: {Password}": "পাসওয়ার্ড: {Password}"
+  "Password: {Password}": "পাসওয়ার্ড: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

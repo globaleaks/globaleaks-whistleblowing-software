@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Šis e-pasta ziņojums ir paredzēts, lai atgādinātu par nelasītiem vai atjauninātiem ziņojumiem.",
   "Reminder about unread or updated reports": "Atgādinājums par nelasītiem vai atjauninātiem ziņojumiem",
   "Role: {Role}": "Loma: {Role}",
-  "Password: {Password}": "Parole: {Password}"
+  "Password: {Password}": "Parole: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

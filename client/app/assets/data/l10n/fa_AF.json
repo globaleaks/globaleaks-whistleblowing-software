@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "این ایمیل، از راپورهای خوانده نشده یا اپدیت شده خبر می دهد.",
   "Reminder about unread or updated reports": "یادآور راپورهای خوانده نشده یا اپدیت شده",
   "Role: {Role}": "نقش: {Role}",
-  "Password: {Password}": "پسورد: {Password}"
+  "Password: {Password}": "پسورد: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

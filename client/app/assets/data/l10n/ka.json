@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "ეს ელწერილი შეგახსენებთ წაუკითხავი ან განახლებული ანგარიშების არსებობის შესახებ.",
   "Reminder about unread or updated reports": "შეხსენება წაუკითხავი ან განახლებული ანგარიშების შესახებ",
   "Role: {Role}": "როლი: {Role}",
-  "Password: {Password}": "პაროლი: {Password}"
+  "Password: {Password}": "პაროლი: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

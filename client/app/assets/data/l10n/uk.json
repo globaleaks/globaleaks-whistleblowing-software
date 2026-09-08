@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Цим листом нагадуємо вам про наявність непрочитаних або оновлених звітів.",
   "Reminder about unread or updated reports": "Нагадування про непрочитані або оновлені звіти",
   "Role: {Role}": "Роль: {Role}",
-  "Password: {Password}": "Пароль: {Password}"
+  "Password: {Password}": "Пароль: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

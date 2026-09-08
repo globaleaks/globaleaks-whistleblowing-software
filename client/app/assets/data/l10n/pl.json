@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "To jest wiadomość mailowa z przypomnieniem o oczekujących nieprzeczytanych lub zaktualizowanych raportach.",
   "Reminder about unread or updated reports": "Przypomnienie o  nieprzeczytanych lub zaktualizowanych raportach",
   "Role: {Role}": "Rola: {Role}",
-  "Password: {Password}": "Hasło: {Password}"
+  "Password: {Password}": "Hasło: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

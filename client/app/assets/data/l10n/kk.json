@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Бұл электрондық хат сізге оқылмаған немесе жаңартылған есептерді еске салады.",
   "Reminder about unread or updated reports": "Оқылмаған немесе жаңартылған есептер туралы ескерту",
   "Role: {Role}": "Рөл: {Рөл}",
-  "Password: {Password}": "Құпиясөз: {Құпиясөз}"
+  "Password: {Password}": "Құпиясөз: {Құпиясөз}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

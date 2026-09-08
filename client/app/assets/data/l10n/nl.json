@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Deze e-mail is om u te herinneren aan de aanwezigheid van ongelezen of bijgewerkte inzendingen.",
   "Reminder about unread or updated reports": "Herinnering over ongelezen of bijgewerkte inzendingen",
   "Role: {Role}": "Rol: {Role}",
-  "Password: {Password}": "Wachtwoord: {Password}"
+  "Password: {Password}": "Wachtwoord: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

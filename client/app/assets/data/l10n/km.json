@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "អុីមែលនេះ ដើម្បីរំលឹកអ្នកពីវត្តមាននៃរបាយការណ៍ដែលមិនទាន់អាន​ ឬធ្វើបច្ចុប្បន្នភាព។",
   "Reminder about unread or updated reports": "ការរំលឹកពីរបាយការណ៍មិនទាន់អាន​ ឬបានធ្វើបច្ចុប្បន្នភាព",
   "Role: {Role}": "តួនាទី៖ {Role}",
-  "Password: {Password}": "ពាក្យសម្ងាត់៖ {Password}"
+  "Password: {Password}": "ពាក្យសម្ងាត់៖ {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

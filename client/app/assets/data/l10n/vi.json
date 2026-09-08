@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Email này là để nhắc bạn có những báo cáo vừa được cập nhật hoặc chưa được đọc.",
   "Reminder about unread or updated reports": "Nhắc nhở về báo cáo vừa được cập nhật hoặc chưa được đọc",
   "Role: {Role}": "Vai trò: {Role}",
-  "Password: {Password}": "Mật khẩu: {Password}"
+  "Password: {Password}": "Mật khẩu: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

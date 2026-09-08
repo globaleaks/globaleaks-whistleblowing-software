@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Toto je e-mailové upozornění na přítomnost nepřečtených nebo aktualizovaných oznámení.",
   "Reminder about unread or updated reports": "Připomínka o nepřečtených nebo aktualizovaných oznámení",
   "Role: {Role}": "Role: {Role}",
-  "Password: {Password}": "Heslo: {Password}"
+  "Password: {Password}": "Heslo: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

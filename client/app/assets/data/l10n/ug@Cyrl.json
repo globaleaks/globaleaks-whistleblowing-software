@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Бу елхәт сизгә нөвәттики оқулмиған йаки йеңиланған доклатларни хатирилитиш үчүндур.",
   "Reminder about unread or updated reports": "Оқулмиған йаки йеңиланған мәлуматларни хатирилатқучи.",
   "Role: {Role}": "Роли: {Role}",
-  "Password: {Password}": "Парол: {Password}"
+  "Password: {Password}": "Парол: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Una e-maileq ilinnik nalunaarusianik atuarneqarsimanngitsunik nutarterneqarsimasunilluunniit eqqaasitsissutaavoq.",
   "Reminder about unread or updated reports": "Nalunaarusianik atuarneqarsimanngitsunik nutarterneqarsimasunilluunniit eqqaasitsissut. ",
   "Role: {Role}": "Atuuffia: {Role}",
-  "Password: {Password}": "Isertaat: {Isertaat}"
+  "Password: {Password}": "Isertaat: {Isertaat}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

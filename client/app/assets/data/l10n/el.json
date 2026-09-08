@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Αυτό είναι ένα email υπενθύμισης για μη αναγνωσμένες ή ανανεωμένες αναφορές.",
   "Reminder about unread or updated reports": "Υπενθύμιση για μη αναγνωσμένες ή ανανεωμένες αναφορές",
   "Role: {Role}": "Ρόλος: {Role}",
-  "Password: {Password}": "Κωδικός Πρόσβασης: {Password}"
+  "Password: {Password}": "Κωδικός Πρόσβασης: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

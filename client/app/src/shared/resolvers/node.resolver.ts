@@ -18,6 +18,18 @@ export class NodeResolver extends ResourceResolver<nodeResolverModel> {
     super("api/admin/node", new nodeResolverModel());
   }
 
+  /**
+   * Tell whether a variable is held by the profile the site names
+   *
+   * A site naming a profile writes only what the profile unlocks: the screens read the very list
+   * the request is filtered by, so that a field is never offered and then dropped.
+   */
+  heldByProfile(key: string): boolean {
+    const writable = this.dataModel.writable_keys;
+
+    return !!writable && !writable.includes(key);
+  }
+
   protected allowed(): boolean {
     const role = this.authenticationService.session?.role;
 

@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Ky email është për t’ju kujtuar praninë e raportimesh të palexuar ose të përditësuar.",
   "Reminder about unread or updated reports": "Kujtues për raportime të palexuar ose të përditësuar",
   "Role: {Role}": "Rol: {Role}",
-  "Password: {Password}": "Fjalëkalim: {Password}"
+  "Password: {Password}": "Fjalëkalim: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

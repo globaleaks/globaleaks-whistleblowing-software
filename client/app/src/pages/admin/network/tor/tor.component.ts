@@ -6,12 +6,13 @@ import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 
 import {FormsModule} from "@angular/forms";
+import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
 @Component({
     selector: "src-tor",
     templateUrl: "./tor.component.html",
     standalone: true,
-    imports: [TranslatePipe, FormsModule]
+    imports: [HeldByProfileDirective, TranslatePipe, FormsModule]
 })
 export class TorComponent implements OnInit {
   protected nodeResolver = inject(NodeResolver);
@@ -31,6 +32,10 @@ export class TorComponent implements OnInit {
 
   updateTor(network: networkResolverModel) {
     this.httpService.requestUpdateNetworkResource(network).subscribe(() => {
+      // The network answers with the network alone, which does not say what the site holds: the
+      // node is asked again, so that the command to give a value up is there as soon as the save
+      // has created one, and does not wait for the page to be rebuilt
+      this.nodeResolver.reload();
       this.utilsService.reloadComponent();
     });
   }

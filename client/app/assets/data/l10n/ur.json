@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "یہ ای میل آپ کو بغیر پڑھی ہوئی یا اپ ڈیٹ شدہ رپورٹس کی موجودگی کی یاد دلانے کے لیے ہے۔ ",
   "Reminder about unread or updated reports": "بغیر پڑھی ہوئی یا اپ ڈیٹ شدہ رپورٹس کے بارے میں یاد دہانی ",
   "Role: {Role}": "کردار: {Role} ",
-  "Password: {Password}": "پاس ورڈ: {Password}"
+  "Password: {Password}": "پاس ورڈ: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

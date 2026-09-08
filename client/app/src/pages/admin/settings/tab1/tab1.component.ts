@@ -8,7 +8,7 @@ import {Constants} from "@app/shared/constants/constants";
 import {AppDataService} from "@app/app-data.service";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {TranslatePipe} from "@ngx-translate/core";
-import {ColorsComponent} from "@app/pages/admin/settings/colors/colors.component";
+import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
 @Component({
     selector: "src-tab1",
@@ -16,7 +16,7 @@ import {ColorsComponent} from "@app/pages/admin/settings/colors/colors.component
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
     imports: [
-    ColorsComponent,
+    HeldByProfileDirective,
     ImageUploadDirective,
     FormsModule,
     TranslatePipe
@@ -33,7 +33,11 @@ export class Tab1Component {
   readonly contentForm = input.required<NgForm>();
 
   updateNode() {
-    this.utilsService.update(this.nodeResolver.dataModel).subscribe(() => {
+    this.utilsService.update(this.nodeResolver.dataModel).subscribe((node) => {
+      // A save is what makes a site start holding a value of its own, and the command to give it
+      // up must be there the moment it does. The answer says what the site holds now: the strips
+      // read it from there, without waiting for the navigation below to bring it again.
+      this.nodeResolver.patch({held_keys: node.held_keys});
       this.appConfigService.reinit();
       this.utilsService.reloadComponent();
     });

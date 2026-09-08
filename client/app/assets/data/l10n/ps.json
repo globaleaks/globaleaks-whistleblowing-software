@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "دغه برېښنالیک تاسې ته د نالوستل شویو یا اپډیټ شویو رپوټونو د شتون په اړه خبر درکوي.",
   "Reminder about unread or updated reports": "د نالوستل شویو یا اپډیټ شویو رپوټونو په اړه په یاد راوړنه",
   "Role: {Role}": "دنده: {Role}",
-  "Password: {Password}": "پټ نوم: {Password}"
+  "Password: {Password}": "پټ نوم: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "该邮件提醒您，有新的未读或已更新报告。",
   "Reminder about unread or updated reports": "未读或已更新报告的提醒",
   "Role: {Role}": "角色: {Role}",
-  "Password: {Password}": "密碼: {Password}"
+  "Password: {Password}": "密碼: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

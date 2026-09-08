@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Käesoleva meiliga tuletame teile meelde lugemata või uuendatud teavituste olemasolust.",
   "Reminder about unread or updated reports": "Meeldetuletus lugemata või uuendatud teavituste kohta",
   "Role: {Role}": "Roll: {Role}",
-  "Password: {Password}": "Parool: {Password}"
+  "Password: {Password}": "Parool: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

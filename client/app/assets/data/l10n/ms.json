@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "E-mel ini untuk mengingatkan anda tentang laporan belum dibaca atau belum dikemas kini.",
   "Reminder about unread or updated reports": "Peringatan mengenai laporan belum dibaca atau belum dikemas kini",
   "Role: {Role}": "Peranan: {Role}",
-  "Password: {Password}": "Kata laluan: {Password}"
+  "Password: {Password}": "Kata laluan: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

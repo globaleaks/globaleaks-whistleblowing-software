@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Syftet med detta e-postmeddelande är att påminna dig om olästa eller uppdaterade rapporter.",
   "Reminder about unread or updated reports": "Påminnelse om olästa eller uppdaterade rapporter",
   "Role: {Role}": "Roll: {Role}",
-  "Password: {Password}": "Lösenord: {Password}"
+  "Password: {Password}": "Lösenord: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

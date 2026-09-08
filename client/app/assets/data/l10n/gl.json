@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "This email is to remind you the presence of unread or updated reports.",
   "Reminder about unread or updated reports": "Reminder about unread or updated reports",
   "Role: {Role}": "Rol: {Role}",
-  "Password: {Password}": "Contrasinal: {Password}"
+  "Password: {Password}": "Contrasinal: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "このメールは、未読または更新された報告があることを通知するためのものです。",
   "Reminder about unread or updated reports": "未読または更新された報告に関するリマインダー",
   "Role: {Role}": "役割: {Role}",
-  "Password: {Password}": "パスワード: {Password}"
+  "Password: {Password}": "パスワード: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

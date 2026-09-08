@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "This email is to remind you the presence of unread or updated reports.",
   "Reminder about unread or updated reports": "Reminder about unread or updated reports",
   "Role: {Role}": "பங்கு: {Role}",
-  "Password: {Password}": "கடவுச்சொல்: {Password}"
+  "Password: {Password}": "கடவுச்சொல்: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }

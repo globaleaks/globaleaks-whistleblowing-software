@@ -631,5 +631,7 @@
   "This email is to remind you the presence of unread or updated reports.": "Бу мектюп сизге окъулмагъан я да янъартылгъан эсабатлар бар олгъаны акъкъында хатырлатмакъ ичюн ёлланылды.",
   "Reminder about unread or updated reports": "Окъулмагъан я да янъартылгъан эсабатлар акъкъында хатырлатма",
   "Role: {Role}": "Роль: {Role} ",
-  "Password: {Password}": "Пароль: {Password}"
+  "Password: {Password}": "Пароль: {Password}",
+  "Not customizable": "Not customizable",
+  "Customizable": "Customizable"
 }
