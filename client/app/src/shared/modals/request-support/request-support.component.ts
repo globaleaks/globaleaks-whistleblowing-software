@@ -55,11 +55,11 @@ export class RequestSupportComponent implements OnInit {
    * once: it opens support from the login and has no list to be offered.
    */
   get showTabs(): boolean {
-    return this.canReadRequests && this.requestsLoaded && this.requests.length > 0;
+    return this.supportAvailable && this.canReadRequests && this.requestsLoaded && this.requests.length > 0;
   }
 
   get showForm(): boolean {
-    return !this.canReadRequests || (this.requestsLoaded && !this.requests.length);
+    return this.supportAvailable && (!this.canReadRequests || (this.requestsLoaded && !this.requests.length));
   }
 
   /**
