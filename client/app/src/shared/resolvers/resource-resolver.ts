@@ -54,6 +54,17 @@ export abstract class ResourceResolver<T> {
     this.resource.set(value);
   }
 
+  /**
+   * Writes fields back into the value the resource holds.
+   *
+   * The value is a signal: changing in place the object it returns notifies nobody, and the
+   * panels keep showing what they showed before until something else happens to make them
+   * render. Whoever answers a mutation by writing what the server now holds goes through here.
+   */
+  patch(fields: Partial<T>): void {
+    this.dataModel = {...this.dataModel, ...fields};
+  }
+
   protected abstract allowed(): boolean;
 
   resolve(): Observable<boolean> {

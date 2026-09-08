@@ -78,6 +78,20 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertTrue(response['version'], __version__)
         self.assertEqual(response['custom_support_url'], 'https://globaleaks.org')
 
+    @inlineCallbacks
+    def test_the_answer_of_a_save_says_what_the_site_holds_from_then_on(self):
+        """
+        A save is what makes a site start holding a value of its own, and the answer says so: the
+        interface offers the giving up of that value without asking for the configuration again.
+        """
+        handler = self.request(self.dummy_node, role='admin')
+        response = yield handler.put()
+        self.assertNotIn('custom_support_url', response['held_keys'])
+
+        self.dummy_node['custom_support_url'] = 'https://globaleaks.org'
+        handler = self.request(self.dummy_node, role='admin')
+        response = yield handler.put()
+        self.assertIn('custom_support_url', response['held_keys'])
 
     @inlineCallbacks
     def test_put_update_node_invalid_lang(self):
