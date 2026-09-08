@@ -15,11 +15,11 @@
       <ng-template #header>
         <tr>
           @if (nodeResolver.dataModel.root_tenant) {
-            <th scope="col" appTableHeader [state]="table" [label]="'Tenant' | translate" sortBy="tid" filter="tid" [options]="tenantOptions"></th>
+            <th scope="col" appTableHeader [state]="table" [label]="'Site' | translate" sortBy="tid" filter="tid" [options]="tenantOptions"></th>
           }
           <th scope="col" appTableHeader [state]="table" [label]="'ID' | translate" sortBy="progressive"></th>
           <th scope="col" appTableHeader [state]="table" [label]="'Creation date' | translate" sortBy="creation_date" filter="creation_date"></th>
-          <th scope="col" appTableHeader [state]="table" [label]="'Update date' | translate" sortBy="update_date" filter="update_date"></th>
+          <th scope="col" appTableHeader [state]="table" [label]="'Last update' | translate" sortBy="update_date" filter="update_date"></th>
           <th scope="col" appTableHeader [state]="table" [label]="'Username' | translate" sortBy="author_username" filter="author_username" [options]="userOptions"></th>
           <th scope="col" appTableHeader [state]="table" [label]="'Status' | translate" sortBy="status_order" filter="status" [options]="statusOptions"></th>
           <th scope="col"></th>
@@ -68,7 +68,7 @@
               <div class="expandable-box">
               @if (nodeResolver.dataModel.root_tenant) {
                 <div class="mb-3">
-                  <span class="title">{{ 'Tenant' | translate }}:</span>
+                  <span class="title">{{ 'Site' | translate }}:</span>
                   @if (canReachTenant()) {
                     <a class="ms-1" [routerLink]="['/admin/sites']" [queryParams]="{id: request.tid}">{{ request.tenant_name }}</a>
                   } @else {

@@ -5,11 +5,7 @@
   </button>
 </div>
 <div class="modal-body">
-  @if (!supportAvailable) {
-    <div class="alert alert-warning" data-cy="support-unavailable" role="alert">
-      {{ 'Support requests are currently unavailable.' | translate }}
-    </div>
-  } @else if (showTabs) {
+  @if (showTabs) {
     <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="activeTab">
       <li [ngbNavItem]="'requests'">
         <button ngbNavLink data-cy="support-tab-requests">{{ 'Requests' | translate }}</button>
@@ -73,7 +69,7 @@
         <span class="overflow-hidden">
           <span class="badge me-2" [ngClass]="statusClass(request.status)">{{ statusLabels[request.status] | translate }}</span>
           @if (hasUnreadAdminMessages(request)) {
-            <span class="badge bg-warning text-dark me-2">{{ 'Unread reply' | translate }}</span>
+            <span class="badge bg-warning text-dark me-2">{{ 'Unread' | translate }}</span>
           }
           <span class="text-truncate">{{ request.preview }}</span>
         </span>
