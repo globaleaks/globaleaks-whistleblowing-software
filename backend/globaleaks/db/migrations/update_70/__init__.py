@@ -17,6 +17,9 @@ data of the fork in the conventions of new-stable, feature by feature:
 - Report answers: the fork stores the answers as raw text, the stable branch
   and new-stable JSON-encoded (a ciphertext string, or the object of the
   answers of a report created before the encryption).
+- Visibility of the comments and of the evidences: the fork holds two values
+  of its own beside the ones of new-stable, and each is expressed by the value
+  of new-stable that reaches the same readers.
 
 Whatever the fork added and new-stable did not retain (the identity of the
 users on the identity provider, the antivirus state of the files, the
@@ -26,6 +29,8 @@ carried over: the columns are left behind by the models, the configuration
 variables by migration 71.
 """
 import json
+
+from sqlalchemy import text
 
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
@@ -59,6 +64,18 @@ def normalize_answers(text):
     return json.loads(text) if text.startswith('{') else text
 
 
+# The visibility of a comment or of an evidence, as the ANAC fork wrote it,
+# expressed by the value of new-stable that reaches the same readers: what the
+# fork exchanged with the hosting body ('eo') was read by the recipients of the
+# report and never by the whistleblower, as the internal visibility is; what it
+# addressed to the whistleblower was read by the whistleblower, as the public
+# visibility is.
+FORK_VISIBILITY = {
+    3: 1,  # eo -> internal
+    4: 0   # whistleblower -> public
+}
+
+
 class MigrationScript(MigrationBase):
     renamed_config = {
         'global_stat_pub_key': 'crypto_stat_pub_key',
@@ -76,3 +93,18 @@ class MigrationScript(MigrationBase):
             'stat_answers': lambda o: normalize_answers(o.stat_answers)
         }
     }
+
+    def prologue(self):
+        """
+        Express in the values of new-stable the visibility the fork wrote
+
+        The conversion is performed on the database being read and not on the
+        objects, because the value the fork wrote is outside the ones the
+        models declare and no object carrying it can be read at all.
+        """
+        for table in ['comment', 'receiverfile']:
+            for old, new in FORK_VISIBILITY.items():
+                self.session_old.execute(text(f'UPDATE {table} SET visibility = :new WHERE visibility = :old'),
+                                         {'new': new, 'old': old})
+
+        self.session_old.commit()
