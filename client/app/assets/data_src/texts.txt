@@ -530,7 +530,6 @@ You have completed the platform activation.
 You have completed the platform wizard.
 You have reached the maximum number of selectable recipients.
 You must select at least one recipient.
-You do not have access to decrypt this support request.
 Your new email address has been validated.
 Your report was successful.
 Your whistleblowing platform is almost ready!
