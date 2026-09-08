@@ -678,6 +678,15 @@ module.exports = function(grunt) {
           templates = appdata["templates"],
           templates_sources = {};
 
+      // The subject of the notifications that announce an object is the object
+      // and the state it is in. It is composed here, from the two words, so
+      // that the catalogue carries the words and not one sentence for every
+      // notification: the panel keeps asking for a title and receives one.
+      let composed_titles = {
+        "tip_mail_title": ["Report", "New"],
+        "tip_update_mail_title": ["Report", "Updated"]
+      };
+
       let translate_object = function(object, keys) {
         for (let k in keys) {
           if (object[keys[k]]["en"] === "")
@@ -770,6 +779,23 @@ module.exports = function(grunt) {
           });
 
           templates[template_name][lang_code] = tmp.trim();
+        }
+
+        for (let template_name in composed_titles) {
+          let object_word = composed_titles[template_name][0],
+              status_word = composed_titles[template_name][1];
+
+          if (!(template_name in templates)) {
+            templates[template_name] = {};
+          }
+
+          // The object leads and is what gives the subject its direction; the
+          // state is isolated (U+2068 .. U+2069), so that a word still
+          // untranslated does not drag the parentheses to the wrong side of a
+          // right to left script
+          templates[template_name][lang_code] =
+            str_unescape(gt.gettext(str_escape(object_word))) +
+            " (\u2068" + str_unescape(gt.gettext(str_escape(status_word))) + "\u2069)";
         }
       });
 
