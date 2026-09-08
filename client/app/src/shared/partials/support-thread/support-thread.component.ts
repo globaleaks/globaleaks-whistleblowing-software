@@ -28,7 +28,7 @@ export class SupportThreadComponent {
   @Output() send = new EventEmitter<string>();
 
   get canReply(): boolean {
-    return this.request.key_available && this.request.status !== "closed";
+    return this.request.status !== "closed";
   }
 
   messageAuthor(message: SupportMessage): string {

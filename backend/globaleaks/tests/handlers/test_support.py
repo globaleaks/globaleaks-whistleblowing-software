@@ -94,6 +94,13 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
                                            support.get_support_config(session, tid, 'crypto_support_pub_key'))
 
     @transact
+    def get_user_cc(self, session, user_id):
+        """
+        Return the private key of the account, as its own session holds it
+        """
+        return self.user_cc(session.query(models.User).filter(models.User.id == user_id).one())
+
+    @transact
     def get_users_holding_key(self, session, tid):
         """
         Return the users whose stored support key opens the key of the tenant
@@ -210,7 +217,6 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
         support_requests = yield support.get_admin_support_requests(1, self.admin_session())
 
         self.assertEqual(len(support_requests), 3)
-        self.assertTrue(all(support_request['key_available'] for support_request in support_requests))
         self.assertEqual(sorted(support_request['messages'][0]['content'] for support_request in support_requests),
                          ['Root request', 'Tenant 2 request', 'Tenant 3 request'])
 
@@ -282,6 +288,31 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
 
         yield self.assertFailure(support.update_support_request_status(2, tenant_session, other['id'], 'opened'),
                                  errors.ResourceNotFound)
+
+    #
+    # 9. The key opens the requests: what it does not open is not listed either
+    #
+    @inlineCallbacks
+    def test_a_request_that_cannot_be_decrypted_is_not_listed(self):
+        demoted = yield create_user(2, self.admin_session(2, self.tenant_admin), self.new_user_desc('admin', 'admin9'), 'en')
+        cc = yield self.get_user_cc(demoted['id'])
+        demoted_session = Session(2, demoted['id'], 2, 'admin9', 'admin', cc,
+                                  permissions={p: True for p in models.admin_permissions})
+
+        yield support.create_support_request(2, None, 'tenant2@example.org', 'Tenant 2 request')
+
+        support_requests = yield support.get_admin_support_requests(2, demoted_session)
+        self.assertEqual([support_request['messages'][0]['content'] for support_request in support_requests],
+                         ['Tenant 2 request'])
+
+        request = dict(demoted)
+        request['role'] = 'receiver'
+        request['roles'] = ['receiver']
+        request['pgp_key_remove'] = False
+        yield tw(db_update_user, 2, self.admin_session(2, self.tenant_admin), demoted['id'], request, 'en')
+
+        support_requests = yield support.get_admin_support_requests(2, demoted_session)
+        self.assertEqual(support_requests, [])
 
     #
     # The request and its messages are stored encrypted and the notification is content free
@@ -364,7 +395,8 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
         # and the thread is readable by its author as soon as the access is complete
         support_requests = yield support.get_user_support_requests(1, user_session)
 
-        self.assertTrue(support_requests[0]['key_available'])
+        self.assertEqual([message['content'] for message in support_requests[0]['messages']],
+                         ['I lost my password'])
 
     #
     # An user that has authenticated on the identity provider and is being
@@ -390,7 +422,8 @@ class TestSupport(helpers.TestHandlerWithPopulatedDB):
         user_session = Session(1, user_id, 1, 'receiver1', 'receiver', helpers.USER_PRV_KEY)
         support_requests = yield support.get_user_support_requests(1, user_session)
 
-        self.assertTrue(support_requests[0]['key_available'])
+        self.assertEqual([message['content'] for message in support_requests[0]['messages']],
+                         ['I lost my password'])
 
     #
     # An identity bound to no account identifies no requester

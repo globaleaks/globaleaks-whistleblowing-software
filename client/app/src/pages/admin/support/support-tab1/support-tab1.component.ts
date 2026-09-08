@@ -230,9 +230,9 @@ export class SupportTab1Component implements OnInit {
     }
 
     this.expandedRequestId = request.id;
-    if (request.status === "new" && request.key_available) {
+    if (request.status === "new") {
       this.updateStatus(request, "opened");
-    } else if (this.hasUnreadUserMessages(request) && request.key_available) {
+    } else if (this.hasUnreadUserMessages(request)) {
       this.markRead(request);
     }
   }
