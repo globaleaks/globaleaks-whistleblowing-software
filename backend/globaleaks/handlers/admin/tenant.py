@@ -97,6 +97,12 @@ def db_create(session, desc):
 
     models.config.initialize_config(session, t.id, desc['mode'])
 
+    # A site speaks the language of the platform that creates it: the pages of a site
+    # are read by the public of that platform, and the default of the application
+    # would leave them in a language nobody there has chosen
+    if t.id != 1:
+        db_set_config_variable(session, t.id, 'default_language', language)
+
     if t.id == 1:
         key, cert = gen_selfsigned_certificate()
         db_set_config_variable(session, 1, 'https_selfsigned_key', key)
@@ -123,7 +129,7 @@ def create_and_initialize(session, desc, *args, **kwargs):
     t = db_create(session, desc, *args, **kwargs)
 
     wizard = {
-        'node_language': 'en',
+        'node_language': db_get_config_variable(session, 1, 'default_language'),
         'node_name': desc['name'],
         'profile': 'default',
         'skip_admin_account_creation': True,
