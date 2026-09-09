@@ -906,8 +906,6 @@ module.exports = function(grunt) {
     grunt.file.mkdir("app/assets/data/l10n");
 
     supported_languages.forEach(function(lang_code) {
-      if (lang_code === "en") return;
-
       const poPath = `app/assets/data_src/pot/${lang_code}.po`;
       if (!fs.existsSync(poPath)) return;
 
