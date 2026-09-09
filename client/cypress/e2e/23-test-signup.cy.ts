@@ -61,9 +61,9 @@ describe("User Perform Signup", function() {
 
     cy.takeScreenshot("admin/signup_form");
 
-    cy.takeScreenshot("forward/homepage");
-    cy.takeScreenshot("forward/homepage_texts_detail", "#HeaderBox");
-    cy.takeScreenshot("forward/signup_form", "#SignupForm");
+    cy.takeScreenshot("subscriber/homepage");
+    cy.takeScreenshot("subscriber/homepage_texts_detail", "#HeaderBox");
+    cy.takeScreenshot("subscriber/signup_form", "#SignupForm");
 
     cy.get('input[name="subdomain"]').type("test");
     cy.get('input[name="organization_name"]').type("Test Organization");
@@ -73,13 +73,13 @@ describe("User Perform Signup", function() {
     cy.get('input[name="email"]').type("test@example.net");
 
     // the address is entered twice; the row holding both is the ancestor, not every row
-    cy.takeScreenshot("forward/signup_email_detail", '.row:has(> .form-group > #signup-email)');
+    cy.takeScreenshot("subscriber/signup_email_detail", '.row:has(> .form-group > #signup-email)');
 
     cy.get(".ButtonNext").click();
 
     cy.contains(".title", "Terms and Conditions").should("be.visible");
     cy.get(".title").should("be.visible");
-    cy.takeScreenshot("forward/signup_activation");
+    cy.takeScreenshot("subscriber/signup_activation");
   });
 });
 
