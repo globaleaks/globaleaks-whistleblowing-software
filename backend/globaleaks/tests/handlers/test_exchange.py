@@ -452,13 +452,13 @@ class TestRequestAndTransmission(ExchangeTest):
         _, request = yield self.file()
 
         self.assertEqual((yield self.announce()),
-                         {(2, self.destination['mail_address'], subject('Forward request', 'New'))})
+                         {(2, self.destination['mail_address'], subject('Transmission request', 'New'))})
 
         yield self.decide(request['id'], True)
         _, filed = yield self.file()
 
         self.assertEqual((yield self.announce()),
-                         {(2, self.destination['mail_address'], subject('Forward', 'New'))})
+                         {(2, self.destination['mail_address'], subject('Transmission', 'New'))})
         self.assertEqual(filed['type'], 'exchange')
 
     @inlineCallbacks
