@@ -2400,7 +2400,7 @@ msgid "Transmit report"
 msgstr "Trasmetti una segnalazione"
 
 msgid "Transmitter"
-msgstr "Trasmettitore"
+msgstr "Trasmittente"
 
 msgid "Trigger field"
 msgstr "Campo di attivazione"
