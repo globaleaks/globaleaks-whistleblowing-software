@@ -112,8 +112,6 @@ describe("recipient exchange workflow", function () {
       // the modal opens before the questionnaire arrives: wait for its fields
       cy.get("#TransmitForm").find("input, select, textarea").should("have.length.greaterThan", 0);
       cy.get("#TransmitForm").should("be.visible");
-      cy.takeScreenshot("forward/forward_form", ".modal-dialog");
-      cy.takeScreenshot("forward/forward_form_attachment_detail", "#TransmitForm");
 
       submitCommunication(platformFUrl, 'communicatedReport');
 
@@ -123,7 +121,6 @@ describe("recipient exchange workflow", function () {
       });
       cy.get("#TipInfoBox").should("be.visible");
       cy.get("#TipCommunicationsBox").should("be.visible");
-      cy.takeScreenshot("recipient/forwards_list_detail", "#TipCommunicationsBox");
 
       cy.logout();
 
@@ -132,13 +129,8 @@ describe("recipient exchange workflow", function () {
       cy.waitForUrl("/recipient/reports");
       cy.get("#tip-0").should("be.visible");
 
-      cy.takeScreenshot("recipient/tips");
-      cy.takeScreenshot("recipient/tips_forward_channel_detail", "#TipList");
-
       cy.get("#tip-0").click();
       cy.get("#TipInfoBox").should("be.visible");
-      cy.takeScreenshot("recipient/forward_report");
-      cy.takeScreenshot("recipient/forward_report_messages_detail", "#TipCommentsBox");
 
       cy.logout();
     });
@@ -180,8 +172,8 @@ describe("recipient exchange workflow", function () {
 
       cy.get("#TransmitForm").find("input, select, textarea").should("have.length.greaterThan", 0);
       cy.get("#TransmitForm").should("be.visible");
-      cy.takeScreenshot("recipient/communication_form", ".modal-dialog");
-      cy.takeScreenshot("recipient/communication_form_detail", "#TransmitForm");
+      cy.takeScreenshot("exchanges/communications/send", ".modal-dialog");
+      cy.takeScreenshot("exchanges/communications/send_detail", "#TransmitForm");
 
       submitCommunication(Cypress.config().baseUrl as string, 'authorityCommunication');
 
@@ -191,7 +183,15 @@ describe("recipient exchange workflow", function () {
       });
       cy.get("#TipInfoBox").should("be.visible");
       cy.get("#TipCommunicationsBox").should("be.visible");
-      cy.takeScreenshot("recipient/communications_list_detail", "#TipCommunicationsBox");
+      cy.takeScreenshot("exchanges/communications/list_sent");
+      cy.takeScreenshot("exchanges/communications/list_sent_detail", "#TipCommunicationsBox");
+
+      // what has been communicated stays reachable from the report that sent it: the recipients
+      // that held it keep an access on what they filed, and the row opens it
+      cy.get("#TipCommunicationsBox tbody tr.tip-action-open").first().click();
+      cy.get("#TipInfoBox").should("be.visible");
+      cy.takeScreenshot("exchanges/communications/access_sent");
+      cy.takeScreenshot("exchanges/communications/access_sent_messages_detail", "#TipCommentsBox");
 
       cy.logout();
 
@@ -201,13 +201,13 @@ describe("recipient exchange workflow", function () {
       cy.waitForUrl("/recipient/reports");
       cy.get("#tip-0").should("be.visible");
 
-      cy.takeScreenshot("forward/communications_list");
-      cy.takeScreenshot("forward/communications_list_channel_detail", "#TipList");
+      cy.takeScreenshot("exchanges/communications/list_received");
+      cy.takeScreenshot("exchanges/communications/list_received_channel_detail", "#TipList");
 
       cy.get("#tip-0").click();
       cy.get("#TipInfoBox").should("be.visible");
-      cy.takeScreenshot("forward/communication_report");
-      cy.takeScreenshot("forward/communication_report_messages_detail", "#TipCommentsBox");
+      cy.takeScreenshot("exchanges/communications/access_received");
+      cy.takeScreenshot("exchanges/communications/access_received_messages_detail", "#TipCommentsBox");
 
       cy.logout();
     });
@@ -356,28 +356,28 @@ describe("transmission workflow upon a request", function () {
       // opened from the toolbar of the transmissions list, not from a report
       cy.visit(`${platformGUrl}/#/recipient/transmissions`);
       cy.waitForUrl("/recipient/transmissions");
-      cy.takeScreenshot("forward/tips_request_button_detail", "#Toolbar");
+      cy.takeScreenshot("exchanges/transmissions/request/send_button_detail", "#Toolbar");
 
       cy.get("#transmission-action-transmit").should("be.visible").click();
       // the modal opens before the questionnaire arrives: wait for its fields
       cy.get("#TransmitForm").find("input, select, textarea").should("have.length.greaterThan", 0);
       cy.get("#TransmitForm").should("be.visible");
-      cy.takeScreenshot("forward/forward_request_form", ".modal-dialog");
+      cy.takeScreenshot("exchanges/transmissions/request/send", ".modal-dialog");
       submitTransmission("firstRequest");
 
       // what it filed is traced in the transmissions interface
       cy.visit(`${platformGUrl}/#/recipient/transmissions`);
       cy.waitForUrl("/recipient/transmissions");
       cy.get("#TransmissionList tbody tr").should("have.length.greaterThan", 0);
-      cy.takeScreenshot("forward/tips_list");
-      cy.takeScreenshot("forward/tips_list_status_detail", "#TransmissionList");
+      cy.takeScreenshot("exchanges/transmissions/request/list_sent");
+      cy.takeScreenshot("exchanges/transmissions/request/list_sent_status_detail", "#TransmissionList");
 
       // a request is followed by the site that filed it. An ungranted request opens no
       // report: pick an open-able row
       cy.get("#TransmissionList tbody tr.tip-action-open").first().click();
       cy.get("#TipInfoBox").should("be.visible");
-      cy.takeScreenshot("forward/forward_request_status_eo");
-      cy.takeScreenshot("forward/forward_request_messages_detail", "#TipCommentsBox");
+      cy.takeScreenshot("exchanges/transmissions/request/access_sent");
+      cy.takeScreenshot("exchanges/transmissions/request/access_sent_messages_detail", "#TipCommentsBox");
 
       cy.logout();
     });
@@ -388,7 +388,7 @@ describe("transmission workflow upon a request", function () {
   it("should let the recipients talk on a request and deny it", function () {
     openNewestAuthorityReport();
 
-    cy.takeScreenshot("recipient/forward_request_status");
+    cy.takeScreenshot("exchanges/transmissions/request/access_received");
 
     cy.get("#TipCommentsBox").should("be.visible").within(() => {
       cy.get("[name='newCommentContent']").should("be.visible").type("Clarification requested by the Authority");
@@ -399,7 +399,7 @@ describe("transmission workflow upon a request", function () {
     cy.get("#actionsDropdownButton").scrollIntoView().should("be.visible").click();
     // the open menu: #TipToolbar holds the export, the logs and the refresh, and the capture
     // of it photographed those three buttons and left the actions out of the frame
-    cy.takeScreenshot("recipient/forward_request_actions_detail", ".dropdown-menu.show");
+    cy.takeScreenshot("exchanges/transmissions/request/access_received_actions_detail", ".dropdown-menu.show");
     cy.get("#tip-action-deny-transmission").should("be.visible").click();
 
     // the modal performs the denial: confirm it
@@ -455,6 +455,8 @@ describe("transmission workflow upon a request", function () {
     // the authorization opens the questionnaire of the report
     login_transmitter();
     openTransmitForm();
+    cy.takeScreenshot("exchanges/transmissions/send", ".modal-dialog");
+    cy.takeScreenshot("exchanges/transmissions/send_attachment_detail", "#TransmitForm");
     submitTransmission("transmittedReport");
 
     // the receipt handed over to the reporting person lives on the
@@ -466,13 +468,13 @@ describe("transmission workflow upon a request", function () {
 
     // the Authority read the motivation: the message carries its receipt
     cy.get("#TipCommentsBox .text-success .fa-check").should("exist");
-    cy.takeScreenshot("forward/tip_comments_read_receipt");
-    cy.takeScreenshot("forward/tip_comments_read_receipt_detail", "#TipCommentsBox");
+    cy.takeScreenshot("exchanges/read_receipt");
+    cy.takeScreenshot("exchanges/read_receipt_detail", "#TipCommentsBox");
 
     clickReportAction('#tip-action-access-code');
     cy.get("#AccessCode").should("be.visible");
-    cy.takeScreenshot("forward/access_code");
-    cy.takeScreenshot("forward/access_code_detail", ".modal-dialog");
+    cy.takeScreenshot("exchanges/transmissions/access_code");
+    cy.takeScreenshot("exchanges/transmissions/access_code_detail", ".modal-dialog");
 
     cy.get("#AccessCode").invoke("val").then((value) => {
       accessCode = String(value).replace(/\s/g, "");
@@ -488,11 +490,21 @@ describe("transmission workflow upon a request", function () {
 
       // the temporary receipt is spent by the access: a new one is handed over
       cy.get("#ReceiptCode", { timeout: 30000 }).should("be.visible");
-      cy.takeScreenshot("whistleblower/forwarded_tip_receipt_change_detail", ".modal-dialog");
+      cy.takeScreenshot("whistleblower/transmitted_tip_receipt_change_detail", ".modal-dialog");
       cy.get("#modal-action-ok").click();
 
       cy.get("#TipInfoBox", { timeout: 30000 }).should("be.visible");
-      cy.takeScreenshot("whistleblower/forwarded_tip");
+      cy.takeScreenshot("whistleblower/transmitted_tip");
+    });
+
+    // and the report is received: on the site of the Authority it is a report of the channel it
+    // arrived on, which its recipients read and answer like any other
+    cy.then(() => {
+      cy.logout();
+      openNewestAuthorityReport();
+      cy.takeScreenshot("exchanges/transmissions/access_received");
+      cy.takeScreenshot("exchanges/transmissions/access_received_messages_detail", "#TipCommentsBox");
+      cy.logout();
     });
   });
 });
