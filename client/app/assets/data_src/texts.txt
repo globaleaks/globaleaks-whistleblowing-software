@@ -83,6 +83,7 @@ Communication
 Computer
 Configure
 Confirm
+Confirmation
 Congratulations!
 Copy to clipboard
 Country
@@ -174,8 +175,6 @@ Forbidden operation
 Force password change
 Forcefully selected
 Forgot password?
-Forward
-Forward request
 From
 From:
 Generate
@@ -539,3 +538,159 @@ percentage
 please enter a valid email address.
 please enter numbers only.
 seconds
+A user with this username already exists
+Accept
+Access code
+Account
+Actions
+All the requests
+Allowed IP address
+Apply
+Authenticate with IDP
+Authorize the report
+Auto - renewal
+Automatically authorize newly registered sites
+Back
+Backup Job Status
+Bar Chart
+Change default role
+Check your inbox.
+Clear
+Comment
+Communicate with other organization
+Communications with other organizations
+Content
+Create
+Create the accounts upon the first authentication of their users
+Current
+Custom privacy panel text
+Data owner
+Data retention policy
+Default Role
+Default statistical template
+Deletion prevented due to a status change during operation.
+Deny the report
+Destination
+Enable a dedicated Tor onion service
+Enable demo mode
+Enable file upload
+Error loading custom files
+Estimated upload time:
+Example
+Exchange channel
+Get access code
+High threshold (megabytes)
+High threshold (percentage)
+Host
+Important
+Include in statistical reports
+Internally available
+Invite
+Invite only
+It is requested to fill an additional questionnaire
+Logs
+Low threshold (megabytes)
+Low threshold (percentage)
+Manage
+Maximum date
+Messages
+Metric
+Minimum date
+Mode
+No results found
+Number of backups to keep
+Number of days before sending a report expiration alert
+Only the requests of the administrators
+Option label
+Organization name
+Percentage
+Period (hours)
+Permissions
+Pie Chart
+Port
+Profile:
+Provide the access code to the user that enters the report
+Recovery key
+Request to fill an additional questionnaire
+Request's questionnaire
+Require a request before a report is entered
+Reset the identity bound to this user
+SMTP
+Seen
+Show only unread
+Sign up completed.
+Skip to content
+Slug
+Support requests handled by the first site
+Switch role
+Template content
+Test
+The current password is incorrect.
+The other party has already read the last update
+The other party has not read the last update yet
+The report has been entered.
+The requests left out are handled by the administrators of this site and are not notified to the first site.
+The sites created with this setting enabled are automatically deleted 90 days after their creation.
+The value is applied on the creation of a new site; the sites for which it is disabled are published as a subdomain of the onion service of the first site.
+Threshold type
+Time (hh:mm)
+Toggle visibility
+Tor Onion Service address
+Transmissions
+Transmit report
+Transmitter
+Trigger field
+Trigger option
+Two factor authentication code
+URL
+Upload completed successfully!
+Uploading files…
+User profile
+When disabled the report is readable by its recipients alone and nothing opens it afterwards.
+You must authenticate to proceed.
+Additional questionnaires
+Administrators authorized to change user passwords
+Antivirus
+Audit Log
+Authentication
+Backup
+Delete Recording
+Exchanges
+GlobaLeaks - Secure Whistleblowing Software
+HTTPS
+Main navigation
+Personal notes
+Record a voice message
+Recording Indicator
+Registrations
+Roles
+Statistical reports
+Stop Recording
+Toggle navigation
+Automatic
+Ask automatically
+Allow whistleblowers to select their recipients
+Transmission
+Communication
+Communications
+Transmission request
+Transmit
+Whistleblower
+Average time to opening
+Average time to first reply
+Average time to closure
+Button
+Mask information
+Redact information
+Delete reports
+Change report status
+Change report labels
+Postpone expiration date
+Grant access to reports
+Transfer access to reports
+Send communication to other organizations
+Users' profiles
+accepted
+denied
+invited
+pending

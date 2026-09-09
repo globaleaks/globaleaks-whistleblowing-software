@@ -1,8 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"Language-Team: English "
-"(http://www.transifex.com/otf/globaleaks/language/en/)\n"
+"Language-Team: English\n"
 "mime-version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -39,6 +38,9 @@ msgstr ""
 
 msgid "Account recovery key"
 msgstr "Account recovery key"
+
+msgid "Activation"
+msgstr "Activation"
 
 msgid "Activities"
 msgstr "Activities"
@@ -78,6 +80,9 @@ msgstr "Administrators authorized to change user passwords:"
 
 msgid "Advanced"
 msgstr "Advanced"
+
+msgid "All"
+msgstr "All"
 
 msgid "Allow the recipient to edit the reports' expiration date"
 msgstr "Allow the recipient to edit the reports' expiration date"
@@ -145,6 +150,9 @@ msgstr "Audio"
 msgid "Audit log"
 msgstr "Audit log"
 
+msgid "Auditor"
+msgstr "Auditor"
+
 msgid "Authentication failed"
 msgstr "Authentication failed"
 
@@ -162,6 +170,9 @@ msgstr "Authorized"
 
 msgid "Auto-renewal"
 msgstr "Auto-renewal"
+
+msgid "Automatic"
+msgstr "Automatic"
 
 msgid "Automatic configuration"
 msgstr "Automatic configuration"
@@ -248,6 +259,9 @@ msgstr "Column"
 msgid "Comments"
 msgstr "Comments"
 
+msgid "Communication"
+msgstr "Communication"
+
 msgid "Computer"
 msgstr "Computer"
 
@@ -256,6 +270,9 @@ msgstr "Configure"
 
 msgid "Confirm"
 msgstr "Confirm"
+
+msgid "Confirmation"
+msgstr "Confirmation"
 
 msgid "Congratulations!"
 msgstr "Congratulations!"
@@ -314,6 +331,9 @@ msgstr ""
 
 msgid "Delete"
 msgstr "Delete"
+
+msgid "Deliver the following notifications through the secondary SMTP server"
+msgstr "Deliver the following notifications through the secondary SMTP server"
 
 msgid "Denied"
 msgstr "Denied"
@@ -734,6 +754,9 @@ msgstr "Make it possible for this admin to reset user passwords."
 msgid "Mandatory"
 msgstr "Mandatory"
 
+msgid "Manual"
+msgstr "Manual"
+
 msgid "Manual configuration"
 msgstr "Manual configuration"
 
@@ -760,6 +783,9 @@ msgstr "Me only"
 
 msgid "Medium"
 msgstr "Medium"
+
+msgid "Message"
+msgstr "Message"
 
 msgid "Min"
 msgstr "Min"
@@ -809,9 +835,6 @@ msgstr "New"
 msgid "New password"
 msgstr "New password"
 
-msgid "New request"
-msgstr "New request"
-
 msgid "Next"
 msgstr "Next"
 
@@ -860,6 +883,9 @@ msgstr ""
 
 msgid "Open"
 msgstr "Open"
+
+msgid "Open reports"
+msgstr "Open reports"
 
 msgid "Opened"
 msgstr "Opened"
@@ -942,6 +968,9 @@ msgstr "Proceed"
 msgid "Profile"
 msgstr "Profile"
 
+msgid "Profiles"
+msgstr "Profiles"
+
 msgid "Project name"
 msgstr "Project name"
 
@@ -971,6 +1000,9 @@ msgstr "Questionnaires"
 
 msgid "Questions"
 msgstr "Questions"
+
+msgid "Read"
+msgstr "Read"
 
 msgid "Read receipt"
 msgstr "Read receipt"
@@ -1023,6 +1055,9 @@ msgstr "Remove"
 msgid "Reopen"
 msgstr "Reopen"
 
+msgid "Replies to not authenticated users' requests are sent directly via email."
+msgstr "Replies to not authenticated users' requests are sent directly via email."
+
 msgid "Reply motivation"
 msgstr "Reply motivation"
 
@@ -1040,6 +1075,9 @@ msgstr "Report statuses"
 
 msgid "Reports"
 msgstr "Reports"
+
+msgid "Reports with exclusive access"
+msgstr "Reports with exclusive access"
 
 msgid "Request access to the reporting person's identity"
 msgstr "Request access to the reporting person's identity"
@@ -1073,6 +1111,9 @@ msgstr "Reset SMTP configuration"
 
 msgid "Reset notification templates to default"
 msgstr "Reset notification templates to default"
+
+msgid "Reset password"
+msgstr "Reset password"
 
 msgid "Reset reports"
 msgstr "Reset reports"
@@ -1176,9 +1217,6 @@ msgstr "Send reset link"
 msgid "Set a reminder"
 msgstr "Set a reminder"
 
-msgid "Set password"
-msgstr "Set password"
-
 msgid "Set the value to 0 to disable this feature."
 msgstr "Set the value to 0 to disable this feature."
 
@@ -1280,6 +1318,12 @@ msgstr "Success!"
 
 msgid "Sufficient"
 msgstr "Sufficient"
+
+msgid "Support"
+msgstr "Support"
+
+msgid "Support requests"
+msgstr "Support requests"
 
 msgid "Surname"
 msgstr "Surname"
@@ -1391,6 +1435,9 @@ msgstr "The provided reset token is invalid or expired."
 msgid "The access code is either invalid or the report has expired."
 msgstr "The access code is either invalid or the report has expired."
 
+msgid "The situation has changed. Please review before proceeding."
+msgstr "The situation has changed. Please review before proceeding."
+
 msgid "The specified input is not valid."
 msgstr "The specified input is not valid."
 
@@ -1488,8 +1535,14 @@ msgstr "URL redirects"
 msgid "Unhide"
 msgstr "Unhide"
 
+msgid "Unread"
+msgstr "Unread"
+
 msgid "Unselect"
 msgstr "Unselect"
+
+msgid "Updated"
+msgstr "Updated"
 
 msgid "Upload"
 msgstr "Upload"
@@ -1607,6 +1660,9 @@ msgstr "Width"
 msgid "Yes"
 msgstr "Yes"
 
+msgid "You"
+msgstr "You"
+
 msgid ""
 "You are connecting to the server without anonymity and this server supports "
 "only anonymous submissions"
@@ -1651,8 +1707,14 @@ msgstr "days"
 msgid "file unavailable"
 msgstr "file unavailable"
 
+msgid "hours"
+msgstr "hours"
+
 msgid "megabytes"
 msgstr "megabytes"
+
+msgid "minutes"
+msgstr "minutes"
 
 msgid "percentage"
 msgstr "percentage"
@@ -1665,6 +1727,486 @@ msgstr "please enter numbers only."
 
 msgid "seconds"
 msgstr "seconds"
+
+msgid "A user with this username already exists"
+msgstr "A user with this username already exists"
+
+msgid "Accept"
+msgstr "Accept"
+
+msgid "Access code"
+msgstr "Access code"
+
+msgid "Account"
+msgstr "Account"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "All the requests"
+msgstr "All the requests"
+
+msgid "Allowed IP address"
+msgstr "Allowed IP address"
+
+msgid "Apply"
+msgstr "Apply"
+
+msgid "Authenticate with IDP"
+msgstr "Authenticate with IDP"
+
+msgid "Authorize the report"
+msgstr "Authorize the report"
+
+msgid "Auto - renewal"
+msgstr "Auto - renewal"
+
+msgid "Automatically authorize newly registered sites"
+msgstr "Automatically authorize newly registered sites"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "Backup Job Status"
+msgstr "Backup Job Status"
+
+msgid "Bar Chart"
+msgstr "Bar Chart"
+
+msgid "Change default role"
+msgstr "Change default role"
+
+msgid "Check your inbox."
+msgstr "Check your inbox."
+
+msgid "Clear"
+msgstr "Clear"
+
+msgid "Comment"
+msgstr "Comment"
+
+msgid "Communicate with other organization"
+msgstr "Communicate with other organization"
+
+msgid "Communications with other organizations"
+msgstr "Communications with other organizations"
+
+msgid "Content"
+msgstr "Content"
+
+msgid "Create"
+msgstr "Create"
+
+msgid "Create the accounts upon the first authentication of their users"
+msgstr "Create the accounts upon the first authentication of their users"
+
+msgid "Current"
+msgstr "Current"
+
+msgid "Custom privacy panel text"
+msgstr "Custom privacy panel text"
+
+msgid "Data owner"
+msgstr "Data owner"
+
+msgid "Data retention policy"
+msgstr "Data retention policy"
+
+msgid "Default Role"
+msgstr "Default Role"
+
+msgid "Default statistical template"
+msgstr "Default statistical template"
+
+msgid "Deletion prevented due to a status change during operation."
+msgstr "Deletion prevented due to a status change during operation."
+
+msgid "Deny the report"
+msgstr "Deny the report"
+
+msgid "Destination"
+msgstr "Destination"
+
+msgid "Enable a dedicated Tor onion service"
+msgstr "Enable a dedicated Tor onion service"
+
+msgid "Enable demo mode"
+msgstr "Enable demo mode"
+
+msgid "Enable file upload"
+msgstr "Enable file upload"
+
+msgid "Error loading custom files"
+msgstr "Error loading custom files"
+
+msgid "Estimated upload time:"
+msgstr "Estimated upload time:"
+
+msgid "Example"
+msgstr "Example"
+
+msgid "Exchange channel"
+msgstr "Exchange channel"
+
+msgid "Get access code"
+msgstr "Get access code"
+
+msgid "High threshold (megabytes)"
+msgstr "High threshold (megabytes)"
+
+msgid "High threshold (percentage)"
+msgstr "High threshold (percentage)"
+
+msgid "Host"
+msgstr "Host"
+
+msgid "Important"
+msgstr "Important"
+
+msgid "Include in statistical reports"
+msgstr "Include in statistical reports"
+
+msgid "Internally available"
+msgstr "Internally available"
+
+msgid "Invite"
+msgstr "Invite"
+
+msgid "Invite only"
+msgstr "Invite only"
+
+msgid "It is requested to fill an additional questionnaire"
+msgstr "It is requested to fill an additional questionnaire"
+
+msgid "Logs"
+msgstr "Logs"
+
+msgid "Low threshold (megabytes)"
+msgstr "Low threshold (megabytes)"
+
+msgid "Low threshold (percentage)"
+msgstr "Low threshold (percentage)"
+
+msgid "Manage"
+msgstr "Manage"
+
+msgid "Maximum date"
+msgstr "Maximum date"
+
+msgid "Messages"
+msgstr "Messages"
+
+msgid "Metric"
+msgstr "Metric"
+
+msgid "Minimum date"
+msgstr "Minimum date"
+
+msgid "Mode"
+msgstr "Mode"
+
+msgid "No results found"
+msgstr "No results found"
+
+msgid "Number of backups to keep"
+msgstr "Number of backups to keep"
+
+msgid "Number of days before sending a report expiration alert"
+msgstr "Number of days before sending a report expiration alert"
+
+msgid "Only the requests of the administrators"
+msgstr "Only the requests of the administrators"
+
+msgid "Option label"
+msgstr "Option label"
+
+msgid "Organization name"
+msgstr "Organization name"
+
+msgid "Percentage"
+msgstr "Percentage"
+
+msgid "Period (hours)"
+msgstr "Period (hours)"
+
+msgid "Permissions"
+msgstr "Permissions"
+
+msgid "Pie Chart"
+msgstr "Pie Chart"
+
+msgid "Port"
+msgstr "Port"
+
+msgid "Profile:"
+msgstr "Profile:"
+
+msgid "Provide the access code to the user that enters the report"
+msgstr "Provide the access code to the user that enters the report"
+
+msgid "Recovery key"
+msgstr "Recovery key"
+
+msgid "Request to fill an additional questionnaire"
+msgstr "Request to fill an additional questionnaire"
+
+msgid "Request's questionnaire"
+msgstr "Request's questionnaire"
+
+msgid "Require a request before a report is entered"
+msgstr "Require a request before a report is entered"
+
+msgid "Reset the identity bound to this user"
+msgstr "Reset the identity bound to this user"
+
+msgid "SMTP"
+msgstr "SMTP"
+
+msgid "Seen"
+msgstr "Seen"
+
+msgid "Show only unread"
+msgstr "Show only unread"
+
+msgid "Sign up completed."
+msgstr "Sign up completed."
+
+msgid "Skip to content"
+msgstr "Skip to content"
+
+msgid "Slug"
+msgstr "Slug"
+
+msgid "Support requests handled by the first site"
+msgstr "Support requests handled by the first site"
+
+msgid "Switch role"
+msgstr "Switch role"
+
+msgid "Template content"
+msgstr "Template content"
+
+msgid "Test"
+msgstr "Test"
+
+msgid "The current password is incorrect."
+msgstr "The current password is incorrect."
+
+msgid "The other party has already read the last update"
+msgstr "The other party has already read the last update"
+
+msgid "The other party has not read the last update yet"
+msgstr "The other party has not read the last update yet"
+
+msgid "The report has been entered."
+msgstr "The report has been entered."
+
+msgid ""
+"The requests left out are handled by the administrators of this site and "
+"are not notified to the first site."
+msgstr ""
+"The requests left out are handled by the administrators of this site and "
+"are not notified to the first site."
+
+msgid ""
+"The sites created with this setting enabled are automatically deleted 90 "
+"days after their creation."
+msgstr ""
+"The sites created with this setting enabled are automatically deleted 90 "
+"days after their creation."
+
+msgid ""
+"The value is applied on the creation of a new site; the sites for which it "
+"is disabled are published as a subdomain of the onion service of the first "
+"site."
+msgstr ""
+"The value is applied on the creation of a new site; the sites for which it "
+"is disabled are published as a subdomain of the onion service of the first "
+"site."
+
+msgid "Threshold type"
+msgstr "Threshold type"
+
+msgid "Time (hh:mm)"
+msgstr "Time (hh:mm)"
+
+msgid "Toggle visibility"
+msgstr "Toggle visibility"
+
+msgid "Tor Onion Service address"
+msgstr "Tor Onion Service address"
+
+msgid "Transmissions"
+msgstr "Transmissions"
+
+msgid "Transmit report"
+msgstr "Transmit report"
+
+msgid "Transmitter"
+msgstr "Transmitter"
+
+msgid "Trigger field"
+msgstr "Trigger field"
+
+msgid "Trigger option"
+msgstr "Trigger option"
+
+msgid "Two factor authentication code"
+msgstr "Two factor authentication code"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Upload completed successfully!"
+msgstr "Upload completed successfully!"
+
+msgid "Uploading files…"
+msgstr "Uploading files…"
+
+msgid "User profile"
+msgstr "User profile"
+
+msgid ""
+"When disabled the report is readable by its recipients alone and nothing "
+"opens it afterwards."
+msgstr ""
+"When disabled the report is readable by its recipients alone and nothing "
+"opens it afterwards."
+
+msgid "You must authenticate to proceed."
+msgstr "You must authenticate to proceed."
+
+msgid "Additional questionnaires"
+msgstr "Additional questionnaires"
+
+msgid "Administrators authorized to change user passwords"
+msgstr "Administrators authorized to change user passwords"
+
+msgid "Antivirus"
+msgstr "Antivirus"
+
+msgid "Audit Log"
+msgstr "Audit Log"
+
+msgid "Authentication"
+msgstr "Authentication"
+
+msgid "Backup"
+msgstr "Backup"
+
+msgid "Delete Recording"
+msgstr "Delete Recording"
+
+msgid "Exchanges"
+msgstr "Exchanges"
+
+msgid "GlobaLeaks - Secure Whistleblowing Software"
+msgstr "GlobaLeaks - Secure Whistleblowing Software"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "Main navigation"
+msgstr "Main navigation"
+
+msgid "Personal notes"
+msgstr "Personal notes"
+
+msgid "Record a voice message"
+msgstr "Record a voice message"
+
+msgid "Recording Indicator"
+msgstr "Recording Indicator"
+
+msgid "Registrations"
+msgstr "Registrations"
+
+msgid "Roles"
+msgstr "Roles"
+
+msgid "Statistical reports"
+msgstr "Statistical reports"
+
+msgid "Stop Recording"
+msgstr "Stop Recording"
+
+msgid "Toggle navigation"
+msgstr "Toggle navigation"
+
+msgid "Ask automatically"
+msgstr "Ask automatically"
+
+msgid "Allow whistleblowers to select their recipients"
+msgstr "Allow whistleblowers to select their recipients"
+
+msgid "Transmission"
+msgstr "Transmission"
+
+msgid "Communications"
+msgstr "Communications"
+
+msgid "Transmission request"
+msgstr "Transmission request"
+
+msgid "Transmit"
+msgstr "Transmit"
+
+msgid "Whistleblower"
+msgstr "Whistleblower"
+
+msgid "Average time to opening"
+msgstr "Average time to opening"
+
+msgid "Average time to first reply"
+msgstr "Average time to first reply"
+
+msgid "Average time to closure"
+msgstr "Average time to closure"
+
+msgid "Button"
+msgstr "Button"
+
+msgid "Mask information"
+msgstr "Mask information"
+
+msgid "Redact information"
+msgstr "Redact information"
+
+msgid "Delete reports"
+msgstr "Delete reports"
+
+msgid "Change report status"
+msgstr "Change report status"
+
+msgid "Change report labels"
+msgstr "Change report labels"
+
+msgid "Postpone expiration date"
+msgstr "Postpone expiration date"
+
+msgid "Grant access to reports"
+msgstr "Grant access to reports"
+
+msgid "Transfer access to reports"
+msgstr "Transfer access to reports"
+
+msgid "Send communication to other organizations"
+msgstr "Send communication to other organizations"
+
+msgid "Users' profiles"
+msgstr "Users' profiles"
+
+msgid "accepted"
+msgstr "accepted"
+
+msgid "denied"
+msgstr "denied"
+
+msgid "invited"
+msgstr "invited"
+
+msgid "pending"
+msgstr "pending"
 
 msgid "Select a reporting channel:"
 msgstr "Select a reporting channel:"
@@ -1881,6 +2423,12 @@ msgstr ""
 msgid "Test email"
 msgstr "Test email"
 
+msgid "This is an email to notify you the reception of a new report."
+msgstr "This is an email to notify you the reception of a new report."
+
+msgid "The report can be accessed at:"
+msgstr "The report can be accessed at:"
+
 msgid ""
 "This is an email to notify you that a request has been made to change your "
 "email address to {NewEmailAddress}."
@@ -1957,9 +2505,6 @@ msgid ""
 msgstr ""
 "This is an email to notify you that a custodian has authorized you to "
 "access to the whistleblowing identity for the report {TipNum}."
-
-msgid "The report can be accessed at:"
-msgstr "The report can be accessed at:"
 
 msgid "Access to reporting person's identity authorized"
 msgstr "Access to reporting person's identity authorized"
@@ -2038,11 +2583,14 @@ msgstr ""
 "Without a valid PGP key, the system won't be able to encrypt data provided "
 "to you."
 
-msgid "Click the link to activate the platform:"
-msgstr "Click the link to activate the platform:"
+msgid "You have been invited to create your whistleblowing platform."
+msgstr "You have been invited to create your whistleblowing platform."
 
-msgid "Activation"
-msgstr "Activation"
+msgid "Link expire on:"
+msgstr "Link expire on:"
+
+msgid "Invitation"
+msgstr "Invitation"
 
 msgid "A software update is available."
 msgstr "A software update is available."
@@ -2086,9 +2634,6 @@ msgstr "Please remember to check them before they are deleted."
 msgid "Some reports will expire soon"
 msgstr "Some reports will expire soon"
 
-msgid "This is an email to notify you the reception of a new report."
-msgstr "This is an email to notify you the reception of a new report."
-
 msgid ""
 "This is an email to notify you that the reminder date for one or more "
 "reports has been met."
@@ -2101,9 +2646,6 @@ msgstr "Reminder"
 
 msgid "This is an email to notify that an existing report has been updated."
 msgstr "This is an email to notify that an existing report has been updated."
-
-msgid "Report updated"
-msgstr "Report updated"
 
 msgid "This email is to remind you the presence of unread or updated reports."
 msgstr "This email is to remind you the presence of unread or updated reports."

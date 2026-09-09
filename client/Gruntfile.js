@@ -685,8 +685,8 @@ module.exports = function(grunt) {
       let composed_titles = {
         "tip_mail_title": ["Report", "New"],
         "tip_update_mail_title": ["Report", "Updated"],
-        "transmission_mail_title": ["Forward", "New"],
-        "transmission_request_mail_title": ["Forward request", "New"],
+        "transmission_mail_title": ["Transmission", "New"],
+        "transmission_request_mail_title": ["Transmission request", "New"],
         "communication_mail_title": ["Communication", "New"]
       };
 
