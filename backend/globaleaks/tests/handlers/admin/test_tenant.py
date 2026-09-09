@@ -48,6 +48,16 @@ class TestTenantCollection(helpers.TestHandlerWithPopulatedDB):
         self.assertNotEqual(r[2], r[0])
 
     @inlineCallbacks
+    def test_post_gives_the_site_the_language_of_the_platform(self):
+        yield tw(config.db_set_config_variable, 1, 'default_language', 'it')
+
+        handler = self.request(get_dummy_tenant_desc('subdomain-it'), role='admin')
+        t = yield handler.post()
+
+        language = yield tw(config.db_get_config_variable, t['id'], 'default_language')
+        self.assertEqual(language, 'it')
+
+    @inlineCallbacks
     def test_post_rejects_duplicate_subdomain(self):
         # Tenant 2 already owns the subdomain 'tenant-2'
         handler = self.request(get_dummy_tenant_desc('tenant-2'), role='admin')
