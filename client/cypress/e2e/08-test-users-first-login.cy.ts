@@ -48,7 +48,7 @@ describe("Recipient first login", () => {
   // wrong; the session is not opened and the login page keeps being displayed.
   it("should not be able to login with a wrong password", () => {
     cy.visit("#/login");
-    cy.takeScreenshot("forward/login");
+    cy.takeScreenshot("subscriber/login");
     cy.get("[name=\"username\"]").type("Recipient");
     cy.get("[name=\"password\"]").type("ThisIsNotTheRightPassword#1");
     cy.get("#login-button").click();
@@ -58,7 +58,7 @@ describe("Recipient first login", () => {
     cy.get("#LoginError").should("be.visible");
     cy.url().should("include", "#/login");
     cy.get("#LogoutLink").should("not.exist");
-    cy.takeScreenshot("forward/login_error_detail", "#login-form");
+    cy.takeScreenshot("subscriber/login_error_detail", "#login-form");
   });
 
   it("should be able to retrieve the account recovery key", () => {
