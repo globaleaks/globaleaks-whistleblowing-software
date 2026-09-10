@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit, inject} from "@angular/core";
+import {Component, HostListener, OnInit, TemplateRef, ViewChild, inject} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {NgbDate, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
@@ -23,14 +23,16 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
 import {SearchDashboardComponent} from "@app/shared/components/search-dashboard/search-dashboard.component";
 import {SearchableReportContent, SearchFilter, SearchQuery, emptySearchQuery} from "@app/models/search/search-query";
 import {SearchQueryService} from "@app/shared/services/search-query.service";
+import {Tab9Component} from "@app/pages/admin/settings/tab9/tab9.component";
 
 @Component({
     selector: "src-tips",
     templateUrl: "./tips.component.html",
     standalone: true,
-    imports: [DatePipe, FormsModule, NgClass, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe, SearchDashboardComponent]
+    imports: [DatePipe, FormsModule, NgClass, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe, SearchDashboardComponent, Tab9Component]
 })
 export class TipsComponent implements OnInit {
+  @ViewChild("reportSearchDashboard") reportSearchDashboard?: SearchDashboardComponent;
   private http = inject(HttpClient);
   protected authenticationService = inject(AuthenticationService);
   protected httpService = inject(HttpService);
@@ -50,7 +52,7 @@ export class TipsComponent implements OnInit {
   dashboardQueryActive = false;
   searchQuery: SearchQuery = emptySearchQuery();
   searchableContent = new Map<string, SearchableReportContent>();
-  searchableContentLoaded = false;
+  searchableContentFields = new Set<string>();
   searchableContentLoading = false;
   reportDateFilter: [number, number] | null = null;
   updateDateFilter: [number, number] | null = null;
@@ -357,30 +359,38 @@ export class TipsComponent implements OnInit {
       return;
     }
 
-    this.filteredTips = this.searchQueryService.execute(this.RTips.dataModel, this.searchQuery, (tip, field) => {
-      if (field === "searchable_content") {
-        return [
-          tip.progressive,
-          tip.label,
-          tip.context_name,
-          tip.submissionStatusStr,
-          tip.receiver_names,
-          this.getAnswerSearchContent(tip),
-          this.searchableContent.get(tip.id)?.comments,
-          this.searchableContent.get(tip.id)?.files
-        ];
-      }
-      if (field === "status") {
-        return [tip.status, tip.submissionStatusStr];
-      }
-      if (field === "context_id") {
-        return [tip.context_id, tip.context_name];
-      }
-      if (field === "score") {
-        return this.maskScore(tip.score);
-      }
-      return tip[field as keyof rtipResolverModel];
-    });
+    this.filteredTips = this.searchQueryService.execute(this.RTips.dataModel, this.searchQuery, (tip, field) => this.resolveSearchValue(tip, field));
+  }
+
+  private resolveSearchValue(tip: rtipResolverModel, field: string): unknown {
+    if (field === "searchable_content") {
+      return [
+        tip.progressive,
+        tip.label,
+        tip.context_name,
+        tip.submissionStatusStr,
+        tip.receiver_names,
+        this.getAnswerSearchContent(tip),
+        this.searchableContent.get(tip.id)?.comments,
+        this.searchableContent.get(tip.id)?.files
+      ];
+    }
+    if (field === "comment_content") {
+      return this.searchableContent.get(tip.id)?.comments;
+    }
+    if (field === "file_name") {
+      return this.searchableContent.get(tip.id)?.files;
+    }
+    if (field === "status") {
+      return [tip.status, tip.submissionStatusStr];
+    }
+    if (field === "context_id") {
+      return [tip.context_id, tip.context_name];
+    }
+    if (field === "score") {
+      return this.maskScore(tip.score);
+    }
+    return tip[field as keyof rtipResolverModel];
   }
 
   private getAnswerSearchContent(tip: rtipResolverModel): unknown[] {
@@ -415,18 +425,68 @@ export class TipsComponent implements OnInit {
     this.searchQuery = query;
     this.syncColumnFilters();
     this.applyFilter();
-    if (query.filters.some(filter => filter.field === "searchable_content") && !this.searchableContentLoaded && !this.searchableContentLoading) {
-      this.searchableContentLoading = true;
-      this.httpService.getSearchableReportContent().subscribe({
-        next: content => {
-          this.searchableContent = new Map(content.map(report => [report.id, report]));
-          this.searchableContentLoaded = true;
-          this.applyFilter();
-        },
-        complete: () => this.searchableContentLoading = false,
-        error: () => this.searchableContentLoading = false
-      });
+    this.loadSearchableContent();
+  }
+
+  private loadSearchableContent() {
+    if (this.searchableContentLoading) {
+      return;
     }
+    const requestedFields = new Set<string>();
+    for (const filter of this.searchQuery.filters) {
+      if (filter.field === "searchable_content" || filter.field === "comment_content") {
+        requestedFields.add("comments");
+      }
+      if (filter.field === "searchable_content" || filter.field === "file_name") {
+        requestedFields.add("files");
+      }
+    }
+    const fields = [...requestedFields].filter(field => !this.searchableContentFields.has(field));
+    if (!fields.length) {
+      return;
+    }
+    const secureFields = ["searchable_content", "comment_content", "file_name"];
+    const metadataFilters = this.searchQuery.filters.filter(filter => !secureFields.includes(filter.field));
+    const candidates = !this.searchQuery.negated && metadataFilters.length ?
+      this.searchQueryService.execute(this.RTips.dataModel, {negated: false, filters: metadataFilters}, (tip, field) => this.resolveSearchValue(tip, field)) :
+      this.RTips.dataModel;
+    const reportIds = candidates.map(report => report.id);
+    const batches = Array.from({length: Math.ceil(reportIds.length / 50)}, (_, index) => reportIds.slice(index * 50, (index + 1) * 50));
+    if (!batches.length) {
+      fields.forEach(field => this.searchableContentFields.add(field));
+      return;
+    }
+    this.searchableContentLoading = true;
+    from(batches).pipe(
+      concatMap(batch => this.httpService.getSearchableReportContent(batch, fields))
+    ).subscribe({
+      next: reports => {
+        for (const report of reports) {
+          const current = this.searchableContent.get(report.id);
+          this.searchableContent.set(report.id, {
+            id: report.id,
+            comments: fields.includes("comments") ? report.comments : current?.comments ?? [],
+            files: fields.includes("files") ? report.files : current?.files ?? []
+          });
+        }
+        this.applyFilter();
+      },
+      complete: () => {
+        fields.forEach(field => this.searchableContentFields.add(field));
+        this.searchableContentLoading = false;
+        this.applyFilter();
+        this.loadSearchableContent();
+      },
+      error: () => this.searchableContentLoading = false
+    });
+  }
+
+  refreshSearchDashboard() {
+    this.reportSearchDashboard?.loadTabs();
+  }
+
+  openSearchConfiguration(content: TemplateRef<unknown>) {
+    this.modalService.open(content, {size: "xl", scrollable: true});
   }
 
   private setDateFilter(field: string, label: string, value: [number, number] | null) {

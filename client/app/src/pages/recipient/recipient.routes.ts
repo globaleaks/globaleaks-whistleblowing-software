@@ -33,9 +33,8 @@ export const recipientRoutes: Routes = [
   },
   {
     path: "search",
-    loadComponent: () => import('@app/pages/recipient/configure-search/configure-search.component').then(m => m.ConfigureSearchComponent),
+    redirectTo: "reports",
     pathMatch: "full",
-    data: {pageTitle: "Configure search"},
   },
   {
     path: "settings",

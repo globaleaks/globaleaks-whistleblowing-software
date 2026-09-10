@@ -14,7 +14,8 @@ from globaleaks.utils.utility import is_uuid4, uuid4
 ALLOWED_METADATA_FIELDS = {
     'creation_date', 'update_date', 'expiration_date', 'status', 'substatus',
     'context_id', 'score', 'important', 'updated', 'file_count',
-    'comment_count', 'receiver_ids', 'subscription'
+    'comment_count', 'receiver_ids', 'subscription', 'searchable_content',
+    'comment_content', 'file_name'
 }
 ALLOWED_OPERATORS = {'contains', 'in', 'between'}
 DATE_FIELDS = {'creation_date', 'update_date', 'expiration_date'}
@@ -148,12 +149,15 @@ def redact_content(content, ranges):
 
 
 @transact
-def get_searchable_content(session, tid, user_session, language):
+def get_searchable_content(session, tid, user_session, language, report_ids, fields):
+    if not report_ids or len(report_ids) > 100 or not fields or len(fields) > 2 or not set(fields).issubset({'comments', 'files'}):
+        raise errors.InputValidationError
     reports = []
     rows = session.query(models.ReceiverTip, models.InternalTip) \
                   .filter(models.ReceiverTip.receiver_id == user_session.user_id,
                           models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                          models.InternalTip.tid == tid)
+                          models.InternalTip.tid == tid,
+                          models.InternalTip.id.in_(report_ids))
 
     for recipient_tip, internal_tip in rows:
         report = serializers.serialize_rtip(session, internal_tip, recipient_tip, language)
@@ -166,19 +170,22 @@ def get_searchable_content(session, tid, user_session, language):
             tip_key = None
             if internal_tip.crypto_tip_pub_key:
                 tip_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(recipient_tip.crypto_tip_prv_key))
-            for comment in report['comments']:
-                content = comment['content']
-                if tip_key and content:
-                    content = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(content.encode())).decode()
-                if not can_view_unredacted and comment['id'] in redactions:
-                    content = redact_content(content, redactions[comment['id']])
-                comments.append(content)
+            if 'comments' in fields:
+                for comment in report['comments']:
+                    content = comment['content']
+                    if tip_key and content:
+                        content = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(content.encode())).decode()
+                    if not can_view_unredacted and comment['id'] in redactions:
+                        content = redact_content(content, redactions[comment['id']])
+                    comments.append(content)
 
-            for file in report['wbfiles'] + report['rfiles']:
-                name = file['name']
-                if tip_key and name:
-                    name = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(name.encode())).decode()
-                files.append(name)
+            if 'files' in fields:
+                for file in report['wbfiles']:
+                    name = file['name']
+                    if tip_key and name:
+                        name = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(name.encode())).decode()
+                    files.append(name)
+                files.extend(file['name'] for file in report['rfiles'])
         except Exception:
             continue
 
@@ -262,8 +269,10 @@ class RecipientDashboard(BaseHandler):
 class SearchableContent(BaseHandler):
     check_roles = 'receiver'
 
-    def get(self):
-        return get_searchable_content(self.request.tid, self.session, self.request.language)
+    def post(self):
+        request = self.validate_request(self.request.content.read(), requests.SearchableContentDesc)
+        return get_searchable_content(self.request.tid, self.session, self.request.language,
+                                      request['report_ids'], request['fields'])
 
 
 class AdminDashboard(BaseHandler):

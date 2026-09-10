@@ -548,8 +548,11 @@ export class HttpService {
     return this.httpClient.put<SearchDashboardState>("api/recipient/search-dashboard", {tabs});
   }
 
-  getSearchableReportContent(): Observable<SearchableReportContent[]> {
-    return this.httpClient.get<SearchableReportContent[]>("api/recipient/search-dashboard/content");
+  getSearchableReportContent(reportIds: string[], fields: string[]): Observable<SearchableReportContent[]> {
+    return this.httpClient.post<SearchableReportContent[]>("api/recipient/search-dashboard/content", {
+      report_ids: reportIds,
+      fields
+    });
   }
 
   auditSearchExport(query: SearchQuery, resultCount: number): Observable<void> {

@@ -129,6 +129,11 @@ SearchDashboardDesc = {
     'tabs': [dict]
 }
 
+SearchableContentDesc = {
+    'report_ids': [uuid_regexp],
+    'fields': [str]
+}
+
 SearchExportAuditDesc = {
     'filter_types': [str],
     'result_count': int

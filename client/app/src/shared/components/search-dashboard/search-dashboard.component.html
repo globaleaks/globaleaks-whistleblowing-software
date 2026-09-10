@@ -1,107 +1,17 @@
-@if (mode === "apply" && (defaultTabs.length || personalTabs.length)) {
-  <nav class="d-flex flex-wrap align-items-center gap-2 mb-3" [attr.aria-label]="'Saved searches' | translate">
-    <span class="text-secondary me-1">
-      <i class="fas fa-filter me-1" aria-hidden="true"></i>
-      {{ "Saved searches" | translate }}
-    </span>
-    <button type="button" class="btn btn-sm"
-            [class.btn-primary]="!activeTabId" [class.btn-outline-primary]="activeTabId"
-            (click)="clear()">
-      {{ "All reports" | translate }}
-    </button>
+@if (defaultTabs.length || personalTabs.length) {
+  <nav class="nav nav-tabs mb-3" role="tablist" [attr.aria-label]="'Saved searches' | translate">
+    <button type="button" class="nav-link" role="tab"
+            [class.active]="!activeTabId" [attr.aria-selected]="!activeTabId"
+            (click)="clear()">{{ "All reports" | translate }}</button>
     @for (tab of defaultTabs; track tab.id) {
-      <button type="button" class="btn btn-sm"
-              [class.btn-primary]="activeTabId === tab.id" [class.btn-outline-primary]="activeTabId !== tab.id"
+      <button type="button" class="nav-link" role="tab"
+              [class.active]="activeTabId === tab.id" [attr.aria-selected]="activeTabId === tab.id"
               (click)="run(tab)">{{ tab.name | translate }}</button>
     }
     @for (tab of personalTabs; track tab.id) {
-      <button type="button" class="btn btn-sm"
-              [class.btn-primary]="activeTabId === tab.id" [class.btn-outline-primary]="activeTabId !== tab.id"
+      <button type="button" class="nav-link" role="tab"
+              [class.active]="activeTabId === tab.id" [attr.aria-selected]="activeTabId === tab.id"
               (click)="run(tab)">{{ tab.name }}</button>
     }
   </nav>
-}
-
-@if (mode === "configure") {
-<section class="card mb-3" [attr.aria-label]="'Saved searches' | translate">
-  <div class="card-body">
-    @if (defaultTabs.length || personalTabs.length) {
-      <nav class="nav nav-tabs mb-3" [attr.aria-label]="'Saved searches' | translate">
-        @for (tab of defaultTabs; track tab.id) {
-          <button type="button" class="nav-link" [class.active]="activeTabId === tab.id" (click)="run(tab)">{{ tab.name | translate }}</button>
-        }
-        @for (tab of personalTabs; track tab.id) {
-          <button type="button" class="nav-link" [class.active]="activeTabId === tab.id" (click)="run(tab)">{{ tab.name }}</button>
-        }
-      </nav>
-    }
-
-    <div class="input-group">
-      <span class="input-group-text"><i class="fas fa-search" aria-hidden="true"></i></span>
-      <label for="report-search" class="visually-hidden">{{ "Search reports" | translate }}</label>
-      <input id="report-search" type="search" class="form-control"
-             [ngModel]="textFilter?.value || ''" (ngModelChange)="updateText($event)"
-             [placeholder]="'Search reports' | translate">
-      <button id="search-dashboard-negate" type="button" class="btn"
-              [class.btn-danger]="query.negated" [class.btn-outline-secondary]="!query.negated"
-              (click)="toggleOverallNegation()" [attr.aria-pressed]="query.negated">
-        <i class="fas fa-ban" aria-hidden="true"></i>
-        {{ "Not" | translate }}
-      </button>
-      @if (query.filters.length) {
-        <button id="search-dashboard-clear" type="button" class="btn btn-outline-secondary" (click)="clear()"
-                [attr.aria-label]="'Clear filters' | translate">
-          <i class="fas fa-xmark" aria-hidden="true"></i>
-        </button>
-      }
-    </div>
-
-    @if (query.filters.length) {
-      <div class="d-flex flex-wrap align-items-center gap-2 mt-3" aria-live="polite">
-        @for (filter of query.filters; track filter.id) {
-          <span class="badge text-bg-light border d-inline-flex align-items-center gap-1">
-            <button type="button" class="btn btn-sm p-0 border-0" (click)="toggleFilter(filter)"
-                    [attr.aria-label]="('Not' | translate) + ' ' + (filter.label | translate)">
-              @if (filter.negated) { <strong>NOT</strong> }
-              {{ filter.label | translate }}: {{ displayValue(filter) }}
-            </button>
-            <button type="button" class="btn-close" (click)="removeFilter(filter)"
-                    [attr.aria-label]="('Remove' | translate) + ' ' + (filter.label | translate)"></button>
-          </span>
-        }
-      </div>
-
-      <div class="input-group input-group-sm mt-3">
-        <label for="saved-search-name" class="visually-hidden">{{ "Name" | translate }}</label>
-        <input id="saved-search-name" class="form-control" [(ngModel)]="newTabName"
-               [placeholder]="'Saved search name' | translate" maxlength="255">
-        <button type="button" class="btn btn-outline-primary" (click)="saveCurrent()"
-                [disabled]="!newTabName.trim()">
-          <i class="fas fa-floppy-disk" aria-hidden="true"></i>
-          {{ "Save search" | translate }}
-        </button>
-      </div>
-    }
-
-    @if (personalTabs.length) {
-      <details class="mt-3">
-        <summary><i class="fas fa-sliders me-1" aria-hidden="true"></i>{{ "Manage saved searches" | translate }}</summary>
-        <div class="list-group mt-2">
-          @for (tab of personalTabs; track tab; let first = $first; let last = $last) {
-            <div class="list-group-item d-flex align-items-center gap-2">
-              <input class="form-control form-control-sm" [ngModel]="tab.name"
-                     (change)="rename(tab, $any($event.target).value)" maxlength="255">
-              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="move(tab, -1)" [disabled]="first"
-                      [attr.aria-label]="'Move up' | translate"><i class="fas fa-chevron-up"></i></button>
-              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="move(tab, 1)" [disabled]="last"
-                      [attr.aria-label]="'Move down' | translate"><i class="fas fa-chevron-down"></i></button>
-              <button type="button" class="btn btn-sm btn-danger" (click)="removeTab(tab)"
-                      [attr.aria-label]="'Delete' | translate"><i class="fas fa-trash"></i></button>
-            </div>
-          }
-        </div>
-      </details>
-    }
-  </div>
-</section>
 }

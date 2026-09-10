@@ -1,8 +1,9 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {SearchDashboardTab, SearchFilter, emptySearchQuery} from "@app/models/search/search-query";
+import {HttpService} from "@app/shared/services/http.service";
 
 @Component({
   selector: "src-tab9",
@@ -12,7 +13,13 @@ import {SearchDashboardTab, SearchFilter, emptySearchQuery} from "@app/models/se
 })
 export class Tab9Component implements OnInit {
   private http = inject(HttpClient);
+  private httpService = inject(HttpService);
+  @Input() recipient = false;
+  @Output() tabsChange = new EventEmitter<void>();
+  defaultTabs: SearchDashboardTab[] = [];
   tabs: SearchDashboardTab[] = [];
+  editingTab?: SearchDashboardTab;
+  originalTab?: SearchDashboardTab;
   fields = [
     {id: "creation_date", label: "Submission date", date: true},
     {id: "update_date", label: "Last update", date: true},
@@ -25,23 +32,35 @@ export class Tab9Component implements OnInit {
     {id: "updated", label: "Unread or updated"},
     {id: "file_count", label: "Number of files"},
     {id: "comment_count", label: "Number of comments"},
+    {id: "comment_content", label: "Comment", text: true},
+    {id: "file_name", label: "File name", text: true},
+    {id: "searchable_content", label: "Report content", text: true},
     {id: "receiver_ids", label: "Assigned recipients"},
     {id: "subscription", label: "Email notifications"}
   ];
 
   ngOnInit() {
+    if (this.recipient) {
+      this.httpService.getRecipientDashboard().subscribe(response => {
+        this.defaultTabs = response.defaults.sort((a, b) => a.position - b.position);
+        this.tabs = response.personal.sort((a, b) => a.position - b.position);
+      });
+      return;
+    }
     this.http.get<{tabs: SearchDashboardTab[]}>("api/admin/search-dashboard").subscribe(response => {
       this.tabs = response.tabs.sort((a, b) => a.position - b.position);
     });
   }
 
   addTab() {
-    this.tabs.push({
+    const tab = {
       id: "",
       name: "",
       query: emptySearchQuery(),
       position: this.tabs.length
-    });
+    };
+    this.tabs.push(tab);
+    this.startEditing(tab);
   }
 
   addFilter(tab: SearchDashboardTab) {
@@ -59,8 +78,44 @@ export class Tab9Component implements OnInit {
     const definition = this.fields.find(item => item.id === field);
     filter.field = field;
     filter.label = definition?.label ?? field;
-    filter.operator = definition?.date ? "between" : "in";
-    filter.value = [];
+    filter.operator = definition?.date ? "between" : definition?.text ? "contains" : "in";
+    filter.value = definition?.text ? "" : [];
+  }
+
+  updateOperator(filter: SearchFilter, operator: SearchFilter["operator"]) {
+    filter.operator = operator;
+    if (operator === "in") {
+      filter.value = Array.isArray(filter.value) ? filter.value : String(filter.value).split(",").map(value => value.trim()).filter(Boolean);
+    } else if (operator === "contains") {
+      filter.value = Array.isArray(filter.value) ? filter.value.join(", ") : String(filter.value);
+    }
+  }
+
+  startEditing(tab: SearchDashboardTab) {
+    this.editingTab = tab;
+    this.originalTab = structuredClone(tab);
+  }
+
+  cancelEditing() {
+    if (!this.editingTab || !this.originalTab) {
+      return;
+    }
+    const index = this.tabs.indexOf(this.editingTab);
+    if (this.editingTab.id) {
+      this.tabs[index] = this.originalTab;
+    } else {
+      this.tabs.splice(index, 1);
+      this.reposition();
+    }
+    this.editingTab = undefined;
+    this.originalTab = undefined;
+  }
+
+  saveEditing() {
+    this.save(() => {
+      this.editingTab = undefined;
+      this.originalTab = undefined;
+    });
   }
 
   isDateField(field: string): boolean {
@@ -98,6 +153,13 @@ export class Tab9Component implements OnInit {
   removeTab(tab: SearchDashboardTab) {
     this.tabs = this.tabs.filter(item => item !== tab);
     this.reposition();
+    if (this.editingTab === tab) {
+      this.editingTab = undefined;
+      this.originalTab = undefined;
+    }
+    if (tab.id) {
+      this.save();
+    }
   }
 
   move(tab: SearchDashboardTab, offset: number) {
@@ -108,12 +170,24 @@ export class Tab9Component implements OnInit {
     }
     [this.tabs[index], this.tabs[target]] = [this.tabs[target], this.tabs[index]];
     this.reposition();
+    this.save();
   }
 
-  save() {
+  save(done?: () => void) {
     this.reposition();
+    if (this.recipient) {
+      this.httpService.saveRecipientTabs(this.tabs).subscribe(response => {
+        this.defaultTabs = response.defaults.sort((a, b) => a.position - b.position);
+        this.tabs = response.personal.sort((a, b) => a.position - b.position);
+        this.tabsChange.emit();
+        done?.();
+      });
+      return;
+    }
     this.http.put<{tabs: SearchDashboardTab[]}>("api/admin/search-dashboard", {tabs: this.tabs}).subscribe(response => {
       this.tabs = response.tabs.sort((a, b) => a.position - b.position);
+      this.tabsChange.emit();
+      done?.();
     });
   }
 
@@ -123,7 +197,9 @@ export class Tab9Component implements OnInit {
 
   get invalid(): boolean {
     return this.tabs.some(tab => !tab.name.trim() || tab.query.filters.some(filter =>
-      filter.operator === "between" && (!Array.isArray(filter.value) || filter.value.length !== 2 || filter.value.some(value => !Number.isFinite(value)))
+      (filter.operator === "in" && !Array.isArray(filter.value)) ||
+      (filter.operator === "contains" && typeof filter.value !== "string") ||
+      (filter.operator === "between" && (!Array.isArray(filter.value) || filter.value.length !== 2 || filter.value.some(value => !Number.isFinite(value))))
     ));
   }
 

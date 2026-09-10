@@ -11,6 +11,12 @@
             class="btn btn-outline-secondary">
             <i class="fas fa-file-pen"></i>
           </button>
+
+          <button id="tip-action-configure-search" type="button" (click)="openSearchConfiguration(searchConfiguration)"
+            ngbTooltip="{{'Configure search' | translate}}" class="btn btn-outline-secondary"
+            [attr.aria-label]="'Configure search' | translate">
+            <i class="fas fa-gear"></i>
+          </button>
         </div>
 
         <div class="d-flex align-items-center gap-1">
@@ -28,8 +34,16 @@
       </div>
     </div>
   </div>
-  <src-search-dashboard
-    mode="apply"
+  <ng-template #searchConfiguration let-modal>
+    <div class="modal-header">
+      <h2 class="modal-title h5">{{ "Configure search" | translate }}</h2>
+      <button type="button" class="btn-close" (click)="modal.dismiss()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <src-tab9 [recipient]="true" (tabsChange)="refreshSearchDashboard()"></src-tab9>
+    </div>
+  </ng-template>
+  <src-search-dashboard #reportSearchDashboard
     [query]="searchQuery"
     (queryChange)="onSearchQueryChange($event)">
   </src-search-dashboard>
