@@ -186,6 +186,7 @@ ConfigDescriptor = {
     'tip_expiration_threshold': Int(default=3),  # Days
     'tor_onion_key': Unicode(),
     'two_factor': Bool(default=False),
+    'unlocked_keys': List(),  # List of the variables a site naming this profile may customize
     'unread_reminder_time': Int(default=7),  # Days
     'version': Unicode(default=str(__version__)),
     'version_db': Int(default=DATABASE_VERSION),

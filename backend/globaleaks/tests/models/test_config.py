@@ -5,8 +5,9 @@ import re
 import globaleaks
 from globaleaks import models
 from globaleaks.models import config
+from globaleaks.handlers.admin import tenant
 from globaleaks.models.config_desc import ConfigDescriptor
-from globaleaks.orm import transact
+from globaleaks.orm import transact, tw
 from globaleaks.tests import helpers
 
 
@@ -177,3 +178,92 @@ class TestConfigInheritance(helpers.TestGLWithPopulatedDB):
         self.assertEqual((yield own_l10n_rows(3, 'en', 'presentation')), 1)
         for var_name in texts[1:]:
             self.assertLessEqual((yield own_l10n_rows(3, 'en', var_name)), before[var_name])
+
+
+@transact
+def update_node(session, tid, data):
+    config.ConfigFactory(session, tid).update('node', data)
+
+
+class TestProfileLock(helpers.TestGLWithPopulatedDB):
+    """
+    A site naming a profile writes only the variables the profile unlocks
+    """
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestGLWithPopulatedDB.setUp(self)
+
+        profile = yield tenant.create({'name': 'A profile',
+                                       'active': True,
+                                       'subdomain': '',
+                                       'profile': 'default'}, is_profile=True)
+
+        self.pid = profile['id']
+
+        # the site names the profile by the UUID the profile holds
+        uuid = yield read(self.pid, 'uuid')
+        yield tw(config.db_set_config_variable, 2, 'profile', uuid)
+
+    @inlineCallbacks
+    def unlock(self, keys):
+        yield tw(config.db_set_config_variable, self.pid, 'unlocked_keys', keys)
+
+    @inlineCallbacks
+    def test_a_locked_variable_is_not_written(self):
+        inherited = yield read(2, 'custom_support_url')
+
+        yield update_node(2, {'custom_support_url': 'https://support.example.org'})
+
+        self.assertEqual((yield read(2, 'custom_support_url')), inherited)
+        self.assertEqual((yield own_rows(2, 'custom_support_url')), 0)
+
+    @inlineCallbacks
+    def test_an_unlocked_variable_is_written(self):
+        yield self.unlock(['custom_support_url'])
+
+        yield update_node(2, {'custom_support_url': 'https://support.example.org'})
+
+        self.assertEqual((yield read(2, 'custom_support_url')), 'https://support.example.org')
+        self.assertEqual((yield own_rows(2, 'custom_support_url')), 1)
+
+    @inlineCallbacks
+    def test_a_variable_the_application_never_unlocks_stays_locked(self):
+        # the profile names it, but it is not among the ones that can be unlocked at all
+        yield self.unlock(['encryption', 'custom_support_url'])
+        inherited = yield read(2, 'enable_signup')
+
+        yield update_node(2, {'enable_signup': not inherited})
+
+        self.assertEqual((yield read(2, 'enable_signup')), inherited)
+
+    @inlineCallbacks
+    def test_a_variable_the_site_owns_stays_writable(self):
+        # the name of a site is its own: no profile hands it, so none withholds it
+        yield update_node(2, {'name': 'The name of the site'})
+
+        self.assertEqual((yield read(2, 'name')), 'The name of the site')
+
+    @inlineCallbacks
+    def test_a_locked_text_is_not_written(self):
+        yield write_l10n(self.pid, 'en', 'header_title_homepage', 'The title of the profile')
+
+        yield update_node_l10n(2, 'en', {'header_title_homepage': 'A title of the site'})
+
+        self.assertEqual((yield read_l10n(2, 'en', 'header_title_homepage')), 'The title of the profile')
+        self.assertEqual((yield own_l10n_rows(2, 'en', 'header_title_homepage')), 0)
+
+    @inlineCallbacks
+    def test_an_unlocked_text_is_written(self):
+        yield write_l10n(self.pid, 'en', 'header_title_homepage', 'The title of the profile')
+        yield self.unlock(['header_title_homepage'])
+
+        yield update_node_l10n(2, 'en', {'header_title_homepage': 'A title of the site'})
+
+        self.assertEqual((yield read_l10n(2, 'en', 'header_title_homepage')), 'A title of the site')
+        self.assertEqual((yield own_l10n_rows(2, 'en', 'header_title_homepage')), 1)
+
+    @inlineCallbacks
+    def test_a_site_naming_no_profile_writes_what_it_likes(self):
+        yield update_node(3, {'custom_support_url': 'https://support.example.org'})
+
+        self.assertEqual((yield read(3, 'custom_support_url')), 'https://support.example.org')

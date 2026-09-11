@@ -7,7 +7,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
 from globaleaks.models.enums import EnumStateFile
 from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID, \
-    db_get_pid_by_profile
+    db_get_pid_by_profile, db_get_unlocked_keys, db_get_writable_keys, unlockable_keys
 from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.fs import read_file
@@ -64,6 +64,8 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
 
     logo = session.query(models.File.id).filter(models.File.tid == tid, models.File.name == 'logo').one_or_none()
 
+    writable_keys = db_get_writable_keys(session, tid, config.pid)
+
     ret.update({
         'tid': tid,
         'changelog': read_file('/usr/share/globaleaks/CHANGELOG'),
@@ -74,7 +76,14 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
         'https_possible': tid == 1 or root_config.get_val('reachable_via_web'),
         'encryption_possible': tid == 1 or root_config.get_val('encryption'),
         'escrow': config.get_val('crypto_escrow_pub_key') != '',
-        'logo': bool(logo)
+        'logo': bool(logo),
+        # What the site may write, read from the very function that enforces it, so that the form
+        # never offers a field the request would then drop; null when it may write everything
+        'writable_keys': writable_keys if writable_keys is None else sorted(writable_keys),
+        # What a profile leaves free to the sites naming it, and the whole of what it could ever
+        # leave free: the first is decided by the profile, the second by the application
+        'unlocked_keys': db_get_unlocked_keys(session, tid),
+        'unlockable_keys': unlockable_keys
     })
 
     if 'version' in ret:

@@ -14,12 +14,13 @@ import {UserProfile} from "@app/models/resolvers/user-resolver-model";
 import {SelectableEntry, SelectableUser} from "@app/models/app/selectables";
 import {HttpService} from "@app/shared/services/http.service";
 import {TranslateModule} from "@ngx-translate/core";
+import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
 @Component({
     selector: "src-tab8",
     templateUrl: "./tab8.component.html",
     standalone: true,
-    imports: [FormsModule, SelectionEditorComponent, TranslateModule]
+    imports: [HeldByProfileDirective, FormsModule, SelectionEditorComponent, TranslateModule]
 })
 export class Tab8Component implements OnInit {
   protected authenticationService = inject(AuthenticationService);

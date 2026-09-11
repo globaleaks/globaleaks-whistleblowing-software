@@ -13,6 +13,11 @@ secondary_tenant_keys = ["profile", "default_language", "subdomain", "hostname",
 protected_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "hostname", "tor_onion_key", "onionservice", "https_accreditor", "https_admin", "https_analyst", "https_auditor", "https_cert", "https_custodian", "https_receiver", "https_transmitter", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_support_prv_key", "crypto_support_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_support_requests", "counter_tenants"]
 
 
+# The variables a profile is allowed to leave to the sites naming it: the ceiling of what any
+# profile can unlock, and never the keys by which a site is recognized or protected
+unlockable_keys = ["custom_support_url", "description", "footer", "header_title_homepage", "presentation"]
+
+
 DEFAULT_PROFILE_ID = 1000001
 
 
@@ -126,6 +131,49 @@ def db_get_profile_children(session, pid):
         Config.var_name == 'profile',
         Config.value == profile_value
     ).all()]
+
+
+def db_get_writable_keys(session, tid, pid):
+    """
+    Resolve the variables an operator of the given tenant is allowed to write
+
+    A profile is written by its own author, and so is a site naming no profile: both hold what
+    they configure. A site naming a profile holds instead what the profile hands it, and writes
+    only the variables the profile unlocks, among the ones the application allows to be unlocked
+    at all.
+
+    The variables a site owns are writable in any case: a profile never hands them, so there is
+    nothing of the profile to preserve in them, and among them are the ones by which a site is
+    named and set up.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the tenant being written
+    :param pid: The tenant ID of the profile the tenant names
+    :return: The set of the writable variables, or None when every variable is writable
+    """
+    if tid >= DEFAULT_PROFILE_ID or pid is None or pid == DEFAULT_PROFILE_ID:
+        return None
+
+    unlocked = session.query(Config.value).filter(Config.tid == pid,
+                                                  Config.var_name == 'unlocked_keys').scalar()
+
+    if not isinstance(unlocked, list):
+        unlocked = []
+
+    return set(protected_keys) | (set(unlocked) & set(unlockable_keys))
+
+
+def db_get_unlocked_keys(session, tid):
+    """
+    Resolve the variables the profile of a tenant leaves free to the sites naming it
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :return: The list of the variables left free
+    """
+    keys = ConfigFactory(session, tid).get_val('unlocked_keys')
+
+    return sorted(set(keys if isinstance(keys, list) else []) & set(unlockable_keys))
 
 
 def db_get_profile_val(session, pid, var_name):
@@ -287,9 +335,13 @@ class ConfigFactory:
             del t_result[k]
 
     def update(self, filter_name, data):
+        # A site naming a profile writes only what the profile unlocks: the rest of the request is
+        # dropped here rather than on the form, so that the profile holds whatever the client sends
+        writable = db_get_writable_keys(self.session, self.tid, self.pid)
+
         result, t_result, p_result, d_result = self.get_all(filter_name)
         for k, v in result.items():
-            if k not in data:
+            if k not in data or (writable is not None and k not in writable):
                 continue
 
             if self.tid == DEFAULT_PROFILE_ID:
@@ -443,10 +495,14 @@ class ConfigL10NFactory:
             self.session.add(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': k, 'value': data[k]}))
 
     def update(self, filter_name, data, lang):
+        # The texts of a site naming a profile are held by the profile, but for the ones it unlocks
+        writable = db_get_writable_keys(self.session, self.tid, self.pid)
+
         result, t_result, p_result, d_result = self.get_all(filter_name, lang)
         c_map = {c.var_name: c for c in result}
 
-        for k in (x for x in ConfigL10NFilters[filter_name] if x in data):
+        for k in (x for x in ConfigL10NFilters[filter_name]
+                  if x in data and (writable is None or x in writable)):
             # Who inherits nothing writes what it is given; everyone else is compared with what
             # it inherits, and holds a row only while it departs from it. Having no row of one's
             # own is the normal state of an inheriting tenant, not a reason to be given one.

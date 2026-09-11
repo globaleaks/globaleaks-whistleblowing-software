@@ -12,7 +12,7 @@ from globaleaks.handlers.user.reset_password import db_generate_password_reset_t
 from globaleaks.handlers.user import get_user
 from globaleaks.handlers.user.operation import disable_2fa, reset_idp_binding
 from globaleaks.models import Config, InternalTip, User
-from globaleaks.models.config import db_get_protected_users, db_set_config_variable, get_default, ConfigDescriptor, ConfigFactory, ConfigL10NFactory
+from globaleaks.models.config import db_get_protected_users, db_get_unlocked_keys, db_set_config_variable, get_default, unlockable_keys, ConfigDescriptor, ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
@@ -248,6 +248,40 @@ def reset_templates(session, tid, user_id):
     db_log(session, tid=tid, type='reset_templates', user_id=user_id)
 
 
+@transact
+def set_key_unlocked(session, tid, user_id, var_name, unlocked):
+    """
+    Leave to the sites naming a profile a variable they may customize, or take it back
+
+    A site holds what its profile hands it: the profile names here the few variables it does not
+    hold on their behalf, among the ones the application allows to be left free at all.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the profile
+    :param user_id: The id of the user deciding it
+    :param var_name: The name of the variable
+    :param unlocked: Whether the sites naming the profile may customize it
+    """
+    # Only a profile hands variables to other sites, and so only a profile withholds them. The
+    # default profile is not one of them: what a site inherits from it, it may write.
+    if tid <= DEFAULT_PROFILE_ID:
+        raise errors.ForbiddenOperation
+
+    if var_name not in unlockable_keys:
+        raise errors.InputValidationError
+
+    keys = set(db_get_unlocked_keys(session, tid))
+
+    if unlocked:
+        keys.add(var_name)
+    else:
+        keys.discard(var_name)
+
+    db_set_config_variable(session, tid, 'unlocked_keys', sorted(keys))
+
+    db_log(session, tid=tid, type='unlock_key' if unlocked else 'lock_key', user_id=user_id)
+
+
 def db_set_user_password(session, tid, user_session, user_id, key):
     user = db_get_user(session, tid, user_id)
 
@@ -345,7 +379,9 @@ class AdminOperationHandler(OperationHandler):
                                 'reset_backups',
                                 'toggle_escrow',
                                 'toggle_user_escrow',
-                                'validate_idp'],
+                                'validate_idp',
+                                'unlock_key',
+                                'lock_key'],
         'can_manage_network': ['set_hostname',
                                'reset_onion_private_key'],
         'can_manage_notifications': ['test_mail',
@@ -396,6 +432,12 @@ class AdminOperationHandler(OperationHandler):
 
     def set_default_statistical_template(self, req_args, *args, **kwargs):
         return tw(set_default_statistical_template, self.request.tid, req_args['value'])
+
+    def unlock_key(self, req_args, *args, **kwargs):
+        return set_key_unlocked(self.request.tid, self.session.user_id, req_args['value'], True)
+
+    def lock_key(self, req_args, *args, **kwargs):
+        return set_key_unlocked(self.request.tid, self.session.user_id, req_args['value'], False)
 
     def set_user_password(self, req_args, *args, **kwargs):
         if self.session.user_id == req_args['user_id']:
@@ -532,5 +574,7 @@ class AdminOperationHandler(OperationHandler):
             'enable_user_permission_file_upload': AdminOperationHandler.enable_user_permission_file_upload,
             'disable_user_permission_file_upload': AdminOperationHandler.disable_user_permission_file_upload,
             'reset_templates': AdminOperationHandler.reset_templates,
-            'set_default_statistical_template': AdminOperationHandler.set_default_statistical_template
+            'set_default_statistical_template': AdminOperationHandler.set_default_statistical_template,
+            'unlock_key': AdminOperationHandler.unlock_key,
+            'lock_key': AdminOperationHandler.lock_key
         }

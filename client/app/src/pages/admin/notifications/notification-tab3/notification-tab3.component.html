@@ -14,7 +14,7 @@
     <div class="col-md-12">
       <div class="form-group">
         <label for="smtp-email-address">{{ 'SMTP email address' | translate }}</label>
-        <input id="smtp-email-address" class="form-control" name="source_email" #source_email="ngModel" [(ngModel)]="notificationResolver.dataModel.smtp_source_email" [pattern]="Constants.emailRegexp" type="text" />
+        <input id="smtp-email-address" class="form-control" name="source_email" #source_email="ngModel" [(ngModel)]="notificationResolver.dataModel.smtp_source_email" srcHeldByProfile="smtp_source_email" [pattern]="Constants.emailRegexp" type="text" />
       </div>
       @if (source_email?.errors?.['pattern']) {
       <div class="text-danger">
@@ -23,33 +23,33 @@
       }
       <div class="form-group">
         <label for="smtp-server-address">{{ 'SMTP server address' | translate }}</label>
-        <input id="smtp-server-address" class="form-control" name="notification.dataModel.smtp_server" [(ngModel)]="notificationResolver.dataModel.smtp_server" type="text" />
+        <input id="smtp-server-address" class="form-control" name="notification.dataModel.smtp_server" [(ngModel)]="notificationResolver.dataModel.smtp_server" srcHeldByProfile="smtp_server" type="text" />
       </div>
       <div class="form-group">
         <label for="smtp-server-port">{{ 'SMTP server port' | translate }}</label>
-        <input id="smtp-server-port" class="form-control" name="notification.dataModel.smtp_port" [(ngModel)]="notificationResolver.dataModel.smtp_port" type="number" />
+        <input id="smtp-server-port" class="form-control" name="notification.dataModel.smtp_port" [(ngModel)]="notificationResolver.dataModel.smtp_port" srcHeldByProfile="smtp_port" type="number" />
       </div>
       <div class="form-group">
         <label for="smtp-security-select">{{ 'Security' | translate }}</label>
-        <select id="smtp-security-select" class="form-select-custom" name="notification.dataModel.smtp_security" [(ngModel)]="notificationResolver.dataModel.smtp_security">
+        <select id="smtp-security-select" class="form-select-custom" name="notification.dataModel.smtp_security" [(ngModel)]="notificationResolver.dataModel.smtp_security" srcHeldByProfile="smtp_security">
           <option value="PLAIN">PLAIN</option>
           <option value="SSL">SMTPS</option>
           <option value="TLS">SMTP/TLS</option>
         </select>
       </div>
       <div class="form-group">
-        <input id="smtp-authentication" class="form-check-input" name="notification.dataModel.smtp_authentication" [(ngModel)]="notificationResolver.dataModel.smtp_authentication" type="checkbox">
+        <input id="smtp-authentication" class="form-check-input" name="notification.dataModel.smtp_authentication" [(ngModel)]="notificationResolver.dataModel.smtp_authentication" srcHeldByProfile="smtp_authentication" type="checkbox">
         <label for="smtp-authentication">{{ 'Require authentication' | translate }}</label>
       </div>
       @if (notificationResolver.dataModel.smtp_authentication) {
       <div>
         <div class="form-group">
           <label for="smtp-username">{{ 'Username' | translate }}</label>
-          <input id="smtp-username" class="form-control" name="notification.dataModel.smtp_username" [(ngModel)]="notificationResolver.dataModel.smtp_username" type="text" />
+          <input id="smtp-username" class="form-control" name="notification.dataModel.smtp_username" [(ngModel)]="notificationResolver.dataModel.smtp_username" srcHeldByProfile="smtp_username" type="text" />
         </div>
         <div class="form-group">
           <label for="smtp-password">{{ 'Password' | translate }}</label>
-          <input id="smtp-password" class="form-control" name="notification.dataModel.smtp_password" [(ngModel)]="notificationResolver.dataModel.smtp_password" type="password" placeholder="*****************" />
+          <input id="smtp-password" class="form-control" name="notification.dataModel.smtp_password" [(ngModel)]="notificationResolver.dataModel.smtp_password" srcHeldByProfile="smtp_password" type="password" placeholder="*****************" />
         </div>
       </div>
       }
@@ -73,7 +73,7 @@
 <div class="nested">
   <div class="form-group">
     <label>
-      <input class="form-check-input" id="smtp2_enabled" [(ngModel)]="notificationResolver.dataModel.smtp2_enabled" type="checkbox" />
+      <input class="form-check-input" id="smtp2_enabled" [(ngModel)]="notificationResolver.dataModel.smtp2_enabled" srcHeldByProfile="smtp2_enabled" type="checkbox" />
       <span>{{ 'Enable' | translate }}</span>
     </label>
   </div>
@@ -90,7 +90,7 @@
       <div class="col-md-12">
         <div class="form-group">
           <label for="smtp2-email-address">{{ 'SMTP email address' | translate }}</label>
-          <input id="smtp2-email-address" class="form-control" name="source_email" #source_email="ngModel" [(ngModel)]="notificationResolver.dataModel.smtp2_source_email" [pattern]="Constants.emailRegexp" type="text" />
+          <input id="smtp2-email-address" class="form-control" name="source_email" #source_email="ngModel" [(ngModel)]="notificationResolver.dataModel.smtp2_source_email" srcHeldByProfile="smtp2_source_email" [pattern]="Constants.emailRegexp" type="text" />
         </div>
         @if (source_email?.errors?.['pattern']) {
         <div class="text-danger">
@@ -99,33 +99,33 @@
         }
         <div class="form-group">
           <label for="smtp2-server-address">{{ 'SMTP server address' | translate }}</label>
-          <input id="smtp2-server-address" class="form-control" name="notification.dataModel.smtp2_server" [(ngModel)]="notificationResolver.dataModel.smtp2_server" type="text" />
+          <input id="smtp2-server-address" class="form-control" name="notification.dataModel.smtp2_server" [(ngModel)]="notificationResolver.dataModel.smtp2_server" srcHeldByProfile="smtp2_server" type="text" />
         </div>
         <div class="form-group">
           <label for="smtp2-server-port">{{ 'SMTP server port' | translate }}</label>
-          <input id="smtp2-server-port" class="form-control" name="notification.dataModel.smtp2_port" [(ngModel)]="notificationResolver.dataModel.smtp2_port" type="number" />
+          <input id="smtp2-server-port" class="form-control" name="notification.dataModel.smtp2_port" [(ngModel)]="notificationResolver.dataModel.smtp2_port" srcHeldByProfile="smtp2_port" type="number" />
         </div>
         <div class="form-group">
           <label for="smtp2-security-select">{{ 'Security' | translate }}</label>
-          <select id="smtp2-security-select" class="form-select-custom" name="notification.dataModel.smtp2_security" [(ngModel)]="notificationResolver.dataModel.smtp2_security">
+          <select id="smtp2-security-select" class="form-select-custom" name="notification.dataModel.smtp2_security" [(ngModel)]="notificationResolver.dataModel.smtp2_security" srcHeldByProfile="smtp2_security">
             <option value="PLAIN">PLAIN</option>
             <option value="SSL">SMTPS</option>
             <option value="TLS">SMTP/TLS</option>
           </select>
         </div>
         <div class="form-group">
-          <input id="smtp2-authentication" class="form-check-input" name="notification.dataModel.smtp2_authentication" [(ngModel)]="notificationResolver.dataModel.smtp2_authentication" type="checkbox">
+          <input id="smtp2-authentication" class="form-check-input" name="notification.dataModel.smtp2_authentication" [(ngModel)]="notificationResolver.dataModel.smtp2_authentication" srcHeldByProfile="smtp2_authentication" type="checkbox">
           <label for="smtp2-authentication">{{ 'Require authentication' | translate }}</label>
         </div>
         @if (notificationResolver.dataModel.smtp2_authentication) {
         <div>
           <div class="form-group">
             <label for="smtp2-username">{{ 'Username' | translate }}</label>
-            <input id="smtp2-username" class="form-control" name="notification.dataModel.smtp2_username" [(ngModel)]="notificationResolver.dataModel.smtp2_username" type="text" />
+            <input id="smtp2-username" class="form-control" name="notification.dataModel.smtp2_username" [(ngModel)]="notificationResolver.dataModel.smtp2_username" srcHeldByProfile="smtp2_username" type="text" />
           </div>
           <div class="form-group">
             <label for="smtp2-password">{{ 'Password' | translate }}</label>
-            <input id="smtp2-password" class="form-control" name="notification.dataModel.smtp2_password" [(ngModel)]="notificationResolver.dataModel.smtp2_password" type="password" placeholder="*****************" />
+            <input id="smtp2-password" class="form-control" name="notification.dataModel.smtp2_password" [(ngModel)]="notificationResolver.dataModel.smtp2_password" srcHeldByProfile="smtp2_password" type="password" placeholder="*****************" />
           </div>
         </div>
         }

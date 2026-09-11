@@ -89,6 +89,10 @@ export class nodeResolverModel {
   can_postpone_expiration: boolean;
   profile:string;
   is_profile:boolean;
+  writable_keys: string[] | null;
+  unlocked_keys: string[];
+  unlockable_keys: string[];
+  held_keys: string[];
   antivirus_enabled:boolean;
   antivirus_clamd_ip: string;
   antivirus_clamd_port: number;

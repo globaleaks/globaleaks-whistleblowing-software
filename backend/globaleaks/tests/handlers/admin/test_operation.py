@@ -1,9 +1,12 @@
 
 from globaleaks import models
+from globaleaks import db
+from globaleaks.handlers.admin import tenant
 from globaleaks.handlers.admin.operation import AdminOperationHandler
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.jobs import delivery
-from globaleaks.models.config import db_get_config_variable, db_set_config_variable, ConfigFactory
+from globaleaks.models import config
+from globaleaks.models.config import db_get_config_variable, db_get_unlocked_keys, db_set_config_variable, ConfigFactory
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
@@ -282,3 +285,68 @@ class TestAdminProtectedUsers(helpers.TestHandlerWithPopulatedDB):
         yield self.assertFailure(self._test_operation_handler('send_password_reset_email',
                                                              {'value': self.dummy_receiver_1['id']}),
                                  errors.ForbiddenOperation)
+
+
+class OperationCase(helpers.TestHandlerWithPopulatedDB):
+    """
+    A case that asks the handler of the administrative operations to carry one out
+    """
+    _handler = AdminOperationHandler
+
+    def _test_operation_handler(self, operation, args, tid):
+        handler = self.request({'operation': operation, 'args': args}, role='admin', tid=tid)
+
+        return handler.put()
+
+
+class TestUnlockKey(OperationCase):
+    """
+    A profile names the variables it leaves free to the sites naming it
+    """
+
+    @defer.inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+
+        profile = yield tenant.create({'name': 'A profile',
+                                       'active': True,
+                                       'subdomain': '',
+                                       'profile': 'default'}, is_profile=True)
+
+        self.pid = profile['id']
+
+        # the handler reads the tenant from the cache, and the profile has just been created
+        yield db.refresh_tenant_cache()
+
+    @transact
+    def unlocked_keys(self, session, tid):
+        return db_get_unlocked_keys(session, tid)
+
+    @defer.inlineCallbacks
+    def test_a_profile_unlocks_and_locks_a_variable(self):
+        yield self._test_operation_handler('unlock_key', {'value': 'footer'}, tid=self.pid)
+        self.assertEqual((yield self.unlocked_keys(self.pid)), ['footer'])
+
+        yield self._test_operation_handler('lock_key', {'value': 'footer'}, tid=self.pid)
+        self.assertEqual((yield self.unlocked_keys(self.pid)), [])
+
+    def test_a_variable_the_application_never_unlocks_is_refused(self):
+        return self.assertFailure(self._test_operation_handler('unlock_key',
+                                                               {'value': 'encryption'},
+                                                               tid=self.pid),
+                                  errors.InputValidationError)
+
+    def test_a_site_unlocks_nothing(self):
+        # only a profile hands variables to other sites, and so only a profile withholds them
+        return self.assertFailure(self._test_operation_handler('unlock_key',
+                                                               {'value': 'footer'},
+                                                               tid=1),
+                                  errors.ForbiddenOperation)
+
+    def test_the_default_profile_unlocks_nothing(self):
+        # what a site inherits from the default profile it may write in any case: unlocking there
+        # would say something the platform does not read
+        return self.assertFailure(self._test_operation_handler('unlock_key',
+                                                               {'value': 'footer'},
+                                                               tid=config.DEFAULT_PROFILE_ID),
+                                  errors.ForbiddenOperation)

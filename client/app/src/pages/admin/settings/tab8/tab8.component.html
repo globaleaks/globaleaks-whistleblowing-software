@@ -2,13 +2,13 @@
   <div class="col-md-12">
     <div class="form-group">
       <label>
-        <input class="form-check-input" name="disable_submissions" [(ngModel)]="nodeResolver.dataModel.disable_submissions" type="checkbox" />
+        <input class="form-check-input" name="disable_submissions" [(ngModel)]="nodeResolver.dataModel.disable_submissions" srcHeldByProfile="disable_submissions" type="checkbox" />
         <span>{{'Disable submissions' | translate}}</span>
       </label>
     </div>
     <div class="form-group">
       <label>
-        <input class="form-check-input" name="node.dataModel.encryption" [(ngModel)]="nodeResolver.dataModel.encryption" type="checkbox" (ngModelChange)="enableEncryption()" [disabled]="nodeResolver.dataModel.encryption" />
+        <input class="form-check-input" name="node.dataModel.encryption" [(ngModel)]="nodeResolver.dataModel.encryption" srcHeldByProfile="encryption" type="checkbox" (ngModelChange)="enableEncryption()" [disabled]="nodeResolver.dataModel.encryption" />
         <span>{{'Enable encryption' | translate}}</span>
       </label>
     </div>
@@ -16,7 +16,7 @@
       <div>
         <div class="form-group">
           <label>
-            <input class="form-check-input" #escrow name="node.dataModel.escrow" [(ngModel)]="nodeResolver.dataModel.escrow" type="checkbox" (ngModelChange)="toggleEscrow(escrow)" [disabled]="nodeResolver.dataModel.escrow && !preferenceResolver.dataModel.escrow" />
+            <input class="form-check-input" #escrow name="node.dataModel.escrow" [(ngModel)]="nodeResolver.dataModel.escrow" srcHeldByProfile="escrow" type="checkbox" (ngModelChange)="toggleEscrow(escrow)" [disabled]="nodeResolver.dataModel.escrow && !preferenceResolver.dataModel.escrow" />
             <span>{{'Enable administrators to change user passwords' | translate}}</span>
           </label>
         </div>
@@ -35,31 +35,31 @@
     }
     <div class="form-group">
       <label>
-        <input class="form-check-input" name="node.dataModel.pgp" [(ngModel)]="nodeResolver.dataModel.pgp" type="checkbox" />
+        <input class="form-check-input" name="node.dataModel.pgp" [(ngModel)]="nodeResolver.dataModel.pgp" srcHeldByProfile="pgp" type="checkbox" />
         <span>{{ 'Enable PGP' | translate }}</span>
       </label>
     </div>
     <div class="form-group">
       <label>
-        <input class="form-check-input" name="node.dataModel.simplified_login" [(ngModel)]="nodeResolver.dataModel.simplified_login" type="checkbox"/>
+        <input class="form-check-input" name="node.dataModel.simplified_login" [(ngModel)]="nodeResolver.dataModel.simplified_login" srcHeldByProfile="simplified_login" type="checkbox"/>
         <span>{{ 'Enable simplified login' | translate }}</span>
       </label>
     </div>
     <div class="form-group">
       <label>
-        <input class="form-check-input" name="node.dataModel.allow_indexing" [(ngModel)]="nodeResolver.dataModel.allow_indexing" type="checkbox" />
+        <input class="form-check-input" name="node.dataModel.allow_indexing" [(ngModel)]="nodeResolver.dataModel.allow_indexing" srcHeldByProfile="allow_indexing" type="checkbox" />
         <span>{{ 'Enable search engines indexing' | translate }}</span>
       </label>
     </div>
     <div class="form-group">
       <label for="contexts-clarification">{{ 'Text shown on top of the interface for selecting channels' | translate }}</label>
       <div>
-        <textarea id="contexts-clarification" name="node.dataModel.contexts_clarification" class="form-control" [(ngModel)]="nodeResolver.dataModel.contexts_clarification"></textarea>
+        <textarea id="contexts-clarification" name="node.dataModel.contexts_clarification" class="form-control" [(ngModel)]="nodeResolver.dataModel.contexts_clarification" srcHeldByProfile="contexts_clarification"></textarea>
       </div>
     </div>
     <div class="form-group">
       <label>
-        <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.show_contexts_in_alphabetical_order" type="checkbox" />
+        <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.show_contexts_in_alphabetical_order" srcHeldByProfile="show_contexts_in_alphabetical_order" type="checkbox" />
         <span>{{ 'Show channels in alphabetical order' | translate }}</span>
       </label>
     </div>
@@ -68,30 +68,30 @@
         <span>{{ 'Size limit for file attachments' | translate }}</span>
         <span>(<span>{{ 'megabytes' | translate}}</span>)</span>
       </label>
-      <input id="maximum-filesize" class="form-control" [(ngModel)]="nodeResolver.dataModel.maximum_filesize" type="number" min="0" />
+      <input id="maximum-filesize" class="form-control" [(ngModel)]="nodeResolver.dataModel.maximum_filesize" srcHeldByProfile="maximum_filesize" type="number" min="0" />
     </div>
     <div class="form-group">
       <label>
-        <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.two_factor" name="two_factor" (click)="enableRouteReload()" type="checkbox" />
+        <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.two_factor" srcHeldByProfile="two_factor" name="two_factor" (click)="enableRouteReload()" type="checkbox" />
         <span>{{ 'Require two factor authentication' | translate }}</span>
       </label>
     </div>
     <div class="form-group">
       <label for="password-change-period">{{ 'Password change interval' | translate }}</label>
-      <input id="password-change-period" class="form-control" [(ngModel)]="nodeResolver.dataModel.password_change_period" type="number" min="0" />
+      <input id="password-change-period" class="form-control" [(ngModel)]="nodeResolver.dataModel.password_change_period" srcHeldByProfile="password_change_period" type="number" min="0" />
       <div>{{ 'For security reasons, password changes are required at regular intervals.' | translate }}</div>
       <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
     </div>
     @if (nodeResolver.dataModel.root_tenant) {
       <div class="form-group">
         <label for="unread-reminder-time">{{ 'Number of days till notifying unread reports to users' | translate }}</label>
-        <input id="unread-reminder-time" class="form-control" [(ngModel)]="nodeResolver.dataModel.unread_reminder_time" type="number" min="0" />
+        <input id="unread-reminder-time" class="form-control" [(ngModel)]="nodeResolver.dataModel.unread_reminder_time" srcHeldByProfile="unread_reminder_time" type="number" min="0" />
         <div>{{ 'Set the value to 0 to disable this feature.' | translate }}</div>
       </div>
     }
     <div class="form-group">
       <label for="default-questionnaire-select">{{ 'Questionnaire' | translate }}</label>
-      <select id="default-questionnaire-select" name="default_questionnaire" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire">
+      <select id="default-questionnaire-select" name="default_questionnaire" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_questionnaire" srcHeldByProfile="default_questionnaire">
         @for (item of questionnaireData; track item) {
           <option [ngValue]="item.id">{{item.name}}</option>
         }
@@ -99,7 +99,7 @@
     </div>
     <div class="form-group">
       <label for="default-user-profile-select">{{ 'User profile' | translate }}</label>
-      <select id="default-user-profile-select" name="default_user_profile" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_user_profile">
+      <select id="default-user-profile-select" name="default_user_profile" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.default_user_profile" srcHeldByProfile="default_user_profile">
         <option value="admin">{{ 'Admin' | translate }}</option>
         <option value="analyst">{{ 'Analyst' | translate }}</option>
         <option value="custodian">{{ 'Custodian' | translate }}</option>
@@ -111,25 +111,25 @@
     </div>
     <div class="form-group">
       <label for="default-tip-timetolive">{{ 'Data retention policy' | translate }} ({{ 'days' | translate }})</label>
-      <input id="default-tip-timetolive" name="default_tip_timetolive" class="form-control" [(ngModel)]="nodeResolver.dataModel.default_tip_timetolive" type="number" min="0" />
+      <input id="default-tip-timetolive" name="default_tip_timetolive" class="form-control" [(ngModel)]="nodeResolver.dataModel.default_tip_timetolive" srcHeldByProfile="default_tip_timetolive" type="number" min="0" />
     </div>
     <div class="form-group">
       <label>
-        <input class="form-check-input" name="demo" [(ngModel)]="nodeResolver.dataModel.demo" type="checkbox" />
+        <input class="form-check-input" name="demo" [(ngModel)]="nodeResolver.dataModel.demo" srcHeldByProfile="demo" type="checkbox" />
         <span>{{ 'Enable demo mode' | translate }}</span>
       </label>
       <div>{{ 'The sites created with this setting enabled are automatically deleted 90 days after their creation.' | translate }}</div>
     </div>
     <div class="form-group">
       <label>
-        <input class="form-check-input" name="enable_onion" [(ngModel)]="nodeResolver.dataModel.enable_onion" type="checkbox" />
+        <input class="form-check-input" name="enable_onion" [(ngModel)]="nodeResolver.dataModel.enable_onion" srcHeldByProfile="enable_onion" type="checkbox" />
         <span>{{ 'Enable a dedicated Tor onion service' | translate }}</span>
       </label>
       <div>{{ 'The value is applied on the creation of a new site; the sites for which it is disabled are published as a subdomain of the onion service of the first site.' | translate }}</div>
     </div>
     <div class="form-group">
       <label for="homepage-input">{{ 'Home' | translate }}</label>
-      <select id="homepage-input" name="node.dataModel.homepage" class="form-select" [(ngModel)]="nodeResolver.dataModel.homepage" required>
+      <select id="homepage-input" name="node.dataModel.homepage" class="form-select" [(ngModel)]="nodeResolver.dataModel.homepage" srcHeldByProfile="homepage" required>
         <option value="/">/</option>
         <option value="/submission">/submission</option>
         @if (nodeResolver.dataModel.enable_signup || nodeResolver.dataModel.homepage === '/signup') {
@@ -140,7 +140,7 @@
     @if (!nodeResolver.dataModel.root_tenant) {
       <div class="form-group">
         <label for="support-escalation">{{ 'Support requests handled by the first site' | translate }}</label>
-        <select id="support-escalation" name="node.dataModel.support_escalation" class="form-select" [(ngModel)]="nodeResolver.dataModel.support_escalation" required>
+        <select id="support-escalation" name="node.dataModel.support_escalation" class="form-select" [(ngModel)]="nodeResolver.dataModel.support_escalation" srcHeldByProfile="support_escalation" required>
           <option value="none">{{ 'None' | translate }}</option>
           <option value="admins">{{ 'Only the requests of the administrators' | translate }}</option>
           <option value="all">{{ 'All the requests' | translate }}</option>
@@ -150,15 +150,15 @@
     }
     <div class="form-group">
       <label for="custom-support-url">{{ 'Custom support URL' | translate }}</label>
-      <input id="custom-support-url" class="form-control" [(ngModel)]="nodeResolver.dataModel.custom_support_url" #customSupportURL="ngModel" name="customSupportURL" [pattern]="Constants.httpsRegexp" [class.is-invalid]="customSupportURL?.errors?.['pattern']" type="text" />
+      <input id="custom-support-url" class="form-control" [(ngModel)]="nodeResolver.dataModel.custom_support_url" srcHeldByProfile="custom_support_url" #customSupportURL="ngModel" name="customSupportURL" [pattern]="Constants.httpsRegexp" [class.is-invalid]="customSupportURL?.errors?.['pattern']" type="text" />
     </div>
     <div class="form-group">
-      <input id="disable-privacy-badge" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.disable_privacy_badge" type="checkbox" />
+      <input id="disable-privacy-badge" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.disable_privacy_badge" srcHeldByProfile="disable_privacy_badge" type="checkbox" />
       <label for="disable-privacy-badge">{{ 'Disable the privacy panel' | translate }}</label>
     </div>
     @if (!nodeResolver.dataModel.disable_privacy_badge) {
       <div class="form-group">
-        <input id="enable-custom-privacy-badge" class="form-check-input" name="enable_custom_privacy_badge" [(ngModel)]="nodeResolver.dataModel.enable_custom_privacy_badge" type="checkbox" />
+        <input id="enable-custom-privacy-badge" class="form-check-input" name="enable_custom_privacy_badge" [(ngModel)]="nodeResolver.dataModel.enable_custom_privacy_badge" srcHeldByProfile="enable_custom_privacy_badge" type="checkbox" />
         <label for="enable-custom-privacy-badge">{{ 'Enable custom privacy panel' | translate }}</label>
       </div>
     }
@@ -167,18 +167,18 @@
         <span class="form-label">{{ 'Custom privacy panel' | translate }}</span>
         <div>
           <label for="custom-privacy-badge-text" class="visually-hidden">{{ 'Custom privacy panel text' | translate }}</label>
-          <textarea id="custom-privacy-badge-text" class="form-control" [(ngModel)]="nodeResolver.dataModel.custom_privacy_badge_text" type="text"></textarea>
+          <textarea id="custom-privacy-badge-text" class="form-control" [(ngModel)]="nodeResolver.dataModel.custom_privacy_badge_text" srcHeldByProfile="custom_privacy_badge_text" type="text"></textarea>
         </div>
       </div>
     }
     <div class="form-group">
-      <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.enable_scoring_system" id="scoring_system" type="checkbox">
+      <input class="form-check-input" [(ngModel)]="nodeResolver.dataModel.enable_scoring_system" srcHeldByProfile="enable_scoring_system" id="scoring_system" type="checkbox">
       <label for="scoring_system">{{ 'Enable scoring system' | translate }}</label>
     </div>
     @if (nodeResolver.dataModel.root_tenant) {
       <div class="form-group">
         <label for="log-level-select">{{ 'Logging level' | translate }}</label>
-        <select id="log-level-select" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.log_level">
+        <select id="log-level-select" class="form-select-custom" [(ngModel)]="nodeResolver.dataModel.log_level" srcHeldByProfile="log_level">
           <option value="ERROR">ERROR</option>
           <option value="INFO">INFO</option>
           <option value="DEBUG">DEBUG</option>
@@ -206,11 +206,11 @@
               </td>
               <td>
                 <label for="threshold-disk-mb-low" class="visually-hidden">{{ 'Low threshold (megabytes)' | translate }}</label>
-                <input id="threshold-disk-mb-low" class="form-control" [(ngModel)]="nodeResolver.dataModel.threshold_free_disk_megabytes_low" type="number" min="0" />
+                <input id="threshold-disk-mb-low" class="form-control" [(ngModel)]="nodeResolver.dataModel.threshold_free_disk_megabytes_low" srcHeldByProfile="threshold_free_disk_megabytes_low" type="number" min="0" />
               </td>
               <td>
                 <label for="threshold-disk-mb-high" class="visually-hidden">{{ 'High threshold (megabytes)' | translate }}</label>
-                <input id="threshold-disk-mb-high" class="form-control" [(ngModel)]="nodeResolver.dataModel.threshold_free_disk_megabytes_high" type="number" min="0" />
+                <input id="threshold-disk-mb-high" class="form-control" [(ngModel)]="nodeResolver.dataModel.threshold_free_disk_megabytes_high" srcHeldByProfile="threshold_free_disk_megabytes_high" type="number" min="0" />
               </td>
             </tr>
             <tr>
@@ -222,11 +222,11 @@
               </td>
               <td>
                 <label for="threshold-disk-pct-low" class="visually-hidden">{{ 'Low threshold (percentage)' | translate }}</label>
-                <input id="threshold-disk-pct-low" class="form-control" [(ngModel)]="nodeResolver.dataModel.threshold_free_disk_percentage_low" type="number" min="0" max="100" />
+                <input id="threshold-disk-pct-low" class="form-control" [(ngModel)]="nodeResolver.dataModel.threshold_free_disk_percentage_low" srcHeldByProfile="threshold_free_disk_percentage_low" type="number" min="0" max="100" />
               </td>
               <td>
                 <label for="threshold-disk-pct-high" class="visually-hidden">{{ 'High threshold (percentage)' | translate }}</label>
-                <input id="threshold-disk-pct-high" class="form-control" [(ngModel)]="nodeResolver.dataModel.threshold_free_disk_percentage_high" type="number" min="0" max="100" />
+                <input id="threshold-disk-pct-high" class="form-control" [(ngModel)]="nodeResolver.dataModel.threshold_free_disk_percentage_high" srcHeldByProfile="threshold_free_disk_percentage_high" type="number" min="0" max="100" />
               </td>
             </tr>
           </tbody>
@@ -234,18 +234,18 @@
       </div>
     }
     <div class="form-group">
-      <input id="log-accesses-of-internal-users" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.log_accesses_of_internal_users" type="checkbox" />
+      <input id="log-accesses-of-internal-users" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.log_accesses_of_internal_users" srcHeldByProfile="log_accesses_of_internal_users" type="checkbox" />
       <label for="log-accesses-of-internal-users">{{ 'Log accesses of internal users' | translate }}</label>
     </div>
     @if (nodeResolver.dataModel.root_tenant) {
       <div class="form-group">
-        <input id="enable-admin-exception-notification" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.enable_admin_exception_notification" type="checkbox">
+        <input id="enable-admin-exception-notification" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.enable_admin_exception_notification" srcHeldByProfile="enable_admin_exception_notification" type="checkbox">
         <label for="enable-admin-exception-notification">{{ 'Notify administrators of software problems' | translate }}</label>
       </div>
     }
     @if (nodeResolver.dataModel.root_tenant) {
       <div class="form-group">
-        <input id="enable-developers-exception-notification" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.enable_developers_exception_notification" type="checkbox">
+        <input id="enable-developers-exception-notification" class="form-check-input" [(ngModel)]="nodeResolver.dataModel.enable_developers_exception_notification" srcHeldByProfile="enable_developers_exception_notification" type="checkbox">
         <label for="enable-developers-exception-notification">{{ 'Notify developers of software problems' | translate }}</label>
         <div>{{ 'By enabling this feature, you will contribute to the development and security of the platform.' | translate }}</div>
       </div>

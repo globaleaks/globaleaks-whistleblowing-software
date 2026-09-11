@@ -8,6 +8,7 @@ import {Constants} from "@app/shared/constants/constants";
 import {AppDataService} from "@app/app-data.service";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {TranslateModule} from "@ngx-translate/core";
+import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
 @Component({
     selector: "src-tab1",
@@ -15,6 +16,7 @@ import {TranslateModule} from "@ngx-translate/core";
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
     imports: [
+    HeldByProfileDirective,
     ImageUploadDirective,
     FormsModule,
     TranslateModule

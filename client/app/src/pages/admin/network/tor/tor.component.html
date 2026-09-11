@@ -18,13 +18,13 @@
           <div class="col-md-12">
             @if (nodeResolver.dataModel.root_tenant) {
               <div class="form-group">
-                <input id="anonymize-outgoing-connections" class="form-check-input" [(ngModel)]="networkData.anonymize_outgoing_connections"
+                <input id="anonymize-outgoing-connections" class="form-check-input" [(ngModel)]="networkData.anonymize_outgoing_connections" srcHeldByProfile="anonymize_outgoing_connections"
                   name="anonymize_outgoing_connections" type="checkbox">
                 <label for="anonymize-outgoing-connections">{{ 'Anonymize outgoing connections' | translate }}</label>
               </div>
             }
             <div class="form-group">
-              <input id="reachable-via-web" class="form-check-input" [(ngModel)]="networkData.reachable_via_web" name="reachable_via_web" type="checkbox">
+              <input id="reachable-via-web" class="form-check-input" [(ngModel)]="networkData.reachable_via_web" srcHeldByProfile="reachable_via_web" name="reachable_via_web" type="checkbox">
               <label for="reachable-via-web">{{ 'Let the platform be reachable without Tor' | translate }}</label>
             </div>
             @if (networkData.reachable_via_web) {
@@ -41,42 +41,42 @@
                     <tr>
                       <td><label for="https-admin">{{ 'Admin' | translate }}</label></td>
                       <td>
-                        <input id="https-admin" class="form-check-input" [(ngModel)]="networkData.https_admin" name="https_admin"
+                        <input id="https-admin" class="form-check-input" [(ngModel)]="networkData.https_admin" srcHeldByProfile="https_admin" name="https_admin"
                           type="checkbox">
                       </td>
                     </tr>
                     <tr>
                       <td><label for="https-analyst">{{ 'Analyst' | translate }}</label></td>
                       <td>
-                        <input id="https-analyst" class="form-check-input" [(ngModel)]="networkData.https_analyst" name="https_analyst"
+                        <input id="https-analyst" class="form-check-input" [(ngModel)]="networkData.https_analyst" srcHeldByProfile="https_analyst" name="https_analyst"
                           type="checkbox">
                       </td>
                     </tr>
                     <tr>
                       <td><label for="https-custodian">{{ 'Custodian' | translate }}</label></td>
                       <td>
-                        <input id="https-custodian" class="form-check-input" [(ngModel)]="networkData.https_custodian" name="https_custodian"
+                        <input id="https-custodian" class="form-check-input" [(ngModel)]="networkData.https_custodian" srcHeldByProfile="https_custodian" name="https_custodian"
                           type="checkbox">
                       </td>
                     </tr>
                     <tr>
                       <td><label for="https-receiver">{{ 'Recipient' | translate }}</label></td>
                       <td>
-                        <input id="https-receiver" class="form-check-input" [(ngModel)]="networkData.https_receiver" name="https_receiver"
+                        <input id="https-receiver" class="form-check-input" [(ngModel)]="networkData.https_receiver" srcHeldByProfile="https_receiver" name="https_receiver"
                           type="checkbox">
                       </td>
                     </tr>
                     <tr>
                       <td><label for="https-transmitter">{{ 'Transmitter' | translate }}</label></td>
                       <td>
-                        <input id="https-transmitter" class="form-check-input" [(ngModel)]="networkData.https_transmitter" name="https_transmitter"
+                        <input id="https-transmitter" class="form-check-input" [(ngModel)]="networkData.https_transmitter" srcHeldByProfile="https_transmitter" name="https_transmitter"
                           type="checkbox">
                       </td>
                     </tr>
                     <tr>
                       <td><label for="https-whistleblower">{{ 'Whistleblower' | translate }}</label></td>
                       <td>
-                        <input id="https-whistleblower" class="form-check-input" [(ngModel)]="networkData.https_whistleblower"
+                        <input id="https-whistleblower" class="form-check-input" [(ngModel)]="networkData.https_whistleblower" srcHeldByProfile="https_whistleblower"
                           name="https_whistleblower" type="checkbox">
                       </td>
                     </tr>

@@ -7,32 +7,32 @@
     <tr>
       <td><label for="enable-admin-notification-emails">{{ 'Admin' | translate }}</label></td>
       <td>
-        <input id="enable-admin-notification-emails" class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_admin_notification_emails" type="checkbox">
+        <input id="enable-admin-notification-emails" class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_admin_notification_emails" srcHeldByProfile="enable_admin_notification_emails" type="checkbox">
       </td>
     </tr>
     <tr>
       <td><label for="enable-analyst-notification-emails">{{ 'Analyst' | translate }}</label></td>
       <td>
-        <input id="enable-analyst-notification-emails" class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_analyst_notification_emails" type="checkbox">
+        <input id="enable-analyst-notification-emails" class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_analyst_notification_emails" srcHeldByProfile="enable_analyst_notification_emails" type="checkbox">
       </td>
     </tr>
     <tr>
       <td><label for="enable-custodian-notification-emails">{{ 'Custodian' | translate }}</label></td>
       <td>
-        <input id="enable-custodian-notification-emails" class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_custodian_notification_emails" type="checkbox">
+        <input id="enable-custodian-notification-emails" class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_custodian_notification_emails" srcHeldByProfile="enable_custodian_notification_emails" type="checkbox">
       </td>
     </tr>
     <tr>
       <td><label for="enable-receiver-notification-emails">{{ 'Recipient' | translate }}</label></td>
       <td>
-        <input id="enable-receiver-notification-emails" class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_receiver_notification_emails" type="checkbox">
+        <input id="enable-receiver-notification-emails" class="form-check-input" [(ngModel)]="notificationResolver.dataModel.enable_receiver_notification_emails" srcHeldByProfile="enable_receiver_notification_emails" type="checkbox">
       </td>
     </tr>
   </tbody>
 </table>
 <div class="form-group">
   <label for="tip-expiration-threshold">{{ 'Number of days before sending a report expiration alert' | translate }}</label>
-  <select id="tip-expiration-threshold" class="form-control" name="notification.dataModel.tip_expiration_threshold" [(ngModel)]="notificationResolver.dataModel.tip_expiration_threshold">
+  <select id="tip-expiration-threshold" class="form-control" name="notification.dataModel.tip_expiration_threshold" [(ngModel)]="notificationResolver.dataModel.tip_expiration_threshold" srcHeldByProfile="tip_expiration_threshold">
       @for (day of [28, 14, 7, 3]; track day) {
         <option [ngValue]="day">{{ day }}</option>
       }
