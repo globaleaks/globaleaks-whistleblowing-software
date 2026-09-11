@@ -801,8 +801,12 @@ p:last-child {
   min-width: 20vw;
 }
 
+/* A field is set apart from the next by a whole step of the Bootstrap scale ($spacer, the one of
+   `mb-3`): with half a step the label of a field is read against the control of the one above it.
+   `form-group` is not a Bootstrap 5 class — the 5 dropped it — and here it lives off this rule
+   alone; it is kept as a name to select on, because print.css hides the form chrome by it. */
 .form-group {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 #LanguagePickerBox .form-control {
