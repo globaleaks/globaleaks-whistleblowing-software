@@ -4,7 +4,7 @@
 </div>
 <div class="modal-body">
   <div class="input-group">
-    <input id="AccountRecoveryKey" class="form-control text-center font-weight-bold" [type]="visible ? 'text' : 'password'" [value]="erk" readonly [attr.aria-label]="'Account recovery key' | translate">
+    <input id="AccountRecoveryKey" class="form-control text-center fw-bold" [type]="visible ? 'text' : 'password'" [value]="erk" readonly [attr.aria-label]="'Account recovery key' | translate">
     <button type="button" class="btn btn-outline-secondary" id="toggle-visibility" (click)="visible = !visible" ngbTooltip="{{(visible ? 'Hide' : 'Show') | translate}}" [attr.aria-label]="(visible ? 'Hide' : 'Show') | translate">
       @if (visible) {
         <i class="fas fa-eye" aria-hidden="true"></i>
