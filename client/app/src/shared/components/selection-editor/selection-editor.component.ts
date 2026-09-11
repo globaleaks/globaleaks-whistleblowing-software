@@ -57,6 +57,17 @@ export class SelectionEditorComponent implements OnChanges {
    */
   readonly locked = input(false);
 
+  /**
+   * Whether entries can be added: a list that only gives up what it holds withholds the Add
+   */
+  readonly addable = input(true);
+
+  /**
+   * Whether taking an entry off the list is giving up a value of one's own rather than removing
+   * the entry: the action is the same, the word and the sign are not
+   */
+  readonly givingUp = input(false);
+
   readonly entryAdded = output<string>();
   readonly entryRemoved = output<{index: number, id: string}>();
   readonly defaultPicked = output<string>();

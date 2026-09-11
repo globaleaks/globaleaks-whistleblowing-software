@@ -228,8 +228,14 @@ describe("admin configure, add, configure and delete tenants", () => {
     cy.get('input[name="disable_submissions"]').click();
     cy.get('input[name="node.dataModel.pgp"]').click();
 
-    // The profile leaves the sites naming it the address of their own support, and holds the rest
-    cy.contains(".form-group", "Custom support URL").find(".key-lock-btn").click();
+    // The profile leaves the sites naming it the address of their own support, and holds the
+    // rest: what it leaves free is named in one place and not beside each field
+    cy.get("#configuration").click();
+    cy.get(".add-configuration-btn").click();
+    cy.get("#ConfigurationAdder ng-select").click();
+    cy.get(".ng-dropdown-panel .ng-option").contains("custom_support_url").click();
+    cy.get(".selection-list").should("contain", "custom_support_url");
+    cy.get(".modal .btn-close").click();
 
     // and it hands one of its own: what a site gets back when it gives up the value it wrote
     cy.get('input[name="customSupportURL"]').clear().type(profileSupportURL);

@@ -887,10 +887,8 @@ p:last-child {
   line-height: 1.5;
 }
 
-/* The lock keeps its place whether or not the profile is holding the variable, and the colour
-   says which of the two: a page is then read at a glance instead of being hunted through. The
-   giving up of a value shows itself only when there is a value to give up, and so it is never
-   there to be pressed in vain. */
+/* The giving up of a value shows itself only when there is a value to give up, and so it is
+   never there to be pressed in vain. */
 .field-action {
   border: 0;
   background: transparent;
@@ -899,8 +897,10 @@ p:last-child {
   color: #1a1a1a;
 }
 
-.field-action--off {
-  color: #c8d1e0;
+/* The list of what a site holds is read whole: it is given more room than the lists that pick
+   a handful of entries */
+.configuration-list .selection-list {
+  max-height: 20rem;
 }
 
 .selection-list {

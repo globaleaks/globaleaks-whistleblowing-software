@@ -5,7 +5,7 @@
     <span class="visually-hidden">{{ 'This field is mandatory' | translate }}</span>
   }
   <div class="selection-editor-content" [class.selection-editor-flush]="hideLabel()">
-    @if (!locked()) {
+    @if (!locked() && addable()) {
       <button type="button" class="btn btn-primary selection-editor-add {{ addButtonClass() }}" [attr.aria-expanded]="showSelect" (click)="toggleSelect()">
         <i class="fas fa-plus" aria-hidden="true"></i>
         <span>{{ 'Add' | translate }}</span>
@@ -44,8 +44,12 @@
                 </button>
               }
               @if (entry.id !== defaultId()) {
-                <button type="button" class="icon-action remove-entry-btn" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="('Remove' | translate) + ': ' + (entry.label | translate)" (click)="entryRemoved.emit({index: index, id: entry.id})">
-                  <i class="fas fa-xmark" aria-hidden="true"></i>
+                <button type="button" class="icon-action remove-entry-btn" ngbTooltip="{{(givingUp() ? 'Reset' : 'Remove') | translate}}" [attr.aria-label]="((givingUp() ? 'Reset' : 'Remove') | translate) + ': ' + (entry.label | translate)" (click)="entryRemoved.emit({index: index, id: entry.id})">
+                  @if (givingUp()) {
+                    <i class="fas fa-rotate-left" aria-hidden="true"></i>
+                  } @else {
+                    <i class="fas fa-xmark" aria-hidden="true"></i>
+                  }
                 </button>
               }
               @if (selectableDefault() && entry.id === defaultId()) {

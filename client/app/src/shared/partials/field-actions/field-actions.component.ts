@@ -9,11 +9,10 @@ import {UtilsService} from "@app/shared/services/utils.service";
 /**
  * Who decides the value of a field, said at the end of the line of its label.
  *
- * Two commands, always in the same place and always present: the colour says whether they do
- * anything, so that a page can be read at a glance instead of hunted through. A profile carries
- * both — the lock, by which it keeps a variable for itself or leaves it to the sites naming it,
- * and the giving up of a value of its own; a site carries the giving up alone, because it has
- * nobody to leave anything to.
+ * One command, the giving up of a value of one's own, which a profile and a site carry alike.
+ * Which variables a profile leaves free to the sites naming it is said in one place, among the
+ * settings, and not field by field: said beside a field it would name a lock that, on the page
+ * where it is pressed, locks nothing.
  */
 @Component({
   selector: "src-field-actions",
@@ -33,37 +32,10 @@ export class FieldActionsComponent {
 
   key = "";
 
-  // The lock is a matter for a profile alone, and only on the variables the application allows
-  // it to leave free
-  get lockShown(): boolean {
-    return this.nodeResolver.dataModel.is_profile &&
-      (this.nodeResolver.dataModel.unlockable_keys || []).includes(this.key);
-  }
-
-  get locked(): boolean {
-    return !(this.nodeResolver.dataModel.unlocked_keys || []).includes(this.key);
-  }
-
   // There is something to give up only while the tenant holds a value of its own: where there is
-  // not, the command is not there either. The lock, which keeps its place either way, sits to its
-  // right, so that it does not move as the other comes and goes.
+  // not, the command is not there either.
   get held(): boolean {
     return (this.nodeResolver.dataModel.held_keys || []).includes(this.key);
-  }
-
-  toggleLock(): void {
-    const locked = this.locked;
-
-    this.utilsService.runAdminOperation(locked ? "unlock_key" : "lock_key", {value: this.key}, false)
-      .subscribe(() => {
-        const keys = this.nodeResolver.dataModel.unlocked_keys.filter(key => key !== this.key);
-
-        if (locked) {
-          keys.push(this.key);
-        }
-
-        this.nodeResolver.patch({unlocked_keys: keys.sort()});
-      });
   }
 
   // The panels that configure a site are read again on the spot: the value the profile hands

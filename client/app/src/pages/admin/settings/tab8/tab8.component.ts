@@ -15,6 +15,7 @@ import {SelectableEntry, SelectableUser} from "@app/models/app/selectables";
 import {HttpService} from "@app/shared/services/http.service";
 import {TranslateModule} from "@ngx-translate/core";
 import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
+import {ConfigurationComponent} from "@app/shared/modals/configuration/configuration.component";
 
 @Component({
     selector: "src-tab8",
@@ -99,6 +100,12 @@ export class Tab8Component implements OnInit {
         this.userData = this.selectablesResolver.dataModel.users;
       });
     });
+  }
+
+  // The variables a profile leaves free, and the ones a site holds of its own: two questions the
+  // same list answers, depending on who is looking
+  openConfiguration() {
+    this.modalService.open(ConfigurationComponent, {backdrop: 'static', keyboard: false});
   }
 
   updateNode() {
