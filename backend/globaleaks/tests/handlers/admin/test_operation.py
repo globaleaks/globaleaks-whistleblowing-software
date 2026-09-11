@@ -350,3 +350,39 @@ class TestUnlockKey(OperationCase):
                                                                {'value': 'footer'},
                                                                tid=config.DEFAULT_PROFILE_ID),
                                   errors.ForbiddenOperation)
+
+
+class TestResetKey(OperationCase):
+    """
+    A site gives up a value of its own and reads again what its profile hands it
+    """
+
+    @transact
+    def held_keys(self, session, tid):
+        return config.db_get_held_keys(session, tid)
+
+    @transact
+    def write(self, session, tid, var_name, value):
+        config.ConfigFactory(session, tid).update('node', {var_name: value})
+
+    @defer.inlineCallbacks
+    def test_a_value_of_its_own_is_given_up(self):
+        yield self.write(2, 'allow_indexing', False)
+        self.assertIn('allow_indexing', (yield self.held_keys(2)))
+
+        yield self._test_operation_handler('reset_key', {'value': 'allow_indexing'}, tid=2)
+
+        self.assertNotIn('allow_indexing', (yield self.held_keys(2)))
+
+    def test_a_variable_the_site_owns_in_any_case_is_refused(self):
+        # there is no other value for the name of a site to go back to
+        return self.assertFailure(self._test_operation_handler('reset_key',
+                                                               {'value': 'name'},
+                                                               tid=2),
+                                  errors.InputValidationError)
+
+    def test_a_variable_no_form_configures_is_refused(self):
+        return self.assertFailure(self._test_operation_handler('reset_key',
+                                                               {'value': 'a_variable_that_is_not'},
+                                                               tid=2),
+                                  errors.InputValidationError)

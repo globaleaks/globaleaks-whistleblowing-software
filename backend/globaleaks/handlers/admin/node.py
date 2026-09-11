@@ -7,7 +7,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
 from globaleaks.models.enums import EnumStateFile
 from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID, \
-    db_get_config_variable, db_get_pid_by_profile, db_get_profile_children, \
+    db_get_config_variable, db_get_held_keys, db_get_pid_by_profile, db_get_profile_children, \
     db_get_unlocked_keys, db_get_writable_keys, db_set_config_variable, unlockable_keys
 from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
@@ -105,7 +105,10 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
         # What a profile leaves free to the sites naming it, and the whole of what it could ever
         # leave free: the first is decided by the profile, the second by the application
         'unlocked_keys': db_get_unlocked_keys(session, tid),
-        'unlockable_keys': unlockable_keys
+        'unlockable_keys': unlockable_keys,
+        # What this tenant holds of its own, and therefore configured differently from what its
+        # profile hands it, or from the default of the application when it names no profile
+        'held_keys': db_get_held_keys(session, tid)
     })
 
     if 'version' in ret:

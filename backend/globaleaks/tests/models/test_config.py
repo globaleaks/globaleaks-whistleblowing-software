@@ -181,6 +181,11 @@ class TestConfigInheritance(helpers.TestGLWithPopulatedDB):
 
 
 @transact
+def held_keys(session, tid):
+    return config.db_get_held_keys(session, tid)
+
+
+@transact
 def update_node(session, tid, data):
     config.ConfigFactory(session, tid).update('node', data)
 
@@ -261,6 +266,42 @@ class TestProfileLock(helpers.TestGLWithPopulatedDB):
 
         self.assertEqual((yield read_l10n(2, 'en', 'header_title_homepage')), 'A title of the site')
         self.assertEqual((yield own_l10n_rows(2, 'en', 'header_title_homepage')), 1)
+
+    @inlineCallbacks
+    def test_what_the_site_holds_is_what_it_wrote_differently(self):
+        yield self.unlock(['custom_support_url'])
+
+        self.assertNotIn('custom_support_url', (yield held_keys(2)))
+
+        yield update_node(2, {'custom_support_url': 'https://support.example.org'})
+
+        self.assertIn('custom_support_url', (yield held_keys(2)))
+
+    @inlineCallbacks
+    def test_a_value_written_back_to_the_inherited_one_is_not_held(self):
+        yield self.unlock(['custom_support_url'])
+        inherited = yield read(2, 'custom_support_url')
+
+        yield update_node(2, {'custom_support_url': 'https://support.example.org'})
+        yield update_node(2, {'custom_support_url': inherited})
+
+        self.assertNotIn('custom_support_url', (yield held_keys(2)))
+
+    @inlineCallbacks
+    def test_what_no_form_configures_is_not_held(self):
+        # the keys and the counters a site keeps for itself are not a configuration of the site
+        held = yield held_keys(1)
+
+        self.assertNotIn('crypto_stat_prv_key', held)
+        self.assertNotIn('https_selfsigned_key', held)
+
+    @inlineCallbacks
+    def test_the_variables_a_site_owns_in_any_case_are_not_held(self):
+        # the name and the subdomain tell one site from another: they are not a customization
+        held = yield held_keys(2)
+
+        self.assertNotIn('name', held)
+        self.assertNotIn('subdomain', held)
 
     @inlineCallbacks
     def test_a_site_naming_no_profile_writes_what_it_likes(self):

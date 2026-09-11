@@ -1,0 +1,10 @@
+@if (held) {
+  <button type="button" class="field-action config-reset-btn" [ngbTooltip]="'Reset' | translate" [attr.aria-label]="'Reset' | translate" (click)="reset()">
+    <i class="fas fa-rotate-left" aria-hidden="true"></i>
+  </button>
+}
+@if (lockShown) {
+  <button type="button" class="field-action key-lock-btn" [class.field-action--off]="!locked" [attr.aria-pressed]="locked" [ngbTooltip]="(locked ? 'Locked' : 'Unlocked') | translate" [attr.aria-label]="(locked ? 'Locked' : 'Unlocked') | translate" (click)="toggleLock()">
+    <i class="fas fa-lock" aria-hidden="true"></i>
+  </button>
+}

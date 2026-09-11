@@ -12,7 +12,7 @@ from globaleaks.handlers.user.reset_password import db_generate_password_reset_t
 from globaleaks.handlers.user import get_user
 from globaleaks.handlers.user.operation import disable_2fa, reset_idp_binding
 from globaleaks.models import Config, InternalTip, User
-from globaleaks.models.config import db_get_protected_users, db_get_unlocked_keys, db_set_config_variable, get_default, unlockable_keys, ConfigDescriptor, ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID
+from globaleaks.models.config import configurable_keys, db_get_protected_users, db_get_unlocked_keys, db_reset_key, db_set_config_variable, get_default, protected_keys, unlockable_keys, ConfigDescriptor, ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
@@ -282,6 +282,27 @@ def set_key_unlocked(session, tid, user_id, var_name, unlocked):
     db_log(session, tid=tid, type='unlock_key' if unlocked else 'lock_key', user_id=user_id)
 
 
+@transact
+def reset_key(session, tid, user_id, var_name):
+    """
+    Give up the value the tenant holds of its own for a variable
+
+    What the profile hands reaches the tenant again, and follows it from then on. A variable the
+    tenant owns in any case is refused: there is no other value for it to go back to.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param user_id: The id of the user asking for it
+    :param var_name: The name of the variable
+    """
+    if var_name in protected_keys or var_name not in configurable_keys:
+        raise errors.InputValidationError
+
+    db_reset_key(session, tid, var_name)
+
+    db_log(session, tid=tid, type='reset_key', user_id=user_id)
+
+
 def db_set_user_password(session, tid, user_session, user_id, key):
     user = db_get_user(session, tid, user_id)
 
@@ -381,7 +402,8 @@ class AdminOperationHandler(OperationHandler):
                                 'toggle_user_escrow',
                                 'validate_idp',
                                 'unlock_key',
-                                'lock_key'],
+                                'lock_key',
+                                'reset_key'],
         'can_manage_network': ['set_hostname',
                                'reset_onion_private_key'],
         'can_manage_notifications': ['test_mail',
@@ -438,6 +460,9 @@ class AdminOperationHandler(OperationHandler):
 
     def lock_key(self, req_args, *args, **kwargs):
         return set_key_unlocked(self.request.tid, self.session.user_id, req_args['value'], False)
+
+    def reset_key(self, req_args, *args, **kwargs):
+        return reset_key(self.request.tid, self.session.user_id, req_args['value'])
 
     def set_user_password(self, req_args, *args, **kwargs):
         if self.session.user_id == req_args['user_id']:
@@ -576,5 +601,6 @@ class AdminOperationHandler(OperationHandler):
             'reset_templates': AdminOperationHandler.reset_templates,
             'set_default_statistical_template': AdminOperationHandler.set_default_statistical_template,
             'unlock_key': AdminOperationHandler.unlock_key,
-            'lock_key': AdminOperationHandler.lock_key
+            'lock_key': AdminOperationHandler.lock_key,
+            'reset_key': AdminOperationHandler.reset_key
         }

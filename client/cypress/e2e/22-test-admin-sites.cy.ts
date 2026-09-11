@@ -1,4 +1,9 @@
 describe("admin configure, add, configure and delete tenants", () => {
+  // The address of the support: the profile hands one, the site writes its own, and giving up
+  // its own gets the profile's back
+  const profileSupportURL = "https://support.platform-d.example";
+  const siteSupportURL = "https://support.example.org";
+
   const add_profile = (name: string, tenant?: boolean, profile?: string) => {
     if (tenant) {
       cy.get(".show-add-tenant-btn").click();
@@ -222,10 +227,17 @@ describe("admin configure, add, configure and delete tenants", () => {
     cy.get('[data-cy="advanced"]').click();
     cy.get('input[name="disable_submissions"]').click();
     cy.get('input[name="node.dataModel.pgp"]').click();
+
+    // The profile leaves the sites naming it the address of their own support, and holds the rest
+    cy.contains(".form-group", "Custom support URL").find(".key-lock-btn").click();
+
+    // and it hands one of its own: what a site gets back when it gives up the value it wrote
+    cy.get('input[name="customSupportURL"]').clear().type(profileSupportURL);
+
     cy.get("#save").click();
   });
 
-  it("should add a new tenant from the profile, verify that variables change in the tenant, and update the tenant's variables", () => {
+  it("should add a new tenant from the profile, read there what the profile holds and write what it leaves", () => {
     cy.login_admin();
     cy.visit("/#/admin/sites");
     cy.get('[data-cy="sites"]').click();
@@ -243,12 +255,35 @@ describe("admin configure, add, configure and delete tenants", () => {
     visit_configured_tenant().then(() => {
       cy.get("#admin_settings").click();
       cy.get('[data-cy="advanced"]').click();
-      cy.get('input[name="disable_submissions"]').should('be.checked');
-      cy.get('input[name="node.dataModel.pgp"]').should('be.checked');
+      // What the profile holds reaches the site, which reads it and does not write it
+      cy.get('input[name="disable_submissions"]').should('be.checked').and('be.disabled');
+      cy.get('input[name="node.dataModel.pgp"]').should('be.checked').and('be.disabled');
 
-      cy.get('input[name="disable_submissions"]').click();
-      cy.get('input[name="node.dataModel.pgp"]').click();
+      // What the profile leaves free the site writes, and keeps
+      cy.get('input[name="customSupportURL"]').should('have.value', profileSupportURL)
+        .and('not.be.disabled')
+        .clear().type(siteSupportURL);
       cy.get("#save").click();
+
+      cy.get("#admin_home").click();
+      cy.get("#admin_settings").click();
+      cy.get('[data-cy="advanced"]').click();
+      cy.get('input[name="customSupportURL"]').should('have.value', siteSupportURL);
+
+      // Giving up the value of one's own gives back the one the profile hands, and the page
+      // shows it on the spot: a mark left on the window says whether it was reloaded instead
+      cy.window().then((win: any) => { win.__noReload = true; });
+      cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").click();
+      cy.get('input[name="customSupportURL"]').should('have.value', profileSupportURL);
+      cy.window().its("__noReload").should("eq", true);
+
+      // nothing left to give up: the command goes with the value it gave back
+      cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").should("not.exist");
+
+      // The languages of the site are the ones the profile speaks: they are read and not chosen
+      cy.get('[data-cy="languages"]').click();
+      cy.get(".add-language-btn").should("not.exist");
+
       cy.logout();
     });
   });

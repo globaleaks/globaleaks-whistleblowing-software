@@ -13,6 +13,12 @@ secondary_tenant_keys = ["profile", "default_language", "subdomain", "hostname",
 protected_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "hostname", "tor_onion_key", "onionservice", "https_accreditor", "https_admin", "https_analyst", "https_auditor", "https_cert", "https_custodian", "https_receiver", "https_transmitter", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_support_prv_key", "crypto_support_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_support_requests", "counter_tenants"]
 
 
+# The variables an administrator configures through a form: the ones the filters declare, and no
+# other, so that what a site is said to hold never names the material it keeps for itself
+configurable_keys = {k for keys in ConfigFilters.values() for k in keys} | \
+                    {k for keys in ConfigL10NFilters.values() for k in keys}
+
+
 # The variables a profile is allowed to leave to the sites naming it: the ceiling of what any
 # profile can unlock, and never the keys by which a site is recognized or protected
 unlockable_keys = ["custom_support_url", "description", "footer", "header_title_homepage", "presentation"]
@@ -174,6 +180,49 @@ def db_get_unlocked_keys(session, tid):
     keys = ConfigFactory(session, tid).get_val('unlocked_keys')
 
     return sorted(set(keys if isinstance(keys, list) else []) & set(unlockable_keys))
+
+
+def db_get_held_keys(session, tid):
+    """
+    Resolve the variables a tenant holds a value of its own for
+
+    A tenant owns the row of a variable only while its value departs from the one it would
+    inherit: what it owns is therefore what it configured differently from its profile, or from
+    the default of the application when it names none. Left out are the variables every tenant
+    owns in any case, which tell one site from another rather than customize it, and the ones no
+    form configures: the keys and the counters a site keeps for itself are not a configuration.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :return: The sorted list of the variables the tenant holds
+    """
+    keys = {var_name for var_name, in session.query(Config.var_name)
+                                             .filter(Config.tid == tid,
+                                                     Config.var_name.notin_(protected_keys))}
+
+    keys.update(var_name for var_name, in session.query(ConfigL10N.var_name)
+                                                 .filter(ConfigL10N.tid == tid)
+                                                 .distinct())
+
+    return sorted(keys & configurable_keys)
+
+
+def db_reset_key(session, tid, var_name):
+    """
+    Give up the value a tenant holds of its own for a variable
+
+    Dropping the row of the tenant is the whole of it: from there on the variable resolves again
+    on the inheritance chain, and follows what the profile hands from then on.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param var_name: The name of the variable
+    """
+    session.query(Config).filter(Config.tid == tid,
+                                 Config.var_name == var_name).delete(synchronize_session=False)
+
+    session.query(ConfigL10N).filter(ConfigL10N.tid == tid,
+                                     ConfigL10N.var_name == var_name).delete(synchronize_session=False)
 
 
 def db_get_profile_val(session, pid, var_name):

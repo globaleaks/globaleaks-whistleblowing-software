@@ -867,6 +867,42 @@ p:last-child {
   margin-bottom: 0.5em;
 }
 
+/* Who decides the value of a field is said at the end of the line of its label, at the opposite
+   edge: the commands never fall over the control, and an area of text finds them in the same
+   place as a line of one. Where no group wraps the field they stay beside the control. */
+.config-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.config-label > .field-actions {
+  margin-left: auto;
+}
+
+.field-actions {
+  display: inline-flex;
+  gap: 0.6em;
+  margin-left: 0.6em;
+  line-height: 1.5;
+}
+
+/* The lock keeps its place whether or not the profile is holding the variable, and the colour
+   says which of the two: a page is then read at a glance instead of being hunted through. The
+   giving up of a value shows itself only when there is a value to give up, and so it is never
+   there to be pressed in vain. */
+.field-action {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: #1a1a1a;
+}
+
+.field-action--off {
+  color: #c8d1e0;
+}
+
 .selection-list {
   background-color: #f5f7fa;
   padding-top: 1em;
