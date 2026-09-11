@@ -2,7 +2,7 @@
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.handlers.admin import tenant
+from globaleaks.handlers.admin import node, tenant
 from globaleaks.handlers.admin.user_profile import db_create_user_profile
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import config
@@ -11,6 +11,12 @@ from globaleaks.models.config import ConfigFactory, DEFAULT_PROFILE_ID, db_get_c
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
+
+
+@transact
+def languages_of(session, tid):
+    return sorted(x[0] for x in session.query(models.EnabledLanguage.name)
+                                       .filter(models.EnabledLanguage.tid == tid))
 
 
 def get_dummy_tenant_desc(subdomain='subdomain'):
@@ -81,6 +87,27 @@ class TestTenantCollection(helpers.TestHandlerWithPopulatedDB):
 
         language = yield tw(config.db_get_config_variable, t['id'], 'default_language')
         self.assertEqual(language, 'it')
+
+    @inlineCallbacks
+    def test_post_gives_the_site_the_languages_of_the_profile_it_names(self):
+        profile = yield tenant.create({'name': 'A profile',
+                                       'active': True,
+                                       'subdomain': '',
+                                       'profile': 'default'}, is_profile=True)
+
+        yield tw(node.db_update_enabled_languages, profile['id'], ['en', 'fr'], 'fr')
+        yield tw(config.db_set_config_variable, profile['id'], 'default_language', 'fr')
+
+        uuid = yield tw(config.db_get_config_variable, profile['id'], 'uuid')
+
+        desc = get_dummy_tenant_desc('subdomain-profiled')
+        desc['profile'] = uuid
+
+        handler = self.request(desc, role='admin')
+        t = yield handler.post()
+
+        self.assertEqual((yield languages_of(t['id'])), ['en', 'fr'])
+        self.assertEqual((yield tw(config.db_get_config_variable, t['id'], 'default_language')), 'fr')
 
     @inlineCallbacks
     def test_post_rejects_duplicate_subdomain(self):

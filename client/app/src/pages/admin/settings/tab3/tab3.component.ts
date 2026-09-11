@@ -23,6 +23,12 @@ export class Tab3Component implements OnInit {
 
   readonly contentForm = input.required<NgForm>();
 
+  // The languages of a site naming a profile are the ones the profile speaks: they are read here
+  // and changed on the profile
+  get heldByProfile(): boolean {
+    return this.nodeResolver.heldByProfile("languages_enabled");
+  }
+
   languageUtils: LanguageUtils
   languagesNotEnabled: LanguagesSupported[];
 
