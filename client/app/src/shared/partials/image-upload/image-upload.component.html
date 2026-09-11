@@ -12,9 +12,9 @@
         <i class="fas fa-xmark"></i>
       </label>
     }
-    <div class="embed-responsive embed-responsive-16by9">
+    <div>
       @if (filemodel) {
-        <img class="embed-responsive-item logo-image" alt="image" src="s/{{imageUploadId}}?timestamp={{getCurrentTimestamp()}}" />
+        <img class="logo-image" alt="image" src="s/{{imageUploadId}}?timestamp={{getCurrentTimestamp()}}" />
       }
       @if (!filemodel) {
         <div class="logo-image-empty"></div>
