@@ -1,9 +1,9 @@
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import __version__, models
-from globaleaks.handlers.admin import node
-from globaleaks.models.config import db_set_config_variable
-from globaleaks.orm import transact
+from globaleaks.handlers.admin import node, tenant
+from globaleaks.models.config import db_get_config_variable, db_set_config_variable
+from globaleaks.orm import transact, tw
 from globaleaks.rest.errors import InputValidationError
 from globaleaks.state import State
 from globaleaks.tests import helpers
@@ -97,3 +97,63 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         resp = yield handler.put()
 
         self.assertNotEqual('version', resp['version'])
+
+
+@transact
+def languages_of(session, tid):
+    return sorted(x[0] for x in session.query(models.EnabledLanguage.name)
+                                       .filter(models.EnabledLanguage.tid == tid))
+
+
+@transact
+def update_node(session, tid, request):
+    return node.db_update_node(session, tid, None, request, 'en')
+
+
+class TestProfileLanguages(helpers.TestGLWithPopulatedDB):
+    """
+    A site naming a profile speaks the languages of the profile, and those alone
+    """
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestGLWithPopulatedDB.setUp(self)
+
+        profile = yield tenant.create({'name': 'A profile',
+                                       'active': True,
+                                       'subdomain': '',
+                                       'profile': 'default'}, is_profile=True)
+
+        self.pid = profile['id']
+
+        uuid = yield tw(db_get_config_variable, self.pid, 'uuid')
+        yield tw(db_set_config_variable, 2, 'profile', uuid)
+
+    @inlineCallbacks
+    def test_a_site_naming_a_profile_does_not_change_its_languages(self):
+        spoken = yield languages_of(2)
+
+        yield update_node(2, {'languages_enabled': ['fr'], 'default_language': 'fr'})
+
+        self.assertEqual((yield languages_of(2)), spoken)
+
+    @inlineCallbacks
+    def test_a_language_the_profile_adds_reaches_the_sites_naming_it(self):
+        yield update_node(self.pid, {'languages_enabled': ['en', 'fr'], 'default_language': 'en'})
+
+        self.assertEqual((yield languages_of(2)), ['en', 'fr'])
+
+    @inlineCallbacks
+    def test_a_language_the_profile_drops_leaves_the_sites_naming_it(self):
+        yield update_node(self.pid, {'languages_enabled': ['en', 'fr'], 'default_language': 'en'})
+        yield update_node(self.pid, {'languages_enabled': ['fr'], 'default_language': 'fr'})
+
+        self.assertEqual((yield languages_of(2)), ['fr'])
+        self.assertEqual((yield tw(db_get_config_variable, 2, 'default_language')), 'fr')
+
+    @inlineCallbacks
+    def test_a_site_naming_no_profile_changes_its_languages(self):
+        yield tw(db_set_config_variable, 2, 'profile', 'default')
+
+        yield update_node(2, {'languages_enabled': ['en', 'fr'], 'default_language': 'en'})
+
+        self.assertEqual((yield languages_of(2)), ['en', 'fr'])

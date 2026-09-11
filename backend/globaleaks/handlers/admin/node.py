@@ -7,12 +7,34 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
 from globaleaks.models.enums import EnumStateFile
 from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID, \
-    db_get_pid_by_profile, db_get_unlocked_keys, db_get_writable_keys, unlockable_keys
+    db_get_config_variable, db_get_pid_by_profile, db_get_profile_children, \
+    db_get_unlocked_keys, db_get_writable_keys, db_set_config_variable, unlockable_keys
 from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.fs import read_file
 from globaleaks.utils.log import log
 from globaleaks.handlers.admin.user_profile import db_resolve_default_user_profile
+
+
+def db_sync_languages_from_profile(session, tid, pid):
+    """
+    Give a site the languages of the profile it names
+
+    A site naming a profile reads the texts the profile writes: a language the profile does not
+    speak would leave those pages empty, and one it speaks would otherwise never reach the site.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the site
+    :param pid: The tenant ID of the profile
+    """
+    languages = db_get_languages(session, pid)
+    if not languages:
+        return
+
+    default_language = db_get_config_variable(session, pid, 'default_language')
+
+    db_update_enabled_languages(session, tid, languages, default_language)
+    db_set_config_variable(session, tid, 'default_language', default_language)
 
 
 def db_update_enabled_languages(session, tid, languages, default_language):
@@ -183,11 +205,21 @@ def db_update_node(session, tid, user_session, request, language):
         db_reset_antivirus_verification(session, tid)
         clear_queued_antivirus_scans_for_tenant(session, tid)
 
-    if 'languages_enabled' in request and 'default_language' in request:
+    # The languages of a site naming a profile are the ones the profile speaks: the request the
+    # site sends on them is dropped here, as the configuration the profile holds is
+    if 'languages_enabled' in request and 'default_language' in request and \
+            db_get_writable_keys(session, tid, config.pid) is None:
+        languages_were = db_get_languages(session, tid)
+
         db_update_enabled_languages(session,
                                     tid,
                                     request['languages_enabled'],
                                     request['default_language'])
+
+        # A profile that starts or stops speaking a language says it for the sites naming it
+        if tid > DEFAULT_PROFILE_ID and set(db_get_languages(session, tid)) != set(languages_were):
+            for child in db_get_profile_children(session, tid):
+                db_sync_languages_from_profile(session, child, tid)
 
     if language in db_get_languages(session, tid):
         ConfigL10NFactory(session, tid).update('node', request, language)

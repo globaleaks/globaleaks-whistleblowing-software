@@ -10,12 +10,13 @@
       [options]="languageOptions"
       [selected]="enabledLanguages"
       [defaultId]="nodeResolver.dataModel.default_language"
+      [locked]="heldByProfile"
       (entryAdded)="enableLanguage($event)"
       (entryRemoved)="removeLang($event.index, $event.id)"
       (defaultPicked)="nodeResolver.dataModel.default_language = $event">
     </src-selection-editor>
     <div class="form-group">
-      <button class="btn btn-primary" id="save_language" [disabled]="contentForm().invalid" (click)="updateNode()" type="submit">
+      <button class="btn btn-primary" id="save_language" [disabled]="contentForm().invalid || heldByProfile" (click)="updateNode()" type="submit">
         <i class="fas fa-check"></i>
         <span>{{ 'Save' | translate }}</span>
       </button>

@@ -9,7 +9,8 @@ from globaleaks.db.appdata import load_appdata, db_load_defaults
 from globaleaks.handlers.admin.context import admin_serialize_context, \
                                              db_create_context, db_derive_context, \
                                              db_sync_derived_contexts
-from globaleaks.handlers.admin.node import db_update_enabled_languages
+from globaleaks.handlers.admin.node import db_sync_languages_from_profile, \
+                                           db_update_enabled_languages
 from globaleaks.handlers.admin.questionnaire import db_get_questionnaires, \
                                                   db_import_questionnaire
 from globaleaks.handlers.admin.user import db_create_user
@@ -461,7 +462,14 @@ def db_wizard(session, tid, hostname, request):
         log.err("DANGER: Wizard already initialized!", tid=tid)
         raise errors.ForbiddenOperation
 
-    db_update_enabled_languages(session, tid, [language], language)
+    # A site naming a profile speaks the languages of the profile rather than the one of the
+    # platform: the pages of the site are written by the profile, and in those languages alone
+    pid = db_get_pid_by_profile(session, node.get_val('profile'))
+    if tid != 1 and pid is not None and pid != DEFAULT_PROFILE_ID:
+        db_sync_languages_from_profile(session, tid, pid)
+        language = node.get_val('default_language')
+    else:
+        db_update_enabled_languages(session, tid, [language], language)
 
     node.set_val('encryption', encryption)
 

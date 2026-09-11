@@ -52,6 +52,11 @@ export class SelectionEditorComponent implements OnChanges {
   // When true the election can be cleared from its check mark, emitting an empty defaultPicked
   readonly clearableDefault = input(false);
 
+  /**
+   * A list the viewer reads and does not change: the entries stay, the ways to touch them go
+   */
+  readonly locked = input(false);
+
   readonly entryAdded = output<string>();
   readonly entryRemoved = output<{index: number, id: string}>();
   readonly defaultPicked = output<string>();
