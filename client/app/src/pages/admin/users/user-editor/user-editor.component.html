@@ -21,7 +21,7 @@
       <span class="badge bg-secondary">{{ 'Disabled' | translate }}</span>
     }
     @if (nodeData.encryption && !user().encryption) {
-      <span class="badge bg-default text-dark" ngbTooltip="{{'This user has not performed the first login yet.' | translate}}">
+      <span class="badge text-dark" ngbTooltip="{{'This user has not performed the first login yet.' | translate}}">
         <i class="fas fa-circle-exclamation"></i>
       </span>
     }

@@ -19,11 +19,11 @@
           <div>
             @for (entry of fieldAnswers()[fields().id] | orderBy:['y', 'x']; track entry; let i = $index) {
               <div>
-                <div class="">
+                <div>
                   <span class="text-muted">#{{i + 1}}</span>
                 </div>
                 <src-tip-field-answer-entry [redactOperationTitle]="redactOperationTitle()" [redactMode]="redactMode()"
-                [field]="fields()" class="" [entry]="entry"></src-tip-field-answer-entry>
+                [field]="fields()" [entry]="entry"></src-tip-field-answer-entry>
               </div>
             }
           </div>

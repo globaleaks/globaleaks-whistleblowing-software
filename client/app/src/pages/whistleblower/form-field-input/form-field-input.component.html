@@ -50,7 +50,7 @@
                       }
                     </ng-select>
                     @if (entry()['value']) {
-                      <span class="input-append" (click)="entry()['value']='';" disabled="!entry()['value']" (keydown.enter)="entry()['value']='';" tabindex="0" role="button">
+                      <span (click)="entry()['value']='';" disabled="!entry()['value']" (keydown.enter)="entry()['value']='';" tabindex="0" role="button">
                         <i class="input-group-text cross-padding fas fa-circle-xmark"></i>
                       </span>
                     }
@@ -63,7 +63,7 @@
                 @for (option of field().options | orderBy:'order'; track option; let innerindex = $index) {
                   <div>
                     <input [name]="fieldEntry()" id="{{fieldEntry() + '-option-' + innerindex}}" class="form-control-inputform-check-input" type="radio" [(ngModel)]="entry()['value']" value="{{option.id}}" [required]="field().required" />
-                    <label for="{{fieldEntry() + '-option-' + innerindex}}" ngbTooltip="{{option.hint1}}" class="form-control-label" [class.text-underline]="option.hint1">{{option.label}}</label>
+                    <label for="{{fieldEntry() + '-option-' + innerindex}}" ngbTooltip="{{option.hint1}}" [class.text-underline]="option.hint1">{{option.label}}</label>
                   </div>
                 }
               </div>
@@ -73,7 +73,7 @@
                 @for (option of field().options | orderBy:field().attrs.display_alphabetically.value ? 'label' : 'order'; track option; let index = $index) {
                   <div>
                     <input id="{{fieldEntry() + '-option-' + index}}" [name]="fieldEntry()" class="form-control-input inputelinem form-check-input" [(ngModel)]="entry()[option.id]" value="{{option.id}}" [required]="entry().required_status" type="checkbox" />
-                    <label for="{{fieldEntry() + '-option-' + index}}" ngbTooltip="{{option.hint1}}" class="form-control-label" [class.text-underline]="option.hint1">{{option.label}}</label>
+                    <label for="{{fieldEntry() + '-option-' + index}}" ngbTooltip="{{option.hint1}}" [class.text-underline]="option.hint1">{{option.label}}</label>
                   </div>
                 }
               </div>
@@ -89,7 +89,7 @@
               </div>
             }
             @case ('daterange') {
-              <div class="form-inline d-inline-flex align-items-center">
+              <div class="d-inline-flex align-items-center">
                 <span class="form-group">
                   <label [for]="fieldEntry()+'-startDate'">{{'From' | translate}}</label>
                 </span>
