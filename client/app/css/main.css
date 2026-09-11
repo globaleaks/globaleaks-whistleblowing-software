@@ -610,10 +610,6 @@ textarea.form-control {
   border-style: dashed;
 }
 
-.custom-file {
-  width: auto;
-}
-
 label,
 p:last-child {
   margin: 0;

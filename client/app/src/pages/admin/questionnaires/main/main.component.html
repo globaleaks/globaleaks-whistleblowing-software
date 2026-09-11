@@ -5,7 +5,7 @@
         <i class="fas fa-plus"></i>
         <span>{{ 'Add' | translate }}</span>
       </button>
-      <span class="custom-file">
+      <span>
         <input id="import-questionnaire-file" type="file" hidden #keyUploadInput (change)="importQuestionnaire(keyUploadInput.files)" />
         <label for="import-questionnaire-file" id="keyUpload" class="btn btn-outline-secondary">
           <i class="fas fa-upload"></i>{{'Import' | translate}}
