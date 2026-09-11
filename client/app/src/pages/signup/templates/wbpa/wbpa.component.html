@@ -97,9 +97,7 @@
       </label>
       <div class="input-group">
         <input id="wbpa-subdomain" name="subdomain" class="form-control" [(ngModel)]="signup().subdomain" type="text" maxlength="40" srcSubdomainValidator required>
-        <span class="input-group-append">
-          <span class="input-group-text">.{{appDataService.public.node.rootdomain}}</span>
-        </span>
+        <span class="input-group-text rounded-start-0">.{{appDataService.public.node.rootdomain}}</span>
       </div>
     </div>
   </div>

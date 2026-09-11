@@ -10,11 +10,9 @@
         <div class="form-group d-block mx-auto">
           <div class="input-group">
             <input id="ReceiptCode" class="form-control text-center" type="text" maxlength="19" size="19" [(ngModel)]="arg.formatted_receipt" name="receipt-input">
-            <span class="input-group-append">
-              <button id="ReceiptButton" (click)="utils.copyToClipboard(arg.receipt)" class="btn btn-primary rounded-start-0" type="button" [attr.aria-label]="'Copy to clipboard' | translate">
-                <i class="fas fa-copy" aria-hidden="true"></i>
-              </button>
-            </span>
+            <button id="ReceiptButton" (click)="utils.copyToClipboard(arg.receipt)" class="btn btn-primary rounded-start-0" type="button" [attr.aria-label]="'Copy to clipboard' | translate">
+              <i class="fas fa-copy" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
       </div>

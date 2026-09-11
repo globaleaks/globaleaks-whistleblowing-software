@@ -968,12 +968,6 @@ input[type="email"] {
   transform: scaleX(-1);
 }
 
-.input-group-append span {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-color: #C8D1E0;
-}
-
 .calendar-active {
   color: #3679BB;
 }
