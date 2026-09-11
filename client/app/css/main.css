@@ -196,6 +196,20 @@ table tr td {
   background-color: #fff;
 }
 
+/* A control one cannot write says so. The grey of a spent control is the same grey these panels
+   give every control, and on hover it even turned white: a field nobody may write looked more
+   writable than one they may. The dashed border is the one the application already uses where
+   there is nothing to touch. */
+.form-control:disabled,
+.form-control:disabled:hover,
+.form-select-custom:disabled,
+.form-select-custom:disabled:hover {
+  background-color: #eef1f6;
+  color: #737373;
+  border-style: dashed;
+  cursor: not-allowed;
+}
+
 .h1,
 h1 {
   font-size: 1.6em;
