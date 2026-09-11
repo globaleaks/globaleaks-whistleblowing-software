@@ -14,7 +14,7 @@
 </div>
 @if (appDataService.public.node.hostname) {
     <div id="HTTPSSettings">
-        <div class="card card-default">
+        <div class="card">
             <div class="card-body">
             <src-https-status [tlsConfig]="tlsConfig" (updated)="onUpdate($event)"></src-https-status>
             @switch (menuState) {

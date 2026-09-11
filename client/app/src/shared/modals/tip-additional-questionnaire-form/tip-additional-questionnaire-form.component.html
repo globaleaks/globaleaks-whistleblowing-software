@@ -4,7 +4,7 @@
 </div>
 <div class="modal-body">
   <form #submissionForm="ngForm" id="SubmissionForm" autocomplete="off" novalidate>
-    <div class="tabbable tabs-below">
+    <div>
       @if (wbTipService.tip.additional_questionnaire.steps.length > 1) {
         <ul id="SubmissionTabsNavigationBox" class="nav nav-tabs" role="tablist">
           @for (step of wbTipService.tip.additional_questionnaire.steps | orderBy:'order' ; track step; let index = $index) {

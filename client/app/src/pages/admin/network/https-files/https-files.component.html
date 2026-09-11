@@ -1,6 +1,6 @@
 <div class="https-file-res">
   @if (tlsConfig()) {
-    <div class="card card-default key mb-1">
+    <div class="card key mb-1">
       <div class="card-body clearfix">
         <span>{{ 'Private Key' | translate }}</span>
         <span>(PEM)</span>
@@ -29,7 +29,7 @@
       </div>
     </div>
     @if (tlsConfig().files.key.set && !tlsConfig().acme) {
-      <div class="card card-default csr mb-1">
+      <div class="card csr mb-1">
         <div class="card-body clearfix">
           <span>{{ 'Certificate Signing Request' | translate }}</span>
           <span>(PEM)</span>
@@ -43,7 +43,7 @@
                   </button>
                 }
                 @if (csr_state.open) {
-                  <button type="submit" class="close btn large-close-button" (click)="csr_state.open = false" aria-label="Close">&times;</button>
+                  <button type="submit" class="btn large-close-button" (click)="csr_state.open = false" aria-label="Close">&times;</button>
                 }
               </span>
               <br>
@@ -73,7 +73,7 @@
             </div>
           </div>
         }
-        <div class="card card-default cert mb-1">
+        <div class="card cert mb-1">
           <div class="card-body clearfix">
             <span>{{ 'Certificate' | translate }}</span>
             <span>(PEM)</span>
@@ -103,7 +103,7 @@
             </span>
           </div>
         </div>
-        <div class="card card-default chain mb-1">
+        <div class="card chain mb-1">
           <div class="card-body clearfix">
             <span>{{ 'Intermediate Certificates' | translate }}</span>
             <span>(PEM)</span>

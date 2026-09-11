@@ -19,7 +19,7 @@
         </div>
       }
       <form #submissionForm="ngForm" id="SubmissionForm" [class.was-validated]="displaySubmissionErrors()" autocomplete="off" novalidate>
-        <div class="tabbable tabs-below mb-3">
+        <div class="mb-3">
           @if (submission.context.show_steps_navigation_interface && questionnaire.steps.length > 1) {
             <ul id="SubmissionTabsNavigationBox" class="nav nav-tabs" role="tablist">
               @if (submission.context.allow_recipients_selection) {

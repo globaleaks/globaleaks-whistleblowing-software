@@ -8,7 +8,7 @@ import {TranslateModule} from "@ngx-translate/core";
  * It is applied to the card itself so that the caller keeps its identifier
  * and its classes:
  *
- *   <div srcCollapsiblePanel id="TipCommentsBox" class="card card-default"
+ *   <div srcCollapsiblePanel id="TipCommentsBox" class="card"
  *        [collapsed]="collapsed" [label]="'Comments' | translate"
  *        (toggle)="toggleCollapse()">
  *     @if (!collapsed) { <div class="card-body">…</div> }
