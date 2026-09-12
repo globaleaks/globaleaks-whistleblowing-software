@@ -15,6 +15,8 @@ export class ConfirmationWith2faComponent {
 
   secret: string;
   error = false;
+  // What is being confirmed, when the operation states it
+  message = "";
 
   confirmFunction: (secret: string) => void | Promise<void>;
   close: () => void;

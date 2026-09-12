@@ -48,6 +48,14 @@
             <label for="tenant-subdomain-{{tenant().id}}">{{'Subdomain'|translate}}</label>
             <input id="tenant-subdomain-{{tenant().id}}" name="subdomain" class="form-control" [(ngModel)]="tenant().subdomain" type="text" maxlength="40" required>
           </div>
+          @if (profileName && tenant().active) {
+            <div class="form-group site-profile">
+              <span class="form-label">
+                <span>{{'Profile:'|translate}}</span> {{profileName}}
+              </span>
+              <button type="button" class="btn btn-sm btn-outline-danger" data-action="detach" name="detach_tenant" (click)="detachFromProfile($event)">{{'Detach'|translate}}</button>
+            </div>
+          }
           <div class="form-group">
             <span class="form-label">
               <span>{{'Creation date:'|translate}}</span> {{tenant().creation_date | date:'dd-MM-yyyy'}}

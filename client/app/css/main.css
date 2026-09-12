@@ -1123,6 +1123,19 @@ input[type="email"] {
   cursor: pointer;
 }
 
+/* The profile a site derives from, and the command that frees it from it: kept inside the card of
+   the site, where it is reached on purpose, rather than among the commands of its row */
+.site-profile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75em;
+}
+
+.site-profile .form-label {
+  margin: 0;
+}
+
 /* The title of a collapsible card is a button, so that it is reached with the
    keyboard, but it keeps the plain look of the text it wraps */
 .editorTitle {
