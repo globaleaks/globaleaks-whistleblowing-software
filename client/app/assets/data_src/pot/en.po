@@ -2208,6 +2208,12 @@ msgstr "invited"
 msgid "pending"
 msgstr "pending"
 
+msgid "Configuration"
+msgstr "Configuration"
+
+msgid "Detach"
+msgstr "Detach"
+
 msgid "Select a reporting channel:"
 msgstr "Select a reporting channel:"
 
