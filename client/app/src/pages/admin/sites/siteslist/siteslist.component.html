@@ -32,6 +32,9 @@
         <button type="button" class="btn btn-sm btn-primary" data-action="disable" name="disable_tenant" (click)="toggleActivation($event)">{{'Enabled'|translate}}</button>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-action="view" (click)="viewTenant(tenant())"><span>{{ 'View' | translate }}</span></button>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-action="configure" name="configure_tenant" (click)="configureTenant($event, tenant().id)">{{'Configure'|translate}}</button>
+        @if (profileName) {
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-action="detach" name="detach_tenant" (click)="detachFromProfile($event)">{{'Detach'|translate}}</button>
+        }
       } @else {
         <button type="button" class="btn btn-sm btn-danger" data-action="enable" name="enable_tenant" (click)="toggleActivation($event)">{{'Disabled'|translate}}</button>
       }

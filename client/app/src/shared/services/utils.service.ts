@@ -577,7 +577,7 @@ export class UtilsService {
     }
   }
 
-  getConfirmation(performRequest: (secret: string) => Observable<any>): Observable<any> {
+  getConfirmation(performRequest: (secret: string) => Observable<any>, message = ""): Observable<any> {
     return new Observable((observer) => {
       let modalRef;
 
@@ -586,6 +586,8 @@ export class UtilsService {
       } else {
         modalRef = this.modalService.open(ConfirmationWithPasswordComponent,{backdrop: "static", keyboard: false, ariaLabelledBy: 'modal-title'});
       }
+
+      modalRef.componentInstance.message = message;
 
       let response: any;
       let confirmed = false;
