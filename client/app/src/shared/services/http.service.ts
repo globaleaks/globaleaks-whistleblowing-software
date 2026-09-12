@@ -120,6 +120,10 @@ export class HttpService {
     return this.httpClient.put<tenantResolverModel>(url, data);
   }
 
+  requestDetachTenant(tid: number): Observable<void> {
+    return this.httpClient.put<void>(`api/admin/tenants/${tid}/detach`, {});
+  }
+
   authorizeIdentity(url: string, data: { reply: string, reply_motivation: string }): Observable<{
     reply: string,
     reply_motivation: string
