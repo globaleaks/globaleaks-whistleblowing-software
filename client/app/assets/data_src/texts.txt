@@ -695,3 +695,4 @@ denied
 invited
 pending
 Configuration
+Detach

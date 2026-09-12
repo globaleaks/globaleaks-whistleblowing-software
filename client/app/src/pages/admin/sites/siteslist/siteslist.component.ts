@@ -1,5 +1,6 @@
 import {Component, ElementRef, OnInit, inject, input, output} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
+import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
@@ -76,6 +77,26 @@ export class SiteslistComponent implements OnInit {
   // deletion is refused
   deleteTenant(tenant: tenantResolverModel, statsChanged = false) {
     this.openConfirmableModalDialog(tenant, statsChanged).subscribe();
+  }
+
+  /**
+   * Free the site from the profile it names
+   *
+   * What the profile handed it becomes its own, and nothing changes for whoever looks at the
+   * site. It goes one way alone, and the exchanges addressed to the profile no longer reach it:
+   * confirmation is asked before it happens.
+   */
+  detachFromProfile($event: Event): void {
+    $event.stopPropagation();
+
+    const modalRef = this.modalService.open(ConfirmationComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: "modal-title"});
+
+    modalRef.componentInstance.confirmFunction = () => {
+      this.httpService.requestDetachTenant(this.tenant().id).subscribe(() => {
+        this.tenant().profile = "default";
+        this.utilsService.reloadComponent();
+      });
+    };
   }
 
   configureTenant($event: Event, tid: number): void {

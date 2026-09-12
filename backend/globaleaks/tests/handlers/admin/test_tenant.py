@@ -9,7 +9,29 @@ from globaleaks.models import config
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
+from globaleaks.db import refresh_tenant_cache
 from globaleaks.tests import helpers
+
+
+@transact
+def writable_keys(session, tid):
+    return config.db_get_writable_keys(session, tid, config.db_get_pid(session, tid))
+
+
+@transact
+def write_text(session, tid, lang, var_name, value):
+    session.add(models.ConfigL10N({'tid': tid, 'lang': lang,
+                                   'var_name': var_name, 'value': value}))
+
+
+@transact
+def held_keys(session, tid):
+    return config.db_get_held_keys(session, tid)
+
+
+@transact
+def serialize_node(session, tid):
+    return node.db_admin_serialize_node(session, tid, 'en')
 
 
 @transact
@@ -322,3 +344,63 @@ def db_establish_exchange(session, source_tid, target_tid):
 @transact
 def db_exchanges(session):
     return [exchange.id for exchange in session.query(models.Exchange)]
+
+
+class TestDetachFromProfile(helpers.TestGLWithPopulatedDB):
+    """
+    A site takes upon itself what the profile handed it, and stops naming it
+    """
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestGLWithPopulatedDB.setUp(self)
+
+        profile = yield tenant.create({'name': 'A profile',
+                                       'active': True,
+                                       'subdomain': '',
+                                       'profile': 'default'}, is_profile=True)
+
+        self.pid = profile['id']
+
+        uuid = yield tw(config.db_get_config_variable, self.pid, 'uuid')
+        yield tw(config.db_set_config_variable, 2, 'profile', uuid)
+        yield refresh_tenant_cache()
+
+    @inlineCallbacks
+    def test_the_site_reads_the_same_after_detaching(self):
+        # nothing changes for whoever looks at the site: only the place the values come from
+        before = yield serialize_node(2)
+
+        yield tw(tenant.db_detach_from_profile, 2)
+
+        after = yield serialize_node(2)
+
+        for key in ('profile', 'writable_keys', 'unlocked_keys', 'held_keys'):
+            before.pop(key, None)
+            after.pop(key, None)
+
+        self.assertEqual(before, after)
+
+    @inlineCallbacks
+    def test_what_it_read_from_the_profile_is_now_its_own(self):
+        yield write_text(self.pid, 'en', 'header_title_homepage', 'The title of the profile')
+
+        held = yield held_keys(2)
+        self.assertNotIn('header_title_homepage', held)
+
+        yield tw(tenant.db_detach_from_profile, 2)
+
+        self.assertTrue(set(held) < set((yield held_keys(2))))
+        self.assertIn('header_title_homepage', (yield held_keys(2)))
+
+    @inlineCallbacks
+    def test_the_site_stops_naming_the_profile(self):
+        yield tw(tenant.db_detach_from_profile, 2)
+
+        # it names the default profile, as every site that names none does, and writes what it likes
+        self.assertEqual((yield tw(config.db_get_config_variable, 2, 'profile')), 'default')
+        self.assertEqual((yield tw(config.db_get_pid, 2)), config.DEFAULT_PROFILE_ID)
+        self.assertIsNone((yield writable_keys(2)))
+
+    def test_a_site_naming_no_profile_has_nothing_to_detach_from(self):
+        return self.assertFailure(tw(tenant.db_detach_from_profile, 3),
+                                  errors.ForbiddenOperation)

@@ -12,7 +12,8 @@ from globaleaks.handlers.admin.context import admin_serialize_context, \
 from globaleaks.handlers.admin.node import db_sync_languages_from_profile, \
                                            db_update_enabled_languages
 from globaleaks.handlers.admin.questionnaire import db_get_questionnaires, \
-                                                  db_import_questionnaire
+                                                  db_import_questionnaire, \
+                                                  serialize_questionnaire
 from globaleaks.handlers.admin.user import db_create_user
 from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, \
                                                    db_create_user_profile
@@ -20,9 +21,10 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_initialize_support
 from globaleaks.handlers.user import serialize_user_profile, user_permissions
 from globaleaks.models import EnabledLanguage, config, serializers
+from globaleaks.models.config_desc import ConfigDescriptor
 from globaleaks.models.exchanges import db_forget_exchanges
-from globaleaks.models.config import db_get_configs, db_get_pid_by_profile, db_get_profile_children, \
-    db_get_config_variable, db_get_signup_profile, db_set_config_variable
+from globaleaks.models.config import db_get_configs, db_get_pid, db_get_pid_by_profile, \
+    db_get_profile_children, db_get_config_variable, db_get_signup_profile, db_set_config_variable
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
@@ -698,6 +700,105 @@ def import_tenant_content(session, tid, content):
             db_sync_derived_contexts(session, context)
 
 
+def db_detach_from_profile(session, tid, user_id=None):
+    """
+    The site takes upon itself what the profile handed it, and stops naming it
+
+    A site naming a profile reads part of what it shows from the rows of the profile: the
+    configuration, the texts, the questionnaires its channels use and the user profiles its
+    accounts belong to. Detaching writes all of that on the site, so that nothing changes for
+    whoever looks at it and only the place it comes from does. It goes one way alone: a site that
+    took everything upon itself is an ordinary site, and naming a profile again would be a change
+    of profile in disguise.
+
+    What it does not carry over are the exchanges: a site is reached also by the UUID of its
+    profile, and an exchange addressed to the profile stops reaching a site that no longer names
+    it. Whoever detaches a site is told so before it happens.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the site
+    :param user_id: The id of whoever asked for it
+    """
+    pid = db_get_pid(session, tid)
+    if pid is None or pid == DEFAULT_PROFILE_ID:
+        raise errors.ForbiddenOperation
+
+    # The configuration and the texts: what the site does not own is written on it with the value
+    # it was reading. It is the exact inverse of giving a variable back to the profile.
+    for var_name in ConfigDescriptor:
+        if var_name in ('profile', 'unlocked_keys'):
+            continue
+
+        if session.query(models.Config).filter(models.Config.tid == tid,
+                                               models.Config.var_name == var_name).one_or_none():
+            continue
+
+        session.add(models.Config({'tid': tid, 'var_name': var_name,
+                                   'value': config.ConfigFactory(session, tid).get_val(var_name)}))
+
+    own = {(t.lang, t.var_name) for t in session.query(models.ConfigL10N)
+                                                .filter(models.ConfigL10N.tid == tid)}
+    for text in session.query(models.ConfigL10N).filter(models.ConfigL10N.tid == pid):
+        if (text.lang, text.var_name) not in own:
+            session.add(models.ConfigL10N({'tid': tid, 'lang': text.lang,
+                                           'var_name': text.var_name, 'value': text.value}))
+
+    langs = {t.lang for t in session.query(models.CustomTexts)
+                                    .filter(models.CustomTexts.tid == tid)}
+    for texts in session.query(models.CustomTexts).filter(models.CustomTexts.tid == pid):
+        if texts.lang not in langs:
+            session.add(models.CustomTexts({'tid': tid, 'lang': texts.lang, 'texts': texts.texts}))
+
+    # The questionnaires the channels of the site use are the ones of the profile: they are
+    # imported here, and what named them by id is made to name the copies
+    # the ones the profile owns, and not the ones of the platform, which the site reads anyway
+    questionnaire_map = {}
+    for questionnaire in session.query(models.Questionnaire).filter(models.Questionnaire.tid == pid):
+        old_id, new_id = db_import_questionnaire(
+            session, tid, serialize_questionnaire(session, pid, questionnaire, None))
+        questionnaire_map[old_id] = new_id
+
+    contexts = session.query(models.Context).filter(models.Context.tid == tid).all()
+    for context in contexts:
+        context.questionnaire_id = questionnaire_map.get(context.questionnaire_id,
+                                                         context.questionnaire_id)
+        context.additional_questionnaire_id = questionnaire_map.get(context.additional_questionnaire_id,
+                                                                    context.additional_questionnaire_id)
+
+    default_questionnaire = db_get_config_variable(session, tid, 'default_questionnaire')
+    if default_questionnaire in questionnaire_map:
+        db_set_config_variable(session, tid, 'default_questionnaire',
+                               questionnaire_map[default_questionnaire])
+
+    # The accounts of the site belong to user profiles of the profile: those too are imported, and
+    # the channels they name are the ones the site derived from the channels of the profile
+    context_map = {context.template_id: context.id for context in contexts if context.template_id}
+
+    profile_map = {}
+    for user_profile in session.query(models.UserProfile).filter(models.UserProfile.tid == pid):
+        old_id = user_profile.id
+        request = {key: value for key, value in serialize_user_profile(session, user_profile).items()
+                   if key not in ['id', 'tid']}
+        request['contexts'] = [context_map[c] for c in request.get('contexts', []) if c in context_map]
+        profile_map[old_id] = db_create_user_profile(session, tid, request, sync_users=False)['id']
+
+    for user in session.query(models.User).filter(models.User.tid == tid,
+                                                  models.User.profile_id.in_(profile_map)):
+        user.profile_id = profile_map[user.profile_id]
+
+    default_user_profile = db_get_config_variable(session, tid, 'default_user_profile')
+    if default_user_profile in profile_map:
+        db_set_config_variable(session, tid, 'default_user_profile', profile_map[default_user_profile])
+
+    # The channels are rows of the site already: they only stop naming the ones they came from
+    for context in contexts:
+        context.template_id = ''
+
+    db_set_config_variable(session, tid, 'profile', 'default')
+
+    db_log(session, tid=tid, type='detach_from_profile', user_id=user_id)
+
+
 class TenantCollection(BaseHandler):
     check_roles = 'admin'
     require_permission = 'can_manage_sites'
@@ -732,6 +833,19 @@ class TenantCollection(BaseHandler):
         is_profile = content.get('is_profile', False)
         t = yield create_and_initialize(request, is_profile=is_profile)
         return t
+
+
+class TenantDetach(BaseHandler):
+    """
+    The fleet administrator frees a site from the profile it names
+    """
+    check_roles = 'admin'
+    require_permission = 'can_manage_sites'
+    root_tenant_only = True
+    invalidate_cache = True
+
+    def put(self, tid):
+        return tw(db_detach_from_profile, int(tid), self.session.user_id)
 
 
 class TenantInstance(BaseHandler):
