@@ -697,6 +697,7 @@ denied
 invited
 pending
 Configuration
+Detach
 Customizable
 Not customizable
 Not in use
