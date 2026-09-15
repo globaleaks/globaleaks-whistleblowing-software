@@ -3,8 +3,10 @@ import {
   Component,
   ContentChild,
   inject,
+  EventEmitter,
   Input,
   OnChanges,
+  Output,
   SimpleChanges,
   TemplateRef
 } from '@angular/core';
@@ -25,6 +27,15 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   @Input() filterField = '';
   @Input() itemsPerPage = 20;
   @Input() showSearch = true;
+  @Input() serverSide = false;
+  @Input() totalItems = 0;
+  @Input() currentPage = 1;
+  @Output() stateChange = new EventEmitter<{
+    type: 'page' | 'search' | 'filter';
+    page: number;
+    search: string;
+    filterEnabled: boolean;
+  }>();
 
   /** Optional: filter by key-value pairs */
   @Input() filter?: { [key: string]: any };
@@ -43,7 +54,6 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   @ContentChild('content') content?: TemplateRef<any>;
 
   searchText = '';
-  currentPage = 1;
   filteredItems: T[] = [];
   paginatedItems: T[] = [];
 
@@ -57,7 +67,9 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['items'] || changes['filter'] || changes['orderBy'] || changes['orderDesc']) {
-      this.currentPage = 1;
+      if (!this.serverSide) {
+        this.currentPage = 1;
+      }
       this.update();
     }
   }
@@ -65,11 +77,47 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   /** Reset to the first page (e.g. on search) and recompute. */
   onSearchChange(): void {
     this.currentPage = 1;
+    if (this.serverSide) {
+      this.emitState('search');
+      return;
+    }
     this.update();
+  }
+
+  onFilterChange(): void {
+    this.currentPage = 1;
+    if (this.serverSide) {
+      this.emitState('filter');
+      return;
+    }
+    this.update();
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    if (this.serverSide) {
+      this.emitState('page');
+      return;
+    }
+    this.update();
+  }
+
+  private emitState(type: 'page' | 'search' | 'filter'): void {
+    this.stateChange.emit({
+      type,
+      page: this.currentPage,
+      search: this.searchText,
+      filterEnabled: !!this.filterOptEnabled
+    });
   }
 
   update(): void {
     this.filteredItems = [...this.items];
+
+    if (this.serverSide) {
+      this.paginatedItems = [...this.items];
+      return;
+    }
 
     // Apply optional filter object
     if (this.filter) {

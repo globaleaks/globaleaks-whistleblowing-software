@@ -7,18 +7,17 @@ from nacl.encoding import Base64Encoder
 from sqlalchemy.sql.expression import distinct, func, and_, or_
 
 import globaleaks.handlers.recipient.export
-import globaleaks.handlers.recipient.search_dashboard
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.recipient.rtip import db_grant_tip_access, db_revoke_tip_access, db_notify_grant_access
+from globaleaks.handlers.recipient.search_dashboard import search_reports
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
 
 
-@transact
-def get_receivertips(session, tid, user_session, language, args={}):
+def serialize_receivertips(session, tid, user_session, language, args={}, report_ids=None):
     """
     Return list of submissions received by the specified receiver
 
@@ -38,27 +37,31 @@ def get_receivertips(session, tid, user_session, language, args={}):
     files_by_itip = {}
     receiver_ids_by_itip = {}
 
-    # Fetch comments count
-    for itip_id, count in session.query(models.InternalTip.id,
-                                        func.count(distinct(models.Comment.id))) \
-                                 .filter(models.ReceiverTip.receiver_id == user_id,
-                                         models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                         models.Comment.internaltip_id == models.InternalTip.id,
-                                         models.Comment.visibility == 0) \
-                                 .group_by(models.InternalTip.id):
+    comments_query = session.query(models.InternalTip.id,
+                                   func.count(distinct(models.Comment.id))) \
+                            .filter(models.ReceiverTip.receiver_id == user_id,
+                                    models.ReceiverTip.internaltip_id == models.InternalTip.id,
+                                    models.Comment.internaltip_id == models.InternalTip.id,
+                                    models.Comment.visibility == 0)
+    if report_ids is not None:
+        comments_query = comments_query.filter(models.InternalTip.id.in_(report_ids))
+    for itip_id, count in comments_query.group_by(models.InternalTip.id):
         comments_by_itip[itip_id] = count
 
-    # Fetch files count
-    for itip_id, count in session.query(models.InternalTip.id,
-                                        func.count(distinct(models.InternalFile.id))) \
-                                 .filter(models.ReceiverTip.receiver_id == user_id,
-                                         models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                         models.InternalFile.internaltip_id == models.InternalTip.id) \
-                                 .group_by(models.InternalTip.id):
+    files_query = session.query(models.InternalTip.id,
+                                func.count(distinct(models.InternalFile.id))) \
+                         .filter(models.ReceiverTip.receiver_id == user_id,
+                                 models.ReceiverTip.internaltip_id == models.InternalTip.id,
+                                 models.InternalFile.internaltip_id == models.InternalTip.id)
+    if report_ids is not None:
+        files_query = files_query.filter(models.InternalTip.id.in_(report_ids))
+    for itip_id, count in files_query.group_by(models.InternalTip.id):
         files_by_itip[itip_id] = count
 
-    # Fetch number of receivers ids who have access to each report
-    for itip_id, receiver_id in session.query(models.ReceiverTip.internaltip_id, models.ReceiverTip.receiver_id):
+    receivers_query = session.query(models.ReceiverTip.internaltip_id, models.ReceiverTip.receiver_id)
+    if report_ids is not None:
+        receivers_query = receivers_query.filter(models.ReceiverTip.internaltip_id.in_(report_ids))
+    for itip_id, receiver_id in receivers_query:
         receiver_ids_by_itip.setdefault(itip_id, []).append(receiver_id)
 
     # Retrieve all channels that include this recipient, but only if
@@ -73,22 +76,23 @@ def get_receivertips(session, tid, user_session, language, args={}):
     ]
 
     dict_ret = dict()
-    # Fetch rtip, internaltip and associated questionnaire schema
-    for rtip, itip, answers, data in session.query(models.ReceiverTip,
-                                                   models.InternalTip,
-                                                   models.InternalTipAnswers,
-                                                   models.InternalTipData) \
-                                            .join(models.InternalTipData,
-                                                  and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
-                                                       models.InternalTipData.key == 'whistleblower_identity'),
-                                                  isouter=True) \
-                                            .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
-                                                        models.ReceiverTip.receiver_id == user_id),
-                                                    models.InternalTip.update_date >= updated_after,
-                                                    models.InternalTip.update_date <= updated_before,
-                                                    models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                                    models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
-                                            .group_by(models.ReceiverTip.id):
+    tips_query = session.query(models.ReceiverTip,
+                               models.InternalTip,
+                               models.InternalTipAnswers,
+                               models.InternalTipData) \
+                        .join(models.InternalTipData,
+                              and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
+                                   models.InternalTipData.key == 'whistleblower_identity'),
+                              isouter=True) \
+                        .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
+                                    models.ReceiverTip.receiver_id == user_id),
+                                models.InternalTip.update_date >= updated_after,
+                                models.InternalTip.update_date <= updated_before,
+                                models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id)
+    if report_ids is not None:
+        tips_query = tips_query.filter(models.InternalTip.id.in_(report_ids))
+    for rtip, itip, answers, data in tips_query.group_by(models.ReceiverTip.id):
         answers = answers.answers
         label = itip.label
         accessible = rtip.receiver_id == user_id
@@ -138,7 +142,14 @@ def get_receivertips(session, tid, user_session, language, args={}):
                 'accessible': accessible
             }
 
+    if report_ids is not None:
+        return [dict_ret[report_id] for report_id in report_ids if report_id in dict_ret]
     return list(dict_ret.values())
+
+
+@transact
+def get_receivertips(session, tid, user_session, language, args={}, report_ids=None):
+    return serialize_receivertips(session, tid, user_session, language, args, report_ids)
 
 
 @transact
@@ -208,6 +219,33 @@ class TipsCollection(BaseHandler):
                                 self.session,
                                 self.request.language,
                                 self.request.args)
+
+    def post(self):
+        request = self.validate_request(self.request.content.read(), requests.SearchDashboardQueryDesc)
+        result = search_reports(self.request.tid, self.session, self.request.language, request)
+
+        def serialize_page(page):
+            reports = get_receivertips(
+                self.request.tid,
+                self.session,
+                self.request.language,
+                {},
+                page['report_ids']
+            )
+
+            def build_response(serialized_reports):
+                return {
+                    'reports': serialized_reports,
+                    'page': page['page'],
+                    'page_size': page['page_size'],
+                    'total': page['total']
+                }
+
+            reports.addCallback(build_response)
+            return reports
+
+        result.addCallback(serialize_page)
+        return result
 
 
 class Operations(BaseHandler):

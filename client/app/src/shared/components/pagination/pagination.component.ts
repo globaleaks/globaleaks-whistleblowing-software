@@ -35,6 +35,11 @@ export class PaginationComponent {
 
   /** Items per page (default 20) */
   @Input() itemsPerPage = 20;
+  @Input() collectionSize?: number;
+
+  get itemCount(): number {
+    return this.collectionSize ?? this.items.length;
+  }
 
   /** Emits when page changes */
   onPageChange(page: number) {

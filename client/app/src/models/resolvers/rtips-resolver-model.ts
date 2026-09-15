@@ -1,4 +1,5 @@
 import {Data} from "@app/models/receiver/receiver-tip-data";
+import {SearchQuery} from "@app/models/search/search-query";
 
 export interface rtipResolverModel {
   submissionStatusStr: string;
@@ -38,3 +39,20 @@ export type Answers = Record<string, {
     required_status: boolean;
     value: string;
   }[]>;
+
+export interface RecipientReportsRequest {
+  page: number;
+  page_size: number;
+  search: string;
+  unread: boolean;
+  sort: keyof rtipResolverModel;
+  descending: boolean;
+  query: SearchQuery;
+}
+
+export interface RecipientReportsPage {
+  reports: rtipResolverModel[];
+  page: number;
+  page_size: number;
+  total: number;
+}

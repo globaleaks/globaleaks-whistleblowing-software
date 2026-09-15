@@ -4,7 +4,7 @@ export interface SearchFilter {
   id: string;
   field: string;
   operator: SearchFilterOperator;
-  value: string | string[] | [number, number];
+  value: string | Array<string | number> | [number, number];
   label: string;
   negated: boolean;
 }
@@ -26,10 +26,10 @@ export interface SearchDashboardState {
   personal: SearchDashboardTab[];
 }
 
-export interface SearchableReportContent {
-  id: string;
-  comments: string[];
-  files: string[];
+export interface SearchSuggestionsResponse {
+  suggestions: string[];
+  exists: boolean;
+  verifiable: boolean;
 }
 
 export const emptySearchQuery = (): SearchQuery => ({

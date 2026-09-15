@@ -87,7 +87,7 @@ api_spec = [
     # Receiver Handlers
     ('/api/recipient/operations', recipient.Operations),
     ('/api/recipient/search-dashboard', recipient.search_dashboard.RecipientDashboard),
-    ('/api/recipient/search-dashboard/content', recipient.search_dashboard.SearchableContent),
+    ('/api/recipient/search-dashboard/suggestions', recipient.search_dashboard.RecipientSearchSuggestions),
     ('/api/recipient/search/export-audit', recipient.search_dashboard.SearchExportAudit),
     ('/api/recipient/rtips', recipient.TipsCollection),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),
@@ -132,6 +132,7 @@ api_spec = [
     ('/api/admin/users', admin.user.UsersCollection),
     ('/api/admin/users', admin.user.UserInstance, r'/api/admin/users/' + uuid_regexp),
     ('/api/admin/search-dashboard', recipient.search_dashboard.AdminDashboard),
+    ('/api/admin/search-dashboard/suggestions', recipient.search_dashboard.AdminSearchSuggestions),
     ('/api/admin/users', admin.user.UserStats, r'/api/admin/users/' + uuid_regexp + '/stats'),
     ('/api/admin/users/profiles', admin.user_profile.UserProfilesCollection),
     ('/api/admin/users/profiles', admin.user_profile.UserProfileInstance, r'/api/admin/users/profiles/' + uuid_regexp),
@@ -692,7 +693,7 @@ class APIResourceWrapper(Resource):
                               b"form-action 'none';"
                               b"frame-ancestors 'none';"
                               b"frame-src 'self';"
-                              b"img-src 'self';"
+                              b"img-src 'self' data:;"
                               b"media-src 'self';"
                               b"script-src 'self';"
                               b"style-src 'self' 'nonce-" + request.nonce + b"';"

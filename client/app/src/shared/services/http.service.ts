@@ -30,14 +30,14 @@ import {redirectResolverModel} from "@app/models/resolvers/redirect-resolver-mod
 import {WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-model";
 import {jobResolverModel} from "@app/models/resolvers/job-resolver-model";
-import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
+import {RecipientReportsPage, RecipientReportsRequest, rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {IarData} from "@app/models/receiver/iar-data";
 import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
 import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
-import {SearchableReportContent, SearchDashboardState, SearchDashboardTab, SearchQuery} from "@app/models/search/search-query";
+import {SearchDashboardState, SearchDashboardTab, SearchQuery, SearchSuggestionsResponse} from "@app/models/search/search-query";
 
 
 @Injectable({
@@ -336,8 +336,8 @@ export class HttpService {
     return this.httpClient.get<jobResolverModel>("api/admin/auditlog/jobs");
   }
 
-  receiverTipResource(): Observable<rtipResolverModel[]> {
-    return this.httpClient.get<rtipResolverModel[]>("api/recipient/rtips");
+  receiverTipResource(request: RecipientReportsRequest): Observable<RecipientReportsPage> {
+    return this.httpClient.post<RecipientReportsPage>("api/recipient/rtips", request);
   }
 
   requestStatisticsResource(filters?: {
@@ -548,10 +548,12 @@ export class HttpService {
     return this.httpClient.put<SearchDashboardState>("api/recipient/search-dashboard", {tabs});
   }
 
-  getSearchableReportContent(reportIds: string[], fields: string[]): Observable<SearchableReportContent[]> {
-    return this.httpClient.post<SearchableReportContent[]>("api/recipient/search-dashboard/content", {
-      report_ids: reportIds,
-      fields
+  getSearchSuggestions(recipient: boolean, field: string, operator: string, value: string): Observable<SearchSuggestionsResponse> {
+    const role = recipient ? "recipient" : "admin";
+    return this.httpClient.post<SearchSuggestionsResponse>(`api/${role}/search-dashboard/suggestions`, {
+      field,
+      operator,
+      value
     });
   }
 

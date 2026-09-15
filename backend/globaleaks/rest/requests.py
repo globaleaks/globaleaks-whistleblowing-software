@@ -129,9 +129,20 @@ SearchDashboardDesc = {
     'tabs': [dict]
 }
 
-SearchableContentDesc = {
-    'report_ids': [uuid_regexp],
-    'fields': [str]
+SearchDashboardQueryDesc = {
+    'page': int,
+    'page_size': int,
+    'search': str,
+    'unread': bool,
+    'sort': str,
+    'descending': bool,
+    'query': dict,
+}
+
+SearchDashboardSuggestionDesc = {
+    'field': str,
+    'operator': str,
+    'value': str,
 }
 
 SearchExportAuditDesc = {

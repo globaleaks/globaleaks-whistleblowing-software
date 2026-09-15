@@ -1,11 +1,35 @@
 <div class="config-section">
   <div>
     <span>{{ "Search dashboard" | translate }}</span>
-    <button type="button" class="btn btn-sm btn-primary show-add-user-btn" (click)="addTab()" [disabled]="!!editingTab">
+    <button type="button" class="btn btn-sm btn-primary show-add-user-btn" (click)="toggleAddTab()">
       <i class="fas fa-plus" aria-hidden="true"></i>
       <span>{{ "Add tab" | translate }}</span>
     </button>
   </div>
+
+  @if (showAddTab) {
+    <div class="config-section row">
+      <div ngForm="newSearchDashboardTab" #newSearchDashboardTab="ngForm" class="col-md-6">
+        <div class="form-group">
+          <label for="new-search-dashboard-tab-name">
+            <span>{{ "Tab name" | translate }}</span>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+          </label>
+          <div [ngClass]="{'is-invalid': newSearchDashboardTab?.errors?.['required']}">
+            <input id="new-search-dashboard-tab-name" name="name" class="form-control"
+                   [(ngModel)]="newTabName" maxlength="255" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <button type="button" class="btn btn-primary" [disabled]="newSearchDashboardTab.invalid"
+                  (click)="addTab()">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            <span>{{ "Add" | translate }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
   @if (recipient && defaultTabs.length) {
     <div>
@@ -44,7 +68,7 @@
           <span class="col-md-5 clearfix">
             <span class="float-end" role="group" [attr.aria-label]="'Tab actions' | translate">
             @if (editingTab !== tab) {
-              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="startEditing(tab)" [disabled]="!!editingTab">
+              <button type="button" class="btn btn-sm btn-outline-secondary" (click)="startEditing(tab)">
                 <span>{{ "Edit" | translate }}</span>
               </button>
             } @else {
@@ -55,13 +79,13 @@
                 <span>{{ "Cancel" | translate }}</span>
               </button>
             }
-            <button type="button" class="btn btn-sm btn-danger" (click)="removeTab(tab)" [disabled]="!!editingTab && editingTab !== tab">
+            <button type="button" class="btn btn-sm btn-danger" (click)="removeTab(tab)">
               <span>{{ "Delete" | translate }}</span>
             </button>
-            <button type="button" class="btn btn-sm btn-primary" (click)="move(tab, -1)" [disabled]="first || !!editingTab" [attr.aria-label]="'Move up' | translate">
+            <button type="button" class="btn btn-sm btn-primary" (click)="move(tab, -1)" [disabled]="first" [attr.aria-label]="'Move up' | translate">
               <i class="fas fa-chevron-up" aria-hidden="true"></i>
             </button>
-            <button type="button" class="btn btn-sm btn-primary" (click)="move(tab, 1)" [disabled]="last || !!editingTab" [attr.aria-label]="'Move down' | translate">
+            <button type="button" class="btn btn-sm btn-primary" (click)="move(tab, 1)" [disabled]="last" [attr.aria-label]="'Move down' | translate">
               <i class="fas fa-chevron-down" aria-hidden="true"></i>
             </button>
             </span>
@@ -74,12 +98,12 @@
 
             @for (filter of tab.query.filters; track filter; let filterIndex = $index) {
             <div class="config-item">
-          <div class="row align-items-end">
+          <div class="row align-items-start">
             <div class="form-group col-lg-3">
               <label [for]="'filter-field-' + tabIndex + '-' + filterIndex">{{ "Field" | translate }}</label>
               <select [id]="'filter-field-' + tabIndex + '-' + filterIndex" class="form-select-custom"
                       [ngModel]="filter.field" (ngModelChange)="updateField(filter, $event)">
-                @for (field of fields; track field.id) {
+                @for (field of availableFields; track field.id) {
                   <option [value]="field.id">{{ field.label | translate }}</option>
                 }
               </select>
@@ -113,19 +137,35 @@
               <div class="form-group col-lg-4">
                 <label [for]="'filter-value-' + tabIndex + '-' + filterIndex">{{ "Value" | translate }}</label>
                 <input [id]="'filter-value-' + tabIndex + '-' + filterIndex" class="form-control"
+                       [class.is-invalid]="invalidValues.has(filter)"
+                       autocomplete="off"
                        [ngModel]="filterValue(filter)" (ngModelChange)="updateValue(filter, $event)"
                        [placeholder]="filter.operator === 'in' ? ('Separate multiple values with commas' | translate) : ('Value' | translate)">
+                @if (suggestionTerm(filter).length > 0 && suggestionTerm(filter).length < suggestionMinimumLength(filter)) {
+                  <small class="form-text text-muted">{{ "Enter at least 4 characters to get suggestions" | translate }}</small>
+                }
+                @if (suggestions.get(filter)?.length) {
+                  <div class="list-group position-absolute z-3">
+                    @for (suggestion of suggestions.get(filter); track suggestion) {
+                      <button type="button" class="list-group-item list-group-item-action py-1"
+                              (click)="selectSuggestion(filter, suggestion)">{{ suggestion }}</button>
+                    }
+                  </div>
+                }
+                @if (invalidValues.has(filter)) {
+                  <div class="invalid-feedback">{{ "No matching value exists" | translate }}</div>
+                }
               </div>
             }
 
-            <div class="form-group col-lg-1">
+            <div class="form-group col-lg-1 pt-4">
               <div class="form-check mb-2">
                 <input class="form-check-input" type="checkbox" [(ngModel)]="filter.negated" [id]="'negate-' + tabIndex + '-' + filterIndex">
                 <label class="form-check-label" [for]="'negate-' + tabIndex + '-' + filterIndex">{{ "Not" | translate }}</label>
               </div>
             </div>
 
-            <div class="form-group col-lg-2 text-end">
+            <div class="form-group col-lg-2 pt-4 text-end">
               <button type="button" class="btn btn-sm btn-danger" (click)="removeFilter(tab, filter)" [attr.aria-label]="'Delete filter' | translate">
                 <i class="fas fa-trash" aria-hidden="true"></i>
               </button>

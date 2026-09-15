@@ -6,18 +6,20 @@ import {FormsModule} from "@angular/forms";
 import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {NgTemplateOutlet} from "@angular/common";
 import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {SearchDashboardConfigComponent} from "@app/pages/admin/casemanagement/search-dashboard/search-dashboard.component";
 
 @Component({
     selector: "src-casemanagement",
     templateUrl: "./case-management.component.html",
     standalone: true,
-    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, NgbTooltipModule, CaseManagementTab1Component, TranslatorPipe]
+    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, NgbTooltipModule, CaseManagementTab1Component, SearchDashboardConfigComponent, TranslatorPipe]
 })
 export class CaseManagementComponent implements AfterViewInit {
   protected node = inject(NodeResolver);
   private cdr = inject(ChangeDetectorRef);
 
   @ViewChild("tab1") tab1!: TemplateRef<CaseManagementTab1Component>;
+  @ViewChild("tab2") tab2!: TemplateRef<SearchDashboardConfigComponent>;
   tabs: Tab[];
   nodeData: NodeResolver;
   active: string;
@@ -32,6 +34,11 @@ export class CaseManagementComponent implements AfterViewInit {
           id:"report_statuses",
           title: "Report statuses",
           component: this.tab1
+        },
+        {
+          id:"search_dashboard",
+          title: "Search dashboard",
+          component: this.tab2
         },
       ];
 

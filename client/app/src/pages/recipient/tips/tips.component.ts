@@ -1,4 +1,4 @@
-import {Component, HostListener, OnInit, TemplateRef, ViewChild, inject} from "@angular/core";
+import {Component, HostListener, OnDestroy, OnInit, TemplateRef, ViewChild, inject} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {NgbDate, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
@@ -9,11 +9,10 @@ import {TranslateService} from "@ngx-translate/core";
 import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
 import {TokenResource} from "@app/shared/services/token-resource.service";
 import {Router, RouterLink} from "@angular/router";
-import {Answers, rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
-import {Children} from "@app/models/app/shared-public-model";
+import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {concatMap, delay, from, tap} from "rxjs";
+import {concatMap, delay, from, Subscription, tap, timer} from "rxjs";
 import {HttpClient, HttpResponse} from "@angular/common/http";
 import {formatDate, NgClass, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
@@ -21,17 +20,16 @@ import {DateRangeSelectorComponent} from "@app/shared/components/date-selector/d
 import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {SearchDashboardComponent} from "@app/shared/components/search-dashboard/search-dashboard.component";
-import {SearchableReportContent, SearchFilter, SearchQuery, emptySearchQuery} from "@app/models/search/search-query";
-import {SearchQueryService} from "@app/shared/services/search-query.service";
-import {Tab9Component} from "@app/pages/admin/settings/tab9/tab9.component";
+import {SearchFilter, SearchQuery, emptySearchQuery} from "@app/models/search/search-query";
+import {SearchDashboardConfigComponent} from "@app/pages/admin/casemanagement/search-dashboard/search-dashboard.component";
 
 @Component({
     selector: "src-tips",
     templateUrl: "./tips.component.html",
     standalone: true,
-    imports: [DatePipe, FormsModule, NgClass, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe, SearchDashboardComponent, Tab9Component]
+    imports: [DatePipe, FormsModule, NgClass, NgMultiSelectDropDownModule, DateRangeSelectorComponent, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TranslatorPipe, SearchDashboardComponent, SearchDashboardConfigComponent]
 })
-export class TipsComponent implements OnInit {
+export class TipsComponent implements OnInit, OnDestroy {
   @ViewChild("reportSearchDashboard") reportSearchDashboard?: SearchDashboardComponent;
   private http = inject(HttpClient);
   protected authenticationService = inject(AuthenticationService);
@@ -45,15 +43,19 @@ export class TipsComponent implements OnInit {
   protected appDataService = inject(AppDataService);
   private translateService = inject(TranslateService);
   private tokenResourceService = inject(TokenResource);
-  private searchQueryService = inject(SearchQueryService);
 
   selectedTips: string[] = [];
   filteredTips: rtipResolverModel[];
   dashboardQueryActive = false;
   searchQuery: SearchQuery = emptySearchQuery();
-  searchableContent = new Map<string, SearchableReportContent>();
-  searchableContentFields = new Set<string>();
-  searchableContentLoading = false;
+  searchLoading = false;
+  searchSubscription?: Subscription;
+  searchDebounceSubscription?: Subscription;
+  totalReports = 0;
+  currentPage = 1;
+  readonly pageSize = 20;
+  reportSearch = "";
+  unreadOnly = false;
   reportDateFilter: [number, number] | null = null;
   updateDateFilter: [number, number] | null = null;
   expiryDateFilter: [number, number] | null = null;
@@ -94,8 +96,15 @@ export class TipsComponent implements OnInit {
       this.router.navigate(["/recipient/home"]).then();
     } else {
       this.filteredTips = this.RTips.dataModel;
+      this.totalReports = this.RTips.total;
+      this.currentPage = this.RTips.request.page;
       this.processTips();
     }
+  }
+
+  ngOnDestroy() {
+    this.searchDebounceSubscription?.unsubscribe();
+    this.searchSubscription?.unsubscribe();
   }
 
   selectAll() {
@@ -142,7 +151,7 @@ export class TipsComponent implements OnInit {
   }
 
   reload() {
-    this.RTips.reload();
+    this.loadReports(this.currentPage);
   }
 
   tipSwitch(id: string): void {
@@ -169,8 +178,20 @@ export class TipsComponent implements OnInit {
   }
 
   processTips() {
-    const uniqueKeys: string[] = [];
-    const reportUniqueKeys: string[] = [];
+    const statusLabels = this.appDataService.submissionStatuses.flatMap(status => {
+      const statusLabel = this.translateService.instant(status.label);
+      return [statusLabel, ...status.substatuses.map((substatus: {label: string}) => `${statusLabel} – ${substatus.label}`)];
+    });
+    this.dropdownStatusData = statusLabels.map((label, index) => ({id: index + 1, label}));
+    this.dropdownReportData = [
+      {id: 1, label: this.translateService.instant("New")},
+      {id: 2, label: this.translateService.instant("Updated")}
+    ];
+    this.dropdownContextData = this.appDataService.public.contexts.map((context, index) => ({
+      id: index + 1,
+      label: context.name
+    }));
+    this.dropdownScoreData = [0, 1, 2, 3].map((score, index) => ({id: index + 1, label: this.maskScore(score)}));
 
     for (const tip of this.RTips.dataModel) {
       tip.context = this.appDataService.contexts_by_id[tip.context_id];
@@ -185,27 +206,6 @@ export class TipsComponent implements OnInit {
         tip.reportModificationStr = '';
       }
 
-      if (!uniqueKeys.includes(tip.submissionStatusStr)) {
-        uniqueKeys.push(tip.submissionStatusStr);
-        this.dropdownStatusData.push({id: this.dropdownStatusData.length + 1, label: tip.submissionStatusStr});
-      }
-
-      if (tip.reportModificationStr && !reportUniqueKeys.includes(tip.reportModificationStr)) {
-        reportUniqueKeys.push(tip.reportModificationStr);
-        this.dropdownReportData.push({id: this.dropdownReportData.length + 1, label: tip.reportModificationStr});
-      }
-
-      if (!uniqueKeys.includes(tip.context_name)) {
-        uniqueKeys.push(tip.context_name);
-        this.dropdownContextData.push({id: this.dropdownContextData.length + 1, label: tip.context_name});
-      }
-
-      const scoreLabel = this.maskScore(tip.score);
-
-      if (!uniqueKeys.includes(scoreLabel)) {
-        uniqueKeys.push(scoreLabel);
-        this.dropdownScoreData.push({id: this.dropdownScoreData.length + 1, label: scoreLabel});
-      }
       const receiverMap = new Map(this.appDataService.public.receivers.map(r => [r.id, r.name || ""]));
       tip.receiver_names = tip.receiver_ids.map(id => receiverMap.get(id) || "").filter(Boolean).join("\n");
     }
@@ -224,8 +224,13 @@ export class TipsComponent implements OnInit {
   }
 
   onChanged(model: { id: number; label: string; }[], type: string) {
+    const definitions: Record<string, {id: string; field: string; label: string}> = {
+      Score: {id: "score", field: "score", label: "Score"},
+      Status: {id: "status", field: "status", label: "Status"},
+      Report: {id: "report", field: "updated", label: "Report"},
+      Channel: {id: "context", field: "context_id", label: "Channel"}
+    };
     if (!this.dashboardQueryActive) {
-      this.processTips();
       if (model.length > 0) {
         this.dropdownContextModel = [];
         this.dropdownStatusModel = [];
@@ -241,29 +246,29 @@ export class TipsComponent implements OnInit {
         } else if (type === "Channel") {
           this.dropdownContextModel = model;
         }
+        const columnFilterIds = Object.values(definitions).map(item => item.id);
+        this.searchQuery = {
+          ...this.searchQuery,
+          filters: this.searchQuery.filters.filter(item => !columnFilterIds.includes(item.id) || item.id === definitions[type].id)
+        };
       }
-      this.applyFilter();
-      return;
     }
 
-    const definitions: Record<string, {id: string; field: string; label: string}> = {
-      Score: {id: "score", field: "score", label: "Score"},
-      Status: {id: "status", field: "submissionStatusStr", label: "Status"},
-      Report: {id: "report", field: "reportModificationStr", label: "Report"},
-      Channel: {id: "context", field: "context_name", label: "Channel"}
-    };
     const definition = definitions[type];
     if (definition) {
+      const values = type === "Score" ? model.map(item => item.id - 1) :
+        type === "Report" ? model.map(item => item.id === 1 ? "new" : "updated") :
+          model.map(item => item.label);
       this.setFilter(definition.id, model.length ? {
         id: definition.id,
         field: definition.field,
         operator: "in",
-        value: model.map(item => item.label),
+        value: values,
         label: definition.label,
         negated: this.getFilter(definition.id)?.negated ?? false
       } : null);
     }
-    this.applyFilter();
+    this.scheduleReportLoad();
   }
 
   checkFilter(filter: { id: number; label: string; }[]) {
@@ -313,10 +318,8 @@ export class TipsComponent implements OnInit {
     if (fromDate && toDate) {
       this.reportDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
     }
-    if (this.dashboardQueryActive) {
-      this.setDateFilter("creation_date", "Report date", this.reportDateFilter);
-    }
-    this.applyFilter();
+    this.setDateFilter("creation_date", "Report date", this.reportDateFilter);
+    this.scheduleReportLoad();
   }
 
   onUpdateFilterChange(event: { fromDate: string | null; toDate: string | null }) {
@@ -328,10 +331,8 @@ export class TipsComponent implements OnInit {
     if (fromDate && toDate) {
       this.updateDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
     }
-    if (this.dashboardQueryActive) {
-      this.setDateFilter("update_date", "Last update", this.updateDateFilter);
-    }
-    this.applyFilter();
+    this.setDateFilter("update_date", "Last update", this.updateDateFilter);
+    this.scheduleReportLoad();
   }
 
   onExpiryFilterChange(event: { fromDate: string | null; toDate: string | null }) {
@@ -343,142 +344,76 @@ export class TipsComponent implements OnInit {
     if (fromDate && toDate) {
       this.expiryDateFilter = [new Date(fromDate).getTime(), new Date(toDate).getTime()];
     }
-    if (this.dashboardQueryActive) {
-      this.setDateFilter("expiration_date", "Expiration date", this.expiryDateFilter);
-    }
-    this.applyFilter();
+    this.setDateFilter("expiration_date", "Expiration date", this.expiryDateFilter);
+    this.scheduleReportLoad();
   }
 
   applyFilter() {
-    if (!this.dashboardQueryActive) {
-      this.filteredTips = this.utils.getStaticFilter(this.RTips.dataModel, this.dropdownStatusModel, "submissionStatusStr", this.translateService);
-      this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownContextModel, "context_name", this.translateService);
-      this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownScoreModel, "score", this.translateService);
-      this.filteredTips = this.utils.getStaticFilter(this.filteredTips, this.dropdownReportModificationModel, "reportModificationStr", this.translateService);
-      this.filteredTips = this.utils.getDateFilter(this.filteredTips, this.reportDateFilter, this.updateDateFilter, this.expiryDateFilter);
-      return;
-    }
-
-    this.filteredTips = this.searchQueryService.execute(this.RTips.dataModel, this.searchQuery, (tip, field) => this.resolveSearchValue(tip, field));
-  }
-
-  private resolveSearchValue(tip: rtipResolverModel, field: string): unknown {
-    if (field === "searchable_content") {
-      return [
-        tip.progressive,
-        tip.label,
-        tip.context_name,
-        tip.submissionStatusStr,
-        tip.receiver_names,
-        this.getAnswerSearchContent(tip),
-        this.searchableContent.get(tip.id)?.comments,
-        this.searchableContent.get(tip.id)?.files
-      ];
-    }
-    if (field === "comment_content") {
-      return this.searchableContent.get(tip.id)?.comments;
-    }
-    if (field === "file_name") {
-      return this.searchableContent.get(tip.id)?.files;
-    }
-    if (field === "status") {
-      return [tip.status, tip.submissionStatusStr];
-    }
-    if (field === "context_id") {
-      return [tip.context_id, tip.context_name];
-    }
-    if (field === "score") {
-      return this.maskScore(tip.score);
-    }
-    return tip[field as keyof rtipResolverModel];
-  }
-
-  private getAnswerSearchContent(tip: rtipResolverModel): unknown[] {
-    const content: unknown[] = [tip.answers];
-    const questionnaires = [tip.context?.questionnaire, tip.context?.additional_questionnaire].filter(Boolean);
-
-    for (const questionnaire of questionnaires) {
-      for (const step of questionnaire.steps ?? []) {
-        this.addAnsweredFields(step.children ?? [], tip.answers, content);
-      }
-    }
-
-    return content;
-  }
-
-  private addAnsweredFields(fields: Children[], answers: Answers, content: unknown[]) {
-    for (const field of fields) {
-      const fieldAnswers = answers?.[field.id];
-      if (fieldAnswers?.length) {
-        content.push(field.label, fieldAnswers);
-        const selectedValues = new Set(this.searchQueryService.flattenValues(fieldAnswers).map(value => String(value)));
-        content.push(field.options?.filter(option => selectedValues.has(option.id)).map(option => option.label));
-      }
-      if (field.children?.length) {
-        this.addAnsweredFields(field.children, answers, content);
-      }
-    }
+    this.filteredTips = this.RTips.dataModel;
   }
 
   onSearchQueryChange(query: SearchQuery) {
     this.dashboardQueryActive = true;
     this.searchQuery = query;
     this.syncColumnFilters();
-    this.applyFilter();
-    this.loadSearchableContent();
+    this.scheduleReportLoad();
   }
 
-  private loadSearchableContent() {
-    if (this.searchableContentLoading) {
-      return;
-    }
-    const requestedFields = new Set<string>();
-    for (const filter of this.searchQuery.filters) {
-      if (filter.field === "searchable_content" || filter.field === "comment_content") {
-        requestedFields.add("comments");
-      }
-      if (filter.field === "searchable_content" || filter.field === "file_name") {
-        requestedFields.add("files");
-      }
-    }
-    const fields = [...requestedFields].filter(field => !this.searchableContentFields.has(field));
-    if (!fields.length) {
-      return;
-    }
-    const secureFields = ["searchable_content", "comment_content", "file_name"];
-    const metadataFilters = this.searchQuery.filters.filter(filter => !secureFields.includes(filter.field));
-    const candidates = !this.searchQuery.negated && metadataFilters.length ?
-      this.searchQueryService.execute(this.RTips.dataModel, {negated: false, filters: metadataFilters}, (tip, field) => this.resolveSearchValue(tip, field)) :
-      this.RTips.dataModel;
-    const reportIds = candidates.map(report => report.id);
-    const batches = Array.from({length: Math.ceil(reportIds.length / 50)}, (_, index) => reportIds.slice(index * 50, (index + 1) * 50));
-    if (!batches.length) {
-      fields.forEach(field => this.searchableContentFields.add(field));
-      return;
-    }
-    this.searchableContentLoading = true;
-    from(batches).pipe(
-      concatMap(batch => this.httpService.getSearchableReportContent(batch, fields))
-    ).subscribe({
-      next: reports => {
-        for (const report of reports) {
-          const current = this.searchableContent.get(report.id);
-          this.searchableContent.set(report.id, {
-            id: report.id,
-            comments: fields.includes("comments") ? report.comments : current?.comments ?? [],
-            files: fields.includes("files") ? report.files : current?.files ?? []
-          });
-        }
+  private scheduleReportLoad() {
+    this.searchDebounceSubscription?.unsubscribe();
+    this.searchDebounceSubscription = timer(250).subscribe(() => this.loadReports(1));
+  }
+
+  private loadReports(page: number) {
+    this.searchDebounceSubscription?.unsubscribe();
+    this.searchSubscription?.unsubscribe();
+    this.searchLoading = true;
+    this.searchSubscription = this.RTips.load({
+      page,
+      page_size: this.pageSize,
+      search: this.reportSearch,
+      unread: this.unreadOnly,
+      sort: this.sortKey,
+      descending: this.sortReverse,
+      query: structuredClone(this.searchQuery)
+    }).subscribe({
+      next: response => {
+        this.currentPage = response.page;
+        this.totalReports = response.total;
+        this.selectedTips = [];
+        this.processTips();
         this.applyFilter();
+        this.searchLoading = false;
       },
-      complete: () => {
-        fields.forEach(field => this.searchableContentFields.add(field));
-        this.searchableContentLoading = false;
-        this.applyFilter();
-        this.loadSearchableContent();
-      },
-      error: () => this.searchableContentLoading = false
+      error: () => {
+        this.searchLoading = false;
+      }
     });
+  }
+
+  onReportListStateChange(state: {
+    type: 'page' | 'search' | 'filter';
+    page: number;
+    search: string;
+    filterEnabled: boolean;
+  }) {
+    this.reportSearch = state.search;
+    this.unreadOnly = state.filterEnabled;
+    if (state.type === 'search') {
+      this.scheduleReportLoad();
+      return;
+    }
+    this.loadReports(state.page);
+  }
+
+  changeSort(sort: keyof rtipResolverModel) {
+    if (this.sortKey === sort) {
+      this.sortReverse = !this.sortReverse;
+    } else {
+      this.sortKey = sort;
+      this.sortReverse = false;
+    }
+    this.loadReports(1);
   }
 
   refreshSearchDashboard() {
@@ -514,8 +449,10 @@ export class TipsComponent implements OnInit {
 
   private syncColumnFilters() {
     const selected = (id: string, data: {id: number; label: string}[]) => {
-      const values = this.getFilter(id)?.value as string[] | undefined;
-      return values ? data.filter(item => values.includes(item.label)) : [];
+      const values = this.getFilter(id)?.value as Array<string | number> | undefined;
+      return values ? data.filter(item => values.includes(item.label) ||
+        (id === "score" && values.includes(item.id - 1)) ||
+        (id === "report" && values.includes(item.id === 1 ? "new" : "updated"))) : [];
     };
     this.dropdownContextModel = selected("context", this.dropdownContextData);
     this.dropdownStatusModel = selected("status", this.dropdownStatusData);

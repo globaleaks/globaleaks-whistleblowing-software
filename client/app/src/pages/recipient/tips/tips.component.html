@@ -40,7 +40,7 @@
       <button type="button" class="btn-close" (click)="modal.dismiss()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
     </div>
     <div class="modal-body">
-      <src-tab9 [recipient]="true" (tabsChange)="refreshSearchDashboard()"></src-tab9>
+      <src-search-dashboard-config [recipient]="true" (tabsChange)="refreshSearchDashboard()"></src-search-dashboard-config>
     </div>
   </ng-template>
   <src-search-dashboard #reportSearchDashboard
@@ -49,7 +49,11 @@
   </src-search-dashboard>
   <div id="TipList" class="row mt-2">
     <div class="col-md-12 table-responsive">
-      <app-paginated-interface [mode]="'table'" [items]="filteredTips" [showSearch]="true" [orderBy]="sortKey" [orderDesc]="sortReverse" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
+      <app-paginated-interface [mode]="'table'" [items]="filteredTips" [showSearch]="true"
+        [orderBy]="sortKey" [orderDesc]="sortReverse" [filterOptLabel]="'Show only unread' | translate"
+        [filterOptFn]="filterNewOrUpdated" [serverSide]="true" [totalItems]="totalReports"
+        [currentPage]="currentPage" [itemsPerPage]="pageSize"
+        (stateChange)="onReportListStateChange($event)">
         <ng-template #header let-tip="item" let-index="index">
           <tr>
             <th>
@@ -64,7 +68,7 @@
                 </span>
              }
             </th>
-            <th (click)="sortKey = 'important'; sortReverse = !sortReverse">
+            <th (click)="changeSort('important')">
               <i class="fas fa-star" aria-hidden="true"></i>
               <span class="visually-hidden">{{'Important' | translate}}</span>
               @if (sortKey === 'important') {
@@ -80,7 +84,7 @@
                 <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
               }
             </th>
-            <th (click)="sortKey = 'reminder_date'; sortReverse = !sortReverse">
+            <th (click)="changeSort('reminder_date')">
               <i class="fas fa-bell" aria-hidden="true"></i>
               <span class="visually-hidden">{{'Reminder date' | translate}}</span>
               @if (sortKey === 'reminder_date') {
@@ -96,7 +100,7 @@
                 <span class="text-muted"><i class="fas fa-sort" aria-hidden="true"></i></span>
               }
             </th>
-            <th class="TipInfoID" (click)="sortKey = 'progressive'; sortReverse = !sortReverse">
+            <th class="TipInfoID" (click)="changeSort('progressive')">
               <i class="fas fa-hashtag" aria-hidden="true"></i>
               <span class="visually-hidden">{{'ID' | translate}}</span>
               @if (sortKey === 'progressive') {
@@ -114,7 +118,7 @@
             </th>
             @if (appDataService.public.contexts.length > 1) {
               <th class="TipInfoContext">
-                <span (click)="sortKey = 'context_name'; sortReverse = !sortReverse">
+                <span (click)="changeSort('context_name')">
                   <i class="fas fa-inbox"></i>
                   <span>{{'Channel' | translate}}</span>
                   @if (sortKey === 'context_name') {
@@ -143,7 +147,7 @@
             </th>
             }
             <th class="TipInfoLabel">
-              <span (click)="sortKey = 'label'; sortReverse = !sortReverse">
+              <span (click)="changeSort('label')">
                 <i class="fas fa-tag"></i>
                 <span>{{'Label' | translate}}</span>
                 @if (sortKey === 'label') {
@@ -161,7 +165,7 @@
               </span>
             </th>
             <th class="TipInfoReport">
-              <span (click)="sortKey = 'reportModificationStr'; sortReverse = !sortReverse">
+              <span (click)="changeSort('reportModificationStr')">
                 <span>{{'Report' | translate}}</span>
                 @if (sortKey === 'reportModificationStr') {
                   <span>
@@ -186,7 +190,7 @@
               }
             </th>
             <th class="TipInfoStatus">
-              <span (click)="sortKey = 'submissionStatusStr'; sortReverse = !sortReverse">
+              <span (click)="changeSort('submissionStatusStr')">
                 <i class="fas fa-circle-dot"></i>
                 <span>{{'Status' | translate}}</span>
                 @if (sortKey === 'submissionStatusStr') {
@@ -212,7 +216,7 @@
               }
             </th>
             <th class="TipInfoSubmissionDate">
-              <span (click)="sortKey = 'creation_date'; sortReverse = !sortReverse">
+              <span (click)="changeSort('creation_date')">
                 <i class="fas fa-clock"></i>
                 <span>{{'Report date' | translate}}</span>
                 @if (sortKey === 'creation_date') {
@@ -236,7 +240,7 @@
               </span>
             </th>
             <th class="TipInfoUpdateDate">
-              <span (click)="sortKey = 'update_date'; sortReverse = !sortReverse">
+              <span (click)="changeSort('update_date')">
                 <i class="fas fa-clock"></i>
                 <span>{{'Last update' | translate}}</span>
                 @if (sortKey === 'update_date') {
@@ -260,7 +264,7 @@
               </span>
             </th>
             <th class="TipInfoExpirationDate">
-              <span (click)="sortKey = 'expiration_date'; sortReverse = !sortReverse">
+              <span (click)="changeSort('expiration_date')">
                 <i class="fas fa-hourglass"></i>
                 <span>{{'Expiration date' | translate}}</span>
                 @if (sortKey === 'expiration_date') {
@@ -300,7 +304,7 @@
               <span class="visually-hidden">{{'Identity' | translate}}</span>
             </th>
             <th class="TipInfoRecipientCount">
-              <span (click)="sortKey = 'receiver_count'; sortReverse = !sortReverse">
+              <span (click)="changeSort('receiver_count')">
                 <i class="fas fa-users" aria-hidden="true"></i>
                 <span class="visually-hidden">{{'Recipients' | translate}}</span>
                 @if (sortKey === 'receiver_count') {
@@ -319,7 +323,7 @@
             </th>
             @if (appDataService.public.node.enable_scoring_system) {
               <th class="TipInfoScore">
-                <span (click)="sortKey = 'score'; sortReverse = !sortReverse">
+                <span (click)="changeSort('score')">
                   <i class="fas fa-ranking-star"></i>
                   <span>{{'Score' | translate}}</span>
                   @if (sortKey === 'score') {
