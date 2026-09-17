@@ -1,3 +1,4 @@
+import {t} from "../support/i18n";
 describe("admin configure, add, configure and delete tenants", () => {
   // The address of the support: the profile hands one, the site writes its own, and giving up
   // its own gets the profile's back
@@ -227,10 +228,10 @@ describe("admin configure, add, configure and delete tenants", () => {
 
     // A value of one's own is held the moment it is saved, and the command to give it up is there
     // with it, on the page it was saved from and without leaving it
-    cy.contains(".form-group", "Description").find(".config-reset-btn").should("not.exist");
+    cy.contains(".form-group", t("Description")).find(".config-reset-btn").should("not.exist");
     cy.get('textarea[name="node.dataModel.description"]').clear().type("Platform D of the tests");
     cy.get("#save_settings").click();
-    cy.contains(".form-group", "Description").find(".config-reset-btn").should("exist");
+    cy.contains(".form-group", t("Description")).find(".config-reset-btn").should("exist");
 
     cy.get('[data-cy="advanced"]').click();
     cy.get('input[name="disable_submissions"]').click();
@@ -238,8 +239,8 @@ describe("admin configure, add, configure and delete tenants", () => {
 
     // The profile leaves the sites naming it the address of their own support, and holds the
     // rest: the lock beside the field says which of the two, and says it where the field is
-    cy.contains(".form-group", "Custom support URL").find(".key-lock-btn").click();
-    cy.contains(".form-group", "Custom support URL").find(".key-lock-btn")
+    cy.contains(".form-group", t("Custom support URL")).find(".key-lock-btn").click();
+    cy.contains(".form-group", t("Custom support URL")).find(".key-lock-btn")
       .should("have.class", "field-action--off");
 
     // and the same two decisions, read whole in one place: what the profile left free, and what
@@ -259,7 +260,7 @@ describe("admin configure, add, configure and delete tenants", () => {
     // Saving the advanced settings rebuilds the page on the first tab: the command is found again
     // where the value it gives up is
     cy.get('[data-cy="advanced"]').click();
-    cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").should("exist");
+    cy.contains(".form-group", t("Custom support URL")).find(".config-reset-btn").should("exist");
   });
 
   it("should add a new tenant from the profile, read there what the profile holds and write what it leaves", () => {
@@ -290,8 +291,8 @@ describe("admin configure, add, configure and delete tenants", () => {
         .clear().type(siteSupportURL);
       // Nothing to give up while the site reads what the profile hands it, and no lock either:
       // a site has nobody to leave anything to
-      cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").should("not.exist");
-      cy.contains(".form-group", "Custom support URL").find(".key-lock-btn").should("not.exist");
+      cy.contains(".form-group", t("Custom support URL")).find(".config-reset-btn").should("not.exist");
+      cy.contains(".form-group", t("Custom support URL")).find(".key-lock-btn").should("not.exist");
       cy.get("#save").click();
 
       cy.get("#admin_home").click();
@@ -302,12 +303,12 @@ describe("admin configure, add, configure and delete tenants", () => {
       // Giving up the value of one's own gives back the one the profile hands, and the page
       // shows it on the spot: a mark left on the window says whether it was reloaded instead
       cy.window().then((win: any) => { win.__noReload = true; });
-      cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").click();
+      cy.contains(".form-group", t("Custom support URL")).find(".config-reset-btn").click();
       cy.get('input[name="customSupportURL"]').should('have.value', profileSupportURL);
       cy.window().its("__noReload").should("eq", true);
 
       // nothing left to give up: the command goes with the value it gave back
-      cy.contains(".form-group", "Custom support URL").find(".config-reset-btn").should("not.exist");
+      cy.contains(".form-group", t("Custom support URL")).find(".config-reset-btn").should("not.exist");
 
       // The languages of the site are the ones the profile speaks: they are read and not chosen
       cy.get('[data-cy="languages"]').click();
