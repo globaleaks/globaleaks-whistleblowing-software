@@ -16,10 +16,7 @@ class GLException(Exception):
         return self.__repr__()
 
     def __repr__(self):
-        return "%s: <<%s>> (%d) HTTP:%d" % (
-            self.__class__.__name__, self.reason,
-            self.error_code, self.status_code
-        )
+        return f"{self.__class__.__name__}: <<{self.reason}>> ({self.error_code}) HTTP:{self.status_code}"
 
 
 class InternalServerError(GLException):
@@ -30,7 +27,7 @@ class InternalServerError(GLException):
     status_code = 500  # Internal Server Error
 
     def __init__(self, error_str):
-        self.reason = "InternalServerError [%s]" % error_str
+        self.reason = f"InternalServerError [{error_str}]"
         self.arguments = [error_str]
 
 
@@ -54,7 +51,7 @@ class InputValidationError(GLException):
     status_code = 406  # Not Acceptable
 
     def __init__(self, error=''):
-        self.reason = "Invalid Input [%s]" % error
+        self.reason = f"Invalid Input [{error}]"
         self.arguments = [error]
 
 
@@ -89,6 +86,15 @@ class ForbiddenOperation(GLException):
     reason = "Operation Forbidden"
     error_code = 8
     status_code = 403  # Forbidden
+
+
+class OperationConflict(GLException):
+    """
+    The state of the resource changed while the operation was being confirmed
+    """
+    reason = "Operation Conflict"
+    error_code = 20
+    status_code = 409  # Conflict
 
 
 class InvalidAuthentication(GLException):
@@ -138,16 +144,6 @@ class InvalidTwoFactorAuthCode(GLException):
     status_code = 406
 
 
-class TorNetworkRequired(GLException):
-    """
-    A connection receiver not via Tor network is required to
-    be enforced with anonymity
-    """
-    reason = "Resource can be accessed only within Tor network"
-    error_code = 13
-    status_code = 403  # Forbidden
-
-
 class FileTooBig(GLException):
     """
     Raised when the uploaded file is bigger than acceptable
@@ -156,8 +152,7 @@ class FileTooBig(GLException):
     status_code = 413  # Bad Request
 
     def __init__(self, size_limit):
-        self.reason = ("Provided file upload overcomes size limits (%d Mb)" %
-                       size_limit)
+        self.reason = f"Provided file upload overcomes size limits ({int(size_limit)} Mb)"
         self.arguments = [size_limit]
 
 
@@ -176,12 +171,23 @@ class SubmissionDisabled(GLException):
     status_code = 503  # Service not available
 
 
-class AccessLocationInvalid(GLException):
-    reason = "IP Address not allows to login from this location"
-    error_code = 16
-    status_code = 401
-
 class DuplicateUserError(GLException):
     reason = "A user with this username already exists"
     error_code = 17
     status_code = 422
+
+class InvalidDPoP(GLException):
+    """
+    The DPoP proof (RFC 9449) accompanying the request is missing or invalid
+    """
+    reason = "Invalid DPoP proof"
+    error_code = 18
+    status_code = 401
+
+class InvalidPoW(GLException):
+    """
+    The proof-of-work token accompanying the request is missing or invalid
+    """
+    reason = "Invalid PoW"
+    error_code = 19
+    status_code = 401

@@ -7,14 +7,14 @@ import {Observable, of} from "rxjs";
   providedIn: "root"
 })
 export class WhistleblowerLoginResolver {
-  private appDataService = inject(AppDataService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly authenticationService = inject(AuthenticationService);
 
 
   resolve(): Observable<boolean> {
     if (this.appDataService.page === "submissionpage") {
       setTimeout(() => {
-        this.authenticationService.login(0, "whistleblower", "");
+        void this.authenticationService.login(0, "whistleblower", "");
       }, 0);
     }
     return of(true);

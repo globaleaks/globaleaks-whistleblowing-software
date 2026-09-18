@@ -1,13 +1,13 @@
 # -*- coding: UTF-8
 
 from globaleaks.db.migrations.update import MigrationBase
+from globaleaks.handlers.admin.operation import db_reset_smtp_settings
 from globaleaks.models import Model
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Boolean, Column, DateTime, Integer, JSON, UnicodeText, uuid4
 from globaleaks.utils.utility import datetime_now, datetime_never, datetime_null
 
 
-class FieldAttr_v_52(Model):
+class FieldAttrV52(Model):
     __tablename__ = 'fieldattr'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4, nullable=False)
     field_id = Column(UnicodeText(36), nullable=False)
@@ -16,7 +16,7 @@ class FieldAttr_v_52(Model):
     value = Column(JSON, default=dict, nullable=False)
 
 
-class InternalTip_v_52(Model):
+class InternalTipV52(Model):
     __tablename__ = 'internaltip'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -37,7 +37,7 @@ class InternalTip_v_52(Model):
     crypto_tip_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
 
-class ReceiverTip_v_52(Model):
+class ReceiverTipV52(Model):
     __tablename__ = 'receivertip'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_id = Column(UnicodeText(36), nullable=False)
@@ -50,7 +50,7 @@ class ReceiverTip_v_52(Model):
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
 
 
-class Subscriber_v_52(Model):
+class SubscriberV52(Model):
     __tablename__ = 'signup'
 
     id = Column(Integer, primary_key=True)
@@ -71,7 +71,7 @@ class Subscriber_v_52(Model):
     tos2 = Column(UnicodeText, default='', nullable=False)
 
 
-class Tenant_v_52(Model):
+class TenantV52(Model):
     __tablename__ = 'tenant'
 
     id = Column(Integer, primary_key=True, nullable=False)
@@ -81,7 +81,7 @@ class Tenant_v_52(Model):
     subdomain = Column(UnicodeText, default='', nullable=False)
 
 
-class User_v_52(Model):
+class UserV52(Model):
     __tablename__ = 'user'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -124,53 +124,28 @@ class User_v_52(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_Context(self):
-        for old_obj in self.session_old.query(self.model_from['Context']):
-            new_obj = self.model_to['Context']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                value = getattr(old_obj, key)
+    converted_attrs = {
+        'Context': {'tip_timetolive': lambda o: max(o.tip_timetolive, 0)},
+        'User': {'forcefully_selected': lambda o: o.recipient_configuration == 1}
+    }
 
-                if key == 'tip_timetolive' and value < 0:
-                    value = 0
+    renamed_config = {
+        'https_priv_key': 'https_key'
+    }
 
-                setattr(new_obj, key, value)
-
-            self.session_new.add(new_obj)
-
-    def migrate_Tenant(self):
+    def migrate_tenant(self):
         for old_obj in self.session_old.query(self.model_from['Tenant']):
-            self.entries_count['Config'] += 1
+            self.add_entry('Config', self.model_to['Config']({'tid': old_obj.id, 'var_name': 'subdomain', 'value': old_obj.subdomain}))
 
-            new_obj = self.model_to['Tenant']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                setattr(new_obj, key, getattr(old_obj, key))
-
-            for key in ['subdomain']:
-                x = self.model_to['Config']()
-                x.tid = old_obj.id
-                x.var_name = key
-                x.value = getattr(old_obj, key)
-                self.session_new.add(x)
-
-            self.session_new.add(new_obj)
-
-    def migrate_User(self):
-        for old_obj in self.session_old.query(self.model_from['User']):
-            new_obj = self.model_to['User']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'forcefully_selected':
-                    new_obj.forcefully_selected = old_obj.recipient_configuration == 1
-                if hasattr(old_obj, key):
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
+            self.session_new.add(self.copy('Tenant', old_obj))
 
     def epilogue(self):
         m = self.model_to['Config']
 
-        self.session_new.query(m) \
-                        .filter(m.var_name == 'https_priv_key') \
-                        .update({'var_name': 'https_key'})
+        for tid in self.session_new.query(m.tid) \
+                                   .filter(m.var_name == 'smtp_port',
+                                           m.value == 9267):
+            db_reset_smtp_settings(self.session_new, tid[0])
 
         m = self.model_to['ConfigL10N']
 

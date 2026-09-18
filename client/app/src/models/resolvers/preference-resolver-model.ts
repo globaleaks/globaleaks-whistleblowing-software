@@ -8,11 +8,25 @@ export class UserProfile {
     can_postpone_expiration: boolean;
     can_delete_submission: boolean;
     can_grant_access_to_reports: boolean;
-    can_edit_general_settings: boolean;
+    can_manage_settings: boolean;
+    can_manage_users: boolean;
+    can_manage_user_profiles: boolean;
+    can_manage_channels: boolean;
+    can_manage_questionnaires: boolean;
+    can_manage_case_management: boolean;
+    can_manage_notifications: boolean;
+    can_manage_network: boolean;
+    can_manage_sites: boolean;
+    can_manage_auditlog: boolean;
+    can_manage_support: boolean;
     can_transfer_access_to_reports: boolean;
+    can_send_communications: boolean;
+    can_change_status: boolean;
+    can_change_label: boolean;
     can_mask_information: boolean;
     can_redact_information: boolean;
     can_upload_files: boolean;
+    can_configure_statistical_report_templates: boolean;
   };
   custom: boolean;
 }

@@ -1,67 +1,77 @@
 <div class="row">
   <div class="col-md-6">
     <div class="form-group">
-      <label>{{ 'Logo' | translate }}</label>
+      <span class="form-label">{{ 'Logo' | translate }}</span>
       <div appImageUpload [imageUploadModel]="nodeResolver.dataModel" [imageUploadModelAttr]="'logo'" [imageUploadId]="'logo'"></div>
     </div>
     <div class="form-group">
       <label for="project-name-input">{{ 'Project name' | translate }}</label>
-      <input id="project-name-input" name="node.dataModel.name" class="form-control" [(ngModel)]="nodeResolver.dataModel.name" type="text" required />
+      <input id="project-name-input" name="node.dataModel.name" class="form-control" [(ngModel)]="nodeResolver.dataModel.name" srcHeldByProfile="name" type="text" required />
     </div>
     <div class="form-group">
       <label for="node-description">{{ 'Description' | translate }}</label>
       <div>
-        <textarea id="node-description" name="node.dataModel.description" class="form-control" [(ngModel)]="nodeResolver.dataModel.description"></textarea>
+        <textarea id="node-description" name="node.dataModel.description" class="form-control" [(ngModel)]="nodeResolver.dataModel.description" srcHeldByProfile="description"></textarea>
       </div>
     </div>
     <div class="form-group">
       <label for="node-header-title">{{ 'Homepage title' | translate }}</label>
       <div>
-        <textarea id="node-header-title" class="form-control" name="node.dataModel.header_title_homepage" [(ngModel)]="nodeResolver.dataModel.header_title_homepage"></textarea>
+        <textarea id="node-header-title" class="form-control" name="node.dataModel.header_title_homepage" [(ngModel)]="nodeResolver.dataModel.header_title_homepage" srcHeldByProfile="header_title_homepage"></textarea>
       </div>
     </div>
     <div class="form-group">
       <label for="node-presentation">{{ 'Presentation' | translate }}</label>
       <div>
-        <textarea id="node-presentation" class="form-control" name="node.dataModel.presentation" [(ngModel)]="nodeResolver.dataModel.presentation"></textarea>
+        <textarea id="node-presentation" class="form-control" name="node.dataModel.presentation" [(ngModel)]="nodeResolver.dataModel.presentation" srcHeldByProfile="presentation"></textarea>
       </div>
     </div>
     @if (authenticationService.session?.role === 'admin') {
       <div class="form-group">
-        <label for="node-whistleblowing-question">{{ 'Question to solicit possible reporting persons' | translate }}</label>
+        <label for="node-whistleblowing-question">{{ 'Question' | translate }}</label>
         <div>
-          <textarea id="node-whistleblowing-question" name="node.dataModel.whistleblowing_question" class="form-control" [(ngModel)]="nodeResolver.dataModel.whistleblowing_question"></textarea>
+          <textarea id="node-whistleblowing-question" name="node.dataModel.whistleblowing_question" class="form-control" [(ngModel)]="nodeResolver.dataModel.whistleblowing_question" srcHeldByProfile="whistleblowing_question"></textarea>
         </div>
       </div>
     }
     @if (authenticationService.session?.role === 'admin') {
-      <div class="form-group">
-        <label for="whistleblowing-button-input">{{ 'Whistleblowing button' | translate }}</label>
-        <input id="whistleblowing-button-input" name="nodeResolver.dataModel.whistleblowing_button" class="form-control" [(ngModel)]="nodeResolver.dataModel.whistleblowing_button" type="text" />
+      <span class="form-label">{{ 'Button' | translate }}</span>
+      <div class="ms-4">
+        <div class="form-group">
+          <label for="whistleblowing-button-input">{{ 'Text' | translate }}</label>
+          <input id="whistleblowing-button-input" name="nodeResolver.dataModel.whistleblowing_button" class="form-control" [(ngModel)]="nodeResolver.dataModel.whistleblowing_button" srcHeldByProfile="whistleblowing_button" type="text" />
+        </div>
+        <div class="form-group">
+          <label for="whistleblowing-destination-select">{{ 'Destination' | translate }}</label>
+          <select id="whistleblowing-destination-select" class="form-select-custom" name="nodeResolver.dataModel.whistleblowing_destination" [(ngModel)]="nodeResolver.dataModel.whistleblowing_destination" srcHeldByProfile="whistleblowing_destination">
+            <option value="/submission">/submission</option>
+            <option value="/login">/login</option>
+          </select>
+        </div>
       </div>
     }
     <div class="form-group">
       <label for="node-disclaimer-text">{{ 'Disclaimer' | translate }}</label>
       <div>
-        <textarea id="node-disclaimer-text" name="nodeResolver.dataModel.disclaimer_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.disclaimer_text"></textarea>
+        <textarea id="node-disclaimer-text" name="nodeResolver.dataModel.disclaimer_text" class="form-control" [(ngModel)]="nodeResolver.dataModel.disclaimer_text" srcHeldByProfile="disclaimer_text"></textarea>
       </div>
     </div>
     <div class="form-group">
       <label for="footer-whistleblowing-policy">{{'Whistleblowing Policy'|translate}}</label>
-      <input id="footer-whistleblowing-policy" name="footer_whistleblowing_policy" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer_whistleblowing_policy" [pattern]="Constants.secureLocalUrlRegexp" [ngClass]="{'is-invalid': contentForm.form.get('footer_whistleblowing_policy')?.errors?.['pattern']}" type="text" />
+      <input id="footer-whistleblowing-policy" name="footer_whistleblowing_policy" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer_whistleblowing_policy" srcHeldByProfile="footer_whistleblowing_policy" [pattern]="Constants.secureLocalUrlRegexp" [class.is-invalid]="contentForm().form.get('footer_whistleblowing_policy')?.errors?.['pattern']" type="text" />
     </div>
     <div class="form-group">
       <label for="footer-privacy-policy">{{'Privacy Policy'|translate}}</label>
-      <input id="footer-privacy-policy" name="footer_privacy_policy" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer_privacy_policy" [pattern]="Constants.secureLocalUrlRegexp" [ngClass]="{'is-invalid': contentForm.form.get('footer_privacy_policy')?.errors?.['pattern']}" type="text" />
+      <input id="footer-privacy-policy" name="footer_privacy_policy" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer_privacy_policy" srcHeldByProfile="footer_privacy_policy" [pattern]="Constants.secureLocalUrlRegexp" [class.is-invalid]="contentForm().form.get('footer_privacy_policy')?.errors?.['pattern']" type="text" />
     </div>
     <div class="form-group">
       <label for="node-footer">{{ 'Footer' | translate }}</label>
       <div>
-        <textarea id="node-footer" name="nodeResolver.dataModel.footer" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer"></textarea>
+        <textarea id="node-footer" name="nodeResolver.dataModel.footer" class="form-control" [(ngModel)]="nodeResolver.dataModel.footer" srcHeldByProfile="footer"></textarea>
       </div>
     </div>
     <div class="form-group">
-      <button class="btn btn-primary" id="save_settings" [disabled]="contentForm.invalid" (click)="updateNode()" type="submit">
+      <button class="btn btn-primary" id="save_settings" [disabled]="contentForm().invalid" (click)="updateNode()" type="submit">
         <i class="fas fa-check"></i>
         <span>{{ 'Save' | translate }}</span>
       </button>

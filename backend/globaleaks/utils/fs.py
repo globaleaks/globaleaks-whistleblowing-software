@@ -1,4 +1,3 @@
-import io
 import json
 import os
 import secrets
@@ -26,9 +25,12 @@ def srm(absolutefpath, iterations_number=1):
 
     def _overwrite(absolutefpath, pattern):
         count = 0
-        length = len(pattern)
+        length = os.path.getsize(absolutefpath)
 
-        with open(absolutefpath, 'wb+') as f:
+        # 'r+b' (not 'wb+') so the file is not truncated on open: truncation
+        # would release the original data blocks unoverwritten. Overwrite the
+        # whole content, in pattern-sized chunks, up to the original size.
+        with open(absolutefpath, 'r+b') as f:
             f.seek(0)
             while count < length:
                 f.write(pattern)
@@ -67,18 +69,18 @@ def srm(absolutefpath, iterations_number=1):
 
 def directory_traversal_check(trusted_absolute_prefix, untrusted_path):
     """
-    Check that an 'untrusted_path' matches a 'trusted_absolute_path' prefix
+    Ensure that ``untrusted_path`` is contained within ``trusted_absolute_prefix``.
 
-    :param trusted_absolute_prefix: A prefix of the sandbox
-    :param untrusted_path:  The untrasted path
+    :param trusted_absolute_prefix: absolute path of the sandbox root
+    :param untrusted_path: path derived (directly or indirectly) from user input
+    :raises errors.DirectoryTraversalError: if ``untrusted_path`` escapes the sandbox
     """
-    untrusted_path = os.path.abspath(untrusted_path)
-    trusted_absolute_prefix = os.path.abspath(trusted_absolute_prefix)
+    trusted_absolute_prefix = os.path.realpath(trusted_absolute_prefix)
+    untrusted_path = os.path.realpath(untrusted_path)
 
-    if trusted_absolute_prefix != os.path.commonprefix([trusted_absolute_prefix, untrusted_path]):
+    if os.path.commonpath([trusted_absolute_prefix, untrusted_path]) != trusted_absolute_prefix:
         log.err("Blocked file operation for: (prefix, attempted_path) : ('%s', '%s')",
                 trusted_absolute_prefix, untrusted_path)
-
         raise errors.DirectoryTraversalError
 
 
@@ -91,14 +93,16 @@ def get_disk_space(path):
 
 def read_file(p):
     try:
-        with io.open(p, 'r', encoding='utf-8') as f:
+        with open(p, encoding='utf-8') as f:
             return f.read().rstrip("\n")
-    except:
+    except (OSError, UnicodeDecodeError):
+        # OSError: missing/unreadable file. UnicodeDecodeError: invalid UTF-8 bytes.
         return ""
 
 
 def read_json_file(p):
     try:
         return json.loads(read_file(p))
-    except:
+    except (ValueError, TypeError):
+        # ValueError covers json.JSONDecodeError (its parent class).
         return {}

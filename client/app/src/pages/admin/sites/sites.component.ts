@@ -1,75 +1,28 @@
-import {Component, TemplateRef, ViewChild, OnInit, AfterViewInit, ChangeDetectorRef, inject} from "@angular/core";
-import {NodeResolver} from "@app/shared/resolvers/node.resolver";
+import {Component, inject} from "@angular/core";
+import {FormsModule} from "@angular/forms";
+import {TabsComponent} from "@app/shared/components/tabs/tabs.component";
+import {TabDirective} from "@app/shared/components/tabs/tab.directive";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {Tab} from "@app/models/component-model/tab";
+import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {SitesTab1Component} from "@app/pages/admin/sites/sites-tab1/sites-tab1.component";
 import {SitesTab2Component} from "@app/pages/admin/sites/sites-tab2/sites-tab2.component";
 import {SitesTab3Component} from "@app/pages/admin/sites/sites-tab3/sites-tab3.component";
 import {SitesTab4Component} from "@app/pages/admin/sites/sites-tab4/sites-tab4.component";
-import {FormsModule} from "@angular/forms";
-import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
-import {NgTemplateOutlet} from "@angular/common";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {TranslateModule} from "@ngx-translate/core";
+import {SitesTab5Component} from "@app/pages/admin/sites/sites-tab5/sites-tab5.component";
 
 @Component({
     selector: "src-sites",
     templateUrl: "./sites.component.html",
     standalone: true,
-    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, SitesTab1Component, SitesTab2Component, SitesTab3Component, SitesTab4Component, TranslatorPipe, TranslateModule]
+    imports: [TabsComponent, TabDirective, FormsModule, SitesTab1Component, SitesTab2Component, SitesTab3Component, SitesTab4Component, SitesTab5Component]
 })
-export class SitesComponent implements OnInit, AfterViewInit {
-  node = inject(NodeResolver);
-  authenticationService = inject(AuthenticationService);
-  private cdr = inject(ChangeDetectorRef);
+export class SitesComponent {
+  protected node = inject(NodeResolver);
 
-  @ViewChild("tab1") tab1!: TemplateRef<SitesTab1Component>;
-  @ViewChild("tab2") tab2!: TemplateRef<SitesTab2Component>;
-  @ViewChild("tab3") tab3!: TemplateRef<SitesTab3Component>;
-  @ViewChild("tab4") tab4!: TemplateRef<SitesTab4Component>;
+  protected isAdmin = inject(AuthenticationService).session?.role === "admin";
 
-  tabs: Tab[];
-  nodeData: NodeResolver;
-  active: string;
-
-  ngOnInit() {
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.active = "Sites";
-
-      this.nodeData = this.node;
-      this.tabs = [
-        {
-          id:"sites",
-          title: "Sites",
-          component: this.tab1
-        },
-        {
-          id:"profiles",
-          title: "Profiles",
-          component: this.tab2
-        },
-      ];
-      if (this.authenticationService.session.role === "admin") {
-        const adminTabs: Tab[] = [
-          {
-            id:"options",
-            title: "Options",
-            component: this.tab3
-          },
-          {
-            id:"invites",
-            title: "Registrations",
-            component: this.tab4
-          },
-        ];
-
-        this.tabs = this.tabs.concat(adminTabs);
-      }
-
-      this.cdr.detectChanges();
-    });
+  // The registrations are offered only where the signup is open
+  protected get areInvitesConfigurable(): boolean {
+    return this.isAdmin && this.node.dataModel.enable_signup;
   }
 }

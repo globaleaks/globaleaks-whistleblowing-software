@@ -6,18 +6,17 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-password-reset-response",
     templateUrl: "./password-reset-response.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, TranslateModule]
 })
 export class PasswordResetResponseComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private httpService = inject(HttpService);
-  private router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
+  private readonly router = inject(Router);
   protected utilsService = inject(UtilsService);
 
   state = "start";
@@ -33,7 +32,7 @@ export class PasswordResetResponseComponent implements OnInit {
       {
         next: response => {
           if (response.status === "success") {
-            this.router.navigate([("/login")], {queryParams: {token: response.token}}).then();
+            void this.router.navigate([("/login")], {queryParams: {token: response.token}});
           } else {
             if (response.status === "require_recovery_key") {
               this.request.recovery_key = "";

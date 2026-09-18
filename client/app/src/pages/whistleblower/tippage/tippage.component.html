@@ -1,9 +1,12 @@
 @if (wbTipService.tip) {
-  <div class="reveal" [ngClass]="['report-status-' + wbTipService.tip.status, 'report-substatus-' + wbTipService.tip.substatus]">
+  <div class="reveal" [class]="['report-status-' + wbTipService.tip.status, 'report-substatus-' + wbTipService.tip.substatus]">
     <div id="Toolbar" class="row">
       <div class="col-md-12">
         <div class="d-flex justify-content-end">
           <div class="d-flex align-items-center">
+            <button id="tip-action-access-audit-log" type="button" class="btn btn-outline-secondary" ngbTooltip="{{'Logs' | translate}}" [attr.aria-label]="'Logs' | translate" (click)="openLogsModal()">
+              <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+            </button>
             <button id="link-reload" type="button" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}" class="btn btn-outline-secondary" [attr.aria-label]="'Refresh' | translate">
               <i class="fas fa-arrows-rotate"></i>
             </button>
@@ -30,12 +33,12 @@
     </div>
     @if (wbTipService.tip.data) {
       <div class="row">
-        <div [ngClass]="{'col-md-12': !wbTipService.tip.whistleblower_identity_field,'col-md-6': wbTipService.tip.whistleblower_identity_field}">
+        <div [class.col-md-12]="!wbTipService.tip.whistleblower_identity_field" [class.col-md-6]="wbTipService.tip.whistleblower_identity_field">
           <src-tip-questionnaire-answers [tipService]="wbTipService"></src-tip-questionnaire-answers>
         </div>
         @if (wbTipService.tip.whistleblower_identity_field && wbTipService.tip.whistleblower_identity_field.enabled) {
           <div class="col-md-6">
-            <src-whistleblower-identity [uploadEstimateTime]="calculateEstimatedTime()" [uploadProgress]="calculateProgress()" [isUploading]="uploading()" (onFormUpdate)="onFormChange()" (provideIdentityInformation)=provideIdentityInformation($event) [answers]="answers" [step]="wbTipService.tip.whistleblower_identity_field" [field]="wbTipService.tip.whistleblower_identity_field" [submission]="submission" [uploads]="uploads"></src-whistleblower-identity>
+            <src-whistleblower-identity [uploadEstimateTime]="calculateEstimatedTime()" [uploadProgress]="calculateProgress()" [isUploading]="uploading()" (formUpdate)="onFormChange()" (provideIdentityInformation)="provideIdentityInformation()" [answers]="answers" [step]="wbTipService.tip.whistleblower_identity_field" [field]="wbTipService.tip.whistleblower_identity_field" [submission]="submission" [uploads]="uploads"></src-whistleblower-identity>
           </div>
         }
       </div>

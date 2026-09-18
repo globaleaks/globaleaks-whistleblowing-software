@@ -1,3 +1,4 @@
+import inspect
 import ipaddress
 import re
 
@@ -9,8 +10,17 @@ from cryptography.hazmat.backends import default_backend
 
 from OpenSSL import SSL
 from OpenSSL._util import lib as _lib
-from OpenSSL.crypto import load_certificate, load_privatekey, FILETYPE_PEM, \
-    dump_certificate_request, X509Req
+from OpenSSL.crypto import load_certificate, load_privatekey, FILETYPE_PEM
+
+# NOTE: pyOpenSSL deprecates passing its own X509/PKey objects to the
+# SSL.Context methods (use_certificate/add_extra_chain_cert/use_privatekey)
+# and asks for cryptography objects instead. That newer API is only
+# available since pyOpenSSL 23.2, while Ubuntu 22.04 (jammy, 21.0.0) still
+# ships the old one that only accepts pyOpenSSL objects. Once jammy is
+# dropped, load the certificate/key with cryptography
+# (x509.load_pem_x509_certificate / serialization.load_pem_private_key) and
+# pass those objects directly, then remove the load_certificate and
+# load_privatekey imports above.
 
 from twisted.internet import ssl
 
@@ -34,6 +44,17 @@ TLS_CIPHER_LIST = b'TLS13-AES-256-GCM-SHA384:' \
                   b'ECDHE-ECDSA-AES128-GCM-SHA256:' \
                   b'ECDHE-RSA-AES128-GCM-SHA256'
 
+TLS_SIGALGS_LIST = b'ed25519:' \
+                   b'ECDSA+SHA512:' \
+                   b'ECDSA+SHA384:' \
+                   b'ECDSA+SHA256:' \
+                   b'RSA-PSS+SHA512:' \
+                   b'RSA-PSS+SHA384:' \
+                   b'RSA-PSS+SHA256:' \
+                   b'RSA+SHA512:' \
+                   b'RSA+SHA384:' \
+                   b'RSA+SHA256'
+
 
 trustRoot = ssl.platformTrust()
 
@@ -49,31 +70,26 @@ def gen_rsa_key(bits):
         backend=default_backend()
     )
 
-    key = key.private_bytes(
+    return key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption(),
     )
-
-    return key
 
 
 def gen_ecc_key():
     key = ec.generate_private_key(ec.SECP384R1(), default_backend())
 
-    key = key.private_bytes(
+    return key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
         encryption_algorithm=serialization.NoEncryption(),
     )
 
-    return key
-
 
 def gen_x509_csr_pem(key_pair, csr_fields, csr_sign_bits):
-    req = gen_x509_csr(key_pair, csr_fields, csr_sign_bits)
-    pem_csr = dump_certificate_request(SSL.FILETYPE_PEM, req)
-    return pem_csr
+    csr = gen_x509_csr(key_pair, csr_fields, csr_sign_bits)
+    return csr.public_bytes(serialization.Encoding.PEM)
 
 
 def gen_selfsigned_certificate(hostname="127.0.0.1", ip="127.0.0.1"):
@@ -143,21 +159,34 @@ def gen_x509_csr(key_pair, csr_fields, csr_sign_bits):
         CN    - Common name
         emailAddress - E-mail address
 
-    :rtype: A `pyopenssl.OpenSSL.crypto.X509Req`
+    :rtype: A `cryptography.x509.CertificateSigningRequest`
     """
-    req = X509Req()
-    subj = req.get_subject()
+    name_oids = {
+        'C': NameOID.COUNTRY_NAME,
+        'ST': NameOID.STATE_OR_PROVINCE_NAME,
+        'L': NameOID.LOCALITY_NAME,
+        'O': NameOID.ORGANIZATION_NAME,
+        'OU': NameOID.ORGANIZATIONAL_UNIT_NAME,
+        'CN': NameOID.COMMON_NAME,
+        'emailAddress': NameOID.EMAIL_ADDRESS,
+    }
 
-    for field, value in csr_fields.items():
-        if value:
-            setattr(subj, field, value)
+    if isinstance(key_pair, str):
+        key_pair = key_pair.encode()
 
-    prv_key = load_privatekey(SSL.FILETYPE_PEM, key_pair)
+    key = serialization.load_pem_private_key(key_pair, password=None, backend=default_backend())
 
-    req.set_pubkey(prv_key)
-    req.sign(prv_key, 'sha'+str(csr_sign_bits))
+    name = x509.Name([
+        x509.NameAttribute(name_oids[field], value)
+        for field, value in csr_fields.items()
+        if value and field in name_oids
+    ])
 
-    return req
+    return (
+        x509.CertificateSigningRequestBuilder()
+        .subject_name(name)
+        .sign(key, getattr(hashes, f'SHA{csr_sign_bits}')(), default_backend())
+    )
 
 
 def parse_issuer_name(x509):
@@ -177,7 +206,7 @@ def parse_issuer_name(x509):
 
 def split_pem_chain(s):
     """Splits an ascii armored cert chain into a list of strings which could be valid certs"""
-    gex_str = r"-----BEGIN CERTIFICATE-----\r?.+?\r?-----END CERTIFICATE-----\r?\n?"
+    gex_str = r"-----BEGIN CERTIFICATE-----\r?[^-]+?\r?-----END CERTIFICATE-----\r?\n?"
     gex = re.compile(gex_str, re.DOTALL)
 
     try:
@@ -190,13 +219,14 @@ def split_pem_chain(s):
 
 
 def new_tls_server_context():
-    ctx = SSL.Context(SSL.SSLv23_METHOD)
+    ctx = SSL.Context(SSL.TLS_METHOD)
 
-    ctx.set_options(SSL.OP_NO_SSLv2 |
-                    SSL.OP_NO_SSLv3 |
-                    SSL.OP_NO_TLSv1 |
-                    SSL.OP_NO_TLSv1_1 |
-                    SSL.OP_CIPHER_SERVER_PREFERENCE |
+    # The floor is declared rather than subtracted: every protocol below TLS 1.2
+    # is refused by the version the context negotiates from, and not by a list of
+    # the versions to leave out
+    ctx.set_min_proto_version(SSL.TLS1_2_VERSION)
+
+    ctx.set_options(SSL.OP_CIPHER_SERVER_PREFERENCE |
                     SSL.OP_PRIORITIZE_CHACHA |
                     SSL.OP_SINGLE_ECDH_USE |
                     SSL.OP_NO_COMPRESSION |
@@ -208,17 +238,74 @@ def new_tls_server_context():
 
     ctx.set_cipher_list(TLS_CIPHER_LIST)
 
+    # Restrict the signature schemes usable for the key exchange signature
+    # to EdDSA, ECDSA and RSA paired with SHA-256, SHA-384 and SHA-512,
+    # excluding SHA-224 and SHA-1 that are otherwise enabled by the OpenSSL
+    # defaults on TLS 1.2.
+    if _lib.SSL_CTX_set1_sigalgs_list(ctx._context, TLS_SIGALGS_LIST) != 1:  # pylint: disable=no-member
+        raise RuntimeError("Failed to set the TLS signature algorithms list")
+
     return ctx
 
 
-def new_tls_client_context():
-    ctx = SSL.Context(SSL.SSLv23_METHOD)
+def client_tls_options(hostname, ctx):
+    """
+    Build an IOpenSSLClientConnectionCreator that performs SNI and server
+    hostname verification reusing the given OpenSSL context.
 
-    ctx.set_options(SSL.OP_NO_SSLv2 |
-                    SSL.OP_NO_SSLv3 |
-                    SSL.OP_NO_TLSv1 |
-                    SSL.OP_NO_TLSv1_1 |
-                    SSL.OP_SINGLE_ECDH_USE |
+    Twisted only exposes this functionality, applied to a caller-provided
+    context, through the private ``twisted.internet._sslverify.ClientTLSOptions``
+    class. The public ``twisted.internet.ssl.optionsForClientTLS`` builds its
+    own context and cannot reuse ``new_tls_client_context()``.
+
+    The constructor signature is NOT stable across Twisted releases:
+
+      * Twisted <= 25.5.0:  ``ClientTLSOptions(hostname, ctx)``
+        The context is passed directly; SNI and hostname verification are
+        wired through an info callback installed on the context.
+
+      * Twisted >= 26.4.0:  ``ClientTLSOptions(createConnection, hostname,
+        sendServerName=None)``
+        The context is no longer accepted directly; instead a
+        ``createConnection(tlsProtocol) -> OpenSSL.SSL.Connection`` callable is
+        passed, and SNI/verification are applied in ``clientConnectionForTLS``.
+
+    Both shapes are handled here by introspecting the constructor parameters,
+    so callers keep the stable ``(hostname, ctx)`` contract regardless of the
+    installed Twisted version (verified on 18.9.0, 20.3.0, 22.x, 24.x, 25.5.0
+    and 26.4.0).
+
+    :param hostname: The server hostname to verify (str, not bytes).
+    :param ctx: An OpenSSL.SSL.Context to use for new connections.
+    :return: An object usable as ESMTP/TLSMemoryBIOFactory contextFactory.
+    """
+    try:
+        from twisted.internet._sslverify import ClientTLSOptions  # noqa: PLC0415
+    except ImportError as e:  # pragma: no cover
+        raise ImportError(
+            "twisted.internet._sslverify.ClientTLSOptions is unavailable in "
+            "this Twisted version; globaleaks.utils.tls.client_tls_options "
+            "needs to be updated to match the installed Twisted release."
+        ) from e
+
+    params = list(inspect.signature(ClientTLSOptions).parameters)
+
+    if "createConnection" in params:
+        # Twisted >= 26.4.0: supply a connection factory bound to our context.
+        # SNI and hostname verification are handled by ClientTLSOptions itself.
+        return ClientTLSOptions(lambda tlsProtocol: SSL.Connection(ctx, None),
+                                hostname)
+
+    # Twisted <= 25.5.0: the context is consumed directly.
+    return ClientTLSOptions(hostname, ctx)
+
+
+def new_tls_client_context():
+    ctx = SSL.Context(SSL.TLS_METHOD)
+
+    ctx.set_min_proto_version(SSL.TLS1_2_VERSION)
+
+    ctx.set_options(SSL.OP_SINGLE_ECDH_USE |
                     SSL.OP_NO_COMPRESSION |
                     SSL.OP_NO_RENEGOTIATION |
                     SSL.OP_CLEANSE_PLAINTEXT)
@@ -229,13 +316,13 @@ def new_tls_client_context():
     # It'd be nice if pyOpenSSL let us pass None here for this behavior (as
     # the underlying OpenSSL API call allows NULL to be passed).  It
     # doesn't, so we'll supply a function which does the same thing.
-    def _verifyCallback(conn, cert, errno, depth, ok):
+    def _verify_callback(conn, cert, errno, depth, ok):
         if not ok:
-            log.err("Unable to verify validity of certificate: %s" % cert.get_subject())
+            log.err(f"Unable to verify validity of certificate: {cert.get_subject()}")
 
         return ok
 
-    ctx.set_verify(SSL.VERIFY_PEER, _verifyCallback)
+    ctx.set_verify(SSL.VERIFY_PEER, _verify_callback)
     ctx.set_verify_depth(100)
 
     trustRoot._addCACertsToContext(ctx)
@@ -278,7 +365,7 @@ class TLSClientContextFactory(ssl.ClientContextFactory):
         return new_tls_client_context()
 
 
-class CtxValidator(object):
+class CtxValidator:
     parents = []
 
     def _validate_parents(self, cfg, ctx, check_expiration):

@@ -1,16 +1,5 @@
-import {
-  AfterViewInit,
-  Component,
-  ContentChild,
-  inject,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
-  TemplateRef
-} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {AfterViewInit, Component, contentChild, inject, input, model, output, OnChanges, SimpleChanges, TemplateRef} from '@angular/core';
+import {NgTemplateOutlet} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {UtilsService} from "@app/shared/services/utils.service";
 import {SearchInputComponent} from '@app/shared/components/search/search.component';
@@ -19,128 +8,123 @@ import {PaginationComponent} from '@app/shared/components/pagination/pagination.
 @Component({
   selector: 'app-paginated-interface',
   templateUrl: './paginated-interface.component.html',
-  imports: [CommonModule, FormsModule, PaginationComponent, SearchInputComponent],
+  imports: [FormsModule, NgTemplateOutlet, PaginationComponent, SearchInputComponent],
 })
 export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges {
-  @Input() mode: 'table' | 'simple' = 'simple';
-  @Input() items: T[] = [];
-  @Input() filterField = '';
-  @Input() itemsPerPage = 20;
-  @Input() showSearch = true;
-  @Input() serverSide = false;
-  @Input() totalItems = 0;
-  @Input() currentPage = 1;
-  @Output() stateChange = new EventEmitter<{
+  readonly mode = input<'table' | 'simple'>('simple');
+  /** Rows that open on a click: they follow the pointer instead of striping */
+  readonly hoverRows = input(false);
+  readonly items = input<T[]>([]);
+  readonly filterField = input('');
+  readonly itemsPerPage = input(20);
+
+  /** Optional: filter by key-value pairs */
+  readonly filter = input<Record<string, any>>();
+
+  /** Optional boolean filter, offered next to the search as a checkbox */
+  readonly filterOptLabel = input('');
+  readonly filterOptEnabled = model(false);
+  readonly filterOptFn = input<(item: T) => boolean>();
+
+  /** Optional: order items by field and direction */
+  readonly orderBy = input<keyof T>();
+  readonly orderDesc = input(false);
+
+  /** Optional: the identifier of the item the interface must open on */
+  readonly focusItemId = input('');
+
+  /**
+   * Optional: what a row is known by across the updates of the list. A row is
+   * the object itself by default, so a list rebuilding its items on every
+   * update rebuilds every row, and what the reader had open closes under it.
+   */
+  readonly trackKey = input<(item: T) => unknown>();
+
+  /** Templates (auto-detected if mode not set) */
+  readonly header = contentChild<TemplateRef<any>>('header');
+  readonly content = contentChild<TemplateRef<any>>('content');
+
+  /** Optional collection actions (e.g. Add, Import) shown on the left of the search input */
+  readonly toolbar = contentChild<TemplateRef<unknown>>('toolbar');
+
+  /** Optional creation form shown between the toolbar and the list */
+  readonly addForm = contentChild<TemplateRef<unknown>>('addForm');
+
+  searchText = '';
+  readonly currentPage = model(1);
+  readonly serverSide = input(false);
+  readonly totalItems = input(0);
+  readonly stateChange = output<{
     type: 'page' | 'search' | 'filter';
     page: number;
     search: string;
     filterEnabled: boolean;
   }>();
-
-  /** Optional: filter by key-value pairs */
-  @Input() filter?: { [key: string]: any };
-
-  /** Optional boolean filter (toggle) */
-  @Input() filterOptLabel?: string;
-  @Input() filterOptEnabled? = false;
-  @Input() filterOptFn?: (item: T) => boolean;
-
-  /** Optional: order items by field and direction */
-  @Input() orderBy?: keyof T;
-  @Input() orderDesc = false;
-
-  /** Templates (auto-detected if mode not set) */
-  @ContentChild('header') header?: TemplateRef<any>;
-  @ContentChild('content') content?: TemplateRef<any>;
-
-  searchText = '';
   filteredItems: T[] = [];
   paginatedItems: T[] = [];
 
-  private utilsService = inject(UtilsService);
+  // The items surviving the structural filter alone: the search and the
+  // toggle are offered only when they have something to narrow down
+  scopedCount = 0;
 
-  constructor() {}
+  // The item the interface has already been positioned on: the position is
+  // taken once, so that the pages turned afterwards are the ones of the reader
+  private focusedItemId = '';
+
+  private readonly utilsService = inject(UtilsService);
 
   ngAfterViewInit(): void {
     this.update();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['items'] || changes['filter'] || changes['orderBy'] || changes['orderDesc']) {
-      if (!this.serverSide) {
-        this.currentPage = 1;
+    if (changes['items'] || changes['filter'] || changes['orderBy'] || changes['orderDesc'] || changes['focusItemId']) {
+      // A shorter list may no longer hold the page in view
+      if (!this.serverSide()) {
+        this.currentPage.set(1);
       }
       this.update();
     }
   }
 
-  /** Reset to the first page (e.g. on search) and recompute. */
-  onSearchChange(): void {
-    this.currentPage = 1;
-    if (this.serverSide) {
-      this.emitState('search');
-      return;
-    }
-    this.update();
-  }
+  identity(item: T): unknown {
+    const key = this.trackKey();
 
-  onFilterChange(): void {
-    this.currentPage = 1;
-    if (this.serverSide) {
-      this.emitState('filter');
-      return;
-    }
-    this.update();
-  }
-
-  onPageChange(page: number): void {
-    this.currentPage = page;
-    if (this.serverSide) {
-      this.emitState('page');
-      return;
-    }
-    this.update();
-  }
-
-  private emitState(type: 'page' | 'search' | 'filter'): void {
-    this.stateChange.emit({
-      type,
-      page: this.currentPage,
-      search: this.searchText,
-      filterEnabled: !!this.filterOptEnabled
-    });
+    return key ? key(item) : item;
   }
 
   update(): void {
-    this.filteredItems = [...this.items];
-
-    if (this.serverSide) {
-      this.paginatedItems = [...this.items];
+    this.filteredItems = [...this.items()];
+    if (this.serverSide()) {
+      this.scopedCount = this.totalItems();
+      this.paginatedItems = [...this.items()];
       return;
     }
 
     // Apply optional filter object
-    if (this.filter) {
+    if (this.filter()) {
       this.filteredItems = this.filteredItems.filter(item =>
-        Object.entries(this.filter!).every(
+        Object.entries(this.filter()!).every(
           ([key, value]) => (item as any)[key] === value
         )
       );
     }
 
-    // Apply optional boolean filter (toggle)
-    if (this.filterOptFn && this.filterOptEnabled) {
-      this.filteredItems = this.filteredItems.filter(item =>
-        this.filterOptFn!(item)
-      );
+    this.scopedCount = this.filteredItems.length;
+
+    // Apply the optional boolean filter
+    const filterOptFn = this.filterOptFn();
+    if (filterOptFn && this.filterOptEnabled()) {
+      this.filteredItems = this.filteredItems.filter(item => filterOptFn(item));
     }
 
     // Apply searchText filter
     if (this.searchText) {
       this.filteredItems = this.filteredItems.filter(item => {
-        if (this.filterField) {
+        const filterField = this.filterField();
+        if (filterField) {
           // Search in specific field
-          return this.utilsService.searchInObject((item as any)[this.filterField], this.searchText);
+          return this.utilsService.searchInObject((item as any)[filterField], this.searchText);
         } else {
           // Search in the whole object
           return this.utilsService.searchInObject(item, this.searchText);
@@ -149,32 +133,72 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
     }
 
     // Apply ordering
-    if (this.orderBy) {
+    if (this.orderBy()) {
       this.filteredItems.sort((a, b) => {
-        const aVal = (a as any)[this.orderBy!];
-        const bVal = (b as any)[this.orderBy!];
+        const aVal = (a as any)[this.orderBy()!];
+        const bVal = (b as any)[this.orderBy()!];
 
         if (aVal == null) return 1;
         if (bVal == null) return -1;
 
-        if (aVal < bVal) return this.orderDesc ? 1 : -1;
-        if (aVal > bVal) return this.orderDesc ? -1 : 1;
+        if (aVal < bVal) return this.orderDesc() ? 1 : -1;
+        if (aVal > bVal) return this.orderDesc() ? -1 : 1;
         return 0;
       });
     }
 
-    // Ensure current page is valid
-    const maxPage = Math.max(Math.ceil(this.filteredItems.length / this.itemsPerPage), 1);
-    if (this.currentPage > maxPage) {
-      this.currentPage = maxPage;
+    // A link may point at one item: the interface opens on the page holding it
+    const focusItemId = this.focusItemId();
+    if (focusItemId && focusItemId !== this.focusedItemId) {
+      const position = this.filteredItems.findIndex(item => String((item as any).id) === focusItemId);
+      if (position !== -1) {
+        this.currentPage.set(Math.floor(position / this.itemsPerPage()) + 1);
+        this.focusedItemId = focusItemId;
+      }
     }
-    if (this.currentPage < 1) {
-      this.currentPage = 1;
+
+    // Ensure current page is valid
+    const maxPage = Math.max(Math.ceil(this.filteredItems.length / this.itemsPerPage()), 1);
+    if (this.currentPage() > maxPage) {
+      this.currentPage.set(maxPage);
+    }
+    if (this.currentPage() < 1) {
+      this.currentPage.set(1);
     }
 
     // Pagination
-    const start = (this.currentPage - 1) * this.itemsPerPage;
-    const end = this.currentPage * this.itemsPerPage;
+    const start = (this.currentPage() - 1) * this.itemsPerPage();
+    const end = this.currentPage() * this.itemsPerPage();
     this.paginatedItems = [...this.filteredItems.slice(start, end)];
+  }
+
+  onSearchUpdate(): void {
+    this.currentPage.set(1);
+    if (this.serverSide()) {
+      this.emitState('search');
+      return;
+    }
+    this.update();
+  }
+
+  onFilterChange(): void {
+    this.currentPage.set(1);
+    if (this.serverSide()) {
+      this.emitState('filter');
+      return;
+    }
+    this.update();
+  }
+
+  onPageChange(): void {
+    if (this.serverSide()) {
+      this.emitState('page');
+      return;
+    }
+    this.update();
+  }
+
+  private emitState(type: 'page' | 'search' | 'filter'): void {
+    this.stateChange.emit({type, page: this.currentPage(), search: this.searchText, filterEnabled: this.filterOptEnabled()});
   }
 }

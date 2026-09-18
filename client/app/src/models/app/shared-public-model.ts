@@ -134,9 +134,10 @@ export interface Comment {
   creation_date: string;
   content: string;
   author_id: string;
-  visibility: string;
-  type: string;
-  data: any;
+  author_name?: string;
+  visibility?: string;
+  type?: string;
+  data?: any;
 }
 
 export interface WbFile {
@@ -147,7 +148,9 @@ export interface WbFile {
   size: number;
   type: string;
   reference_id: string;
+  masked: boolean;
   error: boolean;
+  downloaded: boolean;
 }
 
 export interface RFile {
@@ -158,8 +161,9 @@ export interface RFile {
   type: string;
   description: string;
   visibility: string;
+  masked: boolean;
   error: boolean;
-  author: string;
+  author_id: string;
   downloaded: boolean;
 }
 

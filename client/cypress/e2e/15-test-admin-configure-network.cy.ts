@@ -5,13 +5,13 @@ describe("admin configure network", () => {
   });
 
   it("should be able to configure https", () => {
-    cy.get('[data-cy="https"]').should('be.visible').click();
+    cy.get('[data-cy="https"]').click();
 
     cy.get('[name="hostname"]').clear().type("127.0.0.1");
     cy.get('#save_hostname').click();
 
     cy.get("#HTTPSManualMode").click();
-    cy.get("#pkGen").should('be.visible').click();
+    cy.get("#pkGen").click();
     cy.get("#csrGen").click();
     cy.get('[name="country"]').type("IT");
     cy.get('[name="province"]').type("Milano");
@@ -21,9 +21,9 @@ describe("admin configure network", () => {
     cy.get("#csrSubmit").click();
 
     cy.get("#deleteKey").click();
-    cy.get("#modal-action-ok").should('be.visible').click();
+    cy.get("#modal-action-ok").click();
     cy.get("#deleteKey").should("not.exist");
-    cy.get("#HTTPSManualMode").should('be.visible').click();
+    cy.get("#HTTPSManualMode").click();
 
     cy.get("div.card.key input[type=file]").selectFile({
       contents: "../backend/globaleaks/tests/data/https/valid/key.pem",
@@ -51,17 +51,38 @@ describe("admin configure network", () => {
     cy.get("#deleteCert").click();
     cy.get("#modal-action-ok").click();
 
-    cy.get("#deleteKey").should('be.visible').click();
+    cy.get("#deleteKey").click();
     cy.get("#modal-action-ok").click();
+    cy.logout();
+  });
+
+  // Every role can be restricted to given addresses: the restriction is switched on, written and
+  // switched off again, so that the suite keeps reaching the platform
+  it("should restrict the access of the roles to given addresses", () => {
+    cy.get('[data-cy="access_control"]').click();
+
+    for (const role of ["analyst", "custodian", "receiver", "transmitter"]) {
+      cy.get(`#ip-filter-${role}`).should("not.exist");
+      cy.get(`#ip-filter-${role}-enable`).check();
+      cy.get(`#ip-filter-${role}`).clear().type("127.0.0.1,::1,192.0.2.0/24");
+      cy.get(`#ip-filter-${role}-enable`).uncheck().should("not.be.checked");
+    }
+
+    cy.get("#AccessControlSave").click();
     cy.logout();
   });
 
   it("should configure url redirects", () => {
     cy.get('[data-cy="url_redirects"]').first().click();
+    cy.get('[name="path1"]').should("not.exist");
     for (let i = 0; i < 3; i++) {
+      cy.get(".show-add-redirect-btn").click();
+      cy.get("#add_redirect").should("be.disabled");
       cy.get('[name="path1"]').type(`yyyyyyyy-${i}`);
+      cy.get("#add_redirect").should("be.disabled");
       cy.get('[name="path2"]').type("xxxxxxxx");
-      cy.get("#add_redirect").click();
+      cy.get("#add_redirect").should("not.be.disabled").click();
+      cy.get('[name="path1"]').should("not.exist");
       cy.get("#delete_redirect").first().click();
     }
     cy.logout();

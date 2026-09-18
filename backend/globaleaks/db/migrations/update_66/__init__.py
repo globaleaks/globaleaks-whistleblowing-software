@@ -4,10 +4,18 @@ from datetime import timedelta
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
 from globaleaks.utils.onion import generate_onion_service_v3
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Column, Integer, JSON, UnicodeText, uuid4
 
 
-class SubmissionSubStatus_v_65(Model):
+class SubmissionStatusV65(Model):
+    __tablename__ = 'submissionstatus'
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, primary_key=True, default=1)
+    label = Column(JSON, default=dict, nullable=False)
+    order = Column(Integer, default=0, nullable=False)
+
+
+class SubmissionSubStatusV65(Model):
     __tablename__ = 'submissionsubstatus'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, primary_key=True, default=1)
@@ -17,13 +25,10 @@ class SubmissionSubStatus_v_65(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_InternalTipData(self):
+    def migrate_internal_tip_data(self):
         for old_obj, old_tip in self.session_old.query(self.model_from['InternalTipData'], self.model_from['InternalTip']) \
                                        .filter(self.model_from['InternalTipData'].internaltip_id == self.model_from['InternalTip'].id):
-            new_obj = self.model_to['InternalTipData']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key in old_obj.__mapper__.column_attrs.keys():
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('InternalTipData', old_obj)
 
             if old_obj.creation_date < old_tip.creation_date + timedelta(minutes=1):
                 new_obj.creation_date = old_tip.creation_date
@@ -33,7 +38,9 @@ class MigrationScript(MigrationBase):
     def epilogue(self):
         m = self.model_to['Config']
 
-        for c in self.session_new.query(m).filter(m.var_name == 'onionservice'):
+        tids = self.session_new.query(m.tid).filter(m.var_name == 'mode', m.value == 'default')
+
+        for c in self.session_new.query(m).filter(m.tid.in_(tids), m.var_name == 'onionservice'):
             if len(c.value) == 62:
                 continue
 

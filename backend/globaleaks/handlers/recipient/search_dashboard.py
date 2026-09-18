@@ -2,14 +2,18 @@ import json
 import unicodedata
 
 from nacl.encoding import Base64Encoder
-from sqlalchemy.sql.expression import distinct, func, or_
+from sqlalchemy.sql.expression import distinct, func
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.handlers.recipient.rtip import db_redact_report
+from globaleaks.handlers.whistleblower.submission import decrypt_tip
 from globaleaks.models import serializers
 from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
+from globaleaks.utils.log import log
 from globaleaks.utils.utility import is_uuid4, uuid4
 
 
@@ -23,17 +27,8 @@ ALLOWED_OPERATORS = {'contains', 'in', 'between'}
 DATE_FIELDS = {'creation_date', 'update_date', 'expiration_date'}
 SORT_FIELDS = {
     'important', 'reminder_date', 'progressive', 'context_name', 'label',
-    'reportModificationStr', 'submissionStatusStr', 'creation_date',
+    'reportModificationStr', 'submissionStatusStr', 'channel_progressive_sort_key', 'creation_date',
     'update_date', 'expiration_date', 'receiver_count', 'score'
-}
-DIRECT_SORT_FIELDS = {
-    'important': models.InternalTip.important,
-    'reminder_date': models.InternalTip.reminder_date,
-    'progressive': models.InternalTip.progressive,
-    'creation_date': models.InternalTip.creation_date,
-    'update_date': models.InternalTip.update_date,
-    'expiration_date': models.InternalTip.expiration_date,
-    'score': models.InternalTip.score
 }
 
 
@@ -150,18 +145,8 @@ def get_recipient_dashboard(session, tid, user_session):
                 normalized['position'] = row.position
                 personal.append(normalized)
         except Exception:
-            continue
+            log.err('Unable to decrypt a personal search dashboard tab')
     return {'defaults': defaults, 'personal': personal}
-
-
-def redact_content(content, ranges):
-    result = list(content)
-    for item in sorted(ranges, key=lambda value: value['start']):
-        start = item.get('start', 0)
-        end = item.get('end', 0) + 1
-        if start < end:
-            result[start:end] = '\u2591' * (end - start)
-    return ''.join(result)
 
 
 def normalize_search_value(value):
@@ -233,8 +218,8 @@ def answered_content(fields, answers):
 
 def file_types(files):
     extensions = []
-    for name in files:
-        name = str(name).strip()
+    for filename in files:
+        name = str(filename).strip()
         if '.' not in name:
             continue
         extension = name.rsplit('.', 1)[1].lower()
@@ -311,48 +296,21 @@ def get_search_metadata(session, tid, language, reports, fields):
 
 
 def get_report_content(session, user_session, language, recipient_tip, internal_tip):
-    comments = []
-    files = []
-    answers = []
-    label = internal_tip.label
-    if recipient_tip.receiver_id != user_session.user_id:
-        return label if not internal_tip.crypto_tip_pub_key else '', comments, files, answers
+    if recipient_tip is None or (internal_tip.crypto_tip_pub_key and not recipient_tip.crypto_tip_prv_key):
+        return [], [], []
 
     report = serializers.serialize_rtip(session, internal_tip, recipient_tip, language)
-    redactions = {item['reference_id']: item['temporary_redaction'] for item in report['redactions']}
-    can_view_unredacted = user_session.permissions.can_mask_information or user_session.permissions.can_redact_information
-    tip_key = None
     if internal_tip.crypto_tip_pub_key:
-        tip_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(recipient_tip.crypto_tip_prv_key))
-        if label:
-            label = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(label.encode())).decode()
-
-    for comment in report['comments']:
-        content = comment['content']
-        if tip_key and content:
-            content = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(content.encode())).decode()
-        if not can_view_unredacted and comment['id'] in redactions:
-            content = redact_content(content, redactions[comment['id']])
-        comments.append(content)
-
-    for file in report['wbfiles']:
-        name = file['name']
-        if tip_key and name:
-            name = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(name.encode())).decode()
-        files.append(name)
-    files.extend(file['name'] for file in report['rfiles'])
-
+        report = decrypt_tip(user_session.cc, Base64Encoder.decode(recipient_tip.crypto_tip_prv_key), report)
+    report = db_redact_report(session, user_session, report)
+    comments = [comment['content'] for comment in report['comments']]
+    files = [file['name'] for file in report['wbfiles'] + report['rfiles']]
+    answers = []
     for questionnaire in report['questionnaires']:
-        questionnaire_answers = questionnaire['answers']
-        if tip_key and questionnaire_answers:
-            questionnaire_answers = json.loads(
-                GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(questionnaire_answers.encode())).decode()
-            )
-        if isinstance(questionnaire_answers, dict):
+        if isinstance(questionnaire['answers'], dict):
             for step in questionnaire['steps']:
-                answers.extend(answered_content(step.get('children', []), questionnaire_answers))
-
-    return label, comments, files, answers
+                answers.extend(answered_content(step.get('children', []), questionnaire['answers']))
+    return comments, files, answers
 
 
 def sort_value(value):
@@ -420,138 +378,79 @@ def get_search_suggestions(session, tid, language, request):
 
 @transact
 def search_reports(session, tid, user_session, language, request):
+    from globaleaks.handlers.recipient import db_get_receivertips  # noqa: PLC0415
+
     page = request['page']
-    page_size = request['page_size']
-    if page < 1 or page_size < 1 or page_size > 100 or len(request['search']) > 1000 or \
-            request['sort'] not in SORT_FIELDS:
+    if page < 1 or len(request['search']) > 1000 or request['sort'] not in SORT_FIELDS:
         raise errors.InputValidationError
     query = request['query']
     validate_search_query(query)
-    receiver_contexts = [context_id for context_id, in session.query(models.Context.id)
-                                                           .join(models.ReceiverContext,
-                                                                 models.Context.id == models.ReceiverContext.context_id)
-                                                           .filter(models.Context.allow_recipients_selection == False,
-                                                                   models.ReceiverContext.receiver_id == user_session.user_id)]
-    if not query['filters'] and not query['negated'] and not request['search'] and not request['unread'] and \
-            request['sort'] in DIRECT_SORT_FIELDS:
-        sort_column = DIRECT_SORT_FIELDS[request['sort']]
-        authorized_reports = session.query(models.InternalTip.id) \
-                                    .filter(models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                            models.InternalTip.tid == tid,
-                                            or_(models.ReceiverTip.receiver_id == user_session.user_id,
-                                                models.InternalTip.context_id.in_(receiver_contexts))) \
-                                    .distinct()
-        total = authorized_reports.count()
-        order = sort_column.desc() if request['descending'] else sort_column.asc()
-        id_order = models.InternalTip.id.desc() if request['descending'] else models.InternalTip.id.asc()
-        offset = (page - 1) * page_size
-        return {
-            'report_ids': [report_id for report_id, in authorized_reports.order_by(order, id_order)
-                                                                         .offset(offset)
-                                                                         .limit(page_size)],
-            'page': page,
-            'page_size': page_size,
-            'total': total
-        }
-    rows = session.query(models.ReceiverTip, models.InternalTip) \
-                  .filter(models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                          models.InternalTip.tid == tid,
-                          or_(models.ReceiverTip.receiver_id == user_session.user_id,
-                              models.InternalTip.context_id.in_(receiver_contexts)))
+    # Use the current report listing for access, presented channels, numbering and masking.
+    listed_reports = db_get_receivertips(session, tid, user_session, language)
+    report_ids = [report['id'] for report in listed_reports]
     reports = {}
-    for recipient_tip, internal_tip in rows:
-        if internal_tip.id not in reports or recipient_tip.receiver_id == user_session.user_id:
-            reports[internal_tip.id] = recipient_tip, internal_tip
+    for batch in batches(report_ids):
+        for itip in session.query(models.InternalTip).filter(models.InternalTip.id.in_(batch)):
+            reports[itip.id] = None, itip
+        for rtip in session.query(models.ReceiverTip).filter(models.ReceiverTip.internaltip_id.in_(batch),
+                                                           models.ReceiverTip.receiver_id == user_session.user_id):
+            reports[rtip.internaltip_id] = rtip, reports[rtip.internaltip_id][1]
+
     fields = {item['field'] for item in query['filters']}
     if request['search']:
         fields.update(ALLOWED_METADATA_FIELDS)
-    if request['sort'] == 'context_name':
-        fields.add('context_id')
-    elif request['sort'] == 'submissionStatusStr':
-        fields.add('status')
-    elif request['sort'] == 'receiver_count':
-        fields.add('receiver_ids')
-    contexts, status_labels, substatus_labels, receiver_ids, receiver_names, comment_counts, file_counts, subscriptions = \
+    fields.add('status')
+    _, status_labels, substatus_labels, _, receiver_names, comment_counts, file_counts, _ = \
         get_search_metadata(session, tid, language, reports, fields)
-    needs_content = any(item['field'] in {'searchable_content', 'comment_content', 'file_name', 'file_type'}
-                        for item in query['filters']) or bool(request['search']) or request['sort'] == 'label'
+    needs_content = bool(fields & {'searchable_content', 'comment_content', 'file_name', 'file_type'})
     matching_reports = []
-
-    for report_id, (recipient_tip, internal_tip) in reports.items():
-        updated = recipient_tip.last_access < internal_tip.update_date
-        status_text = status_labels.get(internal_tip.status, '')
-        substatus_text = substatus_labels.get(internal_tip.substatus, '')
+    for report in listed_reports:
+        recipient_tip, internal_tip = reports[report['id']]
+        status_text = status_labels.get(report['status'], '')
+        substatus_text = substatus_labels.get(report['substatus'], '')
         if substatus_text:
             status_text += ' – ' + substatus_text
-        report_modification = 'New' if internal_tip.status == 'new' else 'Updated' if not updated else ''
-        assigned_ids = receiver_ids.get(report_id, [])
-        assigned_names = [receiver_names.get(receiver_id, '') for receiver_id in assigned_ids]
-        label, comments, files, answers = internal_tip.label, [], [], []
-        try:
-            if needs_content:
-                label, comments, files, answers = get_report_content(
-                    session, user_session, language, recipient_tip, internal_tip
-                )
-        except Exception:
-            label, comments, files, answers = '', [], [], []
-
-        score_labels = {0: 'None', 1: 'Low', 2: 'Medium', 3: 'High'}
+        if report['type'] == 'request' and (report['allow_transmission'] or report['status'] == 'closed'):
+            status_text = 'Authorized' if report['allow_transmission'] else 'Denied'
+        comments, files, answers = [], [], []
+        if needs_content:
+            comments, files, answers = get_report_content(session, user_session, language, recipient_tip, internal_tip)
+        assigned_names = [receiver_names.get(receiver_id, '') for receiver_id in report['receiver_ids']]
+        modification = 'new' if report['status'] == 'new' else 'updated' if report['updated'] else ''
         values = {
-            'creation_date': internal_tip.creation_date,
-            'update_date': internal_tip.update_date,
-            'expiration_date': internal_tip.expiration_date,
-            'status': [internal_tip.status, status_text],
-            'substatus': [internal_tip.substatus, substatus_text],
-            'context_id': [internal_tip.context_id, contexts.get(internal_tip.context_id, '')],
-            'score': [internal_tip.score, score_labels.get(internal_tip.score, '')],
-            'important': internal_tip.important,
-            'updated': [updated, report_modification,
-                        'new' if internal_tip.status == 'new' else 'updated' if not updated else ''],
-            'file_count': file_counts.get(report_id, 0),
-            'comment_count': comment_counts.get(report_id, 0),
-            'receiver_ids': [assigned_ids, assigned_names],
-            'subscription': [subscriptions[report_id],
-                             ['Not subscribed', 'Subscribed', 'Subscription updated'][subscriptions[report_id]]],
+            'creation_date': report['creation_date'],
+            'update_date': report['update_date'],
+            'expiration_date': report['expiration_date'],
+            'status': [report['status'], status_text],
+            'substatus': [report['substatus'], substatus_text],
+            'context_id': [report['context_id'], report['context_name']],
+            'score': [report['score'], {0: 'None', 1: 'Low', 2: 'Medium', 3: 'High'}.get(report['score'], '')],
+            'important': report['important'],
+            'updated': [report['updated'], modification],
+            'file_count': file_counts.get(report['id'], 0),
+            'comment_count': comment_counts.get(report['id'], 0),
+            'receiver_ids': [report['receiver_ids'], assigned_names],
+            'subscription': [report['subscription'], ['Not subscribed', 'Subscribed', 'Subscription updated'][report['subscription']]],
             'comment_content': comments,
             'file_name': files,
-            'file_type': file_types(files)
+            'file_type': file_types(files),
+            'searchable_content': [report['channel_progressive'], report['label'], report['context_name'],
+                                   status_text, assigned_names, answers, comments, files]
         }
-        values['searchable_content'] = [internal_tip.progressive, label,
-                                        contexts.get(internal_tip.context_id, ''), status_text,
-                                        assigned_names, answers, comments, files]
         matches_all = all(not filter_matches(values[item['field']], item) if item['negated']
-                          else filter_matches(values[item['field']], item)
-                          for item in query['filters'])
-        if query['negated'] == matches_all or request['unread'] and not updated:
+                          else filter_matches(values[item['field']], item) for item in query['filters'])
+        if query['negated'] == matches_all or request['unread'] and not report['updated']:
             continue
-        if request['search'] and not filter_matches(list(values.values()), {
-                'operator': 'contains', 'value': request['search']}):
+        if request['search'] and not filter_matches(list(values.values()), {'operator': 'contains', 'value': request['search']}):
             continue
-        sort_values = {
-            'important': internal_tip.important,
-            'reminder_date': internal_tip.reminder_date,
-            'progressive': internal_tip.progressive,
-            'context_name': contexts.get(internal_tip.context_id, ''),
-            'label': label,
-            'reportModificationStr': report_modification,
-            'submissionStatusStr': status_text,
-            'creation_date': internal_tip.creation_date,
-            'update_date': internal_tip.update_date,
-            'expiration_date': internal_tip.expiration_date,
-            'receiver_count': len(assigned_ids),
-            'score': internal_tip.score
-        }
-        matching_reports.append((report_id, sort_value(sort_values[request['sort']])))
+        sort_values = {**report, 'submissionStatusStr': status_text, 'reportModificationStr': modification}
+        matching_reports.append((report, sort_value(sort_values[request['sort']])))
 
-    matching_reports.sort(key=lambda item: (item[1], item[0]), reverse=request['descending'])
+    matching_reports.sort(key=lambda item: (item[1], item[0]['id']), reverse=request['descending'])
     total = len(matching_reports)
-    offset = (page - 1) * page_size
-    return {
-        'report_ids': [report_id for report_id, _ in matching_reports[offset:offset + page_size]],
-        'page': page,
-        'page_size': page_size,
-        'total': total
-    }
+    page = min(page, max(1, (total + 19) // 20))
+    offset = (page - 1) * 20
+    return {'reports': [report for report, _ in matching_reports[offset:offset + 20]], 'page': page, 'total': total}
 
 
 @transact
@@ -629,17 +528,18 @@ class RecipientDashboard(BaseHandler):
 class RecipientSearchSuggestions(BaseHandler):
     check_roles = 'receiver'
 
+    @inlineCallbacks
     def post(self):
         request = self.validate_request(self.request.content.read(), requests.SearchDashboardSuggestionDesc)
         if request['field'] not in {'searchable_content', 'comment_content', 'file_name', 'file_type'}:
-            return get_search_suggestions(self.request.tid, self.request.language, request)
+            suggestions = yield get_search_suggestions(self.request.tid, self.request.language, request)
+            return suggestions
         value = request['value'].strip()
         minimum_length = 1 if request['field'] == 'file_type' else 4
         if len(value) < minimum_length or len(value) > 1000 or request['operator'] not in {'contains', 'in'}:
             raise errors.InputValidationError
-        result = search_reports(self.request.tid, self.session, self.request.language, {
+        page = yield search_reports(self.request.tid, self.session, self.request.language, {
             'page': 1,
-            'page_size': 1,
             'search': '',
             'unread': False,
             'sort': 'creation_date',
@@ -655,12 +555,11 @@ class RecipientSearchSuggestions(BaseHandler):
                 }]
             }
         })
-        result.addCallback(lambda page: {
+        return {
             'suggestions': [value] if page['total'] else [],
             'exists': page['total'] > 0,
             'verifiable': True
-        })
-        return result
+        }
 
 
 class AdminDashboard(BaseHandler):

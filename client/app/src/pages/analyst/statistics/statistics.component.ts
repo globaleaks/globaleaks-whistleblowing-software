@@ -1,47 +1,62 @@
-import {ChangeDetectorRef, Component, TemplateRef, ViewChild, inject} from '@angular/core';
-import {provideCharts, withDefaultRegisterables} from 'ng2-charts';
-import {TranslatorPipe} from '@app/shared/pipes/translate';
-import {Tab} from '@app/models/component-model/tab';
+import {Component, computed, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {NgTemplateOutlet} from '@angular/common';
-import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
+import {AuthenticationService} from '@app/services/helper/authentication.service';
+import {PreferenceResolver} from '@app/shared/resolvers/preference.resolver';
+import {StatisticsResolver} from '@app/shared/resolvers/statistics.resolver';
+import {StatisticalTemplatesResolver} from '@app/shared/resolvers/statistical-templates.resolver';
+import {statisticalTemplateResolverModel} from '@app/models/resolvers/statistical-template-resolver-model';
+import {TranslateModule} from '@ngx-translate/core';
+import {TabsComponent} from '@app/shared/components/tabs/tabs.component';
+import {TabDirective} from '@app/shared/components/tabs/tab.directive';
 import {StatisticalReportsTabComponent} from '@app/pages/analyst/statistics/statistical-reports-tab/statistical-reports-tab.component';
 import {StatisticalTemplatesTabComponent} from '@app/pages/analyst/statistics/statistical-templates-tab/statistical-templates-tab.component';
+import {StatisticalTemplateViewComponent} from '@app/pages/analyst/statistics/statistical-template-view/statistical-template-view.component';
 
+/**
+ * The statistics of a site.
+ *
+ * The analysts read the statistics and compose the reports; whoever holds the
+ * permission composes the templates the statistics and the reports are
+ * presented with, administrators included: to them the page offers the
+ * templates alone.
+ */
 @Component({
     selector: 'src-statistics',
     templateUrl: './statistics.component.html',
     standalone: true,
-    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, StatisticalReportsTabComponent, StatisticalTemplatesTabComponent, TranslatorPipe],
-    providers: [provideCharts(withDefaultRegisterables())],
+    imports: [
+    FormsModule,
+    TabsComponent,
+    TabDirective,
+    StatisticalReportsTabComponent,
+    StatisticalTemplatesTabComponent,
+    StatisticalTemplateViewComponent,
+    TranslateModule
+],
 })
 export class StatisticsComponent {
-  private cdr = inject(ChangeDetectorRef);
+  private readonly statisticsResolver = inject(StatisticsResolver);
+  private readonly templatesResolver = inject(StatisticalTemplatesResolver);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly authenticationService = inject(AuthenticationService);
 
-  @ViewChild("tab1") tab1!: TemplateRef<StatisticalReportsTabComponent>;
-  @ViewChild("tab2") tab2!: TemplateRef<StatisticalTemplatesTabComponent>;
+  /** The statistics of the platform, as they stand right now. */
+  readonly statistics = computed(() => this.statisticsResolver.resource.value());
 
-  tabs: Tab[];
-  active: string;
+  get templatesData(): statisticalTemplateResolverModel[] {
+    return this.templatesResolver.dataModel;
+  }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.active = "Statistical Reports";
+  /** The template the statistics are presented with, configured by the administrators. */
+  get defaultTemplate(): statisticalTemplateResolverModel | null {
+    return this.templatesData?.find(template => template.default) || this.templatesData?.[0] || null;
+  }
 
-      this.tabs = [
-        {
-          id:"satistical_reports",
-          title: "Statistical Reports",
-          component: this.tab1
-        },
-        {
-          id:"templates",
-          title: "Templates",
-          component: this.tab2
-        },
-      ];
+  get isAnalyst(): boolean {
+    return this.authenticationService.session?.role === "analyst";
+  }
 
-      this.cdr.detectChanges();
-    });
+  get canConfigureTemplates(): boolean {
+    return !!this.preferenceResolver.dataModel?.profile?.permissions?.can_configure_statistical_report_templates;
   }
 }

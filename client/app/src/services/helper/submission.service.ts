@@ -8,8 +8,8 @@ import {submissionResourceModel} from "@app/models/whistleblower/submission-reso
   providedIn: "root",
 })
 export class SubmissionService {
-  private httpService = inject(HttpService);
-  private appDataService = inject(AppDataService);
+  private readonly httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
 
   submission: submissionResourceModel = new submissionResourceModel();
   context: Context;
@@ -20,7 +20,7 @@ export class SubmissionService {
   override_receivers: string[] = [];
   blocked = false;
   uploads: Record<string, any>;
-  private sharedData: Flow[] = [];
+  private readonly sharedData: Flow[] = [];
 
   setContextReceivers(context_id: number) {
     this.context = this.appDataService.contexts_by_id[context_id];
@@ -85,7 +85,6 @@ export class SubmissionService {
       identity_provided: this.submission.identity_provided,
       answers: this.submission.answers,
       answer: this.submission.answer,
-      score: this.submission.score,
       receipt: this.submission.receipt
     };
 

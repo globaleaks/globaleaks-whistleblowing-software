@@ -1,4 +1,5 @@
-import {Component, inject} from "@angular/core";
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
+import {Component, inject, input, output} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {
@@ -6,17 +7,21 @@ import {
 } from "@app/shared/modals/tip-additional-questionnaire-form/tip-additional-questionnaire-form.component";
 
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-tip-additional-questionnaire-invite",
     templateUrl: "./tip-additional-questionnaire-invite.component.html",
     standalone: true,
-    imports: [TranslateModule, TranslatorPipe]
+    imports: [CollapsiblePanelComponent, TranslateModule]
 })
 export class TipAdditionalQuestionnaireInviteComponent {
   protected utilsService = inject(UtilsService);
-  private modalService = inject(NgbModal);
+  private readonly modalService = inject(NgbModal);
+
+  // Whoever is asked fills the questionnaire, whoever asked edits it; the sentence is the same for
+  // both
+  readonly askedByViewer = input(false);
+  readonly edit = output<void>();
 
   collapsed = false;
 

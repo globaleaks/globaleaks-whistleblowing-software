@@ -1,20 +1,21 @@
-import {Component, EventEmitter, Output, inject} from "@angular/core";
+import {Component, inject, output, ChangeDetectionStrategy} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {FileResources} from "@app/models/component-model/file-resources";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "src-https-setup",
     templateUrl: "./https-setup.component.html",
     standalone: true,
-    imports: [TranslatorPipe]
+    imports: [TranslatePipe]
 })
 export class HttpsSetupComponent {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
-  @Output() updated = new EventEmitter<string>();
+  readonly updated = output<string | void>();
   fileResources: FileResources = {
     key: {name: "key"},
     cert: {name: "cert"},

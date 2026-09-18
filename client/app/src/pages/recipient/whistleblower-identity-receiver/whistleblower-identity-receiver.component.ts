@@ -1,4 +1,5 @@
-import {Component, Input, inject} from "@angular/core";
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
+import {Component, inject, input} from "@angular/core";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {
@@ -9,24 +10,23 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {DatePipe} from "@angular/common";
 import {TipFieldComponent} from "@app/shared/partials/tip-field/tip-field.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({
     selector: "src-whistleblower-identity-receiver",
     templateUrl: "./whistleblower-identity-receiver.component.html",
     standalone: true,
-    imports: [TipFieldComponent, NgbTooltipModule, DatePipe, TranslateModule, TranslatorPipe]
+    imports: [CollapsiblePanelComponent, TipFieldComponent, NgbTooltipModule, DatePipe, TranslateModule]
 })
 export class WhistleBlowerIdentityReceiverComponent {
   protected tipService = inject(ReceiverTipService);
   protected utilsService = inject(UtilsService);
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
-  private utils = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly utils = inject(UtilsService);
 
-  @Input() redactOperationTitle: string;
-  @Input() redactMode: boolean;
+  readonly redactOperationTitle = input<string>();
+  readonly redactMode = input<boolean>();
   collapsed = false;
 
   public toggleCollapse() {
@@ -43,7 +43,7 @@ export class WhistleBlowerIdentityReceiverComponent {
 
   accessIdentity() {
     return this.httpService.accessIdentity(this.tipService.tip.id).subscribe(
-      _ => {
+      () => {
         this.utils.reloadCurrentRoute();
       }
     );

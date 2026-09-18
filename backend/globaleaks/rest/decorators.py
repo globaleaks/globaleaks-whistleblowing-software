@@ -3,7 +3,9 @@ from twisted.internet import defer
 from twisted.internet.threads import deferToThread
 
 from globaleaks.db import sync_refresh_tenant_cache
+from globaleaks.handlers.base import connection_check
 from globaleaks.rest import errors
+from globaleaks.utils import dpop
 from globaleaks.rest.cache import Cache
 from globaleaks.state import State
 from globaleaks.utils.ip import get_ip_identity
@@ -11,19 +13,92 @@ from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import deferred_sleep
 
 
-USERS_ROLES = {'any', 'admin', 'analyst', 'custodian', 'receiver'}
+USERS_ROLES = {'any', 'admin', 'analyst', 'auditor', 'custodian', 'receiver', 'transmitter'}
 BYPASS_PATHS = {b"/api/auth/token", b"/api/auth/type", b"/api/report"}
+
+# CSP violation reports are accepted unauthenticated (browsers post them without
+# credentials); these thresholds bound a flood so it cannot evict genuine
+# reports from the bounded rotating CSP log nor impose sustained synchronous
+# write load on the reactor. Excess reports are dropped.
+CSP_REPORTS_PER_MINUTE_PER_IP = 30
+CSP_REPORTS_PER_MINUTE_PER_SYSTEM = 1000
+
+# A session pending a mandatory step (reset-token password change, forced
+# password change, password-age expiry, or mandatory two-factor enrollment) is
+# confined to this minimal set of endpoints: read its own preferences, perform
+# the change/enrollment through operations, and refresh or close the session.
+# The operations endpoint is further restricted to the allowed operation by
+# UserOperationHandler.
+ENFORCED_LIMITED_APIS = {b"/api/user/preferences", b"/api/user/operations", b"/api/auth/session"}
 
 def has_session_or_token(self):
     return self.token or self.session
 
 
+def check_session_or_token(self):
+    # Ensures a token or a session is included in the request
+    if self.request.path not in BYPASS_PATHS and not has_session_or_token(self):
+        raise errors.InternalServerError("Invalid request: No token and no session")
+
+
+def check_dpop(self):
+    # Enforce the RFC 9449 DPoP proof bound to the presented session. Sessions
+    # presented via the X-Session header must carry a valid proof signed by the
+    # bound key, matching the request method/URI and the session-token hash
+    # (ath). Session-establishing handlers (login, submission) carry no session
+    # yet and perform their own proof verification and binding.
+    # A single request carries a single proof; verifying it once is sufficient
+    # (a handler method is dispatched once in production). The guard keeps proof
+    # verification idempotent so that a repeated invocation is not rejected as a
+    # jti replay.
+    if self.dpop_checked:
+        return
+
+    self.dpop_checked = True
+
+    if self.session is None or self.session_id_cleartext is None:
+        return
+
+    proof, htm, htu = self.dpop_request_fields()
+    self.dpop_thumbprint = dpop.verify_dpop_proof(proof, htm, htu,
+                                                  thumbprint=self.session.dpop_jkt,
+                                                  ath=dpop.compute_ath(self.session_id_cleartext))
+
+
+def check_authentication(self, roles):
+    # Performs role checks on the user session
+    if isinstance(roles, str):
+        roles = {roles}
+    else:
+        roles = set(roles)
+
+    if 'any' in roles:
+        return
+
+    if self.session and self.session.tid == self.request.tid:
+        if (self.session.properties.get('reset_token') or
+            self.session.properties.get('password_change_needed') or
+            self.session.properties.get('require_two_factor')) and \
+           self.request.path not in ENFORCED_LIMITED_APIS:
+            raise errors.ForbiddenOperation
+
+        if ('user' in roles and self.session.role in USERS_ROLES) or \
+           self.session.role in roles:
+            # Enforce the session-owning tenant's connection policy on every
+            # authenticated request, so that a session cannot be used from a
+            # network or transport (e.g. non-Tor) that the tenant rejects,
+            # regardless of how or where the session was originally minted.
+            connection_check(self.session.tid, self.session.role,
+                             self.request.client_ip, self.request.client_using_tor)
+            return
+
+    raise errors.NotAuthenticated
+
+
 def decorator_require_session_or_token(f):
     # Decorator that ensures a token or a session is included in the request
     def wrapper(self, *args, **kwargs):
-        if self.request.path not in BYPASS_PATHS and not self.request.path.startswith(b"/api/signup") and not has_session_or_token(self):
-            raise errors.InternalServerError("Invalid request: No token and no session")
-
+        check_session_or_token(self)
         return f(self, *args, **kwargs)
 
     return wrapper
@@ -32,16 +107,31 @@ def decorator_require_session_or_token(f):
 def decorator_authentication(f, roles):
     # Decorator that performs role checks on the user session
     def wrapper(self, *args, **kwargs):
-        user_roles = set(roles)  # Convert roles to set
-        if 'any' in user_roles:
-            return f(self, *args, **kwargs)
-        if self.session and self.session.tid == self.request.tid:
-            if 'user' in user_roles and self.session.role in USERS_ROLES:
-                return f(self, *args, **kwargs)
-            if self.session.role in user_roles:
-                return f(self, *args, **kwargs)
+        check_authentication(self, roles)
+        return f(self, *args, **kwargs)
 
-        raise errors.NotAuthenticated
+    return wrapper
+
+
+def decorator_dpop(f):
+    # Decorator that enforces the DPoP proof bound to the presented session
+    def wrapper(self, *args, **kwargs):
+        check_dpop(self)
+        return f(self, *args, **kwargs)
+
+    return wrapper
+
+
+def decorator_require_permission(f, permission):
+    # Enforces the permission the handler declares on every method, reads included; None leaves it
+    # open; a single permission or alternatives; fails closed without a session
+    permissions = (permission,) if isinstance(permission, str) else permission
+
+    def wrapper(self, *args, **kwargs):
+        if permissions and not (self.session and any(self.session.has_permission(p) for p in permissions)):
+            raise errors.ForbiddenOperation
+
+        return f(self, *args, **kwargs)
 
     return wrapper
 
@@ -76,74 +166,165 @@ def decorator_cache_invalidate(f):
 
     return wrapper
 
+def _check_any(checks):
+    """
+    Run some rate limit checks in order, stopping at the first that trips
+
+    :param checks: The checks, each a (counter, threshold, window) triple
+    :return: The depth the first tripped check reports, 0 when none trips
+    """
+    for counter, threshold, window in checks:
+        hits = State.RateLimit.check(counter, threshold, window)
+        if hits:
+            return hits
+
+    return 0
+
+
+def _login_delay(cache, tid, client_ip, using_tor):
+    """
+    Login endpoints are throttled regardless of any presented session: a session must not exempt
+    the caller from the login thresholds (e.g. minting unlimited submission sessions via empty
+    receipts)
+    """
+    checks = []
+
+    if not using_tor:
+        checks += [(b"logins_per_minute_per_tenant_per_ip:" + tid + b":" + client_ip,
+                    cache.threshold_logins_per_minute_per_tenant_per_ip, 60),
+                   (b"logins_per_minute_per_ip:" + client_ip,
+                    cache.threshold_logins_per_minute_per_ip, 60)]
+
+    checks += [(b"logins_per_minute_per_tenant:" + tid,
+                cache.threshold_logins_per_minute_per_tenant, 60),
+               (b"logins_per_minute_per_system",
+                cache.threshold_logins_per_minute_per_system, 60)]
+
+    return _check_any(checks)
+
+
+def _support_blocked(cache, tid, client_ip, using_tor):
+    """
+    Support requests are throttled regardless of any presented session or token: a token-only
+    caller must not be able to enqueue unbounded administrator notification mail
+    """
+    checks = []
+
+    if not using_tor:
+        checks += [(b"support_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
+                    cache.threshold_support_per_hour_per_tenant_per_ip, 3600),
+                   (b"support_per_hour_per_ip:" + client_ip,
+                    cache.threshold_support_per_hour_per_ip, 3600)]
+
+    checks += [(b"support_per_hour_per_tenant:" + tid,
+                cache.threshold_support_per_hour_per_tenant, 3600),
+               (b"support_per_hour_per_system",
+                cache.threshold_support_per_hour_per_system, 3600)]
+
+    return _check_any(checks) > 0
+
+
+def _signup_blocked(cache, client_ip, using_tor):
+    """
+    Signup is public and allocates persistent tenant state plus administrator notification mail:
+    a token-only caller must not be able to register unbounded tenants. Signup is served only on
+    the root tenant, so per-IP limits are enforced (skipped on Tor, where the client IP is not
+    meaningful) together with a per-system backstop that also bounds Tor traffic
+    """
+    checks = []
+
+    if not using_tor:
+        checks += [(b"signups_per_minute_per_ip:" + client_ip,
+                    cache.threshold_signups_per_minute_per_ip, 60),
+                   (b"signups_per_hour_per_ip:" + client_ip,
+                    cache.threshold_signups_per_hour_per_ip, 3600)]
+
+    checks.append((b"signups_per_hour_per_system",
+                   cache.threshold_signups_per_hour_per_system, 3600))
+
+    return _check_any(checks) > 0
+
+
+def _csp_report_blocked(client_ip, using_tor):
+    """
+    The endpoint collecting the violations of the content security policy is public
+    """
+    checks = []
+
+    if not using_tor:
+        checks.append((b"reports_csp_per_minute_per_ip:" + client_ip,
+                       CSP_REPORTS_PER_MINUTE_PER_IP, 60))
+
+    checks.append((b"reports_csp_per_minute_per_system",
+                   CSP_REPORTS_PER_MINUTE_PER_SYSTEM, 60))
+
+    return _check_any(checks) > 0
+
+
+def _submission_blocked(cache, tid, client_ip, using_tor):
+    """
+    The filing of a report is bounded per site and per system
+    """
+    checks = []
+
+    if not using_tor:
+        checks += [(b"reports_per_hour_per_tenant_per_ip:" + tid + b":" + client_ip,
+                    cache.threshold_reports_per_hour_per_tenant_per_ip, 3600),
+                   (b"reports_per_hour_per_ip:" + client_ip,
+                    cache.threshold_reports_per_hour_per_ip, 3600)]
+
+    checks += [(b"reports_per_hour_per_tenant:" + tid,
+                cache.threshold_reports_per_hour_per_tenant, 3600),
+               (b"reports_per_hour_per_system",
+                cache.threshold_reports_per_hour_per_system, 3600)]
+
+    return _check_any(checks) > 0
+
+
+def _report_operations_delay(cache, user_id):
+    """
+    What a whistleblower does on its own report is delayed rather than refused
+    """
+    return _check_any([(b"operations_per_second_per_report:" + user_id,
+                        cache.threshold_operations_per_second_per_report, 1),
+                       (b"operations_per_minute_per_report:" + user_id,
+                        cache.threshold_operations_per_minute_per_report, 60),
+                       (b"operations_per_hour_per_report:" + user_id,
+                        cache.threshold_operations_per_hour_per_report, 3600)])
+
+
 def decorator_rate_limit(f):
     def wrapper(self, *args, **kwargs):
         root_tenant = State.tenants.get(1)
         if not root_tenant:
-            return
+            return None
 
+        cache = root_tenant.cache
         delay = False
         block = False
         client_ip = get_ip_identity(self.request.client_ip).encode()
         tid = str(self.request.tid).encode()
+        using_tor = self.request.client_using_tor
         path = self.request.path
-        if self.session:
-            user_id = self.session.user_id.encode()
 
-            if self.session.role == 'whistleblower' and path.startswith(b'/api/whistleblower/'):
-                if self.request.path == b'/api/whistleblower/submission':
-                    block = State.RateLimit.check(b"reports_per_hour_per_tenant_per_ip:" + tid,
-                                                  root_tenant.cache.threshold_reports_per_hour_per_tenant_per_ip,
-                                                  3600) > 0
+        if path in (b'/api/auth/authentication', b'/api/auth/tokenauth', b'/api/auth/receiptauth'):
+            delay = _login_delay(cache, tid, client_ip, using_tor)
 
-                    block = block or \
-                            State.RateLimit.check(b"reports_per_hour_per_ip:" + tid + b":" + client_ip,
-                                                  root_tenant.cache.threshold_reports_per_hour_per_ip,
-                                                  3600) > 0
-                    block = block or \
-                            State.RateLimit.check(b"reports_per_hour_per_tenant:" + tid,
-                                                  root_tenant.cache.threshold_reports_per_hour_per_tenant,
-                                                  3600) > 0
+        elif path == b'/api/support':
+            block = _support_blocked(cache, tid, client_ip, using_tor)
 
-                    block = block or \
-                            State.RateLimit.check(b"reports_per_hour_per_system",
-                                                  root_tenant.cache.threshold_reports_per_hour_per_system,
-                                                  3600) > 0
-                else:
-                    if not self.upload_handler:
-                        delay = State.RateLimit.check(b"operations_per_second_per_report:" + user_id,
-                                                      root_tenant.cache.threshold_operations_per_second_per_report,
-                                                      1)
+        elif path == b'/api/signup':
+            block = _signup_blocked(cache, client_ip, using_tor)
 
-                        delay = delay or \
-                                State.RateLimit.check(b"operations_per_minute_per_report:" + user_id,
-                                                      root_tenant.cache.threshold_operations_per_minute_per_report,
-                                                      60)
+        elif path == b'/api/report':
+            block = _csp_report_blocked(client_ip, using_tor)
 
-                        delay = delay or \
-                                State.RateLimit.check(b"operations_per_hour_per_report:" + user_id,
-                                                      root_tenant.cache.threshold_operations_per_hour_per_report,
-                                                      3600)
-        else:
-            if self.request.path in [b'/api/auth/authentication', b'/api/auth/receiptauth', b'/api/auth/authentication']:
-                delay = State.RateLimit.check(b"logins_per_minute_per_tenant_per_ip:" + tid + b":" + client_ip,
-                                              root_tenant.cache.threshold_logins_per_minute_per_tenant_per_ip,
-                                              60)
-
-                delay = delay or \
-                        State.RateLimit.check(b"logins_per_minute_per_ip:" + client_ip,
-                                              root_tenant.cache.threshold_logins_per_minute_per_ip,
-                                              60)
-
-                delay = delay or \
-                        State.RateLimit.check(b"logins_per_minute_per_tenant:" + tid,
-                                              root_tenant.cache.threshold_logins_per_minute_per_tenant,
-                                              60)
-
-                delay = delay or \
-                        State.RateLimit.check(b"logins_per_minute_per_system",
-                                              root_tenant.cache.threshold_logins_per_minute_per_system,
-                                              60)
+        elif self.session and self.session.role == 'whistleblower' and \
+                path.startswith(b'/api/whistleblower/'):
+            if path == b'/api/whistleblower/submission':
+                block = _submission_blocked(cache, tid, client_ip, using_tor)
+            elif not self.upload_handler:
+                delay = _report_operations_delay(cache, self.session.user_id.encode())
 
         if block:
             raise errors.ForbiddenOperation()
@@ -159,7 +340,7 @@ def decorator_rate_limit(f):
 
 
 def decorate_method(h, method):
-    roles = getattr(h, 'check_roles')
+    roles = h.check_roles
     if isinstance(roles, str):
         roles = {roles}
 
@@ -169,15 +350,20 @@ def decorate_method(h, method):
         if method == 'get':
             if h.cache_resource:
                 f = decorator_cache_get(f)
-        elif method in ['delete', 'post', 'put']:
-            if h.invalidate_cache:
-                f = decorator_cache_invalidate(f)
+        elif method in ['delete', 'post', 'put'] and h.invalidate_cache:
+            f = decorator_cache_invalidate(f)
+
+    permission = getattr(h, 'require_permission', None)
+    if isinstance(permission, dict):
+        permission = permission.get(method)
+
+    f = decorator_require_permission(f, permission)
 
     if method in ['delete', 'post', 'put']:
+        f = decorator_rate_limit(f)
         f = decorator_require_session_or_token(f)
-        if State.settings.enable_rate_limiting:
-            f = decorator_rate_limit(f)
 
+    f = decorator_dpop(f)
     f = decorator_authentication(f, roles)
 
     setattr(h, method, f)

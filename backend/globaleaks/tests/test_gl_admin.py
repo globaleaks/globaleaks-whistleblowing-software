@@ -15,7 +15,9 @@ from twisted.trial import unittest
 class TestGLAdminBackupRestore(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
-        self.backup_file = os.path.join(tempfile.gettempdir(), 'test_backup.tar.gz')
+        # named after the test directory, so that the workers of a parallel run
+        # do not contend for one archive
+        self.backup_file = self.test_dir + '.tar.gz'
 
     def tearDown(self):
         if os.path.exists(self.test_dir):
@@ -105,10 +107,10 @@ class TestGLAdminBackupRestore(unittest.TestCase):
         self._perform_restore(self.test_dir, self.backup_file)
 
         # Verify content
-        with open(os.path.join(self.test_dir, 'globaleaks.db'), 'r') as f:
+        with open(os.path.join(self.test_dir, 'globaleaks.db')) as f:
             self.assertEqual(f.read(), original_db_content)
 
-        with open(os.path.join(self.test_dir, 'files', 'file1.txt'), 'r') as f:
+        with open(os.path.join(self.test_dir, 'files', 'file1.txt')) as f:
             self.assertEqual(f.read(), original_file_content)
 
     def test_restore_preserves_directory_structure(self):

@@ -1,7 +1,7 @@
 @if (!supportedBrowser) {
   <div id="BrowserNotSupported">
     <h1>Error!</h1><br/><br/>
-    <div>This whistleblowing site is built with <a href="https://www.globaleaks.org" target="_blank">GlobaLeaks</a> that is a software designed to fully support all commonly used browsers on desktop PCs, laptops, tablets, and smartphones. Unfortunately, this browser appears to lack some necessary capabilities.<br/><br/>We recommend using the <a href="https://www.torproject.org/download/" target="_blank">Tor Browser</a>. We recommend using the Tor Browser for enhanced anonymity, as well as additional privacy and security features that are not available in other browsers.<br/><br/><a href="https://docs.globaleaks.org/en/stable/gettingstarted/SupportedBrowsers.html" target="_blank">Here</a>, you can find a list of other supported browsers.</div>
+    <div>This whistleblowing site is built with <a href="https://globaleaks.org" target="_blank">GlobaLeaks</a> that is a software designed to fully support all commonly used browsers on desktop PCs, laptops, tablets, and smartphones. Unfortunately, this browser appears to lack some necessary capabilities.<br/><br/>We recommend using the <a href="https://www.torproject.org/download/" target="_blank">Tor Browser</a>. We recommend using the Tor Browser for enhanced anonymity, as well as additional privacy and security features that are not available in other browsers.<br/><br/><a href="https://docs.globaleaks.org/en/stable/gettingstarted/SupportedBrowsers.html" target="_blank">Here</a>, you can find a list of other supported browsers.</div>
   </div>
 }
 
@@ -10,18 +10,13 @@
     <div id="Skip"><a href="#Content" tabindex="0">{{'Skip to content'|translate}}</a></div>
 
     @if (showLoadingPanel) {
-      <div [attr.data-cy]="'page-loader-overlay'" id="PageOverlay" [@fadeInOut]="!showLoadingPanel ? 'void' : ''">
+      <div [attr.data-cy]="'page-loader-overlay'" id="PageOverlay">
         <div id="Loader"></div>
       </div>
     }
 
     @if (appDataService.public.node) {
-      <div class="reveal flex-shrink-0" [ngClass]="{'public': utilsService.isWhistleblowerPage(), 'block-user-input': showLoadingPanel}">
-        @if (authenticationService.session?.properties?.operator_session) {
-          <div>
-            <src-operation></src-operation>
-          </div>
-        }
+      <div class="reveal flex-shrink-0" [class.public]="utilsService.isWhistleblowerPage()" [class.block-user-input]="showLoadingPanel">
         @if (!appDataService.public.node.root_tenant && appDataService.public.node.demo) {
           <div>
             <src-demo></src-demo>
@@ -32,16 +27,16 @@
             <src-privacybadge></src-privacybadge>
           </div>
         }
-        <views-header></views-header>
+        <src-header></src-header>
 
-        <messageconsole id="MessagesConsoleBox"></messageconsole>
+        <src-message-console id="MessagesConsoleBox"></src-message-console>
 
         @if (appConfig.sidebar && showSidebar) {
           <button class="btn btn-link d-lg-none ms-2 my-2"
               type="button"
               (click)="isNavCollapsed = !isNavCollapsed"
               aria-controls="Sidebar"
-              aria-expanded="!isNavCollapsed"
+              [attr.aria-expanded]="!isNavCollapsed"
               aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
           </button>
@@ -63,6 +58,9 @@
                       @if (appConfig.sidebar==='analyst-sidebar') {
                         <src-analyst-sidebar class="nav-items"></src-analyst-sidebar>
                       }
+                      @if (appConfig.sidebar==='auditor-sidebar') {
+                        <src-auditor-sidebar class="nav-items"></src-auditor-sidebar>
+                      }
                       @if (appConfig.sidebar==='admin-sidebar') {
                         <src-admin-sidebar class="nav-items"></src-admin-sidebar>
                       }
@@ -71,7 +69,7 @@
                 </nav>
               </div>
             }
-            <main id="Content" [ngClass]="{'col-lg-10 col-md-8 col-sm-12': appConfig.sidebar && showSidebar , 'col-md-12': !appConfig.sidebar}">
+            <main id="Content" [class.col-lg-10]="appConfig.sidebar && showSidebar" [class.col-md-8]="appConfig.sidebar && showSidebar" [class.col-sm-12]="appConfig.sidebar && showSidebar" [class.col-md-12]="!appConfig.sidebar">
               <router-outlet></router-outlet>
             </main>
           </div>

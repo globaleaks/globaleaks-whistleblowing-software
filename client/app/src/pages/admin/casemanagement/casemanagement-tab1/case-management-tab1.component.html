@@ -1,7 +1,6 @@
 <div class="config-section">
-  <div>
-    <span>{{'Report statuses'|translate}}</span>
-    <button class="btn btn-sm btn-primary show-add-user-btn" (click)="toggleAddStatus()">
+  <div class="mb-3">
+    <button type="button" class="btn btn-primary show-add-user-btn" (click)="toggleAddStatus()">
       <i class="fas fa-plus"></i>
       <span>{{'Add'|translate}}</span>
     </button>
@@ -10,11 +9,11 @@
     <div class="config-section row">
       <div ngForm="newSubmissionStatus" #newSubmissionStatus="ngForm" class="addSubmissionStatus col-md-6">
         <div class="form-group">
-          <label>
+          <label for="new-submission-status-label">
             <span>{{'Label'|translate}}</span>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           </label>
-          <div [ngClass]="{'is-invalid': newSubmissionStatus?.errors?.['required']}">
+          <div [class.is-invalid]="newSubmissionStatus?.errors?.['required']">
             <input id="new-submission-status-label" name="name" class="form-control" [(ngModel)]="newSubmissionsStatus.label" type="text" required />
           </div>
         </div>

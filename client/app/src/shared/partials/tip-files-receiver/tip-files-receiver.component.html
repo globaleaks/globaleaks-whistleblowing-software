@@ -1,84 +1,66 @@
 @if (tipService.tip) {
-  <div id="TipPageFilesInfoBox" class="card card-default">
-    <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="collapsed" (click)="collapsed = !collapsed; $event.stopPropagation();" (keypress)="collapsed = !collapsed; $event.stopPropagation();">
-      <span>{{ 'Attachments' | translate }}</span>
-      <span class="float-end">
-        @if (!collapsed) {
-          <span [ngbTooltip]="'Collapse' | translate"><i class="fas fa-chevron-up"></i></span>
-        }
-        @if (collapsed) {
-          <span [ngbTooltip]="'Expand' | translate"><i class="fas fa-chevron-down"></i></span>
-        }
-      </span>
-    </div>
+  <div srcCollapsiblePanel id="TipPageFilesInfoBox" class="card" [collapsed]="collapsed" [label]="'Attachments' | translate" (toggled)="collapsed = !collapsed">
     @if (!collapsed) {
       <div class="card-body">
         @if (tipService.tip.wbfiles) {
           <div class="table-responsive">
-            <table class="table table-striped" id="fileList">
+            <table class="table" id="fileList">
               <thead>
                 <tr>
-                  <th>{{ 'Filename' | translate }}</th>
-                  <th>{{ 'View' | translate }}</th>
-                  <th>{{ 'Download' | translate }}</th>
-                  <th>{{ 'Upload date' | translate }}</th>
-                  <th>{{ 'Type' | translate }}</th>
-                  <th>{{ 'File size' | translate }}</th>
-                  <th><i class="fas fa-check"></i></th>
+                  <th scope="col">{{ 'Filename' | translate }}</th>
+                  <th scope="col">{{ 'View' | translate }}</th>
+                  <th scope="col">{{ 'Download' | translate }}</th>
+                  <th scope="col">{{ 'Upload date' | translate }}</th>
+                  <th scope="col">{{ 'Type' | translate }}</th>
+                  <th scope="col">{{ 'File size' | translate }}</th>
+                  <th scope="col"><i class="fas fa-check"></i></th>
                 </tr>
               </thead>
               <tbody id="fileListBody">
                 @for (file of getSortedWBFiles(tipService.tip.wbfiles | orderBy:'creation_date'); track file; let index = $index) {
-                  <tr id="file-{{index}}" [ngClass]="{ 'view-supported': utilsService.supportedViewTypes.includes(file.type) }">
-                    <td>{{ file.name }}</td>
+                  <tr id="file-{{index}}" [class.view-supported]="utilsService.supportedViewTypes.includes(file.type)">
+                    <td>{{ displayName(file) }}</td>
                     <td>
-                      @if (!maskService.isMasked(file.ifile_id,tipService.tip)) {
-                        <button class="btn btn-sm btn-primary tip-action-views-file"  [ngClass]="{'btn-secondary': !utilsService.supportedViewTypes.includes(file.type)}" [disabled]="maskService.isMasked(file.ifile_id,tipService.tip) || !utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)" type="button" [attr.aria-label]="'View' | translate">
+                      @if (!maskService.isMasked(file.ifile_id, tipService.tip)) {
+                        <button class="btn btn-sm btn-primary tip-action-views-file"  [class.btn-secondary]="!utilsService.supportedViewTypes.includes(file.type)" [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)" type="button" [attr.aria-label]="'View' | translate">
                           <i class="fas fa-eye"></i>
                         </button>
                       } @else {
-                        <span class="ml-2 btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
+                        <span class="ms-2 btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
                       }
                     </td>
                     <td>
-                      @if (!maskService.isMasked(file.ifile_id,tipService.tip)) {
+                      @if (canAccessFile(file)) {
                         <button class="btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(file)" type="button" [attr.aria-label]="'Download' | translate">
                           <i class="fas fa-download"></i>
                         </button>
-                        @if (redactMode) {
-                          <span>
-                            @if (preferenceResolver.dataModel.profile.permissions.can_mask_information && !maskService.isMasked(file.ifile_id,tipService.tip)) {
-                              <span>
-                                <button class="btn btn-sm btn-outline-secondary"
- [ngbTooltip]="'Mask' | translate"
-                                  (click)="redactFileOperation('full-mask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
-                                  <i class="fas fa-eraser"></i>
-                                </button>
-                              </span>
-                            }
-                            @if (maskService.isMasked(file.ifile_id,tipService.tip)) {
-                              <span>
-                                @if (preferenceResolver.dataModel.profile.permissions.can_mask_information) {
-                                  <button class="btn btn-sm btn-outline-secondary tip-action-mask-file"
-                                    [ngClass]="{ 'active': redactMode }"
- [ngbTooltip]="'Mask' | translate"
-                                    [attr.disabled]="!redactMode ? true : null"
-                                    (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
+                      } @else {
+                        <span class="ms-2 btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
+                      }
+                      @if (redactMode()) {
+                        <span>
+                          @if (preferenceResolver.dataModel.profile.permissions.can_mask_information && !maskService.isMasked(file.ifile_id,tipService.tip)) {
+                            <span>
+                              <button class="btn btn-sm btn-outline-secondary" [ngbTooltip]="'Mask' | translate" (click)="redactFileOperation('full-mask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
+                                <i class="fas fa-eraser"></i>
+                              </button>
+                            </span>
+                          }
+                          @if (maskService.isMasked(file.ifile_id,tipService.tip)) {
+                            <span>
+                              @if (preferenceResolver.dataModel.profile.permissions.can_mask_information) {
+                                <button class="btn btn-sm btn-outline-secondary tip-action-mask-file" [class.active]="redactMode()" [ngbTooltip]="'Mask' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
                                     <i class="fas fa-eraser"></i>
                                   </button>
-                                }
-                                @if (preferenceResolver.dataModel.profile.permissions.can_redact_information) {
-                                  <button class="btn btn-sm btn-danger tip-action-delete-file"
- [ngbTooltip]="'Redact' | translate"
-                                    [attr.disabled]="!redactMode ? true : null"
-                                    (click)="redactFileOperation('redact', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Redact' | translate">
-                                    <i class="fas fa-trash"></i>
-                                  </button>
-                                }
-                              </span>
-                            }
-                          </span>
-                        }
+                              }
+                              @if (preferenceResolver.dataModel.profile.permissions.can_redact_information) {
+                                <button class="btn btn-sm btn-danger tip-action-delete-file" [ngbTooltip]="'Redact' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('redact', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Redact' | translate">
+                                  <i class="fas fa-trash"></i>
+                                </button>
+                              }
+                            </span>
+                          }
+                        </span>
                       }
                     </td>
                     <td>{{ file.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>

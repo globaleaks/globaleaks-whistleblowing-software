@@ -9,13 +9,16 @@ import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistica
   providedIn: "root"
 })
 export class StatisticalTemplatesResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: statisticalTemplateResolverModel[] = [];
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "analyst") {
+    // The templates are read by the analysts, that are presented with them, and
+    // by the administrators that compose them
+    const role = this.authenticationService.session?.role;
+    if (role === "analyst" || role === "admin") {
       return this.httpService.requestStatisticalTemplates().pipe(
         map((response) => {
           this.dataModel = response;

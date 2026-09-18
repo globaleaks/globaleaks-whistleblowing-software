@@ -1,53 +1,68 @@
-<div *ngIf="items.length || serverSide" class="row mt-1 mb-3">
-  <div class="col d-flex justify-content-between align-items-center">
-    <app-search-input
-      *ngIf="showSearch"
-      class="flex-shrink-0"
-      [(value)]="searchText"
-      (valueChange)="onSearchChange()">
-    </app-search-input>
-
-    <div class="form-check m-0 d-flex align-items-center" *ngIf="filterOptFn">
-      <input
-        class="form-check-input mt-0"
-        type="checkbox"
-        id="filterOpt"
-        [(ngModel)]="filterOptEnabled"
-        (ngModelChange)="onFilterChange()"
-      >
-      <label class="form-check-label ms-2 mb-0" for="filterOpt">{{filterOptLabel}}</label>
+<!-- Toolbar: collection actions on the left, search on the right, and the
+     optional narrowing of the list under the search it narrows -->
+@if (toolbar() || filterOptFn() || scopedCount) {
+  <div class="mb-3">
+    <div class="row align-items-center">
+      <div class="col">
+        @if (toolbar()) {
+          <ng-container [ngTemplateOutlet]="toolbar()!"></ng-container>
+        }
+      </div>
+      @if (serverSide() || scopedCount) {
+        <div class="col-auto">
+          <app-search-input
+            [(value)]="searchText"
+            (valueChange)="onSearchUpdate()">
+          </app-search-input>
+        </div>
+      }
     </div>
+    @if (filterOptFn()) {
+      <div class="row mt-2">
+        <div class="col">
+          <div class="form-check m-0 d-flex align-items-center justify-content-end">
+            <input class="form-check-input mt-0" type="checkbox" id="filterOpt" [(ngModel)]="filterOptEnabled" (ngModelChange)="onFilterChange()" />
+            <label class="form-check-label ms-2 mb-0" for="filterOpt">{{ filterOptLabel() }}</label>
+          </div>
+        </div>
+      </div>
+    }
   </div>
-</div>
+}
+
+<!-- Optional creation form, rendered between the toolbar and the list -->
+@if (addForm()) {
+  <ng-container [ngTemplateOutlet]="addForm()!"></ng-container>
+}
 
 <!-- SIMPLE MODE -->
-<div *ngIf="mode === 'simple' && content" class="row">
-  <ng-container
-    *ngFor="let item of paginatedItems; let i = index"
-    [ngTemplateOutlet]="content"
-    [ngTemplateOutletContext]="{ item: item, index: i }">
-  </ng-container>
-</div>
+@if (mode() === 'simple' && content(); as content) {
+  <div class="row">
+    @for (item of paginatedItems; track identity(item); let i = $index) {
+      <ng-container [ngTemplateOutlet]="content" [ngTemplateOutletContext]="{ item: item, index: i }"></ng-container>
+    }
+  </div>
+}
 
 <!-- TABLE MODE -->
-<table *ngIf="mode === 'table' && header && content" class="table table-striped w-100">
-  <thead>
-    <ng-container [ngTemplateOutlet]="header"></ng-container>
-  </thead>
-  <tbody>
-    <ng-container
-      *ngFor="let item of paginatedItems; let i = index"
-      [ngTemplateOutlet]="content"
-      [ngTemplateOutletContext]="{ item: item, index: i }">
-    </ng-container>
-  </tbody>
-</table>
+@if (mode() === 'table' && header() && content(); as content) {
+  <table class="table w-100" [class.table-striped]="!hoverRows()" [class.table-hover]="hoverRows()">
+    <thead>
+      <ng-container [ngTemplateOutlet]="header()!"></ng-container>
+    </thead>
+    <tbody>
+      @for (item of paginatedItems; track identity(item); let i = $index) {
+        <ng-container [ngTemplateOutlet]="content" [ngTemplateOutletContext]="{ item: item, index: i }"></ng-container>
+      }
+    </tbody>
+  </table>
+}
 
 <!-- Pagination -->
 <app-pagination
   [items]="filteredItems"
-  [currentPage]="currentPage"
-  [itemsPerPage]="itemsPerPage"
-  [collectionSize]="serverSide ? totalItems : undefined"
-  (currentPageChange)="onPageChange($event)">
+  [(currentPage)]="currentPage"
+  [itemsPerPage]="itemsPerPage()"
+  [collectionSize]="serverSide() ? totalItems() : undefined"
+  (currentPageChange)="onPageChange()">
 </app-pagination>

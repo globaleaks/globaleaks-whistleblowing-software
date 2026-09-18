@@ -1,18 +1,41 @@
-import json
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.state import State
-from twisted.internet.defer import inlineCallbacks, returnValue
 
 from globaleaks import models, LANGUAGES_SUPPORTED_CODES, LANGUAGES_SUPPORTED
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import db_get_languages
-from globaleaks.models import EnabledLanguage
 from globaleaks.models.enums import EnumStateFile
-from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID, db_get_pid_by_profile
-from globaleaks.orm import db_del, tw
+from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID, \
+    db_get_config_variable, db_get_held_keys, db_get_pid_by_profile, db_get_profile_children, \
+    db_get_unlocked_keys, db_get_writable_keys, db_set_config_variable, unlockable_keys
+from globaleaks.orm import db_del, db_log, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.fs import read_file
 from globaleaks.utils.log import log
+from globaleaks.handlers.admin.user_profile import db_resolve_default_user_profile
+
+
+def db_sync_languages_from_profile(session, tid, pid):
+    """
+    Give a site the languages of the profile it names
+
+    A site naming a profile reads the texts the profile writes: a language the profile does not
+    speak would leave those pages empty, and one it speaks would otherwise never reach the site.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the site
+    :param pid: The tenant ID of the profile
+    """
+    languages = db_get_languages(session, pid)
+    if not languages:
+        return
+
+    default_language = db_get_config_variable(session, pid, 'default_language')
+
+    db_update_enabled_languages(session, tid, languages, default_language)
+    db_set_config_variable(session, tid, 'default_language', default_language)
+
 
 def db_update_enabled_languages(session, tid, languages, default_language):
     """
@@ -31,23 +54,18 @@ def db_update_enabled_languages(session, tid, languages, default_language):
     # get sure that the default language is included in the enabled languages
     languages = set(languages + [default_language])
 
-    for lang in languages:
-        if lang not in LANGUAGES_SUPPORTED_CODES:
-            raise errors.InputValidationError("Invalid lang code: %s" % lang)
+    for lang_code in languages:
+        if lang_code not in LANGUAGES_SUPPORTED_CODES:
+            raise errors.InputValidationError(f"Invalid lang code: {lang_code}")
 
-        if lang not in cur_enabled_langs:
-            session.add(EnabledLanguage({'tid': tid, 'name': lang}))
+        if lang_code not in cur_enabled_langs:
+            # The texts of a language enabled afterwards are inherited from the
+            # profile of the tenant rather than loaded on the tenant itself
+            session.add(models.EnabledLanguage({'tid': tid, 'name': lang_code}))
 
     to_remove = list(set(cur_enabled_langs) - set(languages))
     if to_remove:
-        user_ids = session.query(models.User.id).filter(models.User.tid == tid, models.User.language.in_(to_remove)).all()
-        user_ids = [pid[0] for pid in user_ids]
-
-        if user_ids:
-            session.query(models.User) \
-                .filter(models.User.id.in_(user_ids)) \
-                .update({'language': default_language}, synchronize_session=False)
-
+        session.query(models.User).filter(models.User.tid == tid, models.User.language.in_(to_remove)).update({'language': default_language}, synchronize_session=False)
         db_del(session, models.EnabledLanguage, (models.EnabledLanguage.tid == tid, models.EnabledLanguage.name.in_(to_remove)))
 
 
@@ -68,7 +86,10 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
 
     logo = session.query(models.File.id).filter(models.File.tid == tid, models.File.name == 'logo').one_or_none()
 
+    writable_keys = db_get_writable_keys(session, tid, config.pid)
+
     ret.update({
+        'tid': tid,
         'changelog': read_file('/usr/share/globaleaks/CHANGELOG'),
         'license': read_file('/usr/share/globaleaks/LICENSE'),
         'languages_supported': LANGUAGES_SUPPORTED,
@@ -77,8 +98,17 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
         'https_possible': tid == 1 or root_config.get_val('reachable_via_web'),
         'encryption_possible': tid == 1 or root_config.get_val('encryption'),
         'escrow': config.get_val('crypto_escrow_pub_key') != '',
-        'logo': True if logo else False,
-        'tid': tid
+        'logo': bool(logo),
+        # What the site may write, read from the very function that enforces it, so that the form
+        # never offers a field the request would then drop; null when it may write everything
+        'writable_keys': writable_keys if writable_keys is None else sorted(writable_keys),
+        # What a profile leaves free to the sites naming it, and the whole of what it could ever
+        # leave free: the first is decided by the profile, the second by the application
+        'unlocked_keys': db_get_unlocked_keys(session, tid),
+        'unlockable_keys': unlockable_keys,
+        # What this tenant holds of its own, and therefore configured differently from what its
+        # profile hands it, or from the default of the application when it names no profile
+        'held_keys': db_get_held_keys(session, tid)
     })
 
     if 'version' in ret:
@@ -104,7 +134,7 @@ def db_reset_antivirus_verification(session, tid):
 
 
 def clear_queued_antivirus_scans_for_tenant(session, tid):
-    from globaleaks.state import State
+    from globaleaks.state import State  # noqa: PLC0415
 
     queued_file_ids = {file_id for file_id, _ in State.antivirus_files}
     if not queued_file_ids:
@@ -144,21 +174,29 @@ def db_update_node(session, tid, user_session, request, language):
     :param language: the language in which to localize data
     :return: Return the serialized configuration for the specified tenant
     """
-    root_config = ConfigFactory(session, 1)
-
-    # The sites created via signup can only be assigned to the default profile
-    # or to one of the profiles configured on the platform; any other reference,
-    # like the one of a profile deleted in the meantime, falls back on the default
+    # Signup sites are assigned to the default profile or to a configured one
     if request.get('signup_profile', 'default') != 'default':
         pid = db_get_pid_by_profile(session, request['signup_profile'])
         if pid is None or pid <= DEFAULT_PROFILE_ID:
             request['signup_profile'] = 'default'
+
+    # Antivirus and backup are configured on the primary tenant only: dropped elsewhere
+    if tid != 1:
+        for var in ['antivirus_enabled', 'antivirus_clamd_ip', 'antivirus_clamd_port',
+                    'backup_enabled', 'backup_time', 'backup_period', 'backup_retention']:
+            request.pop(var, None)
 
     config = ConfigFactory(session, tid)
     antivirus_was_enabled = config.get_val('antivirus_enabled')
     idp_issuer_was = config.get_val('idp_issuer')
 
     config.update('node', request)
+
+    # Accounts provisioned on the first authentication take the default profile of the tenant, which
+    # is therefore required
+    if config.get_val('idp') and config.get_val('idp_provisioning') and \
+            not db_resolve_default_user_profile(session, tid)[0]:
+        raise errors.InputValidationError('The provisioning of the users requires a default user profile')
 
     # The identities bound to the users are unique only within the identity
     # provider that issued them and are therefore reset when it is changed
@@ -170,17 +208,30 @@ def db_update_node(session, tid, user_session, request, language):
         db_reset_antivirus_verification(session, tid)
         clear_queued_antivirus_scans_for_tenant(session, tid)
 
-    if 'languages_enabled' in request and 'default_language' in request:
+    # The languages of a site naming a profile are the ones the profile speaks: the request the
+    # site sends on them is dropped here, as the configuration the profile holds is
+    if 'languages_enabled' in request and 'default_language' in request and \
+            db_get_writable_keys(session, tid, config.pid) is None:
+        languages_were = db_get_languages(session, tid)
+
         db_update_enabled_languages(session,
                                     tid,
                                     request['languages_enabled'],
                                     request['default_language'])
+
+        # A profile that starts or stops speaking a language says it for the sites naming it
+        if tid > DEFAULT_PROFILE_ID and set(db_get_languages(session, tid)) != set(languages_were):
+            for child in db_get_profile_children(session, tid):
+                db_sync_languages_from_profile(session, child, tid)
 
     if language in db_get_languages(session, tid):
         ConfigL10NFactory(session, tid).update('node', request, language)
 
     if tid == 1:
         log.setloglevel(config.get_val('log_level'))
+
+    if user_session is not None:
+        db_log(session, tid=tid, type='update_node', user_id=user_session.user_id)
 
     return db_admin_serialize_node(session, tid, language)
 
@@ -192,7 +243,7 @@ class NodeInstance(BaseHandler):
     def determine_allow_config_filter(self):
         if self.session.role == 'admin':
             node = ('admin_node', requests.AdminNodeDesc)
-        elif self.session.has_permission('can_edit_general_settings'):
+        elif self.session.has_permission('can_manage_settings'):
             node = ('general_settings', requests.SiteSettingsDesc)
         else:
             raise errors.InvalidAuthentication
@@ -210,49 +261,53 @@ class NodeInstance(BaseHandler):
                        self.request.tid,
                        self.request.language,
                        config_desc=config[0])
-        ret["is_profile"] = True if self.request.tid > 1000001 else False
+
+        ret["is_profile"] = self.request.tid > 1000001
 
         if ret.get("backup_enabled"):
             backup_job = State.jobs_status.get("Backup", None)
             if backup_job:
                 ret["backup_job_status"] = backup_job["status"]
 
-        returnValue(ret)
+        return ret
+
+    @staticmethod
+    @inlineCallbacks
+    def sync_backup_job(request, ret):
+        """
+        Backup is a global (tenant 1) feature: keep the Backup job lifecycle
+        in sync with its configuration so that disabling it actually stops the
+        running job rather than leaving it looping as a no-op.
+        """
+        # Imported lazily: the jobs package imports this module at load time.
+        from globaleaks.jobs.job import reschedule_job, stop_job  # noqa: PLC0415
+
+        if not request['backup_enabled']:
+            yield stop_job("Backup")
+            return
+
+        # Re-arm rather than start: the job is already running since
+        # startup, so this is what makes a changed backup time/period
+        # actually take effect (get_delay is recomputed).
+        reschedule_job("Backup")
+        backup_job = State.jobs_status.get("Backup", None)
+        if backup_job:
+            ret["backup_job_status"] = backup_job["status"]
 
     @inlineCallbacks
     def put(self):
         """
         Update the node infos.
         """
+        # Served to every administrator; updated only with the permission of the settings
+        if self.session.role == 'admin' and \
+                not self.session.has_permission('can_manage_settings'):
+            raise errors.ForbiddenOperation
+
         config = yield self.determine_allow_config_filter()
 
-        raw_request = self.request.content.read()
-        if config[1] == requests.AdminNodeDesc:
-            try:
-                parsed_request = json.loads(raw_request)
-            except:
-                raise errors.InputValidationError
-
-            if 'default_user_profile' not in parsed_request:
-                parsed_request['default_user_profile'] = State.tenants[self.request.tid].cache['default_user_profile']
-
-            raw_request = json.dumps(parsed_request)
-
-        request = yield self.validate_request(raw_request, config[1])
-
-        if request['idp'] and not request['idp_issuer']:
-            raise errors.InputValidationError('IDP issuer is required when IDP is enabled')
-
-        # When a local IDP issuer is configured, validate server-side that it is
-        # reachable and exposes a usable JWKS before persisting the change.
-        if request['idp']:
-            if not request.get('idp_client_id'):
-                raise errors.InputValidationError('No IdP client identifier configured')
-
-            try:
-                yield State.oidcauth.validate_issuer(request['idp_issuer'])
-            except Exception:
-                raise errors.InputValidationError('Unable to validate the configured IdP issuer')
+        request = yield self.validate_request(self.request.content.read(),
+                                              config[1])
 
         ret = yield tw(db_update_node,
                        self.request.tid,
@@ -260,22 +315,8 @@ class NodeInstance(BaseHandler):
                        request,
                        self.request.language)
 
-        # Backup is a global (tenant 1) feature: keep the Backup job lifecycle
-        # in sync with its configuration so that disabling it actually stops the
-        # running job rather than leaving it looping as a no-op.
         if self.request.tid == 1 and 'backup_enabled' in request:
-            # Imported lazily: the jobs package imports this module at load time.
-            from globaleaks.jobs.job import reschedule_job, stop_job
-            if request['backup_enabled']:
-                # Re-arm rather than start: the job is already running since
-                # startup, so this is what makes a changed backup time/period
-                # actually take effect (get_delay is recomputed).
-                reschedule_job("Backup")
-                backup_job = State.jobs_status.get("Backup", None)
-                if backup_job:
-                    ret["backup_job_status"] = backup_job["status"]
-            else:
-                yield stop_job("Backup")
+            yield self.sync_backup_job(request, ret)
 
         tenant = self.state.tenants.get(self.request.tid)
         if tenant is not None:
@@ -283,4 +324,4 @@ class NodeInstance(BaseHandler):
                 if key in ret:
                     tenant.cache[key] = ret[key]
 
-        returnValue(ret)
+        return ret

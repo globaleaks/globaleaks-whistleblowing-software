@@ -1,41 +1,51 @@
 import {Injectable, inject} from "@angular/core";
-import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
+import {Router} from "@angular/router";
 import {Observable, of, throwError} from "rxjs";
-import {HttpService} from "@app/shared/services/http.service";
+import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {map, catchError} from "rxjs/operators";
-import {Router} from "@angular/router";
+import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
 
 @Injectable({
   providedIn: "root"
 })
-export class NodeResolver {
-  private router = inject(Router);
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
-  private preferenceResolver = inject(PreferenceResolver);
+export class NodeResolver extends ResourceResolver<nodeResolverModel> {
+  private readonly router = inject(Router);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly preferenceResolver = inject(PreferenceResolver);
 
-  dataModel: nodeResolverModel = new nodeResolverModel();
+  constructor() {
+    super("api/admin/node", new nodeResolverModel());
+  }
 
-  resolve(): Observable<boolean> {
-    if (
-        this.authenticationService.session.role === "admin" ||
-        (this.authenticationService.session.role === "receiver" &&
-            this.preferenceResolver.dataModel.profile.permissions.can_edit_general_settings)
-    ) {
-      return this.httpService.requestNodeResource().pipe(
-          map((response: nodeResolverModel) => {
-            this.dataModel = response;
-            return true;
-          }),
-          catchError((error: any) => {
-            this.authenticationService.deleteSession();
-            this.router.navigateByUrl('/login').then();
-            return throwError(() => error);
-          })
-      );
-    }
-    return of(true);
+  /**
+   * Tell whether a variable is held by the profile the site names
+   *
+   * A site naming a profile writes only what the profile unlocks: the screens read the very list
+   * the request is filtered by, so that a field is never offered and then dropped.
+   */
+  heldByProfile(key: string): boolean {
+    const writable = this.dataModel.writable_keys;
+
+    return !!writable && !writable.includes(key);
+  }
+
+  protected allowed(): boolean {
+    const role = this.authenticationService.session?.role;
+
+    return role === "admin" ||
+      (role === "receiver" && this.preferenceResolver.dataModel.profile.permissions.can_manage_settings);
+  }
+
+  // The node configuration decides what the pages render: navigation
+  // waits for it, as it did before.
+  override resolve(): Observable<boolean> {
+    return this.allowed() ? this.resolveAndWait() : of(true);
+  }
+
+  protected override onError(error: unknown): Observable<boolean> {
+    this.authenticationService.deleteSession();
+    void this.router.navigateByUrl("/login");
+    return throwError(() => error);
   }
 }

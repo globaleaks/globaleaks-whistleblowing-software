@@ -21,6 +21,7 @@ class SecureTemporaryFile:
         """
         filename = filename or str(uuid.uuid4())
         self.mode = None
+        self.written_chunks = 0
         self.filepath = os.path.join(filesdir, filename)
         self.cipher = Cipher(ChaCha20(os.urandom(32), os.urandom(16)), mode=None, backend=default_backend())
 
@@ -31,7 +32,7 @@ class SecureTemporaryFile:
         """
         try:
             return os.stat(self.filepath).st_size
-        except:
+        except Exception:
             return 0
 
     def open(self, mode='r'):
@@ -111,7 +112,8 @@ class SecureTemporaryFile:
 
         while discard_size > 0:
             to_read = min(CHUNK_SIZE, discard_size)
-            self.enc.update(self.dec.update(os.read(self.fd, to_read)))
+            data = self.dec.update(os.read(self.fd, to_read))
+            data = self.enc.update(data)
             discard_size -= to_read
 
         self.position = offset

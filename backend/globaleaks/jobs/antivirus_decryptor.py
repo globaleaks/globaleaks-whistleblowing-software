@@ -14,6 +14,30 @@ import os
 
 BUFFER_SIZE = 8192
 
+def verdict_to_state(result):
+    # A file the scanner has not judged stays pending: only a verdict it did
+    # give is a verdict, and anything else is the absence of one.
+    if result == 'safe':
+        return EnumStateFile.verified.name
+
+    if result == 'unsafe':
+        return EnumStateFile.infected.name
+
+    return EnumStateFile.pending.name
+
+
+def decrypt_file(path, key):
+    sfo = GCE.streaming_encryption_open('DECRYPT', key, path)
+    decrypted_buffer = BytesIO()
+    while True:
+        chunk = sfo.read(BUFFER_SIZE)
+        if not chunk:
+            break
+        decrypted_buffer.write(chunk)
+
+    return decrypted_buffer.getvalue()
+
+
 @transact
 def update_verification_status(session, file_id, result):
     # File ids are globally unique upload filenames, so resolve the record by
@@ -25,18 +49,15 @@ def update_verification_status(session, file_id, result):
         if tid is None or not db_get_config_variable(session, tid, 'antivirus_enabled'):
             result = None
 
-        if result == 'safe':
-            file_obj.verification_date = datetime.now(timezone.utc)
-            file_obj.state = EnumStateFile.verified.name
-        elif result == 'unsafe':
-            file_obj.verification_date = datetime.now(timezone.utc)
-            file_obj.state = EnumStateFile.infected.name
-        else:
-            file_obj.verification_date = None
-            file_obj.state = EnumStateFile.pending.name
+        state = verdict_to_state(result)
+
+        file_obj.state = state
+        file_obj.verification_date = None if state == EnumStateFile.pending.name \
+                                     else datetime.now(timezone.utc)
 
 class AntivirusDecryptor(LoopingJob):
     interval = 3
+    scanner_factory = FileAnalysis
 
     @inlineCallbacks
     def operation(self):
@@ -52,19 +73,11 @@ class AntivirusDecryptor(LoopingJob):
         if not os.path.exists(encrypted_path):
             return
 
-        sfo = GCE.streaming_encryption_open('DECRYPT', tip_prv_key, encrypted_path)
-        decrypted_buffer = BytesIO()
-        while True:
-            chunk = sfo.read(BUFFER_SIZE)
-            if not chunk:
-                break
-            decrypted_buffer.write(chunk)
-
-        decrypted_content = decrypted_buffer.getvalue()
+        decrypted_content = decrypt_file(encrypted_path, tip_prv_key)
         if not decrypted_content:
             return
 
-        scanner = FileAnalysis()
+        scanner = self.scanner_factory()
         result = yield scanner.scan_file(decrypted_content)
 
         update_verification_status(name, result)

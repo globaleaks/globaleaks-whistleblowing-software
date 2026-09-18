@@ -3,19 +3,20 @@
 #
 #   This file defines the URI mapping for the GlobaLeaks API and its factory
 import base64
+import contextlib
 import inspect
 import json
 import re
 import secrets
 
 from functools import lru_cache
-from typing import List, Tuple
 from urllib.parse import urlparse
 
+from globaleaks.handlers.recipient import search_dashboard
 from globaleaks import jobs
 from sqlalchemy.orm.exc import NoResultFound
 
-from twisted.internet import defer
+from twisted.internet import address, defer
 from twisted.python.failure import Failure
 from twisted.web.resource import Resource
 from twisted.web.server import NOT_DONE_YET
@@ -23,8 +24,10 @@ from twisted.web.server import NOT_DONE_YET
 from globaleaks import LANGUAGES_SUPPORTED_CODES
 from globaleaks.handlers import admin, \
                                 analyst, \
+                                auditor, \
                                 auth, \
                                 custodian, \
+                                exchange, \
                                 file, \
                                 health, \
                                 l10n, \
@@ -46,11 +49,11 @@ from globaleaks.rest import decorators, errors
 from globaleaks.state import State, extract_exception_traceback_and_schedule_email
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.oidc import extract_bearer_token
-from globaleaks.utils.sock import isIPAddress
+from globaleaks.utils.sock import is_ip_address
 from globaleaks.orm import db_log
 
 tid_regexp = r'([0-9]+)'
-role_regexp = r'(admin|analyst|custodian|receiver)'
+role_regexp = r'(admin|analyst|auditor|custodian|receiver|transmitter)'
 uuid_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})'
 uuid_regexp_or_closed = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|closed)'
 key_regexp = r'([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}|[a-z_]{0,100})'
@@ -62,6 +65,7 @@ COMPILED_RE_TID_SUB = re.compile(br'^/t/([0-9a-z-]+)(/.*)$')
 api_spec = [
     ('/api/health', health.HealthStatusHandler),
     ('/api/public', public.PublicResource),
+    ('/api/public/contexts', public.ContextInstance, r'/api/public/contexts/' + uuid_regexp),
     ('/api/report', report.ReportHandler),
     ('/api/support', support.SupportHandler),
     ('/api/wizard', wizard.Wizard),
@@ -75,31 +79,42 @@ api_spec = [
     ('/api/auth/session', auth.SessionHandler),
     ('/api/auth/tenantauthswitch/', auth.TenantAuthSwitchHandler, r'/api/auth/tenantauthswitch/' + tid_regexp),
     ('/api/auth/roleauthswitch/', auth.RoleAuthSwitchHandler, r'/api/auth/roleauthswitch/' + role_regexp),
-    ('/api/auth/operatorauthswitch', auth.OperatorAuthSwitchHandler),
 
     # User Preferences Handler
     ('/api/user/preferences', user.UserInstance),
     ('/api/user/operations', user.operation.UserOperationHandler),
+    ('/api/user/support', support.UserSupportRequests),
+    ('/api/user/support', support.UserSupportRequest, r'/api/user/support/' + uuid_regexp),
+    ('/api/user/support', support.UserSupportMessage, r'/api/user/support/' + uuid_regexp + r'/message'),
     ('/api/user/reset/password', user.reset_password.PasswordResetHandler),
     ('/api/user/reset/password', user.reset_password.PasswordResetHandler, r'/api/user/reset/password/(.+)'),
     ('/api/user/validate/email', user.validate_email.EmailValidation, r'/api/user/validate/email/(.+)'),
 
     # Receiver Handlers
-    ('/api/recipient/operations', recipient.Operations),
-    ('/api/recipient/search-dashboard', recipient.search_dashboard.RecipientDashboard),
-    ('/api/recipient/search-dashboard/suggestions', recipient.search_dashboard.RecipientSearchSuggestions),
-    ('/api/recipient/search/export-audit', recipient.search_dashboard.SearchExportAudit),
+    ('/api/recipient/search-dashboard', search_dashboard.RecipientDashboard),
+    ('/api/recipient/search-dashboard/suggestions', search_dashboard.RecipientSearchSuggestions),
+    ('/api/recipient/search/export-audit', search_dashboard.SearchExportAudit),
     ('/api/recipient/rtips', recipient.TipsCollection),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),
-    ('/api/recipient/rtips', recipient.rtip.ReportAuditLog, r'/api/recipient/rtips/' + uuid_regexp  + r'/auditlog'),
+    ('/api/recipient/rtips', recipient.rtip.ReportAuditLog, r'/api/recipient/rtips/' + uuid_regexp + r'/auditlog'),
+    ('/api/recipient/rtips', exchange.RTipCommunication, r'/api/recipient/rtips/' + uuid_regexp + r'/communication'),
+    ('/api/recipient/rtips', exchange.CommunicationAttachment, r'/api/recipient/rtips/' + uuid_regexp + r'/communication/attachment'),
     ('/api/recipient/rtips', recipient.rtip.RTipCommentCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/comments'),
+    ('/api/recipient/rtips', recipient.rtip.RTipQuestionnairesCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/questionnaires'),
     ('/api/recipient/rtips', recipient.rtip.IdentityAccessRequestsCollection, r'/api/recipient/rtips/' + uuid_regexp + r'/iars'),
     ('/api/recipient/rtips', recipient.export.ExportHandler, r'/api/recipient/rtips/' + uuid_regexp + r'/export'),
     ('/api/recipient/rtips', recipient.rtip.ReceiverFileUpload, r'/api/recipient/rtips/' + uuid_regexp + r'/rfiles'),
+    ('/api/recipient/rtips/insertion', recipient.insertion.RTipsInsertion),
+    ('/api/recipient/rtips/insertion/attachment', recipient.insertion.InsertionAttachment),
     ('/api/recipient/redactions', recipient.rtip.RTipRedactionCollection),
     ('/api/recipient/redactions', recipient.rtip.RTipRedactionCollection, r'/api/recipient/redactions/' + uuid_regexp),
     ('/api/recipient/rfiles', recipient.rtip.ReceiverFileDownload, r'/api/recipient/rfiles/' + uuid_regexp),
     ('/api/recipient/wbfiles', recipient.rtip.WhistleblowerFileDownload, r'/api/recipient/wbfiles/' + uuid_regexp),
+
+    # Transmitter Handlers
+    ('/api/transmitter/transmissions', exchange.Transmissions),
+    ('/api/transmitter/transmissions/options', exchange.TransmissionOptions),
+    ('/api/transmitter/transmissions/attachment', exchange.TransmissionAttachment),
 
     # Whistleblower Handlers
     ('/api/whistleblower/operations', whistleblower.wbtip.Operations),
@@ -121,18 +136,23 @@ api_spec = [
     # Analyst Handlers
     ('/api/analyst/stats', analyst.Statistics),
     ('/api/analyst/templates', analyst.StatisticalReportTemplates),
-    ('/api/analyst/templates', analyst.StatisticalReportTemplateInstance, r'/api/analyst/templates/' + uuid_regexp),
+    ('/api/analyst/templates', analyst.StatisticalReportTemplateInstance, r'/api/analyst/templates/' + key_regexp),
     ('/api/analyst/reports', analyst.StatisticalReports),
     ('/api/analyst/reports', analyst.StatisticalReportInstance, r'/api/analyst/reports/' + uuid_regexp),
     ('/api/analyst/filter-options', analyst.FilterOptions),
+    ('/api/analyst/metrics', analyst.MetricCatalog),
 
     # Admin Handlers
     ('/api/admin/node', admin.node.NodeInstance),
     ('/api/admin/network', admin.network.NetworkInstance),
+    ('/api/admin/support', support.AdminSupportRequests),
+    ('/api/admin/support', support.AdminSupportRequest, r'/api/admin/support/' + uuid_regexp),
+    ('/api/admin/support', support.AdminSupportRequestRead, r'/api/admin/support/' + uuid_regexp + r'/read'),
+    ('/api/admin/support', support.AdminSupportMessage, r'/api/admin/support/' + uuid_regexp + r'/message'),
     ('/api/admin/users', admin.user.UsersCollection),
     ('/api/admin/users', admin.user.UserInstance, r'/api/admin/users/' + uuid_regexp),
-    ('/api/admin/search-dashboard', recipient.search_dashboard.AdminDashboard),
-    ('/api/admin/search-dashboard/suggestions', recipient.search_dashboard.AdminSearchSuggestions),
+    ('/api/admin/search-dashboard', search_dashboard.AdminDashboard),
+    ('/api/admin/search-dashboard/suggestions', search_dashboard.AdminSearchSuggestions),
     ('/api/admin/users', admin.user.UserStats, r'/api/admin/users/' + uuid_regexp + '/stats'),
     ('/api/admin/users/profiles', admin.user_profile.UserProfilesCollection),
     ('/api/admin/users/profiles', admin.user_profile.UserProfileInstance, r'/api/admin/users/profiles/' + uuid_regexp),
@@ -148,6 +168,7 @@ api_spec = [
     ('/api/admin/steps', admin.step.StepInstance, r'/api/admin/steps/' + uuid_regexp),
     ('/api/admin/fieldtemplates', admin.field.FieldTemplatesCollection),
     ('/api/admin/fieldtemplates', admin.field.FieldTemplateInstance, r'/api/admin/fieldtemplates/' + key_regexp),
+    ('/api/admin/selectables', admin.selectables.SelectablesCollection),
     ('/api/admin/redirects', admin.redirect.RedirectCollection, r'/api/admin/redirects'),
     ('/api/admin/redirects', admin.redirect.RedirectInstance, r'/api/admin/redirects/' + uuid_regexp),
     ('/api/admin/auditlog', admin.auditlog.AuditLog),
@@ -155,6 +176,13 @@ api_spec = [
     ('/api/admin/auditlog/debug', admin.auditlog.DebugLog),
     ('/api/admin/auditlog/jobs', admin.auditlog.JobsTiming),
     ('/api/admin/auditlog/tips', admin.auditlog.TipsCollection),
+    ('/api/admin/auditlog/users', admin.auditlog.UsersAudit),
+    ('/api/auditor/auditlog', auditor.AuditLog),
+    ('/api/auditor/auditlog/access', auditor.AccessLog),
+    ('/api/auditor/auditlog/debug', auditor.DebugLog),
+    ('/api/auditor/auditlog/jobs', auditor.JobsTiming),
+    ('/api/auditor/auditlog/tips', auditor.TipsCollection),
+    ('/api/auditor/auditlog/users', auditor.UsersAudit),
     ('/api/admin/backup/list', jobs.backup.BackupList),
     ('/api/admin/l10n/', admin.l10n.AdminL10NHandler, r'/api/admin/l10n/(' + '|'.join(LANGUAGES_SUPPORTED_CODES) + ')'),
     ('/api/admin/config', admin.operation.AdminOperationHandler),
@@ -164,9 +192,12 @@ api_spec = [
     ('/api/admin/config/tls/files/', admin.https.FileHandler, r'/api/admin/config/tls/files/(cert|chain|key)'),
     ('/api/admin/files', admin.file.FileCollection),
     ('/api/admin/files', admin.file.FileInstance, r'/api/admin/files/(.+)'),
+    ('/api/admin/exchanges', admin.exchange.ExchangeCollection),
+    ('/api/admin/exchanges', admin.exchange.ExchangeInstance, r'/api/admin/exchanges/' + uuid_regexp),
     ('/api/admin/tenants', admin.tenant.TenantCollection),
     ('/api/admin/tenants', admin.tenant.TenantInstance, r'/api/admin/tenants/' + '([0-9]{1,20})'),
     ('/api/admin/tenants', admin.tenant.TenantStats, r'/api/admin/tenants/' + '([0-9]{1,20})' + '/stats'),
+    ('/api/admin/tenants', admin.tenant.TenantDetach, r'/api/admin/tenants/' + '([0-9]{1,20})' + '/detach'),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionStatusCollection),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionStatusInstance, r'/api/admin/statuses/' + uuid_regexp_or_closed),
     ('/api/admin/statuses', admin.submission_statuses.SubmissionSubStatusCollection, r'/api/admin/statuses/' + uuid_regexp_or_closed + r'/substatuses'),
@@ -206,15 +237,14 @@ default_regexp = re.compile(r'/([a-zA-Z0-9_\-\/\.\@]*)')
 
 @lru_cache(maxsize=128)
 def expand_language(lang: str):
-    parts = lang.split('-')
+    parts = lang.split('_')
     return [
-        '-'.join(parts[:i])
+        '_'.join(parts[:i])
         for i in range(len(parts), 0, -1)
     ]
 
-
-@lru_cache(maxsize=1000)
-def parse_accept_language(raw_header: str) -> List[str]:
+@lru_cache(maxsize=512)
+def parse_accept_language(raw_header: str) -> list[str]:
     """
     Parse Accept-Language according to RFC.
     Returns language tags ordered by preference.
@@ -222,18 +252,18 @@ def parse_accept_language(raw_header: str) -> List[str]:
     if not raw_header:
         return []
 
-    parsed: List[Tuple[str, float, int]] = []
+    parsed: list[tuple[str, float, int]] = []
 
     for index, item in enumerate(raw_header.split(',')):
         parts = item.strip().split(';')
-        lang = parts[0].lower()
+        lang = parts[0].replace('-', '_')
 
         if not lang:
             continue
 
         q = 1.0
         for param in parts[1:]:
-            param = param.strip()
+            param = param.strip()  # noqa: PLW2901
             if param.startswith('q='):
                 try:
                     q = float(param[2:])
@@ -255,10 +285,16 @@ def idp_origin_from_issuer(issuer):
     """Return the scheme://host[:port] origin of the configured IdP issuer"""
     try:
         parsed = urlparse(issuer)
-        if parsed.scheme and parsed.netloc:
-            return ("%s://%s" % (parsed.scheme, parsed.netloc)).encode()
-    except:
-        pass
+        if parsed.scheme in ('http', 'https') and parsed.netloc:
+            origin = f"{parsed.scheme}://{parsed.netloc}"
+            # Defense in depth: never emit an origin bearing a character that
+            # could break out of the Content-Security-Policy directive it is
+            # concatenated into (validated on input, re-checked here for values
+            # possibly stored before the validator existed).
+            if re.match(r'^https?://[0-9a-zA-Z\-.:]+$', origin):
+                return origin.encode()
+    except Exception:
+        return None
 
     return None
 
@@ -324,42 +360,54 @@ class APIResourceWrapper(Resource):
         Resource.__init__(self)
         self.registry = Trie()
         self.handler = None
+        self.static_routes = {}
 
         for prefix, handler, regexp in api_spec:
             if not hasattr(handler, '_decorated'):
                 handler._decorated = True
+
+                # An operation handler that gates its operations must map exactly
+                # the ones it serves: an unmapped operation fails closed and is
+                # unreachable, while a mapped operation with no descriptor is
+                # dead configuration gating nothing. Either gap is caught here at
+                # startup rather than surfacing as a silent 403 or a silent no-op
+                # at request time.
+                if getattr(handler, 'operation_permissions', None):
+                    operations = set(handler.operation_descriptors(handler))
+                    mapped = set(handler.operation_permissions)
+                    if operations != mapped:
+                        raise RuntimeError(f"{handler.__name__}: operations {sorted(operations - mapped)} are not gated, permissions {sorted(mapped - operations)} gate nothing")
+
                 for m in ['delete', 'get', 'put', 'post']:
                     # head and options method are intentionally not considered here
                     if hasattr(handler, m):
                         decorators.decorate_method(handler, m)
 
             if not regexp.startswith("^"):
-                regexp = "^" + regexp
+                regexp = "^" + regexp  # noqa: PLW2901
 
             if not regexp.endswith("$"):
-                regexp += "$"
+                regexp += "$"  # noqa: PLW2901
 
-            self.registry.insert(prefix, re.compile(regexp), handler)
+            compiled = re.compile(regexp)
+            self.registry.insert(prefix, compiled, handler)
 
-    @lru_cache(maxsize=2048)
+            if compiled.groups == 0:
+                m = compiled.match(prefix)
+                if m is not None:
+                    self.static_routes[prefix] = (m, handler)
+
     def resolve_handler(self, path):
+        hit = self.static_routes.get(path)
+        if hit is not None:
+            return hit
         return self.registry.search(path)
 
     def should_redirect_https(self, request):
-        if request.isSecure() or \
-                request.hostname.endswith(b'.onion') or \
-                b'acme-challenge' in request.path:
-            return False
-
-        return True
+        return not (request.isSecure() or request.hostname.endswith(b'.onion') or b'acme-challenge' in request.path)
 
     def should_redirect_tor(self, request):
-        if request.client_using_tor and \
-           State.tenants[request.tid].cache.onionnames and \
-           request.hostname != State.tenants[request.tid].cache.onionnames[0]:
-            return True
-
-        return False
+        return bool(request.client_using_tor and State.tenants[request.tid].cache.onionnames and request.hostname != State.tenants[request.tid].cache.onionnames[0])
 
     def redirect_https(self, request, hostname=None):
         if hostname is None:
@@ -398,9 +446,7 @@ class APIResourceWrapper(Resource):
 
         if isinstance(e, NoResultFound):
             e = errors.ResourceNotFound
-        elif isinstance(e, errors.GLException):
-            pass
-        else:
+        elif not isinstance(e, errors.GLException):
             e = errors.InternalServerError('Unexpected')
             e.tid = request.tid
             e.url = request.hostname + request.path
@@ -438,7 +484,11 @@ class APIResourceWrapper(Resource):
         request.nonce = base64.b64encode(secrets.token_bytes(16))
         request.oidc_token = None
 
-        request.client_ip = request.getClientIP()
+        client_address = request.getClientAddress()
+        if isinstance(client_address, (address.IPv4Address, address.IPv6Address)):
+            request.client_ip = client_address.host
+        else:
+            request.client_ip = None
         if isinstance(request.client_ip, bytes):
             request.client_ip = request.client_ip.decode()
 
@@ -455,13 +505,13 @@ class APIResourceWrapper(Resource):
 
         if not State.tenants[1].cache.wizard_done or \
           request.hostname.lower() in (b'127.0.0.1', b'localhost') or \
-          (State.tenants[1].cache.hostname == '' and isIPAddress(request.hostname)):
+          (State.tenants[1].cache.hostname == '' and is_ip_address(request.hostname)):
             request.tid = 1
         else:
             request.tid = State.tenant_hostname_id_map.get(request.hostname)
 
         if request.tid == 1:
-            try:
+            with contextlib.suppress(Exception):
                 m = COMPILED_RE_TID_UUID.match(request.path)
                 if m:
                     tid_bytes, rest = m.groups()
@@ -477,11 +527,9 @@ class APIResourceWrapper(Resource):
                         if tid is not None:
                             request.tid = tid
                             request.path = rest
-            except:
-                pass
 
-        if request.path == b'/':
-            request.path = b'/index.html'
+        if request.path == b'/index.html':
+            request.path = b'/'
 
         if request.tid is None:
             # Tentative domain correction in relation to presence / absence of 'www.' prefix
@@ -503,7 +551,7 @@ class APIResourceWrapper(Resource):
 
         self.set_headers(request)
 
-        if isIPAddress(request.hostname) and 1 in State.tenants:
+        if is_ip_address(request.hostname) and 1 in State.tenants:
             hostname = State.tenants[1].cache['hostname']
             https_enabled = State.tenants[1].cache['https_enabled']
             if hostname and https_enabled:
@@ -527,10 +575,8 @@ class APIResourceWrapper(Resource):
                 try:
                     request.oidc_token = State.oidcauth.verify_token(bearer_token, issuer, client_id)
                 except Exception as e:
-                    try:
+                    with contextlib.suppress(Exception):
                         db_log(None, tid=request.tid, type='idp_malfunction', object_id=None, details=str(e))
-                    except Exception:
-                        pass
                     request.oidc_token = None
 
         if self.should_redirect_tor(request):
@@ -560,42 +606,57 @@ class APIResourceWrapper(Resource):
             request.setResponseCode(200)
             return b''
 
-        if method not in self.method_map.keys() or not hasattr(handler, method):
+        if method not in self.method_map or not hasattr(handler, method):
             self.handle_exception(errors.MethodNotImplemented, request)
             return b''
 
         f = getattr(handler, method)
         groups = match.groups()
 
-        self.handler = handler(State, request)
+        # The instance is bound to a local: APIResourceWrapper is a single
+        # shared (isLeaf) Resource, so storing it on self would be overwritten
+        # by any concurrent in-flight request before this request's deferred
+        # callbacks run. The conclude callbacks below close over this local.
+        h = handler(State, request)
 
         request.setResponseCode(self.method_map[method])
 
-        if self.handler.root_tenant_only and \
+        if h.root_tenant_only and \
                 request.tid != 1:
             self.handle_exception(errors.ForbiddenOperation, request)
             return b''
 
-        if self.handler.root_tenant_or_management_only and \
+        if h.root_tenant_or_management_only and \
                 request.tid != 1 and \
-                  (not self.handler.session or
-                   not self.handler.session.properties.get('management_session', False)):
+                  (not h.session or
+                   not h.session.properties.get('management_session', False)):
             self.handle_exception(errors.ForbiddenOperation, request)
             return b''
 
-        if self.handler.upload_handler and method == 'post':
+        if h.upload_handler and method == 'post':
             try:
-                self.handler.process_file_upload()
+                # Enforce the same session/token and role checks that gate the
+                # decorated handler method before processing any upload body, so
+                # that unauthenticated or unauthorized requests cannot allocate
+                # and fill temporary files.
+                decorators.check_session_or_token(h)
+                decorators.check_authentication(h, h.check_roles)
+                # Enforce the DPoP proof binding (including single-use jti replay
+                # protection) before processing the upload body. Chunk retries are
+                # disabled client-side, so each chunk carries a distinct proof.
+                decorators.check_dpop(h)
+
+                h.process_file_upload()
             except Exception as e:
                 self.handle_exception(e, request)
                 return b''
 
-            if self.handler.uploaded_file is None:
+            if h.uploaded_file is None:
                 return b''
 
         @defer.inlineCallbacks
         def concludeHandlerFailure(err):
-            yield self.handler.check_execution_time()
+            yield h.check_execution_time()
             self.handle_exception(err, request)
 
             if request.finished:
@@ -610,7 +671,7 @@ class APIResourceWrapper(Resource):
 
             :param ret: A `dict`, `list`, `str`, `None` or something unexpected
             """
-            yield self.handler.check_execution_time()
+            yield h.check_execution_time()
 
             if request.finished:
                 return
@@ -627,7 +688,7 @@ class APIResourceWrapper(Resource):
 
             request.finish()
 
-        d = defer.maybeDeferred(f, self.handler, *groups).addCallbacks(concludeHandlerSuccess, concludeHandlerFailure)
+        d = defer.maybeDeferred(f, h, *groups).addCallbacks(concludeHandlerSuccess, concludeHandlerFailure)
 
         def _finish(_ret):
             request.finished = True
@@ -650,6 +711,7 @@ class APIResourceWrapper(Resource):
         request.setHeader(b"Cross-Origin-Embedder-Policy", "require-corp")
         request.setHeader(b"Cross-Origin-Opener-Policy", "same-origin")
         request.setHeader(b"Cross-Origin-Resource-Policy", "same-origin")
+        request.setHeader(b"Origin-Agent-Cluster", "?1")
 
         # Default CSP Policy with reporting of any violation
         request.setHeader(b'Content-Security-Policy',
@@ -663,7 +725,7 @@ class APIResourceWrapper(Resource):
                           b"report-to csp-endpoint")
 
         # CSP Policy on the entry point
-        if request.path == b'/index.html':
+        if request.path == b'/':
             # Allow the client to reach the IdP configured on the tenant and
             # the one inherited from the profile used for the signups (if any)
             idp_connect_src = b""
@@ -693,7 +755,7 @@ class APIResourceWrapper(Resource):
                               b"form-action 'none';"
                               b"frame-ancestors 'none';"
                               b"frame-src 'self';"
-                              b"img-src 'self' data:;"
+                              b"img-src 'self';"
                               b"media-src 'self';"
                               b"script-src 'self';"
                               b"style-src 'self' 'nonce-" + request.nonce + b"';"
@@ -739,9 +801,8 @@ class APIResourceWrapper(Resource):
         request.setHeader(b'Reporting-Endpoints', "csp-endpoint=\"/api/report\"")
 
         # Disable features that could be used to deanonymize the user
-        microphone = False
-        if request.tid in State.tenants and getattr(State.tenants[request.tid], 'microphone', False):
-            microphone = True
+        microphone = request.tid in State.tenants and \
+                     State.tenants[request.tid].cache.get('microphone', False)
 
         # Prevent usage of the unused permissions listed in: https://developer.mozilla.org/en-US/docs/Web/API/Permissions
         request.setHeader(b'Permissions-Policy', b"accelerometer=(),"
@@ -770,6 +831,10 @@ class APIResourceWrapper(Resource):
                                                  b"usb=(),"
                                                  b"web-share=(),"
                                                  b"xr-spatial-tracking=()")
+
+        # Defense in depth against clickjacking; on modern browsers framing is
+        # already prevented by the CSP frame-ancestors 'none' directive above.
+        request.setHeader(b'X-Frame-Options', b'deny')
 
         # Prevent the browsers to implement automatic mime type detection and execution.
         request.setHeader(b'X-Content-Type-Options', b'nosniff')

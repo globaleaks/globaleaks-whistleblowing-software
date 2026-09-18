@@ -2,7 +2,7 @@ import os
 import re
 
 from sqlalchemy.sql.expression import or_
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -80,7 +80,7 @@ def get_file_id_by_name(session, tid, name):
 def delete_file_if_existing(session, tid, id_or_name):
     file_obj = db_get_file_by_id_or_name(session, tid, id_or_name)
     if not file_obj:
-        return
+        return None
 
     path = os.path.join(State.settings.files_path, file_obj.id)
     directory_traversal_check(State.settings.files_path, path)
@@ -91,7 +91,7 @@ def delete_file_if_existing(session, tid, id_or_name):
 
 
 class FileInstance(BaseHandler):
-    check_roles = 'user'
+    check_roles = {'admin', 'receiver'}
     invalidate_cache = True
     upload_handler = True
 
@@ -117,10 +117,9 @@ class FileInstance(BaseHandler):
                not self.session.has_permission('can_upload_files'):
                 raise errors.InvalidAuthentication
 
-        else:
-            if name not in ['logo'] or \
-                    not self.session.has_permission('can_edit_general_settings'):
-                raise errors.InvalidAuthentication
+        elif name not in ['logo'] or \
+                not self.session.has_permission('can_manage_settings'):
+            raise errors.InvalidAuthentication
 
     @inlineCallbacks
     def post(self, name):
@@ -151,7 +150,7 @@ class FileInstance(BaseHandler):
 
         yield self.write_upload_plaintext_to_disk(path)
 
-        returnValue(id)
+        return id
 
     @inlineCallbacks
     def delete(self, name):
@@ -161,10 +160,13 @@ class FileInstance(BaseHandler):
 
 
 class FileCollection(BaseHandler):
-    check_roles = 'user'
+    check_roles = {'admin', 'receiver'}
 
     def get(self):
         """
         Return the list of files and their info
         """
+        if self.session.role != 'admin' and not self.session.has_permission('can_manage_settings'):
+            raise errors.InvalidAuthentication
+
         return get_files(self.request.tid)

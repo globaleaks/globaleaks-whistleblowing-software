@@ -1,12 +1,12 @@
 # -*- coding: UTF-8
 from globaleaks.models import Model
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.enums import EnumUserRole
+from globaleaks.models.properties import Boolean, Column, DateTime, Enum, Integer, JSON, UnicodeText, uuid4
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
-class AuditLog_v_61(Model):
+class AuditLogV61(Model):
     __tablename__ = 'auditlog'
 
     id = Column(UnicodeText, primary_key=True, default=uuid4)
@@ -18,7 +18,7 @@ class AuditLog_v_61(Model):
     data = Column(JSON, nullable=True)
 
 
-class Context_v_61(Model):
+class ContextV61(Model):
     __tablename__ = 'context'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -39,7 +39,7 @@ class Context_v_61(Model):
     order = Column(Integer, default=0, nullable=False)
 
 
-class ReceiverTip_v_61(Model):
+class ReceiverTipV61(Model):
     __tablename__ = 'receivertip'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -53,7 +53,7 @@ class ReceiverTip_v_61(Model):
     crypto_files_prv_key = Column(UnicodeText(84), default='', nullable=False)
 
 
-class User_v_61(Model):
+class UserV61(Model):
     __tablename__ = 'user'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -97,46 +97,18 @@ class User_v_61(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_AuditLog(self):
-        for old_obj in self.session_old.query(self.model_from['AuditLog']):
-            new_obj = self.model_to['AuditLog']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key != 'id':
-                    setattr(new_obj, key, getattr(old_obj, key))
+    converted_attrs = {
+        'AuditLog': {'id': lambda o: None},  # the id is reassigned by the autoincrement
+        'Context': {'hidden': lambda o: o.status != 'enabled'},
+        'User': {'enabled': lambda o: o.state == 1}
+    }
 
-            self.session_new.add(new_obj)
-
-    def migrate_Context(self):
-        for old_obj in self.session_old.query(self.model_from['Context']):
-            new_obj = self.model_to['Context']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'hidden':
-                    setattr(new_obj, key, getattr(old_obj, 'status') != 'enabled')
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
-
-    def migrate_InternalTip(self):
+    def migrate_internal_tip(self):
         ctx_ids = [c[0] for c in self.session_old.query(self.model_from['Context'].id).all()]
 
         for old_obj in self.session_old.query(self.model_from['InternalTip']):
-            new_obj = self.model_to['InternalTip']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'context_id' and old_obj.context_id not in ctx_ids:
-                    setattr(new_obj, key, ctx_ids[0])
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
-
-            self.session_new.add(new_obj)
-
-    def migrate_User(self):
-        for old_obj in self.session_old.query(self.model_from['User']):
-            new_obj = self.model_to['User']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'enabled':
-                    setattr(new_obj, key, getattr(old_obj, 'state') == 1)
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('InternalTip', old_obj)
+            if old_obj.context_id not in ctx_ids:
+                new_obj.context_id = ctx_ids[0]
 
             self.session_new.add(new_obj)

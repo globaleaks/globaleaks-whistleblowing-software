@@ -1,4 +1,5 @@
-import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -9,36 +10,30 @@ import {Status} from "@app/models/app/public-model";
 import {FormsModule} from "@angular/forms";
 
 import {SubStatusComponent} from "../substatuses/sub-status.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 
 @Component({
     selector: "src-substatusmanager",
     templateUrl: "./sub-status-manager.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, SubStatusComponent, TranslatorPipe]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule, SubStatusComponent, ListItemComponent]
 })
 export class SubStatusManagerComponent {
-  private appDataServices = inject(AppDataService);
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
-  private utilsService = inject(UtilsService);
+  private readonly appDataServices = inject(AppDataService);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly utilsService = inject(UtilsService);
 
   editing = false;
-  @Input() submissionsStatus: Status;
-  @Input() submissionStatuses: Status[];
-  @Input() index: number;
-  @Input() first: boolean;
-  @Input() last: boolean;
-  @Output() deleted = new EventEmitter<string>();
+  readonly submissionsStatus = input.required<Status>();
+  readonly submissionStatuses = input<Status[]>();
+  readonly index = input.required<number>();
+  readonly first = input<boolean>();
+  readonly last = input<boolean>();
+  readonly deleted = output<string>();
 
   isSystemDefined(state: Status): boolean {
     return ["new", "opened", "closed"].indexOf(state.id) !== -1;
-  }
-
-  toggleEditing(submissionsStatus: Status): void {
-    if (this.isEditable(submissionsStatus)) {
-      this.editing = !this.editing;
-    }
   }
 
   isEditable(submissionsStatus: Status): boolean {
@@ -95,8 +90,7 @@ export class SubStatusManagerComponent {
 
   saveSubmissionsStatus(submissionsStatus: Status): void {
     const url = "api/admin/statuses/" + submissionsStatus.id;
-    this.httpService.requestUpdateStatus(url, submissionsStatus).subscribe(_ => {
-    });
+    this.httpService.requestUpdateStatus(url, submissionsStatus).subscribe();
   }
 
   openConfirmableModalDialog(arg: Status, scope: any): Observable<string> {
@@ -108,7 +102,7 @@ export class SubStatusManagerComponent {
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
         const url = "api/admin/statuses/" + arg.id;
-        return this.utilsService.deleteStatus(url).subscribe(_ => {
+        return this.utilsService.deleteStatus(url).subscribe(() => {
           this.deleted.emit(arg.id);
         });
       };
@@ -119,6 +113,6 @@ export class SubStatusManagerComponent {
   //  this.appDataServices.submissionStatuses = [...this.appDataServices.submissionStatuses.filter(i => i.id !== id)];
   //}
   onDelete(id: string) {
-    this.submissionsStatus.substatuses = [...this.submissionsStatus.substatuses.filter(i => i.id !== id)];
+    this.submissionsStatus().substatuses = [...this.submissionsStatus().substatuses.filter(i => i.id !== id)];
   }
 }

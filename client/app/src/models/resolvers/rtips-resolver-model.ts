@@ -1,9 +1,8 @@
-import {Data} from "@app/models/receiver/receiver-tip-data";
 import {SearchQuery} from "@app/models/search/search-query";
+import {Data} from "@app/models/receiver/receiver-tip-data";
 
 export interface rtipResolverModel {
   submissionStatusStr: string;
-  reportModificationStr: string;
   context_name: string;
   context?: any;
   id: string;
@@ -15,20 +14,25 @@ export interface rtipResolverModel {
   expiration_date: string;
   reminder_date: string;
   progressive: number;
+  channel_progressive: number;
+  channel_progressive_sort_key: string;
+  context_count: number;
+  slug: string;
   subscription: number;
   important: boolean;
   label: string;
   updated: boolean;
   context_id: string;
+  type: string;
+  allow_transmission: boolean;
+  can_enter_report: boolean;
   tor: boolean;
   questionnaire: any;
   answers: Answers;
   score: number;
   status: string;
   substatus: string;
-  file_count: number;
   receiver_count: number;
-  comment_count: number;
   accessible: boolean;
   data: Data;
   receiver_ids: string[];
@@ -42,7 +46,6 @@ export type Answers = Record<string, {
 
 export interface RecipientReportsRequest {
   page: number;
-  page_size: number;
   search: string;
   unread: boolean;
   sort: keyof rtipResolverModel;
@@ -53,6 +56,5 @@ export interface RecipientReportsRequest {
 export interface RecipientReportsPage {
   reports: rtipResolverModel[];
   page: number;
-  page_size: number;
   total: number;
 }

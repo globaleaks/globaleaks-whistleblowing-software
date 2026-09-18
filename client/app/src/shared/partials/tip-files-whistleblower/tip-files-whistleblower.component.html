@@ -1,29 +1,18 @@
-<div id="TipPageFilesInfoBox" class="card card-default">
-  <div class="card-header clearfix" role="button" tabindex="0" [attr.aria-expanded]="collapsed" (click)="toggleColLapse()" (keypress)="toggleColLapse()">
-    <span>{{'Attachments'|translate}}</span>
-    <span class="float-end">
-      @if (!collapsed) {
-        <span ngbTooltip="{{'Collapse' | translate}}"><i class="fas fa-chevron-up"></i></span>
-      }
-      @if (collapsed) {
-        <span ngbTooltip="{{'Expand' | translate}}"><i class="fas fa-chevron-down"></i></span>
-      }
-    </span>
-  </div>
+<div srcCollapsiblePanel id="TipPageFilesInfoBox" class="card" [collapsed]="collapsed" [label]="'Attachments' | translate" (toggled)="toggleColLapse()">
   @if (!collapsed) {
     <div class="card-body">
       <div class="table-responsive">
-        <table class="table table-striped" id="fileList">
+        <table class="table" id="fileList">
           <thead>
             <tr>
-              <th>{{'Filename'|translate}}</th>
+              <th scope="col">{{'Filename'|translate}}</th>
               @if (wbTipService.tip.enable_whistleblower_download) {
-                <th>{{'Download' | translate}}</th>
+                <th scope="col">{{'Download' | translate}}</th>
               }
-              <th>{{'Upload date'|translate}}</th>
-              <th>{{'Type'|translate}}</th>
-              <th>{{'File size'|translate}}</th>
-              <th><i class="fas fa-check"></i></th>
+              <th scope="col">{{'Upload date'|translate}}</th>
+              <th scope="col">{{'Type'|translate}}</th>
+              <th scope="col">{{'File size'|translate}}</th>
+              <th scope="col"><i class="fas fa-check"></i></th>
             </tr>
           </thead>
           <tbody id="fileListBody">
@@ -57,7 +46,7 @@
       <br />
       @if (wbTipService.tip.status !== 'closed') {
         <div>
-          <src-rfile-upload-button [formUploader]=false [fileUploadUrl]="fileUploadUrl"></src-rfile-upload-button>
+          <src-rfile-upload-button [formUploader]=false [fileUploadUrl]="fileUploadUrl()"></src-rfile-upload-button>
         </div>
       }
     </div>

@@ -1,26 +1,24 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {SubmissionStatus} from "@app/models/app/shared-public-model";
 import {RecieverTipData} from "@app/models/receiver/receiver-tip-data";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 @Component({
     selector: 'src-change-submission-status',
     templateUrl: './change-submission-status.component.html',
     standalone: true,
     imports: [
     FormsModule,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
 ],
 })
 export class ChangeSubmissionStatusComponent {
-  private modalService = inject(NgbModal);
-  private activeModal = inject(NgbActiveModal);
+  private readonly modalService = inject(NgbModal);
+  private readonly activeModal = inject(NgbActiveModal);
 
-  @Input() arg: {tip:RecieverTipData, submission_statuses:SubmissionStatus[],status:any};
+  arg: {tip:RecieverTipData, submission_statuses:SubmissionStatus[],status:any};
 
   confirmFunction: (status:SubmissionStatus) => void;
 

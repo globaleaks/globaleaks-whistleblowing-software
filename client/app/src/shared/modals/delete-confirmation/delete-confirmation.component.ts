@@ -1,48 +1,47 @@
-import {HttpClient} from "@angular/common/http";
-import {Component, Input, OnInit, inject, signal} from "@angular/core";
+import {Component, OnInit, inject, signal, ChangeDetectionStrategy} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
+import {HttpService} from "@app/shared/services/http.service";
 import {Router} from "@angular/router";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {User} from "@app/models/resolvers/user-resolver-model";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 
+
 @Component({
-  selector: "src-delete-confirmation",
-  templateUrl: "./delete-confirmation.component.html",
-  standalone: true,
-  imports: [TranslateModule, TranslatorPipe]
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: "src-delete-confirmation",
+    templateUrl: "./delete-confirmation.component.html",
+    standalone: true,
+    imports: [TranslateModule]
 })
 export class DeleteConfirmationComponent implements OnInit {
-
-  private modalService = inject(NgbActiveModal);
-  private http = inject(HttpClient);
-  private httpService = inject(HttpService);
-  private utils = inject(UtilsService);
+  private readonly modalService = inject(NgbActiveModal);
+  private readonly httpService = inject(HttpService);
+  private readonly utils = inject(UtilsService);
   protected router = inject(Router);
 
-  @Input() args: any;
-  @Input() selected_tips: string[];
-  @Input() operation: string;
-  @Input() user: User;
-  @Input() tenant: tenantResolverModel;
-  @Input() context: contextResolverModel;
-  @Input() statsChanged = false;
 
+  args: any;
+  selected_tips: string[];
+  operation: string;
+  user: User;
+  tenant: tenantResolverModel;
+  context: contextResolverModel;
+  statsChanged = false;
   confirmFunction: () => void;
 
   userStats: {total_reports: number; exclusive_reports: number; last_update: string} | null = null;
   tenantStats: {open_reports: number; total_reports: number; last_update: string} | null = null;
 
-  loadingStats = signal(false);
+  readonly loadingStats = signal(false);
 
   ngOnInit() {
     if (this.user) {
       this.loadUserStats();
     }
+
     if (this.tenant) {
       this.loadTenantStats();
     }
@@ -74,45 +73,41 @@ export class DeleteConfirmationComponent implements OnInit {
     });
   }
 
-  openAuditLog() {
-    this.cancel();
-    this.router.navigate(['/admin/auditlog'], {queryParams: {user: this.user.id}});
-  }
-
   confirm() {
-    this.proceedWithDeletion();
-  }
-
-  private proceedWithDeletion() {
     this.cancel();
     this.confirmFunction();
-    if (this.args) {
-      if (this.args.operation === "delete") {
-        return this.http.delete("api/recipient/rtips/" + this.args.tip.id)
+    const args = this.args;
+    if (args) {
+      if (args.operation === "delete") {
+        return this.httpService.requestDeleteReceiverTip(args.tip.id)
           .subscribe(() => {
-            this.router.navigate(["/recipient/reports"]).then();
+            void this.router.navigate(["/recipient/reports"]);
           });
       }
       return;
     }
-    if (this.operation) {
-      if (["delete"].indexOf(this.operation) === -1) {
+    const operation = this.operation;
+    if (operation) {
+      if (["delete"].indexOf(operation) === -1) {
         return;
       }
     }
 
-    if (this.selected_tips) {
-      return this.utils.runRecipientOperation(this.operation, {"rtips": this.selected_tips}, true).subscribe({
-        next: _ => {
+    const selected_tips = this.selected_tips;
+    if (selected_tips) {
+      return this.utils.runRecipientOperation(operation, {"rtips": selected_tips}, true).subscribe({
+        next: () => {
           this.utils.reloadCurrentRoute();
         }
       });
     } else {
       return null;
     }
+
   }
 
   cancel() {
     this.modalService.dismiss();
   }
+
 }

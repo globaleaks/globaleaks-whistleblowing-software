@@ -7,8 +7,8 @@ import {AppDataService} from "@app/app-data.service";
   providedIn: "root"
 })
 export class WbtipService {
-  private httpService = inject(HttpService);
-  private appDataService = inject(AppDataService);
+  private readonly httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
 
   tip: WbTipData = new WbTipData();
 
@@ -20,11 +20,6 @@ export class WbtipService {
     this.tip.questionnaire =
       this.appDataService.questionnaires_by_id?.[
         this.tip.context?.questionnaire_id
-      ];
-
-    this.tip.additional_questionnaire =
-      this.appDataService.questionnaires_by_id?.[
-        this.tip.context?.additional_questionnaire_id
       ];
 
     this.tip.msg_receiver_selected = null;

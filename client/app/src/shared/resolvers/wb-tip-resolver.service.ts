@@ -9,11 +9,11 @@ import {map} from "rxjs/operators";
   providedIn: "root"
 })
 export class WbTipResolver {
-  private authenticationService = inject(AuthenticationService);
-  private httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
 
 
-  dataModel: WbTipData;
+  dataModel?: WbTipData;
 
   reload(callback: () => void) {
     this.httpService.whistleBlowerTip().subscribe(

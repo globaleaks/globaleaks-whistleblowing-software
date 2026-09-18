@@ -1,52 +1,58 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input, OnInit} from "@angular/core";
 import {FormsModule, NgForm} from "@angular/forms";
+import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {NgClass} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {Constants} from "@app/shared/constants/constants";
 import {AppConfigService} from "@app/services/root/app-config.service";
-import {AppDataService} from "@app/app-data.service";
 
 @Component({
     selector: "src-tab7",
     templateUrl: "./tab7.component.html",
     standalone: true,
-    imports: [FormsModule, NgClass, TranslateModule]
+    imports: [FormsModule, TranslateModule]
 })
-export class Tab7Component {
-  @Input() contentForm: NgForm;
+export class Tab7Component implements OnInit {
+  readonly contentForm = input.required<NgForm>();
+  nodeData: nodeResolverModel;
 
-  private utilsService = inject(UtilsService);
-  private appConfigService = inject(AppConfigService);
-  private appDataService = inject(AppDataService);
-  protected nodeResolver = inject(NodeResolver);
-  protected readonly Constants = Constants;
+  private readonly defaultClamdIp = "localhost";
+  private readonly defaultClamdPort = 3310;
 
-  isInheritedTenantContext() {
-    return !!this.nodeResolver.dataModel.tid && this.nodeResolver.dataModel.tid !== 1 && !this.nodeResolver.dataModel.is_profile;
+  protected utilsService = inject(UtilsService);
+  private readonly nodeResolver = inject(NodeResolver);
+  private readonly appConfigService = inject(AppConfigService);
+
+  ngOnInit(): void {
+    this.nodeData = this.nodeResolver.dataModel;
+    this.applyDefaultClamdEndpoint();
   }
 
-  updateNode() {
-    if (this.nodeResolver.dataModel.idp && !this.nodeResolver.dataModel.idp_issuer) {
-      return;
-    }
+  private applyDefaultClamdEndpoint(): void {
+    const clamdIp = this.nodeData.antivirus_clamd_ip?.trim();
+    this.nodeData.antivirus_clamd_ip = clamdIp || this.defaultClamdIp;
 
-    this.utilsService.update(this.nodeResolver.dataModel).subscribe({
-      next: () => {
-        if (this.appDataService.public?.node) {
-          this.appDataService.updatePublic({
-            ...this.appDataService.public,
-            node: {
-              ...this.appDataService.public.node,
-              idp: this.nodeResolver.dataModel.idp,
-              idp_issuer: this.nodeResolver.dataModel.idp_issuer,
-              idp_client_id: this.nodeResolver.dataModel.idp_client_id
-            }
-          });
-        }
-        this.appConfigService.reinit(false);
-      }
+    if (!this.nodeData.antivirus_clamd_port || this.nodeData.antivirus_clamd_port < 1) {
+      this.nodeData.antivirus_clamd_port = this.defaultClamdPort;
+    }
+  }
+
+  save(): void {
+    this.applyDefaultClamdEndpoint();
+    this.utilsService.update(this.nodeResolver.dataModel).subscribe(() => {
+      this.appConfigService.reinit();
     });
+  }
+
+  toggleAntivirus(): void {
+    this.nodeData.antivirus_enabled = !this.nodeData.antivirus_enabled;
+    this.save();
+  }
+
+  resetAntivirus(): void {
+    this.nodeData.antivirus_enabled = false;
+    this.nodeData.antivirus_clamd_ip = this.defaultClamdIp;
+    this.nodeData.antivirus_clamd_port = this.defaultClamdPort;
+    this.save();
   }
 }

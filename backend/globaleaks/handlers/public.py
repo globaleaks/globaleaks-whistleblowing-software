@@ -6,13 +6,28 @@ from sqlalchemy import or_
 from globaleaks import models, LANGUAGES_SUPPORTED, LANGUAGES_SUPPORTED_CODES
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import get_localized_values
-from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, db_get_signup_idp_config
+from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, \
+    db_get_signup_idp_config
 from globaleaks.orm import db_get, db_query, transact
 from globaleaks.state import State
+from globaleaks.utils.crypto import GCE
 
 
 default_questionnaires = ['default']
 default_questions = ['whistleblower_identity']
+
+# Hard cap on the field serialization recursion depth. Field trees are
+# serialized recursively (see serialize_field) and a reference field expands
+# the subtree of the template it points to via template_id; the effective depth
+# is therefore NOT bounded by the fieldgroup nesting limit enforced at write
+# time, which only follows fieldgroup_id. Chained or mutually-referencing
+# templates could otherwise drive serialize_field past the interpreter recursion
+# limit and crash every serialization, including the unauthenticated public API
+# (get_public_resources serializes questionnaires with serialize_templates=True).
+# This backstop bounds the recursion regardless of how the stored graph was
+# built (cycles and pre-existing data included) while staying well above any
+# realistic questionnaire depth.
+MAX_SERIALIZATION_DEPTH = 64
 
 trigger_map = {
     'field': models.FieldOptionTriggerField,
@@ -161,7 +176,11 @@ def db_prepare_contexts_serialization(session, contexts):
         for o in session.query(models.File).filter(models.File.name.in_(contexts_ids)):
             data['imgs'][o.name] = True
 
-        for o in session.query(models.ReceiverContext).filter(models.ReceiverContext.context_id.in_(contexts_ids)).order_by(models.ReceiverContext.order):
+        for o in session.query(models.ReceiverContext) \
+                        .join(models.User, models.User.id == models.ReceiverContext.receiver_id) \
+                        .filter(models.ReceiverContext.context_id.in_(contexts_ids),
+                                models.User.enabled.is_(True)) \
+                        .order_by(models.ReceiverContext.order):
             if o.context_id not in data['receivers']:
                 data['receivers'][o.context_id] = []
 
@@ -189,6 +208,22 @@ def db_prepare_receivers_serialization(session, receivers):
     return data
 
 
+def _collect_field_ids(f, ids):
+    """
+    Collect the identity of a field and of the templates it is derived from
+
+    :param f: The field
+    :param ids: The list the identities are collected into
+    """
+    ids.append(f.id)
+
+    if f.template_id is not None:
+        ids.append(f.template_id)
+
+    if f.template_override_id is not None:
+        ids.append(f.template_override_id)
+
+
 def db_prepare_fields_serialization(session, fields):
     """
     Transaction to prepare and optimize fields serialization
@@ -205,44 +240,35 @@ def db_prepare_fields_serialization(session, fields):
 
     fields_ids = []
     for f in fields:
-        fields_ids.append(f.id)
-        if f.template_id is not None:
-            fields_ids.append(f.template_id)
-        if f.template_override_id is not None:
-            fields_ids.append(f.template_override_id)
+        _collect_field_ids(f, fields_ids)
 
     tmp = copy.deepcopy(fields_ids)
+    visited = set()
     while tmp:
         fs = session.query(models.Field).filter(models.Field.fieldgroup_id.in_(tmp))
 
         tmp = []
         for f in fs:
-            tmp.append(f.id)
-            if f.template_id is not None:
-                tmp.append(f.template_id)
-            if f.template_override_id is not None:
-                tmp.append(f.template_override_id)
+            if f.id in visited:  # pre-existing cycle in stored data: stop, don't hang
+                continue
+            visited.add(f.id)
 
-            if f.fieldgroup_id not in ret['fields']:
-                ret['fields'][f.fieldgroup_id] = []
-            ret['fields'][f.fieldgroup_id].append(f)
+            _collect_field_ids(f, tmp)
+
+            ret['fields'].setdefault(f.fieldgroup_id, []).append(f)
 
         fields_ids.extend(tmp)
 
     if fields_ids:
         objs = session.query(models.FieldAttr).filter(models.FieldAttr.field_id.in_(fields_ids))
         for obj in objs:
-            if obj.field_id not in ret['attrs']:
-                ret['attrs'][obj.field_id] = []
-            ret['attrs'][obj.field_id].append(obj)
+            ret['attrs'].setdefault(obj.field_id, []).append(obj)
 
         objs = session.query(models.FieldOption)\
                     .filter(models.FieldOption.field_id.in_(fields_ids)) \
                     .order_by(models.FieldOption.order)
         for obj in objs:
-            if obj.field_id not in ret['options']:
-                ret['options'][obj.field_id] = []
-            ret['options'][obj.field_id].append(obj)
+            ret['options'].setdefault(obj.field_id, []).append(obj)
 
     return ret
 
@@ -262,13 +288,15 @@ def db_serialize_node(session, tid, language):
 
     ret['start_time'] = State.start_time
     ret['root_tenant'] = tid == 1
+    # The cost of the key derivation the client has to match
+    ret['kdf_opslimit'] = GCE.options['OPSLIMIT']
+    ret['kdf_memlimit'] = GCE.options['MEMLIMIT']
+    ret['support'] = node.get_val('crypto_support_pub_key') != ''
     ret['languages_enabled'] = languages if ret['wizard_done'] else list(LANGUAGES_SUPPORTED_CODES)
     ret['languages_supported'] = LANGUAGES_SUPPORTED
 
     if tid == 1:
-        # The signups, handled by the root tenant only, are authenticated
-        # against the IdP configured on the profile assigned to the tenants
-        # created via signup
+        # Signups are authenticated against the IdP of the signup profile
         ret.update(db_get_signup_idp_config(session, tid))
     else:
         root_tenant_node = ConfigFactory(session, 1)
@@ -300,6 +328,7 @@ def serialize_context(session, context, language, data=None):
     """
     ret = {
         'id': context.id,
+        'slug': context.slug,
         'hidden': context.hidden,
         'order': context.order,
         'tip_timetolive': context.tip_timetolive,
@@ -320,22 +349,27 @@ def serialize_context(session, context, language, data=None):
     return get_localized_values(ret, context, context.localized_keys, language)
 
 
-def serialize_field_option(option, language):
+def serialize_field_option(option, language, include_scoring=True):
     """
     Serialize a field option.
 
     :param option: The option to be serialized
     :param language: The language to be used during serialization
+    :param include_scoring: Whether to include the option scoring weights;
+        these are kept out of the public questionnaire as the score is
+        computed exclusively server-side
     :return: The serialized resource
     """
     ret = {
         'id': option.id,
         'order': option.order,
         'block_submission': option.block_submission,
-        'score_points': option.score_points,
-        'score_type': option.score_type,
         'trigger_receiver': option.trigger_receiver
     }
+
+    if include_scoring:
+        ret['score_points'] = option.score_points
+        ret['score_type'] = option.score_type
 
     return get_localized_values(ret, option, option.localized_keys, language)
 
@@ -365,7 +399,52 @@ def serialize_field_attr(attr, language):
     return ret
 
 
-def serialize_field(session, tid, field, language, data=None, serialize_templates=False):
+def _db_field_to_serialize(session, field):
+    """
+    Return the field the serialization takes its type and its children from
+
+    A field that instances a template is serialized as the template it overrides,
+    or as the one it instances; a field of its own is serialized as itself.
+
+    :param session: An ORM session
+    :param field: The field being serialized
+    """
+    if field.template_override_id is not None:
+        return session.query(models.Field).filter(models.Field.id == field.template_override_id).one_or_none()
+
+    if field.template_id is not None:
+        return session.query(models.Field).filter(models.Field.id == field.template_id).one_or_none()
+
+    return field
+
+
+def _serialize_field_attrs(field, f_to_serialize, data, language):
+    """
+    Return the attributes of a field, completed with the ones its descriptor declares
+
+    :param field: The field being serialized
+    :param f_to_serialize: The field the serialization is taken from
+    :param data: The dictionary of prefetched resources
+    :param language: The language to be used during serialization
+    """
+    if field.template_id is None or field.template_id in default_questions:
+        attrs_id = field.id
+    else:
+        attrs_id = field.template_id
+
+    attrs = {attr.name: serialize_field_attr(attr, language) for attr in data['attrs'].get(attrs_id, {})}
+
+    if field.template_id and field.template_id in ['whistleblower_identity']:
+        # correct attributes for questions using default templates
+        descriptor = State.field_attrs.get(field.template_id, {})
+    else:
+        # correct the attributes based on the actual descriptor
+        descriptor = State.field_attrs.get(f_to_serialize.type, {})
+
+    return {k: attrs.get(k, v) for k, v in descriptor.items()}
+
+
+def serialize_field(session, tid, field, language, data=None, serialize_templates=False, include_scoring=True, depth=0):
     """
     Serialize a field
 
@@ -375,40 +454,23 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
     :param language: The language to be used during serialization
     :param data: The dictionary of prefetched resources
     :param serialize_templates: A boolean to require template serialization
+    :param include_scoring: Whether to include the option scoring weights
     :return: The serialized resource
     """
     if data is None:
         data = db_prepare_fields_serialization(session, [field])
 
-    f_to_serialize = field
-    if field.template_override_id is not None:
-        f_to_serialize = session.query(models.Field).filter(models.Field.id == field.template_override_id).one_or_none()
-    elif field.template_id is not None:
-        f_to_serialize = session.query(models.Field).filter(models.Field.id == field.template_id).one_or_none()
+    f_to_serialize = _db_field_to_serialize(session, field)
 
-    attrs = {}
-    if field.template_id is None or field.template_id in default_questions:
-        for attr in data['attrs'].get(field.id, {}):
-            attrs[attr.name] = serialize_field_attr(attr, language)
-    else:
-        for attr in data['attrs'].get(field.template_id, {}):
-            attrs[attr.name] = serialize_field_attr(attr, language)
-
-    if field.template_id and field.template_id in ['whistleblower_identity']:
-        # correct attributes for questions using default templates
-        attrs = {k: attrs.get(k, v) for k, v in State.field_attrs.get(field.template_id, {}).items()}
-    else:
-        # correct the attributes based on the actual descriptor
-        attrs = {k: attrs.get(k, v) for k, v in State.field_attrs.get(f_to_serialize.type, {}).items()}
+    attrs = _serialize_field_attrs(field, f_to_serialize, data, language)
 
     children = []
-    if field.instance != 'reference' or serialize_templates:
-        children = [serialize_field(session, tid, f, language, data, serialize_templates=serialize_templates) for f in data['fields'].get(f_to_serialize.id, [])]
+    if (field.instance != 'reference' or serialize_templates) and depth < MAX_SERIALIZATION_DEPTH:
+        # depth bounds the recursion across both fieldgroup_id and template_id
+        # nesting; beyond the cap children are dropped so that an abusive or
+        # cyclic template graph cannot exhaust the interpreter recursion limit.
+        children = [serialize_field(session, tid, f, language, data, serialize_templates=serialize_templates, include_scoring=include_scoring, depth=depth + 1) for f in data['fields'].get(f_to_serialize.id, [])]
         children.sort(key=lambda f: (f['y'], f['x']))
-
-    # Enable voice features if questions of type voice are enabled
-    if tid in State.tenants and f_to_serialize.type == 'voice':
-        State.tenants[tid].microphone = True
 
     ret = {
         'id': field.id,
@@ -426,16 +488,15 @@ def serialize_field(session, tid, field, language, data=None, serialize_template
         'x': field.x,
         'y': field.y,
         'width': field.width,
-        'triggered_by_score': field.triggered_by_score,
         'triggered_by_options': db_get_triggers_by_type(session, 'field', field.id),
-        'options': [serialize_field_option(o, language) for o in data['options'].get(f_to_serialize.id, [])],
+        'options': [serialize_field_option(o, language, include_scoring) for o in data['options'].get(f_to_serialize.id, [])],
         'children': children
     }
 
     return get_localized_values(ret, f_to_serialize, f_to_serialize.localized_keys, language)
 
 
-def serialize_step(session, tid, step, language, serialize_templates=False):
+def serialize_step(session, tid, step, language, serialize_templates=False, include_scoring=True):
     """
     Serialize a step.
 
@@ -444,20 +505,20 @@ def serialize_step(session, tid, step, language, serialize_templates=False):
     :param step: The option to be serialized
     :param language: The language to be used during serialization
     :param serialize_templates: A boolean to require template serialization
+    :param include_scoring: Whether to include the option scoring weights
     :return: The serialized resource
     """
     children = session.query(models.Field).filter(models.Field.step_id == step.id)
 
     data = db_prepare_fields_serialization(session, children)
 
-    children = [serialize_field(session, tid, f, language, data, serialize_templates) for f in children]
+    children = [serialize_field(session, tid, f, language, data, serialize_templates, include_scoring) for f in children]
     children.sort(key=lambda f: (f['y'], f['x']))
 
     ret = {
         'id': step.id,
         'questionnaire_id': step.questionnaire_id,
         'order': step.order,
-        'triggered_by_score': step.triggered_by_score,
         'triggered_by_options': db_get_triggers_by_type(session, 'step', step.id),
         'children': children
     }
@@ -465,7 +526,7 @@ def serialize_step(session, tid, step, language, serialize_templates=False):
     return get_localized_values(ret, step, step.localized_keys, language)
 
 
-def serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=False):
+def serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=False, include_scoring=True):
     """
     Serialize a questionnaire.
 
@@ -474,6 +535,7 @@ def serialize_questionnaire(session, tid, questionnaire, language, serialize_tem
     :param questionnaire: A questionnaire model
     :param language: The language to be used during serialization
     :param serialize_templates: A boolean to require template serialization
+    :param include_scoring: Whether to include the option scoring weights
     :return: The serialized resource
     """
     steps = session.query(models.Step).filter(models.Step.questionnaire_id == models.Questionnaire.id,
@@ -484,7 +546,7 @@ def serialize_questionnaire(session, tid, questionnaire, language, serialize_tem
         'id': questionnaire.id,
         'editable': questionnaire.id not in default_questionnaires and questionnaire.tid == tid,
         'name': questionnaire.name,
-        'steps': [serialize_step(session, tid, s, language, serialize_templates=serialize_templates) for s in steps]
+        'steps': [serialize_step(session, tid, s, language, serialize_templates=serialize_templates, include_scoring=include_scoring) for s in steps]
     }
 
     return get_localized_values(ret, questionnaire, questionnaire.localized_keys, language)
@@ -526,16 +588,15 @@ def db_get_questionnaires(session, tid, language, serialize_templates=False):
     :param serialize_templates: A boolean to require template serialization
     :return: A list of contexts descriptors
     """
-    if tid in State.tenants:
-        State.tenants[tid].microphone = False
-
     questionnaires = session.query(models.Questionnaire) \
                             .filter(models.Questionnaire.tid.in_({1, tid, State.tenants[tid].cache.ptid}),
                                     or_(models.Context.questionnaire_id == models.Questionnaire.id,
                                         models.Context.additional_questionnaire_id == models.Questionnaire.id),
-                                    models.Context.tid == tid)
+                                    models.Context.tid == tid,
+                                    models.Context.exchange.is_(False),
+                                    models.Context.hidden.is_(False))
 
-    return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=serialize_templates) for questionnaire in questionnaires]
+    return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=serialize_templates, include_scoring=False) for questionnaire in questionnaires]
 
 
 def db_get_contexts(session, tid, language):
@@ -547,11 +608,68 @@ def db_get_contexts(session, tid, language):
     :param language: The language to be used for the serialization
     :return: A list of contexts descriptors
     """
-    contexts = session.query(models.Context).filter(models.Context.tid == tid)
+    # A channel of the exchanges is neither reached nor offered to the reporting people
+    contexts = session.query(models.Context) \
+                      .filter(models.Context.tid == tid,
+                              models.Context.exchange.is_(False),
+                              models.Context.hidden.is_(False))
 
     data = db_prepare_contexts_serialization(session, contexts)
 
     return [serialize_context(session, context, language, data) for context in contexts]
+
+
+def db_get_context_questionnaires(session, tid, context, language):
+    """
+    Transaction that serialize the questionnaires referenced by a single context
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param context: The context whose questionnaires are to be serialized
+    :param language: The language to be used for the serialization
+    :return: A list of questionnaire descriptors
+    """
+    ids = {context.questionnaire_id, context.additional_questionnaire_id}
+    ids.discard(None)
+
+    questionnaires = session.query(models.Questionnaire) \
+                            .filter(models.Questionnaire.tid.in_({1, tid, State.tenants[tid].cache.ptid}),
+                                    models.Questionnaire.id.in_(ids))
+
+    return [serialize_questionnaire(session, tid, questionnaire, language, serialize_templates=True, include_scoring=False) for questionnaire in questionnaires]
+
+
+def db_get_context(session, tid, context_id, language):
+    """
+    Transaction that serialize a single context addressed by its identifier.
+
+    Possession of the context identifier acts as the capability granting access
+    to contexts marked as hidden, that are intentionally excluded from the
+    public context listing.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param context_id: The identifier of the context to be retrieved
+    :param language: The language to be used for the serialization
+    :return: A descriptor bundling the context and its questionnaires
+    """
+    context = db_get(session,
+                     models.Context,
+                     (models.Context.tid == tid,
+                      models.Context.exchange == False,
+                      models.Context.id == context_id))
+
+    data = db_prepare_contexts_serialization(session, [context])
+
+    return {
+        'context': serialize_context(session, context, language, data),
+        'questionnaires': db_get_context_questionnaires(session, tid, context, language)
+    }
+
+
+@transact
+def get_context(session, tid, context_id, language):
+    return db_get_context(session, tid, context_id, language)
 
 
 def db_get_receivers(session, tid, language):
@@ -564,8 +682,8 @@ def db_get_receivers(session, tid, language):
     :return: A list of receivers descriptors
     """
     receivers = session.query(models.User).filter(models.User.role == models.EnumUserRole.receiver.value,
-                                                  models.User.tid == tid)
-
+                                                  models.User.tid == tid,
+                                                  models.User.enabled.is_(True))
     data = db_prepare_receivers_serialization(session, receivers)
 
     return [serialize_receiver(session, receiver, language, data) for receiver in receivers]
@@ -603,3 +721,20 @@ class PublicResource(BaseHandler):
         Get the public resource
         """
         return get_public_resources(self.request.tid, self.request.language)
+
+
+class ContextInstance(BaseHandler):
+    """
+    Handler serving a single context addressed by its identifier.
+
+    Knowledge of the context identifier is the capability required to access
+    contexts that are hidden from the public context listing.
+    """
+    check_roles = 'any'
+    cache_resource = True
+
+    def get(self, context_id):
+        """
+        Get a single context by its identifier
+        """
+        return get_context(self.request.tid, context_id, self.request.language)

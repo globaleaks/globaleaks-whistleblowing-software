@@ -1,29 +1,24 @@
 import {ChangeDetectionStrategy, Component, inject} from "@angular/core";
-import {Router, RouterLink, RouterLinkActive} from "@angular/router";
+import {TranslatePipe} from "@ngx-translate/core";
+import {RouterLink, RouterLinkActive} from "@angular/router";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-
-import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 
 @Component({
     selector: "src-admin-sidebar",
     templateUrl: "./sidebar.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [RouterLink, RouterLinkActive, TranslatorPipe]
+    imports: [TranslatePipe, RouterLink, RouterLinkActive]
 })
 export class AdminSidebarComponent {
-  private router = inject(Router);
   protected nodeResolver = inject(NodeResolver);
   protected authenticationService = inject(AuthenticationService);
+  protected preferenceResolver = inject(PreferenceResolver);
 
-
-  isActive(route: string): boolean {
-    return this.router.isActive(route, {
-      paths: "subset",
-      queryParams: "subset",
-      fragment: "ignored",
-      matrixParams: "ignored"
-    });
+  get permissions() {
+    return this.preferenceResolver.dataModel.profile.permissions;
   }
+
 }

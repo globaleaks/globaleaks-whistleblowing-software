@@ -1,17 +1,15 @@
-@if (defaultTabs.length || personalTabs.length) {
-  <nav class="nav nav-tabs mb-3" role="tablist" [attr.aria-label]="'Saved searches' | translate">
+<nav class="nav nav-tabs" role="tablist" [attr.aria-label]="'Saved searches' | translate">
+  <button type="button" class="nav-link" role="tab"
+          [class.active]="!activeTabId" [attr.aria-selected]="!activeTabId"
+          (click)="clear()">{{ "All reports" | translate }}</button>
+  @for (tab of defaultTabs; track tab.id) {
     <button type="button" class="nav-link" role="tab"
-            [class.active]="!activeTabId" [attr.aria-selected]="!activeTabId"
-            (click)="clear()">{{ "All reports" | translate }}</button>
-    @for (tab of defaultTabs; track tab.id) {
-      <button type="button" class="nav-link" role="tab"
-              [class.active]="activeTabId === tab.id" [attr.aria-selected]="activeTabId === tab.id"
-              (click)="run(tab)">{{ tab.name | translate }}</button>
-    }
-    @for (tab of personalTabs; track tab.id) {
-      <button type="button" class="nav-link" role="tab"
-              [class.active]="activeTabId === tab.id" [attr.aria-selected]="activeTabId === tab.id"
-              (click)="run(tab)">{{ tab.name }}</button>
-    }
-  </nav>
-}
+            [class.active]="activeTabId === tab.id" [attr.aria-selected]="activeTabId === tab.id"
+            (click)="run(tab)">{{ tab.name | translate }}</button>
+  }
+  @for (tab of personalTabs; track tab.id) {
+    <button type="button" class="nav-link" role="tab"
+            [class.active]="activeTabId === tab.id" [attr.aria-selected]="activeTabId === tab.id"
+            (click)="run(tab)">{{ tab.name }}</button>
+  }
+</nav>

@@ -2,6 +2,7 @@ import os
 
 from globaleaks.orm import make_db_uri, set_db_uri, enable_orm_debug
 from globaleaks.utils.singleton import Singleton
+from globaleaks.utils.crypto import GCE
 
 this_directory = os.path.dirname(__file__)
 
@@ -11,7 +12,7 @@ possible_client_paths = [
 ]
 
 
-class SettingsClass(object, metaclass=Singleton):
+class SettingsClass(metaclass=Singleton):
     def __init__(self):
         # daemonize the process
         self.nodaemon = False
@@ -33,7 +34,13 @@ class SettingsClass(object, metaclass=Singleton):
         self.backend_script = os.path.abspath(os.path.join(self.src_path, 'globaleaks/backend.py'))
 
         self.pidfile_path = '/run/globaleaks/globaleaks.pid'
-        self.ramdisk_path = '/dev/shm/globaleaks'
+        # RAM-backed spool for password-reset/activation token markers. It must
+        # never hit disk: the markers are decryptable with the token mailed to
+        # the user, and the mail spool is on persistent storage. /run is a
+        # systemd-managed tmpfs (RuntimeDirectory=globaleaks) that is root-owned
+        # rather than world-writable like /dev/shm, and the unit preserves it
+        # across restarts so in-flight tokens survive a service reload.
+        self.ramdisk_path = '/run/globaleaks/ramdisk'
         self.working_path = '/var/globaleaks'
         self.client_path = None
 
@@ -41,14 +48,7 @@ class SettingsClass(object, metaclass=Singleton):
 
         self.accept_submissions = True
 
-        # statistical, referred to latest period
-        # and resetted by session_management sched
-        self.failed_login_attempts = {}
-
         self.onionservice = None
-
-        # SOCKS default
-        self.socks_port = 9999
 
         self.rsa_key_bits = 4096
         self.csr_sign_bits = 512
@@ -79,13 +79,18 @@ class SettingsClass(object, metaclass=Singleton):
         self.acme_directory_url = 'https://acme-v02.api.letsencrypt.org/directory'
 
         self.enable_api_cache = True
-        self.enable_rate_limiting = True
 
     def eval_paths(self):
         self.files_path = os.path.abspath(os.path.join(self.working_path, 'files'))
         self.attachments_path = os.path.abspath(os.path.join(self.working_path, 'attachments'))
         self.tmp_path = os.path.abspath(os.path.join(self.working_path, 'tmp'))
+
+        # In devel/test runs there is no systemd RuntimeDirectory, so keep the
+        # ramdisk under the working path where it is writable without privileges.
+        if self.devel_mode:
+            self.ramdisk_path = os.path.abspath(os.path.join(self.working_path, 'ramdisk'))
         self.tor_control = os.path.abspath(os.path.join(self.tmp_path, 'tor_control'))
+        self.socks_socket = os.path.abspath(os.path.join(self.tmp_path, 'tor_socks'))
         self.backups_path = os.path.abspath(os.path.join(self.working_path, 'backups'))
         self.backups_tmp_path = os.path.abspath(os.path.join(self.backups_path, 'tmp'))
         self.backups_snapshots_path = os.path.abspath(os.path.join(self.backups_path, 'snapshots'))
@@ -119,6 +124,13 @@ class SettingsClass(object, metaclass=Singleton):
     def set_devel_mode(self):
         self.devel_mode = True
         self.rsa_key_bits = 1024
+
+        # The key derivation runs at a minimal cost, as the RSA keys are short:
+        # the cost is embedded in every hash stored, and the client reads it
+        # from the public configuration, so a database created in development
+        # mode opens in development mode alone
+        GCE.options['OPSLIMIT'] = 1
+        GCE.options['MEMLIMIT'] = 20
         self.acme_directory_url = 'https://acme-staging-v02.api.letsencrypt.org/directory'
         self.bind_local_ports = [8080, 8082, 8083, 8443]
         self.bind_remote_ports = []

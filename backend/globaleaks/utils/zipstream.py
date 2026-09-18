@@ -5,7 +5,7 @@
 # that is initially derived from zipfile.py and then changed heavily for
 # our purpose (that's the reason why is not in third party)
 import binascii
-import os
+import contextlib
 import struct
 import time
 import zlib
@@ -35,7 +35,7 @@ stringEndArchive64 = b"PK\x06\x06"  # magic token for Zip64 header
 stringDataDescriptor = b"PK\x07\x08"  # magic number for data descriptor
 
 
-class ZipInfo(object):
+class ZipInfo:
     """Class with attributes describing each file in the ZIP archive."""
 
     def __init__(self, filename="NoName", date_time=(1980, 1, 1, 0, 0, 0), compression=ZIP_DEFLATED):
@@ -47,11 +47,10 @@ class ZipInfo(object):
         null_byte = filename.find(chr(0))
         if null_byte >= 0:
             filename = filename[0:null_byte]
-        # This is used to ensure paths in generated ZIP files always use
-        # forward slashes as the directory separator, as required by the
-        # ZIP format specification.
-        if os.sep != "/" and os.sep in filename:
-            filename = filename.replace(os.sep, "/")
+        # Normalize all path separators to transmission slash and strip
+        # directory-traversal sequences to prevent Zip Slip attacks.
+        filename = filename.replace('\\', '/')
+        filename = '/'.join(p for p in filename.split('/') if p not in ('', '.', '..'))
 
         self.filename = filename         # Normalized file name
         self.date_time = date_time       # year, month, day, hour, min, sec
@@ -86,7 +85,7 @@ class ZipInfo(object):
         self.compress_size = 0
         self.file_size = 0
 
-    def _encodeFilenameFlags(self):
+    def _encode_filename_flags(self):
         if isinstance(self.filename, str):
             try:
                 return self.filename.encode('ascii'), self.flag_bits
@@ -95,7 +94,7 @@ class ZipInfo(object):
         else:
             return self.filename, self.flag_bits
 
-    def DataDescriptor(self):
+    def data_descriptor(self):
         if self.compress_size > ZIP64_LIMIT or self.file_size > ZIP64_LIMIT:
             fmt = "<4sLQQ"
         else:
@@ -103,7 +102,7 @@ class ZipInfo(object):
 
         return struct.pack(fmt, stringDataDescriptor, self.CRC, self.compress_size, self.file_size)
 
-    def FileHeader(self):
+    def file_header(self):
         """Return the per-file header as a string."""
         dt = self.date_time
         dosdate = (dt[0] - 1980) << 9 | dt[1] << 5 | dt[2]
@@ -128,7 +127,7 @@ class ZipInfo(object):
             self.extract_version = max(45, self.extract_version)
             self.create_version = max(45, self.extract_version)
 
-        filename, flag_bits = self._encodeFilenameFlags()
+        filename, flag_bits = self._encode_filename_flags()
 
         header = struct.pack(structFileHeader, stringFileHeader,
                              self.extract_version, self.reserved, flag_bits,
@@ -139,7 +138,7 @@ class ZipInfo(object):
         return header + filename + extra
 
 
-class ZipStream(object):
+class ZipStream:
     def __init__(self, files):
         self.files = files
 
@@ -166,7 +165,7 @@ class ZipStream(object):
 
         cmpr = zlib.compressobj(zlib.Z_DEFAULT_COMPRESSION, zlib.DEFLATED, -15)
 
-        header = zinfo.FileHeader()
+        header = zinfo.file_header()
 
         self.update_data_ptr(header)
 
@@ -190,7 +189,7 @@ class ZipStream(object):
         zinfo.compress_size += len(buf)
         self.update_data_ptr(buf)
 
-        trailer = zinfo.DataDescriptor()
+        trailer = zinfo.data_descriptor()
         self.update_data_ptr(trailer)
 
         return buf + trailer
@@ -258,7 +257,7 @@ class ZipStream(object):
                 extract_version = zinfo.extract_version
                 create_version = zinfo.create_version
 
-            filename, flag_bits = zinfo._encodeFilenameFlags()
+            filename, flag_bits = zinfo._encode_filename_flags()
 
             centdir = struct.pack(structCentralDir,
                                   stringCentralDir, create_version,
@@ -299,7 +298,9 @@ class ZipStream(object):
 
     def __iter__(self):
         for f in self.files:
-            try:
+            # Per-entry resilience: skip a single unreadable/corrupt file
+            # rather than aborting the whole archive download.
+            with contextlib.suppress(Exception):
                 if 'key' in f:
                     with GCE.streaming_encryption_open('DECRYPT', f['key'], f['path']) as fo:
                         for data in self.zip_fo(fo, f['name']):
@@ -312,19 +313,21 @@ class ZipStream(object):
                     with open(f['path'], "rb") as fo:
                         for data in self.zip_fo(fo, f['name']):
                             yield data
-            except:
-                pass
 
         yield self.archive_footer()
 
 
-class ZipStreamProducer(object):
+class ZipStreamProducer:
     """Streaming producter for ZipStream"""
 
-    def __init__(self, handler, zipstreamObject):
+    def __init__(self, handler, zipstream_object):
         self.finish = Deferred()
         self.handler = handler
-        self.zipstreamObject = zipstreamObject
+        # Hold a single iterator so that successive resumeProducing() calls
+        # resume the archive where the previous chunk left off. Iterating the
+        # ZipStream object directly would create a fresh generator each call,
+        # restarting from the first file and never terminating.
+        self.zipstream_iterator = iter(zipstream_object)
 
     def start(self):
         self.handler.request.registerProducer(self, False)
@@ -350,11 +353,11 @@ class ZipStreamProducer(object):
         chunk = []
         chunk_size = 0
 
-        for data in self.zipstreamObject:
+        for data in self.zipstream_iterator:
             if data:
                 chunk_size += len(data)
                 chunk.append(data)
                 if chunk_size >= abstract.FileDescriptor.bufferSize:
-                    return b''.join(chunk)
+                    break
 
         return b''.join(chunk)

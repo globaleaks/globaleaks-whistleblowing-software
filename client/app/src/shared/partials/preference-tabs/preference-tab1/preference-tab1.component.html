@@ -7,15 +7,16 @@
       </div>
     }
     <div id="Username">
-      <label>
-        <span>{{'Username'|translate}}</span>: </label> {{preferenceResolver.dataModel.username}}
+      <span class="form-label">
+        <span>{{'Username'|translate}}</span>: </span> {{preferenceResolver.dataModel.username}}
       </div>
         <div id="Role">
-          <label>
+          <label for="default-role-select">
             <span>{{'Default Role'|translate}}</span>:
           </label>
           @if (preferenceResolver.dataModel.profile.roles && preferenceResolver.dataModel.profile.roles.length > 1) {
            <ng-select
+             labelForId="default-role-select"
              [items]="roleOptions"
              bindLabel="role"
              bindValue="value"
@@ -38,7 +39,7 @@
             @if (!editingName) {
               <span>
                 <span>{{preferenceResolver.dataModel.name}}</span>
-                @if (!editingName) {
+                @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
                   <button class="btn btn-sm btn-outline-secondary" (click)="toggleNameEditing(); $event.stopPropagation();">
                     <span>{{'Edit'|translate}}</span>
                   </button>
@@ -55,7 +56,7 @@
               @if (!editingPublicName) {
                 <span>
                   <span>{{preferenceResolver.dataModel.public_name}}</span>
-                  @if (!editingPublicName) {
+                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
                     <button class="btn btn-sm btn-outline-secondary" (click)="togglePublicNameEditing(); $event.stopPropagation();">
                       <span>{{'Edit'|translate}}</span>
                     </button>
@@ -73,7 +74,7 @@
                   @if (!editingEmailAddress) {
                     <span>{{preferenceResolver.dataModel.mail_address}}</span>
                   }
-                  @if (!editingEmailAddress) {
+                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
                     <button class="btn btn-sm btn-outline-secondary" (click)="toggleEmailAddressEditing(); $event.stopPropagation();">
                       <span>{{'Edit'|translate}}</span>
                     </button>
@@ -82,7 +83,7 @@
               </div>
               @if (editingEmailAddress) {
                 <div>
-                  <input id="pref-email-input" class="form-control" name="mail_address" [(ngModel)]="preferenceResolver.dataModel.mail_address" [pattern]="Constants.emailRegexp" type="email" [ngClass]="{'is-invalid': preferenceForm.form.get('mail_address')?.errors?.['pattern']}"/>
+                  <input id="pref-email-input" class="form-control" name="mail_address" [(ngModel)]="preferenceResolver.dataModel.mail_address" [pattern]="Constants.emailRegexp" type="email" [class.is-invalid]="preferenceForm.form.get('mail_address')?.errors?.['pattern']"/>
                 </div>
               }
               @if (!editingEmailAddress && preferenceResolver.dataModel.change_email_address) {
@@ -93,14 +94,14 @@
               }
               @if (preferenceResolver.dataModel.description) {
                 <div>
-                  <label>{{'Description'|translate}}</label> {{preferenceResolver.dataModel.description}}
+                  <span class="form-label">{{'Description'|translate}}</span> {{preferenceResolver.dataModel.description}}
                 </div>
               }
               @if (authenticationService.session.role === 'receiver' && appDataService.public.contexts.length > 1) {
                 <div id="Contexts">
-                  <label>
+                  <span class="form-label">
                     <span>{{'Channels'|translate}}</span>
-                  </label>
+                  </span>
                   <ul>
                     @for (context_id of preferenceResolver.dataModel.contexts; track context_id) {
                       <li>{{appDataService.contexts_by_id[context_id].name}}</li>
@@ -135,7 +136,7 @@
                   @if (preferenceResolver.dataModel.pgp_key_fingerprint) {
                     <div>
                       <div class="form-group">
-                        <label>{{'Details of the PGP key:'|translate}}</label>
+                        <span class="form-label">{{'Details of the PGP key:'|translate}}</span>
                         <div>
                           <span>{{'Fingerprint'|translate}}</span>: <span>{{preferenceResolver.dataModel.pgp_key_fingerprint}}</span>
                         </div>
@@ -152,9 +153,9 @@
                   @if (!preferenceResolver.dataModel.pgp_key_fingerprint) {
                     <div>
                       <div class="position-relative">
-                        <label>{{'Set up encryption by providing a PGP public key'|translate}}</label>
+                        <span class="form-label">{{'Set up encryption by providing a PGP public key'|translate}}</span>
                         <div>
-                          <input #uploader id="customFile" type="file" [style.display]="'none'" class="custom-file-input" (change)="loadPublicKeyFile(uploader.files)" />
+                          <input #uploader id="customFile" type="file" [style.display]="'none'" (change)="loadPublicKeyFile(uploader.files)" />
                           <label class="btn btn-sm btn-outline-secondary" for="customFile">
                             <i class="fas fa-upload"></i>
                             <span>{{ 'Upload' | translate }}</span>

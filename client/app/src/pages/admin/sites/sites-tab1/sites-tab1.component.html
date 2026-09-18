@@ -1,54 +1,51 @@
-<div class="row">
-  <div class="col-md-12">
-    <div>
-      <span>{{'Sites'|translate}}</span>
-      <button class="btn btn-sm btn-primary show-add-tenant-btn" type="button" (click)="toggleAddTenant()">
-        <i class="fas fa-plus"></i>
-        <span>{{'Add'|translate}}</span>
-      </button>
-    </div>
-  </div>
-</div>
-@if (showAddTenant) {
-  <div class="row">
-    <div class="col-md-6">
-      <form ngForm="newTenantForm" #newTenantForm="ngForm" class="addTenant" novalidate>
-        <div class="form-group">
-          <label>
-            <span>{{'Name'|translate}}</span>
-            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
-          </label>
-          <div>
-            <input name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120" type="text" required />
-          </div>
+<app-paginated-interface [items]="tenants" [itemsPerPage]="20" [orderBy]="'id'" [focusItemId]="focusTenantId">
+  <ng-template #toolbar>
+    <button class="btn btn-primary show-add-tenant-btn" type="button" (click)="toggleAddTenant()">
+      <i class="fas fa-plus"></i>
+      <span>{{'Add'|translate}}</span>
+    </button>
+  </ng-template>
+  <ng-template #addForm>
+    @if (showAddTenant) {
+      <div class="row config-section">
+        <div class="col-md-6">
+          <form ngForm="newTenantForm" #newTenantForm="ngForm" class="addTenant" novalidate>
+            <div class="form-group">
+              <label for="new-tenant-name">
+                <span>{{'Name'|translate}}</span>
+                <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+              </label>
+              <div>
+                <input id="new-tenant-name" name="newTenant.name" class="form-control" [(ngModel)]="newTenant.name" maxlength="120" type="text" required />
+              </div>
+            </div>
+            @if (siteProfiles.length) {
+              <div class="form-group">
+                <label for="new-tenant-profile">{{ 'Profile:' | translate }}</label>
+                <select id="new-tenant-profile" name="profile" class="form-select-custom" [(ngModel)]="newTenant.profile" required>
+                  <option value="default">DEFAULT</option>
+                  @for (tenant of siteProfiles; track tenant) {
+                    @if (tenant.active) {
+                      <option [value]="tenant.uuid">{{tenant.name}}</option>
+                    }
+                  }
+                </select>
+              </div>
+            }
+            <div class="form-group clearfix">
+              <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid" (click)="addTenant();toggleAddTenant()" type="button">
+                <i class="fas fa-plus"></i>
+                <span>{{'Add'|translate}}</span>
+              </button>
+            </div>
+          </form>
         </div>
-        @if (siteProfiles.length) {
-          <div class="form-group">
-            <label>{{ 'Profile:' | translate }}</label>
-            <select name="profile" class="form-select-custom" [(ngModel)]="newTenant.profile" required>
-              <option value="default">DEFAULT</option>
-              @for (tenant of siteProfiles; track tenant) {
-                @if (tenant.active) {
-                  <option [value]="tenant.uuid">{{tenant.name}}</option>
-                }
-              }
-            </select>
-          </div>
-        }
-        <div class="form-group clearfix">
-          <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid" (click)="addTenant();toggleAddTenant()" type="button">
-            <i class="fas fa-plus"></i>
-            <span>{{'Add'|translate}}</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-}
-<app-paginated-interface [items]="tenants" [itemsPerPage]="20" [orderBy]="'id'">
+      </div>
+    }
+  </ng-template>
   <ng-template #content let-item="item" let-index="index">
     <form id="tenant-{{index}}"  #editTenant="ngForm" novalidate>
-      <src-siteslist [tenant]="item" [tenants]="tenants" (deleted)="onDelete($event)"></src-siteslist>
+      <src-siteslist [tenant]="item" [tenants]="tenants" [profiles]="siteProfiles" [index]="index" [expanded]="isFocused(item)" (deleted)="onDelete($event)"></src-siteslist>
     </form>
   </ng-template>
 </app-paginated-interface>

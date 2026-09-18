@@ -1,16 +1,26 @@
-<div class="config-item">
-  <div class="editorHeader row">
-    <span class="col-md-7" (click)="toggleEditing()">
+<src-collapsible-card [expanded]="editing" (toggled)="toggleEditing()" [chevron]="false">
+  <ng-container cardTitle>
       <span>{{ templateData.label }}</span>
-    </span>
-    <span class="col-md-5 clearfix">
-      <span class="float-end">
-        @if (!editing) {
+      @if (templateData.default) {
+        <span class="badge bg-secondary ms-2">{{ 'Statistics' | translate }}</span>
+      }
+  </ng-container>
+  <ng-container cardActions>
+        <button type="button" class="downloadButton btn btn-sm btn-outline-secondary" data-action="export" (click)="exportTemplate(templateData)">
+          <i class="fas fa-file-export"></i>
+          <span>{{ 'Export' | translate }}</span>
+        </button>
+        @if (!editing && templateData.editable) {
           <button class="btn btn-sm btn-outline-secondary" id="edit_template" (click)="toggleEditing()">
             <span>{{ 'Edit' | translate }}</span>
           </button>
         }
-        @if (editing) {
+        @if (!editing && !templateData.editable) {
+          <button class="btn btn-sm btn-outline-secondary" id="view_template" (click)="toggleEditing()">
+            <span>{{ 'View' | translate }}</span>
+          </button>
+        }
+        @if (editing && templateData.editable) {
           <button class="btn btn-sm btn-primary" id="save_template" [disabled]="editTemplate.invalid" (click)="saveTemplate(templateData);toggleEditing()">
             <span>{{ 'Save' | translate }}</span>
           </button>
@@ -18,28 +28,30 @@
             <span>{{ 'Cancel' | translate }}</span>
           </button>
         }
-        <button class="btn btn-sm btn-danger" name="delete_template" id="delete_template" (click)="deleteTemplate(templateData)">
-          <span>{{ 'Delete' | translate }}</span>
-        </button>
-      </span>
-    </span>
-  </div>
+        @if (templateData.editable) {
+          <button class="btn btn-sm btn-danger" name="delete_template" id="delete_template" (click)="deleteTemplate(templateData)">
+            <span>{{ 'Delete' | translate }}</span>
+          </button>
+        }
+  </ng-container>
   @if (editing) {
-    <div>
-      <div class="form-group">
-        <label>{{ 'Label' | translate }}</label>
-        <input type="text" class="form-control" [(ngModel)]="templateData.label" name="label" />
+    @if (templateData.editable) {
+      <div>
+        <div class="form-group">
+          <label for="template-label-{{templateData.id}}">{{ 'Label' | translate }}</label>
+          <input id="template-label-{{templateData.id}}" type="text" class="form-control" [(ngModel)]="templateData.label" name="label" />
+        </div>
       </div>
-    </div>
+    }
     <div id="Content">
       <src-statistical-template-view
         [templateData]="templateData"
         [templatesData]="templatesData"
-        [editable]="true"
+        [editable]="templateData.editable"
         (removeMetric)="removeMetric($event)"
         (addNewMetric)="addNewMetric()"
         (manageMetric)="manageMetric($event)">
       </src-statistical-template-view>
     </div>
   }
-</div>
+</src-collapsible-card>

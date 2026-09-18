@@ -1,9 +1,8 @@
-import {Component, Input, inject} from '@angular/core';
+import {Component, inject} from '@angular/core';
 import {UtilsService} from '@app/shared/services/utils.service';
 import {NgbModal, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 import {FormsModule} from '@angular/forms';
 import {TranslateModule} from '@ngx-translate/core';
-import {TranslatorPipe} from '@app/shared/pipes/translate';
 
 @Component({
     selector: 'src-otkc-access',
@@ -13,14 +12,13 @@ import {TranslatorPipe} from '@app/shared/pipes/translate';
         FormsModule,
         NgbTooltipModule,
         TranslateModule,
-        TranslatorPipe,
-    ],
+        ],
 })
 export class OtkcAccessComponent {
-  private modalService = inject(NgbModal);
+  private readonly modalService = inject(NgbModal);
   protected utils = inject(UtilsService);
 
-  @Input() arg: { receipt: any, formatted_receipt: any };
+  arg: { receipt: any, formatted_receipt: any };
 
   confirmFunction: () => void;
 

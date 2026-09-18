@@ -1,4 +1,4 @@
-import {Component, EventEmitter, forwardRef, Input, OnInit, Output} from "@angular/core";
+import {Component, forwardRef, OnInit, input, output} from "@angular/core";
 import {ControlContainer, NgForm} from "@angular/forms";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {Field} from "@app/models/resolvers/field-template-model";
@@ -8,45 +8,46 @@ import {SubmissionService} from "@app/services/helper/submission.service";
 import {FormComponent} from "../../form/form.component";
 import {FormsModule} from '@angular/forms';
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-whistleblower-identity-field",
     templateUrl: "./whistleblower-identity-field.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [forwardRef(() => FormComponent), FormsModule, TranslateModule, TranslatorPipe]
+    imports: [forwardRef(() => FormComponent), FormsModule, TranslateModule]
 })
 export class WhistleblowerIdentityFieldComponent implements OnInit {
-  @Input() submission: SubmissionService;
-  @Input() field: Field;
-  @Output() stateChanged = new EventEmitter<boolean>();
-  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
-  @Input() stepId: string;
-  @Input() fieldCol: number;
-  @Input() fieldRow: number;
-  @Input() index: number;
-  @Input() step: Step;
-  @Input() answers: Answers;
-  @Input() entry: string;
-  @Input() fields: Field;
-  @Input() displayErrors: boolean;
-  @Input() uploads: Record<string, any>;
-  @Input() fileUploadUrl: string;
+  readonly submission = input<SubmissionService>();
+  readonly field = input.required<Field>();
+  readonly stateChanged = output<boolean>();
+  readonly notifyFileUpload = output<any>();
+  readonly stepId = input<string>();
+  readonly fieldCol = input<number>();
+  readonly fieldRow = input<number>();
+  readonly index = input<number>();
+  readonly step = input.required<Step>();
+  readonly answers = input.required<Answers>();
+  readonly entry = input<string>();
+  readonly fields = input<Field>();
+  readonly displayErrors = input<boolean>();
+  readonly uploads = input<Record<string, any>>();
+  readonly fileUploadUrl = input.required<string>();
 
   identity_provided = true;
 
   ngOnInit(): void {
     this.stateChanged.emit(true);
-    if (this.submission) {
-      this.submission.submission.identity_provided = true;
+    const submission = this.submission();
+    if (submission) {
+      submission.submission.identity_provided = true;
     }
   }
 
   changeIdentitySetting(status: boolean): void {
     this.identity_provided = status;
-    if (this.submission) {
-      this.submission.submission.identity_provided = status;
+    const submission = this.submission();
+    if (submission) {
+      submission.submission.identity_provided = status;
     }
     this.stateChanged.emit(status);
   }

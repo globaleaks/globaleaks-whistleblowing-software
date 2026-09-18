@@ -1,4 +1,5 @@
 import {Location} from '@angular/common';
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {Injectable, inject} from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -9,27 +10,26 @@ import {Router, NavigationEnd, ActivatedRoute} from "@angular/router";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
-import {NgZone} from "@angular/core";
+import {Observable, forkJoin, of} from "rxjs";
+import {catchError, map} from "rxjs/operators";
 import {IdpService} from "@app/services/root/idp.service";
-import {filter} from 'rxjs';
 
 @Injectable({
   providedIn: "root"
 })
 export class AppConfigService {
-  private location = inject(Location);
-  private titleService = inject(TitleService);
+  private readonly renderScheduler = inject(RenderSchedulerService);
+  private readonly location = inject(Location);
+  private readonly titleService = inject(TitleService);
   authenticationService = inject(AuthenticationService);
-  private translationService = inject(TranslationService);
-  private utilsService = inject(UtilsService);
-  private router = inject(Router);
-  private activatedRoute = inject(ActivatedRoute);
-  private httpService = inject(HttpService);
-  private appDataService = inject(AppDataService);
-  private idpService = inject(IdpService);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
-  private ngZone = inject(NgZone);
-  private isRunning = false;
+  private readonly translationService = inject(TranslationService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly idpService = inject(IdpService);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
 
   public sidebar = "";
 
@@ -38,7 +38,7 @@ export class AppConfigService {
   }
 
   init() {
-    this.activatedRoute.paramMap.subscribe(_ => {
+    this.activatedRoute.paramMap.subscribe(() => {
       this.localInitialization();
     });
   }
@@ -52,7 +52,7 @@ export class AppConfigService {
     this.titleService.setTitle();
   };
 
-  public localInitialization(languageInit = true, callback?: () => void) {
+  public localInitialization(callback?: () => void) {
     this.httpService.getPublicResource().subscribe({
       next: data => {
         if (data.body !== null) {
@@ -60,7 +60,7 @@ export class AppConfigService {
         }
 
         if (this.appDataService.public.node.idp || this.appDataService.public.node.signup_idp) {
-          this.idpService.initialize().then(authenticated => {
+          void this.idpService.initialize().then(authenticated => {
             if (authenticated && this.authenticationService.session) {
               this.idpService.setupAutomaticRefresh();
             }
@@ -76,21 +76,11 @@ export class AppConfigService {
         this.appDataService.submission_statuses_by_id = this.utilsService.array_to_map(this.appDataService.public.submission_statuses);
 
         for (const [key] of Object.entries(this.appDataService.questionnaires_by_id)) {
-          this.fieldUtilitiesService.parseQuestionnaire(this.appDataService.questionnaires_by_id[key], {
-            fields: [],
-            fields_by_id: {},
-            options_by_id: {}
-          });
-          this.appDataService.questionnaires_by_id[key].steps = this.appDataService.questionnaires_by_id[key].steps.sort((a: {
-            order: number;
-          }, b: { order: number; }) => a.order > b.order);
+          this.registerQuestionnaire(this.appDataService.questionnaires_by_id[key]);
         }
 
         for (const [key] of Object.entries(this.appDataService.contexts_by_id)) {
-          this.appDataService.contexts_by_id[key].questionnaire = this.appDataService.questionnaires_by_id[this.appDataService.contexts_by_id[key].questionnaire_id];
-          if (this.appDataService.contexts_by_id[key].additional_questionnaire_id) {
-            this.appDataService.contexts_by_id[key].additional_questionnaire = this.appDataService.questionnaires_by_id[this.appDataService.contexts_by_id[key].additional_questionnaire_id];
-          }
+          this.linkContextQuestionnaires(this.appDataService.contexts_by_id[key]);
         }
 
         this.appDataService.connection = {
@@ -129,9 +119,9 @@ export class AppConfigService {
     if (this.appDataService.public.node) {
       if (!this.appDataService.public.node.wizard_done) {
         location.replace("/#/wizard");
-      } else if ((this.location.path() === "" || this.location.path() === "/submission") && !this.appDataService.public.node.enable_signup && this.appDataService.public.node.adminonly && !this.authenticationService.session) {
+      } else if ((this.location.path() === "" || this.location.path() === "/submission") && !(this.appDataService.public.node.enable_signup && this.appDataService.public.node.homepage === "/signup") && this.appDataService.public.node.adminonly && !this.authenticationService.session) {
         location.replace("/#/login");
-      } else if (this.location.path() === "" && this.appDataService.public.node.enable_signup && !location.href.endsWith("admin/home")) {
+      } else if (this.location.path() === "" && this.appDataService.public.node.enable_signup && this.appDataService.public.node.homepage === "/signup" && !location.href.endsWith("admin/home")) {
         location.replace("/#/signup");
       } else if (this.location.path() === "/signup" && !this.appDataService.public.node.enable_signup) {
         location.replace("/#/");
@@ -146,9 +136,10 @@ export class AppConfigService {
     this.appDataService.public.node.languages_enabled = [];
     this.appDataService.public.node.name = "Globaleaks";
 
-    this.router.navigateByUrl(newPath).then(() => {
+    void this.router.navigateByUrl(newPath).then(() => {
       this.sidebar = "admin-sidebar";
       this.titleService.setTitle();
+      this.renderScheduler.schedule();
     });
   }
 
@@ -177,7 +168,64 @@ export class AppConfigService {
     return route;
   }
 
-  reinit(languageInit = true) {
-    this.localInitialization(languageInit);
+  private registerQuestionnaire(questionnaire: any) {
+    this.fieldUtilitiesService.parseQuestionnaire(questionnaire, {
+      fields: [],
+      fields_by_id: {},
+      options_by_id: {}
+    });
+    questionnaire.steps = questionnaire.steps.sort((a: { order: number; }, b: { order: number; }) => a.order > b.order);
+    this.appDataService.questionnaires_by_id[questionnaire.id] = questionnaire;
+  }
+
+  private linkContextQuestionnaires(context: any) {
+    context.questionnaire = this.appDataService.questionnaires_by_id[context.questionnaire_id];
+    if (context.additional_questionnaire_id) {
+      context.additional_questionnaire = this.appDataService.questionnaires_by_id[context.additional_questionnaire_id];
+    }
+  }
+
+  loadContext(id: string): Observable<any> {
+    const existing = this.appDataService.contexts_by_id[id];
+    if (existing) {
+      return of(existing);
+    }
+
+    return this.httpService.getPublicContextResource(id).pipe(
+      map(data => {
+        for (const questionnaire of data.questionnaires) {
+          this.registerQuestionnaire(questionnaire);
+        }
+
+        this.linkContextQuestionnaires(data.context);
+        this.appDataService.contexts_by_id[data.context.id] = data.context;
+
+        return data.context;
+      }),
+      // A context of another tenant cannot be resolved here: the report is presented without it
+      catchError(() => of(null))
+    );
+  }
+
+  loadContexts(ids: string[]): Observable<any[]> {
+    const missing = Array.from(new Set(ids)).filter(id => id && !this.appDataService.contexts_by_id[id]);
+    if (missing.length === 0) {
+      return of([]);
+    }
+
+    return forkJoin(missing.map(id => this.loadContext(id)));
+  }
+
+  reinit() {
+    this.localInitialization();
+  }
+
+  reload() {
+    const url = this.router.url;
+    void this.router.navigateByUrl('/blank', {skipLocationChange: true}).then(() => {
+      this.localInitialization(() => {
+        void this.router.navigateByUrl(url);
+      });
+    });
   }
 }

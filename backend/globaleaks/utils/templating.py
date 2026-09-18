@@ -1,6 +1,5 @@
 # This filte contains routines dealing with texts templates and variables replacement used
 # mainly in mail notifications.
-import collections
 import copy
 import re
 
@@ -9,12 +8,13 @@ from datetime import datetime, timedelta
 from globaleaks import __version__
 from globaleaks.rest import errors
 from globaleaks.utils.pgp import PGPContext
-from globaleaks.utils.sock import isIPAddress
+from globaleaks.utils.sock import is_ip_address
 from globaleaks.utils.utility import \
     datetime_to_pretty_str, \
     datetime_to_day_str, \
     bytes_to_pretty_str, \
-    ISO8601_to_day_str
+    iso8601_to_day_str, \
+    snake_case
 
 node_keywords = [
     '{NodeName}',
@@ -54,6 +54,10 @@ export_comment_keywords = [
     '{Content}'
 ]
 
+exchange_keywords = [
+    '{OriginTenantName}'
+]
+
 expiration_summary_keywords = [
     '{ExpiringSubmissionCount}',
     '{EarliestExpirationDate}'
@@ -90,6 +94,13 @@ user_credentials_keywords = [
     '{Password}'
 ]
 
+signup_invite_keywords = [
+    '{RecipientName}',
+    '{OrganizationName}',
+    '{InviteUrl}',
+    '{ExpirationDate}'
+]
+
 platform_signup_keywords = [
     '{RecipientName}',
     '{ActivationUrl}',
@@ -98,6 +109,7 @@ platform_signup_keywords = [
     '{Surname}',
     '{Email}',
     '{Language}',
+    '{Credentials}',
     '{AdminCredentials}',
     '{RecipientCredentials}'
 ]
@@ -122,14 +134,6 @@ account_activation_keywords = [
 ]
 
 
-signup_invite_keywords = [
-    '{RecipientName}',
-    '{OrganizationName}',
-    '{InviteUrl}',
-    '{ExpirationDate}'
-]
-
-
 def indent(n=1):
     return '  ' * n
 
@@ -141,14 +145,14 @@ def indent_text(text, n=1):
     return '\n'.join([('  ' * n if not line.isspace() else '') + line for line in text.splitlines()])
 
 
-class Keyword(object):
+class Keyword:
     keyword_list = []
     data_keys = []
 
     def __init__(self, data):
         for k in self.data_keys:
             if k not in data:
-                raise errors.InternalServerError('Missing key \'%s\' while resolving template \'%s\'' % (k, type(self).__name__))
+                raise errors.InternalServerError(f'Missing key \'{k}\' while resolving template \'{type(self).__name__}\'')
 
         self.data = data
 
@@ -157,66 +161,166 @@ class NodeKeyword(Keyword):
     keyword_list = node_keywords
     data_keys = ['node', 'notification']
 
-    def NodeName(self):
+    def node_name(self):
         return self.data['node']['name']
 
-    def TorSite(self):
+    def tor_site(self):
         if self.data['node']['onionservice']:
             return 'http://' + self.data['node']['onionservice']
 
         return '[UNDEFINED]'
 
-    def HTTPSSite(self):
+    def https_site(self):
         if self.data['node']['hostname']:
-            if isIPAddress(self.data['node']['hostname']):
+            if is_ip_address(self.data['node']['hostname']):
                 return 'http://' + self.data['node']['hostname']
             else:
                 return 'https://' + self.data['node']['hostname']
 
         return '[UNDEFINED]'
 
-    def Site(self):
+    def site(self):
         if self.data['node']['hostname']:
-            return self.HTTPSSite()
+            return self.https_site()
 
         elif self.data['node']['onionservice']:
-            return self.TorSite()
+            return self.tor_site()
 
         return ''
 
-    def UrlPath(self):
+    def url_path(self):
         return '/'
 
-    def Url(self):
-        return self.Site() + self.UrlPath()
+    def url(self):
+        return self.site() + self.url_path()
 
-    def TorUrl(self):
-        return self.TorSite() + self.UrlPath()
+    def tor_url(self):
+        return self.tor_site() + self.url_path()
 
-    def HTTPSUrl(self):
-        return self.HTTPSSite() + self.UrlPath()
+    def https_url(self):
+        return self.https_site() + self.url_path()
 
-    def DocumentationUrl(self):
+    def documentation_url(self):
         return 'https://docs.globaleaks.org'
 
-    def LoginUrl(self):
-        return self.Site() + '/#/login'
+    def login_url(self):
+        return self.site() + '/#/login'
 
 
 class UserKeyword(Keyword):
     keyword_list = user_keywords
     data_keys = ['user']
 
-    def RecipientName(self):
+    def recipient_name(self):
         return self.data['user']['name']
 
-    def Username(self):
-        return '%s' % self.data['user']['username']
+    def username(self):
+        return '{}'.format(self.data['user']['username'])
 
 
 class UserNodeKeyword(NodeKeyword, UserKeyword):
     keyword_list = NodeKeyword.keyword_list + UserKeyword.keyword_list
     data_keys = NodeKeyword.data_keys + UserKeyword.data_keys
+
+
+def _fields_in_display_order(fields):
+    """
+    Yield the fields of a step in the order they are displayed in, by row and by column
+
+    :param fields: The fields of the step
+    """
+    rows = {}
+    for f in fields:
+        rows.setdefault(f['y'], []).append(f)
+
+    for y in sorted(rows):
+        for field in sorted(rows[y], key=lambda k: k['x']):
+            yield field
+
+
+def _dump_checkbox_answer(field, entry, indent_n):
+    """
+    Return the labels of the options a checkbox answer selects
+    """
+    output = ''
+
+    for k, v in entry.items():
+        for option in field['options']:
+            if k == option.get('id', '') and v is True:
+                output += indent(indent_n) + option['label'] + '\n'
+
+    return output
+
+
+def _dump_choice_answer(field, entry, indent_n):
+    """
+    Return the label of the option a single choice answer selects
+    """
+    output = ''
+
+    for option in field['options']:
+        if entry.get('value', '') == option['id']:
+            output += indent(indent_n) + option['label'] + '\n'
+
+    return output
+
+
+def _dump_date_answer(entry, indent_n):
+    """
+    Return the day a date answer carries
+    """
+    date = entry.get('value')
+
+    return indent(indent_n) + iso8601_to_day_str(date) + '\n' if date is not None else ''
+
+
+def _dump_daterange_answer(entry, indent_n):
+    """
+    Return the two days a date range answer carries
+    """
+    daterange = entry.get('value')
+
+    if daterange is None:
+        return ''
+
+    daterange = daterange.split(':')
+
+    return (indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[0])/1000)) + '\n' +
+            indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[1])/1000)) + '\n')
+
+
+def _dump_tos_answer(entry, indent_n):
+    """
+    Return the box a terms of service answer is rendered as
+    """
+    return indent(indent_n) + ('☑' if entry.get('value', '') is True else '☐') + '\n'
+
+
+def _dump_answer(field_type, field, entry, indent_n):
+    """
+    Return the text an answer of a field is rendered as, apart from a field group
+
+    :param field_type: The type of the field
+    :param field: The field the answer belongs to
+    :param entry: The answer
+    :param indent_n: The depth the answer is rendered at
+    """
+    if field_type == 'checkbox':
+        return _dump_checkbox_answer(field, entry, indent_n)
+
+    if field_type in ['multichoice', 'selectbox']:
+        return _dump_choice_answer(field, entry, indent_n)
+
+    if field_type == 'date':
+        return _dump_date_answer(entry, indent_n)
+
+    if field_type == 'daterange':
+        return _dump_daterange_answer(entry, indent_n)
+
+    if field_type == 'tos':
+        return _dump_tos_answer(entry, indent_n)
+
+    return indent_text(entry.get('value', ''), indent_n) + '\n'
 
 
 class TipKeyword(UserNodeKeyword):
@@ -227,69 +331,50 @@ class TipKeyword(UserNodeKeyword):
         try:
             field_type = field['type']
 
-            if field_type == 'checkbox':
-                for k, v in entry.items():
-                    for option in field['options']:
-                        if k == option.get('id', '') and v is True:
-                            output += indent(indent_n) + option['label'] + '\n'
-            elif field_type in ['multichoice', 'selectbox']:
-                for option in field['options']:
-                    if entry.get('value', '') == option['id']:
-                        output += indent(indent_n) + option['label'] + '\n'
-            elif field_type == 'date':
-                date = entry.get('value')
-                if date is not None:
-                    output += indent(indent_n) + ISO8601_to_day_str(date) + '\n'
-            elif field_type == 'daterange':
-                daterange = entry.get('value')
-                if daterange is not None:
-                    daterange = "antani:antani"
-                    daterange = daterange.split(':')
-                    output += indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[0])/1000)) + '\n'
-                    output += indent(indent_n) + datetime_to_day_str(datetime.fromtimestamp(int(daterange[1])/1000)) + '\n'
-            elif field_type == 'tos':
-                answer = '☑' if entry.get('value', '') is True else '☐'
-                output += indent(indent_n) + answer + '\n'
-            elif field_type == 'fieldgroup':
+            if field_type == 'fieldgroup':
                 output = self.dump_fields(output, field['children'], entry, indent_n)
             else:
-                output += indent_text(entry.get('value', ''), indent_n) + '\n'
-        except:
+                output += _dump_answer(field_type, field, entry, indent_n)
+        except (KeyError, TypeError, AttributeError, ValueError, OverflowError, OSError):
+            # KeyError/TypeError/AttributeError: malformed field or answer dict.
+            # ValueError/OverflowError/OSError: the 'daterange' branch can fail in
+            # int()/datetime.fromtimestamp() on a malformed or out-of-range value
+            # (e.g. an oversized timestamp). Submission validation already rejects
+            # such values; this stays a defense-in-depth guard so a value that
+            # nonetheless reaches the export (e.g. legacy data) degrades gracefully
+            # instead of crashing the report export.
             pass
 
         return output + '\n'
 
+    def dump_field(self, output, field, entries, indent_n):
+        """
+        Return the text a field and the answers given to it are rendered as
+
+        :param output: The text the report is being rendered into
+        :param field: The field
+        :param entries: The answers given to the field
+        :param indent_n: The depth the field is rendered at
+        """
+        output += indent(indent_n) + field['label'] + '\n'
+
+        if len(entries) == 1:
+            return self.dump_field_entry(output, field, entries[0], indent_n + 1)
+
+        for i, entry in enumerate(entries, start=1):
+            output += indent(indent_n) + '#' + str(i) + '\n'
+            output = self.dump_field_entry(output, field, entry, indent_n + 2)
+
+        return output
+
     def dump_fields(self, output, fields, answers, indent_n):
-        rows = {}
-        for f in fields:
-            y = f['y']
-            if y not in rows:
-                rows[y] = []
-            rows[y].append(f)
+        for field in _fields_in_display_order(fields):
+            if field['id'] not in answers or \
+               field['type'] == 'fileupload' or \
+               field['template_id'] == 'whistleblower_identity':
+                continue
 
-        rows = collections.OrderedDict(sorted(rows.items()))
-
-        for r in rows:
-            rows[r] = sorted(rows[r], key=lambda k: k['x'])
-
-        for _, row in rows.items():
-            for field in row:
-                if field['id'] not in answers or \
-                   field['type'] == 'fileupload' or \
-                   field['template_id'] == 'whistleblower_identity':
-                    continue
-
-                if field['id'] in answers:
-                    output += indent(indent_n) + field['label'] + '\n'
-                    entries = answers[field['id']]
-                    if len(entries) == 1:
-                        output = self.dump_field_entry(output, field, entries[0], indent_n + 1)
-                    else:
-                        i = 1
-                        for entry in entries:
-                            output += indent(indent_n) + '#' + str(i) + '\n'
-                            output = self.dump_field_entry(output, field, entry, indent_n + 2)
-                            i += 1
+            output = self.dump_field(output, field, answers[field['id']], indent_n)
 
         return output
 
@@ -319,19 +404,19 @@ class TipKeyword(UserNodeKeyword):
 
         return ret
 
-    def TipID(self):
+    def tip_id(self):
         return self.data['tip']['id']
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/reports/' + self.data['tip']['id']
 
-    def TipNum(self):
+    def tip_num(self):
         return str(self.data['tip']['progressive'])
 
-    def TipLabel(self):
+    def tip_label(self):
         return self.data['tip']['label']
 
-    def TipStatus(self):
+    def tip_status(self):
         ret = ''
 
         status = None
@@ -350,32 +435,43 @@ class TipKeyword(UserNodeKeyword):
 
         return ret
 
-    def EventTime(self):
+    def event_time(self):
         return datetime_to_pretty_str(self.data['tip']['creation_date'])
 
-    def SubmissionDate(self):
-        return self.EventTime()
+    def submission_date(self):
+        return self.event_time()
 
-    def QuestionnaireAnswers(self):
+    def questionnaire_answers(self):
         return self.dump_questionnaire_answers(self.data['tip']['questionnaires'][0]['steps'], self.data['tip']['questionnaires'][0]['answers'])
 
-    def Comments(self):
+    def comments(self):
         comments = self.data.get('comments', [])
         comments = self.dump_comments(comments)
         return 'Comments\n' + comments + '\n' if comments else ''
+
+
+class ExchangeKeyword(TipKeyword):
+    """
+    What an exchange files is announced to the site that receives it, and names the site it comes
+    from
+    """
+    keyword_list = TipKeyword.keyword_list + exchange_keywords
+
+    def origin_tenant_name(self):
+        return (self.data['tip'].get('exchange') or {}).get('from_tenant_name', '')
 
 
 class ExportMessageKeyword(TipKeyword):
     keyword_list = TipKeyword.keyword_list + export_comment_keywords
     data_keys = TipKeyword.data_keys + ['comment']
 
-    def Author(self):
+    def author(self):
         return 'Recipient' if self.data['comment']['author_id'] else 'Reporting person'
 
-    def Content(self):
+    def content(self):
         return self.data['comment']['content']
 
-    def EventTime(self):
+    def event_time(self):
         return datetime_to_pretty_str(self.data['comment']['creation_date'])
 
 
@@ -383,13 +479,13 @@ class ExpirationSummaryKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + expiration_summary_keywords
     data_keys = UserNodeKeyword.data_keys + ['expiring_submission_count', 'earliest_expiration_date']
 
-    def ExpiringSubmissionCount(self):
+    def expiring_submission_count(self):
         return str(self.data['expiring_submission_count'])
 
-    def EarliestExpirationDate(self):
+    def earliest_expiration_date(self):
         return datetime_to_pretty_str(self.data['earliest_expiration_date'])
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/recipient/reports'
 
 
@@ -397,13 +493,13 @@ class AdminPGPAlertKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + admin_pgp_alert_keywords
     data_keys = UserNodeKeyword.data_keys + ['users']
 
-    def PGPKeyInfoList(self):
+    def pgp_key_info_list(self):
         ret = ''
         for r in self.data['users']:
             fingerprint = r['pgp_key_fingerprint']
             key = fingerprint[:7] if fingerprint is not None else ''
 
-            ret += '\t%s, %s (%s)\n' % (r['name'],
+            ret += '\t{}, {} ({})\n'.format(r['name'],
                                         key,
                                         datetime_to_day_str(r['pgp_key_expiration']))
         return ret
@@ -412,18 +508,18 @@ class AdminPGPAlertKeyword(UserNodeKeyword):
 class PGPAlertKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + user_pgp_alert_keywords
 
-    def PGPKeyInfo(self):
+    def pgp_key_info(self):
         fingerprint = self.data['user']['pgp_key_fingerprint']
         key = fingerprint[:7] if fingerprint is not None else ''
 
-        return '\t0x%s (%s)' % (key, datetime_to_day_str(self.data['user']['pgp_key_expiration']))
+        return '\t0x{} ({})'.format(key, datetime_to_day_str(self.data['user']['pgp_key_expiration']))
 
 
 class AnomalyKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + admin_anomaly_keywords
     data_keys = UserNodeKeyword.data_keys + ['alert']
 
-    def AnomalyDetailDisk(self):
+    def anomaly_detail_disk(self):
         # This happens all the time anomalies are present but disk is ok
         if self.data['alert']['alarm_level_disk'] == 0:
             return ''
@@ -433,21 +529,21 @@ class AnomalyKeyword(UserNodeKeyword):
         else:
             return self.data['notification']['admin_anomaly_disk_high']
 
-    def FreeMemory(self):
-        return '%s' % bytes_to_pretty_str(self.data['alert']['measured_freespace'])
+    def free_memory(self):
+        return '{}'.format(bytes_to_pretty_str(self.data['alert']['measured_freespace']))
 
-    def TotalMemory(self):
-        return '%s' % bytes_to_pretty_str(self.data['alert']['measured_totalspace'])
+    def total_memory(self):
+        return '{}'.format(bytes_to_pretty_str(self.data['alert']['measured_totalspace']))
 
 
 class CertificateExprKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + https_expr_keywords
     data_keys = UserNodeKeyword.data_keys + ['expiration_date']
 
-    def ExpirationDate(self):
+    def expiration_date(self):
         return datetime_to_pretty_str(self.data['expiration_date'])
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/admin/network'
 
 
@@ -455,16 +551,16 @@ class SoftwareUpdateKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + software_update_keywords
     data_keys = UserNodeKeyword.data_keys + ['latest_version']
 
-    def LatestVersion(self):
-        return '%s' % self.data['latest_version']
+    def latest_version(self):
+        return '{}'.format(self.data['latest_version'])
 
-    def InstalledVersion(self):
-        return '%s' % __version__
+    def installed_version(self):
+        return f'{__version__}'
 
-    def ChangeLogUrl(self):
+    def change_log_url(self):
         return 'https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/CHANGELOG'
 
-    def UpdateGuideUrl(self):
+    def update_guide_url(self):
         return 'https://docs.globaleaks.org/en/stable/setup/update.html'
 
 
@@ -472,53 +568,74 @@ class UserCredentials(Keyword):
     keyword_list = user_credentials_keywords
     data_keys = ['role', 'username', 'password']
 
-    def Role(self):
-        return '%s' % self.data['role']
+    def role(self):
+        return '{}'.format(self.data['role'])
 
-    def Username(self):
-        return '%s' % self.data['username']
+    def username(self):
+        return '{}'.format(self.data['username'])
 
-    def Password(self):
-        return '%s' % self.data['password']
+    def password(self):
+        return '{}'.format(self.data['password'])
 
 
 class PlatformSignupKeyword(NodeKeyword):
     keyword_list = NodeKeyword.keyword_list + platform_signup_keywords
     data_keys = NodeKeyword.data_keys + ['signup']
 
-    def TorSite(self):
+    def tor_site(self):
         return 'http://' + self.data['signup']['subdomain'] + '.' + self.data['node']['onionservice']
 
-    def HTTPSSite(self):
+    def https_site(self):
         return 'https://' + self.data['signup']['subdomain'] + '.' + self.data['node']['rootdomain']
 
-    def RecipientName(self):
+    def recipient_name(self):
         return self.data['signup']['name'] + ' ' + self.data['signup']['surname']
 
-    def ActivationUrl(self):
+    def registry_site(self):
+        """
+        The site that collects the registrations, which is the one the mail is
+        sent from: the site of the registration itself is the subdomain being
+        registered and is reached through {Site}
+        """
         if self.data['node']['hostname']:
-            site = 'https://' + self.data['node']['hostname']
-        elif self.data['node']['onionservice']:
-            site = 'http://' + self.data['node']['onionservice']
-        else:
-            site = ''
+            return 'https://' + self.data['node']['hostname']
 
-        return site + '/#/activation?token=' + self.data['signup']['activation_token']
+        if self.data['node']['onionservice']:
+            return 'http://' + self.data['node']['onionservice']
 
-    def ExpirationDate(self):
+        return ''
+
+    def activation_url(self):
+        return self.registry_site() + '/#/activation?token=' + self.data['signup']['activation_token']
+
+    def expiration_date(self):
         date = self.data['signup']['registration_date'] + timedelta(30)
         return datetime_to_pretty_str(date)
 
-    def Name(self):
+    def name(self):
         return self.data['signup']['name'] + ' ' + self.data['signup']['surname']
 
-    def Email(self):
+    def email(self):
         return self.data['signup']['email']
 
-    def Language(self):
+    def language(self):
         return self.data['signup']['language']
 
-    def AdminCredentials(self):
+    def credentials(self):
+        # Credentials are rendered only in the notification carrying the generated password
+        if not self.data.get('password'):
+            return ''
+
+        data = {
+            'type': 'user_credentials',
+            'role': self.data.get('signup_user_role', ''),
+            'username': self.data.get('signup_user_username', ''),
+            'password': self.data['password']
+        }
+
+        return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
+
+    def admin_credentials(self):
         if not self.data['password_admin']:
             return ''
 
@@ -531,14 +648,14 @@ class PlatformSignupKeyword(NodeKeyword):
 
         return Templating().format_template(self.data['notification']['user_credentials'], data) + "\n"
 
-    def RecipientCredentials(self):
+    def recipient_credentials(self):
         if not self.data['password_recipient']:
             return ''
 
         data = {
             'type': 'user_credentials',
-            'role': self.data.get('signup_user_role', 'recipient'),
-            'username': self.data.get('signup_user_username', 'recipient'),
+            'role': 'recipient',
+            'username': 'recipient',
             'password': self.data['password_recipient']
         }
 
@@ -546,8 +663,16 @@ class PlatformSignupKeyword(NodeKeyword):
 
 
 class AdminPlatformSignupKeyword(PlatformSignupKeyword):
-    def RecipientName(self):
+    def recipient_name(self):
         return self.data['user']['name']
+
+    def activation_url(self):
+        """
+        The link of the alert opens the registration it announces among the
+        registrations of the site, where an authenticated administrator reads
+        it and authorizes it or denies it
+        """
+        return self.registry_site() + '/#/admin/sites?tab=invites&id=' + self.data['signup']['id']
 
 
 class EmailValidationKeyword(UserNodeKeyword):
@@ -555,41 +680,20 @@ class EmailValidationKeyword(UserNodeKeyword):
     data_keys = NodeKeyword.data_keys + \
         ['new_email_address', 'validation_token']
 
-    def NewEmailAddress(self):
+    def new_email_address(self):
         return self.data['new_email_address']
 
-    def UrlPath(self):
+    def url_path(self):
         return '/api/user/validate/email/' + self.data['validation_token']
 
-
-class TenantInviteKeyword(NodeKeyword):
-    keyword_list = NodeKeyword.keyword_list + signup_invite_keywords
-    data_keys = NodeKeyword.data_keys + ['invite']
-
-    def RecipientName(self):
-        return self.data['invite']['organization_email']
-
-    def OrganizationName(self):
-        return self.data['invite']['organization_name']
-
-    def InviteUrl(self):
-        if self.data['node']['hostname']:
-            site = 'https://' + self.data['node']['hostname']
-        else:
-            site = ''
-
-        return site + '/#/signup?token=' + self.data['invite']['token']
-
-    def ExpirationDate(self):
-        return datetime_to_pretty_str(self.data['invite']['expiration_date'])
 
 class AccountActivationKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + account_activation_keywords
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/password/reset' + '?token=' + self.data['reset_token']
 
-    def AccountRecoveryKeyInstructions(self):
+    def account_recovery_key_instructions(self):
         if not self.data['node']['encryption']:
             return ''
 
@@ -603,7 +707,7 @@ class PasswordResetValidationKeyword(UserNodeKeyword):
 
     data_keys = UserNodeKeyword.data_keys + ['reset_token']
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/password/reset?token=' + self.data['reset_token']
 
 
@@ -611,11 +715,36 @@ class IdentityAccessRequestKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + identity_access_request_keywords
     data_keys = UserNodeKeyword.data_keys + ['iar', 'tip', 'user']
 
-    def TipNum(self):
+    def tip_num(self):
         return str(self.data['tip']['progressive'])
 
-    def UrlPath(self):
+    def url_path(self):
         return '/#/custodian/requests/'
+
+
+class TenantInviteKeyword(NodeKeyword):
+    keyword_list = NodeKeyword.keyword_list + signup_invite_keywords
+    data_keys = NodeKeyword.data_keys + ['invite']
+
+    def recipient_name(self):
+        return self.data['invite']['organization_name'] or self.data['invite']['organization_email']
+
+    def organization_name(self):
+        return self.data['invite']['organization_name']
+
+    def url(self):
+        return self.invite_url()
+
+    def invite_url(self):
+        if self.data['node']['hostname']:
+            site = 'https://' + self.data['node']['hostname']
+        else:
+            site = ''
+
+        return site + '/#/signup?token=' + self.data['invite']['token']
+
+    def expiration_date(self):
+        return datetime_to_pretty_str(self.data['invite']['expiration_date'])
 
 
 supported_template_types = {
@@ -624,6 +753,9 @@ supported_template_types = {
     'tip_access': UserNodeKeyword,
     'tip_reminder': UserNodeKeyword,
     'tip_update': TipKeyword,
+    'transmission': ExchangeKeyword,
+    'transmission_request': ExchangeKeyword,
+    'communication': ExchangeKeyword,
     'tip_expiration_summary': ExpirationSummaryKeyword,
     'unread_tips': UserNodeKeyword,
     'pgp_alert': PGPAlertKeyword,
@@ -652,32 +784,28 @@ supported_template_types = {
 def mail_uses_smtp2(notification, mail_type):
     """
     Return True if emails of the given template type must be delivered via the
-    secondary SMTP server (smtp2).
 
     :param notification: The notification configuration, either the tenant cache
-                         ObjectDict or the serialized notification dict; both
-                         expose a dict-like .get() interface.
     :param mail_type: The template type of the email being sent
     """
     return bool(notification.get('smtp2_enabled', False)) and \
         mail_type in notification.get('smtp2_template_types', [])
 
 
-class Templating(object):
+class Templating:
     def format_template(self, raw_template, data):
         keyword_converter = supported_template_types[data['type']](data)
 
         for kw in keyword_converter.keyword_list:
             if raw_template.count(kw):
-                # if {SomeKeyword} matches, call keyword_converter.SomeKeyword function
-                variable_content = getattr(keyword_converter, kw[1:-1])()
+                # if {SomeKeyword} matches, call keyword_converter.some_keyword function
+                variable_content = getattr(keyword_converter, snake_case(kw[1:-1]))()
                 variable_content = re.sub("{", "(", variable_content)
                 variable_content = re.sub("}", ")", variable_content)
                 raw_template = raw_template.replace(kw, variable_content)
 
-        raw_template = raw_template.rstrip()
+        return raw_template.rstrip()
 
-        return raw_template
 
     def get_mail_subject_and_body(self, data):
         subject_template = ''
@@ -701,7 +829,9 @@ class Templating(object):
         if 'user' in data and data['user']['pgp_key_public']:
             try:
                 body = PGPContext(data['user']['pgp_key_public']).encrypt_message(body)
-            except:
+            except Exception:
+                # Security: if PGP encryption fails for ANY reason, drop the body.
+                # Falling back to plaintext would defeat the recipient's PGP key.
                 body = ""
 
         return subject, body

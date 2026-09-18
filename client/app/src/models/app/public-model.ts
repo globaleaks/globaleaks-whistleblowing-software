@@ -9,6 +9,8 @@ export class Root {
 }
 
 export class Node {
+  kdf_opslimit?: number;
+  kdf_memlimit?: number;
   viewer: boolean;
   acme: boolean;
   allow_indexing: boolean;
@@ -27,9 +29,13 @@ export class Node {
   enable_scoring_system: boolean;
   enable_signup: boolean;
   signup_invite_only: boolean;
-  signup_request_organization: boolean;
+  signup_request_location: boolean;
+  signup_request_phone: boolean;
+  signup_request_tax_code: boolean;
+  signup_request_vat_code: boolean;
   signup_request_subdomain: boolean;
   signup_auto_authorize: boolean;
+  support: boolean;
   homepage: string;
   hostname: string;
   https_whistleblower = false;
@@ -58,6 +64,7 @@ export class Node {
   signup_tos2_text: string;
   signup_tos2_title: string;
   whistleblowing_button: string;
+  whistleblowing_destination: string;
   whistleblowing_question: string;
   root_tenant: boolean;
   languages_enabled: string[];
@@ -103,6 +110,7 @@ export interface Status {
 
 export interface Context {
   id: string;
+  slug: string;
   hidden: boolean;
   order: number;
   tip_timetolive: number;

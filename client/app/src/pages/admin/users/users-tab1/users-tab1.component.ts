@@ -1,6 +1,7 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, OnInit, computed, inject, signal} from "@angular/core";
+import {ActivatedRoute} from "@angular/router";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NewUser} from "@app/models/admin/new-user";
-import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {User, UserProfile} from "@app/models/resolvers/user-resolver-model";
 import {Constants} from "@app/shared/constants/constants";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
@@ -9,12 +10,8 @@ import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {NgClass} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {UserEditorComponent} from "../user-editor/user-editor.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {forkJoin} from 'rxjs';
-import {switchMap} from 'rxjs/operators';
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 
@@ -22,98 +19,94 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-users-tab1",
     templateUrl: "./users-tab1.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, NgClass, PaginatedInterfaceComponent, TranslatorPipe, UserEditorComponent, TranslatorPipe]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, UserEditorComponent]
 })
 export class UsersTab1Component implements OnInit {
-  private httpService = inject(HttpService);
   protected nodeResolver = inject(NodeResolver);
-  private usersResolver = inject(UsersResolver);
-  private tenantsResolver = inject(TenantsResolver);
-  private utilsService = inject(UtilsService);
+  private readonly usersResolver = inject(UsersResolver);
+  private readonly tenantsResolver = inject(TenantsResolver);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   showAddUser = false;
-  tenantData: tenantResolverModel;
-  users: User[];
-  profiles: UserProfile[] = [];
-  custom_profiles: UserProfile[] = [];
-  selectable_profiles: UserProfile[] = [];
-  new_user: { username: string, role: string, name: string, email: string, profile_id: string, profile: {}, send_activation_link: boolean } = {
+
+  // A link may point at one user: the list opens on the page holding it and
+  // shows its card open, so that the user is read where it is configured
+  focusUserId = "";
+
+  readonly tenantData = computed(() => this.tenantsResolver.resource.value());
+
+  // The profiles of the tenant, by id: an account either points at one of them
+  // or carries its own personal profile
+  private readonly profilesById = signal<Record<string, UserProfile>>({});
+
+  // The same row however often the list is laid out: the profile label arrives after the accounts
+  protected readonly byId = (user: User) => user.id;
+
+  readonly usersData = computed<User[]>(() => {
+    const profilesById = this.profilesById();
+
+    return this.usersResolver.resource.value().map(user => ({
+      ...user,
+      profile: profilesById[user.profile_id] || user.profile
+    }));
+  });
+
+  readonly profiles = computed<UserProfile[]>(() => {
+    const shared = this.profilesById();
+    const personal = this.usersResolver.resource.value()
+      .filter(user => user.profile && !shared[user.profile.id])
+      .map(user => user.profile);
+
+    return [...Object.values(shared), ...personal];
+  });
+
+  // A personal profile is never offered to another account
+  readonly selectable_profiles = computed<UserProfile[]>(() => this.profiles().filter(profile => !profile.custom));
+
+  new_user: { username: string, role: string, name: string, email: string, profile_id: string, send_activation_link: boolean } = {
     username: "",
     role: "",
     name: "",
     email: "",
-    profile_id: "",
-    profile: {},
+    profile_id: "none",
     send_activation_link: true
   };
   editing = false;
   protected readonly Constants = Constants;
 
   ngOnInit(): void {
-    this.getResolver();
-    if (this.nodeResolver.dataModel.root_tenant) {
-      this.tenantData = this.tenantsResolver.dataModel;
-    }
+    this.loadProfiles();
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.focusUserId = params["id"] || "";
+    });
   }
 
   addUser(): void {
     const user: NewUser = new NewUser();
-    if (this.new_user.profile_id){
-      const profile_User = this.profiles.filter(user => user.id == this.new_user.profile_id);
-      user.role = this.new_user.profile_id ? profile_User[0].role : this.new_user.role;
-    }
-    else {
-      user.role = this.new_user.role;
-    }
+
+    // The profile select carries 'none' as the sentinel of "no profile": only a
+    // profile actually present in the list dictates the role of the new user
+    const profile = this.profiles().find(entry => entry.id === this.new_user.profile_id);
+
+    user.role = profile ? profile.role : this.new_user.role;
+    user.profile_id = profile ? profile.id : "";
     user.username = typeof this.new_user.username !== "undefined" ? this.new_user.username : "";
-    user.profile_id = this.new_user.profile_id;
     user.name = this.new_user.name;
     user.mail_address = this.new_user.email;
     user.language = this.nodeResolver.dataModel.default_language;
     user.send_activation_link = this.new_user.send_activation_link;
-    this.utilsService.addAdminUser(user).subscribe(_ => {
+    this.utilsService.addAdminUser(user).subscribe(() => {
       this.getResolver();
-      this.new_user = {username: "", role: "", name: "", email: "", profile_id: "", profile: {}, send_activation_link: true};
+      this.new_user = {username: "", role: "", name: "", email: "", profile_id: "none", send_activation_link: true};
     });
   }
 
   getResolver(): void {
-    forkJoin({
-      profiles: this.httpService.requestUserProfilesResource(),
-      users: this.httpService.requestUsersResource()
-    }).subscribe({
-      next: ({ profiles, users }: { profiles: UserProfile[]; users: User[] }) => {
-        const profileMap: {[id: string]: UserProfile} = {};
-        profiles.forEach((profile: UserProfile) => {
-          profileMap[profile.id] = profile;
-        });
-
-        this.users = users.map((user: User) => {
-          let profile = profileMap[user.profile_id];
-
-          if (!profile && user.profile) {
-            profile = user.profile;
-            profileMap[profile.id] = profile;
-          }
-
-          return {
-            ...user,
-            profile: profile || user.profile
-          };
-        });
-
-        this.profiles = Object.values(profileMap);
-        this.custom_profiles = this.profiles.filter((p: UserProfile) => p.custom);
-        this.selectable_profiles = this.profiles.filter((p: UserProfile) => !p.custom);
-      },
-      error: (err: unknown) => {
-        console.error('Failed to load users or profiles', err);
-      }
-    });
-  }
-
-  receiveData() {
-    this.getResolver();
+    this.usersResolver.refresh();
+    this.loadProfiles();
   }
 
   toggleAddUser(): void {
@@ -121,6 +114,12 @@ export class UsersTab1Component implements OnInit {
   }
 
   onDelete(id: string) {
-   this.users = this.users.filter(user => user.id !== id);
+   this.usersResolver.resource.update(users => users.filter(user => user.id !== id));
+  }
+
+  private loadProfiles(): void {
+    this.httpService.requestUserProfilesResource().subscribe((profiles: UserProfile[]) => {
+      this.profilesById.set(Object.fromEntries(profiles.map(profile => [profile.id, profile])));
+    });
   }
 }

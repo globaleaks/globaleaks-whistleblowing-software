@@ -1,4 +1,6 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
+import {AppConfigService} from "@app/services/root/app-config.service";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {ActivatedRoute} from "@angular/router";
@@ -9,8 +11,9 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {Children, WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
 import {WhistleblowerIdentity} from "@app/models/app/shared-public-model";
-import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {NgClass} from "@angular/common";
+import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {TipAuditLogComponent} from "@app/shared/modals/tip-audit-log/tip-audit-log.component";
+import {DatePipe} from "@angular/common";
 import {TipAdditionalQuestionnaireInviteComponent} from "@app/shared/partials/tip-additional-questionnaire-invite/tip-additional-questionnaire-invite.component";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
 import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
@@ -20,22 +23,23 @@ import {TipFilesWhistleblowerComponent} from "@app/shared/partials/tip-files-whi
 import {WidgetWbFilesComponent} from "@app/shared/partials/widget-wbfiles/widget-wb-files.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-
 @Component({
     selector: "src-tippage",
     templateUrl: "./tippage.component.html",
     standalone: true,
-    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, NgClass, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule, TranslatorPipe]
+    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, DatePipe, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule]
 })
 export class TippageComponent implements OnInit {
-  private fieldUtilities = inject(FieldUtilitiesService);
-  private wbTipResolver = inject(WbTipResolver);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly renderScheduler = inject(RenderSchedulerService);
+  private readonly modalService = inject(NgbModal);
+  private readonly fieldUtilities = inject(FieldUtilitiesService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly wbTipResolver = inject(WbTipResolver);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
-  private activatedRoute = inject(ActivatedRoute);
-  private httpService = inject(HttpService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
   protected wbTipService = inject(WbtipService);
 
   fileUploadUrl: string;
@@ -54,36 +58,44 @@ export class TippageComponent implements OnInit {
   ngOnInit() {
     const wpTip = this.wbTipResolver.dataModel;
     if (wpTip) {
-      this.wbTipService.initialize(wpTip);
-      this.tip = this.wbTipService.tip;
-      this.tip.identity_provided = this.tip.data.whistleblower_identity !== undefined;
-      this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
-
-      this.activatedRoute.queryParams.subscribe(params => {
-        this.tip.tip_id = params["tip_id"];
+      // The report's context may be hidden from the public listing; resolve it
+      // on demand so its metadata is available for display.
+      this.appConfigService.loadContext(wpTip.context_id).subscribe(() => {
+        this.initializeTip(wpTip);
       });
-
-      this.fileUploadUrl = "api/whistleblower/wbtip/wbfiles";
-      this.tip.context = this.appDataService.contexts_by_id[this.tip.context_id];
-
-      this.tip.receivers_by_id = this.utilsService.array_to_map(this.tip.receivers);
-      this.score = this.tip.score;
-      this.ctx = "wbtip";
-      this.preprocessTipAnswers(this.tip);
-
-      this.tip.submissionStatusStr = this.utilsService.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
-      if (this.tip.receivers.length === 1 && this.tip.msg_receiver_selected === null) {
-        this.tip.msg_receiver_selected = this.tip.msg_receivers_selector[0].key;
-      }
     } else {
       this.utilsService.reloadCurrentRoute();
+    }
+  }
+
+  private initializeTip(wpTip: WbTipData) {
+    this.wbTipService.initialize(wpTip);
+    this.tip = this.wbTipService.tip;
+    this.tip.identity_provided = this.tip.data.whistleblower_identity !== undefined;
+    this.submission = { submission: this.tip, identity_provided: this.tip.identity_provided };
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.tip.tip_id = params["tip_id"];
+    });
+
+    this.fileUploadUrl = "api/whistleblower/wbtip/wbfiles";
+    this.tip.context = this.appDataService.contexts_by_id[this.tip.context_id];
+
+    this.tip.receivers_by_id = this.utilsService.array_to_map(this.tip.receivers);
+    this.score = this.tip.score;
+    this.ctx = "wbtip";
+    this.preprocessTipAnswers(this.tip);
+
+    this.tip.submissionStatusStr = this.utilsService.getSubmissionStatusText(this.tip.status, this.tip.substatus, this.appDataService.submissionStatuses);
+    if (this.tip.receivers.length === 1 && this.tip.msg_receiver_selected === null) {
+      this.tip.msg_receiver_selected = this.tip.msg_receivers_selector[0]?.key ?? null;
     }
   }
 
   filterNotTriggeredField(parent: any, field: any, answers: Answers | WhistleblowerIdentity, partOfIdentityQuestion: boolean) {
     let i;
     partOfIdentityQuestion = partOfIdentityQuestion || (parent && parent.template_id === 'whistleblower_identity');
-    if (this.fieldUtilities.isFieldTriggered(parent, field, answers, this.score, this.submission.submission.identity_provided, partOfIdentityQuestion)) {
+    if (this.fieldUtilities.isFieldTriggered(parent, field, answers, this.submission.submission.identity_provided, partOfIdentityQuestion)) {
       for (i = 0; i < field.children.length; i++) {
         this.filterNotTriggeredField(field, field.children[i], answers, partOfIdentityQuestion);
       }
@@ -99,7 +111,7 @@ export class TippageComponent implements OnInit {
 
       for (i = 0; i < this.questionnaire.steps.length; i++) {
         step = this.questionnaire.steps[i];
-        if (this.fieldUtilities.isFieldTriggered(null, step, this.questionnaire.answers, this.tip.score, this.submission.submission.identity_provided, false)) {
+        if (this.fieldUtilities.isFieldTriggered(null, step, this.questionnaire.answers, this.submission.submission.identity_provided, false)) {
           for (j = 0; j < step.children.length; j++) {
             this.filterNotTriggeredField(step, step.children[j], this.questionnaire.answers, false);
           }
@@ -137,50 +149,52 @@ export class TippageComponent implements OnInit {
   }
 
   calculateEstimatedTime() {
-    let time = 0;
-    for (const key in this.uploads) {
-      if (this.uploads[key].flowFile && this.uploads[key].flowFile.isUploading()) {
-        time = time + this.uploads[key].flowFile.timeRemaining();
+    let timeRemaining = 0;
+    if (this.uploads) {
+      for (const key in this.uploads) {
+        const flow = this.uploads[key]?.flowJs ?? this.uploads[key];
+        if (flow) {
+          timeRemaining += flow.timeRemaining();
+        }
       }
     }
-    return time;
+    if (!isFinite(timeRemaining)) {
+      timeRemaining = 0;
+    }
+    return timeRemaining;
   }
 
   calculateProgress() {
     let progress = 0;
-    let totalFiles = 0;
-    for (const key in this.uploads) {
-      if (this.uploads[key].flowFile) {
-        progress = progress + this.uploads[key].flowFile.timeRemaining();
-        totalFiles += 1;
+    if (this.uploads) {
+      for (const key in this.uploads) {
+        const flow = this.uploads[key]?.flowJs ?? this.uploads[key];
+        if (flow) {
+          progress += flow.progress();
+        }
       }
     }
-    if (totalFiles === 0) {
-      return 0;
+    if (!isFinite(progress)) {
+      progress = 0;
     }
-
-    return (100 - (progress / totalFiles) * 100);
+    return progress;
   }
 
-  provideIdentityInformation(_: { param1: string, param2: Answers }) {
+  provideIdentityInformation() {
     this.utilsService.resumeFileUploads(this.uploads);
 
     const intervalId = setInterval(() => {
-      if (this.uploads) {
-        for (const key in this.uploads) {
+      // Upload progress is polled outside change detection: render it.
+      this.renderScheduler.schedule();
 
-          if (this.uploads[key].flowFile && this.uploads[key].flowFile.isUploading()) {
-            return;
-          }
-        }
+      if (this.utilsService.isUploading(this.uploads)) {
+        return;
       }
 
       this.httpService.whistleBlowerIdentityUpdate({
         "identity_field_id": this.tip.whistleblower_identity_field.id,
         "identity_field_answers": this.answers
-      }).subscribe
-      (
-        {
+      }).subscribe({
           next: () => {
             clearInterval(intervalId);
             this.reload();
@@ -208,8 +222,25 @@ export class TippageComponent implements OnInit {
 
   shouldShowAdditionalQuestionnaire(): boolean {
     const tip = this.wbTipService.tip;
-    return tip?.status !== 'closed' &&
-           !!tip?.context?.additional_questionnaire_id &&
-           tip?.questionnaires?.length === 1;
+
+    // The report carries the additional questionnaire asked, and none once answered or withdrawn
+    return tip?.status !== 'closed' && !!tip?.additional_questionnaire;
+  }
+
+  /**
+   * The log of the report is read by the whistleblower as it is read by the
+   * recipients: the report it holds is what the fingerprints of its objects
+   * are resolved from
+   */
+  openLogsModal() {
+    const modalRef = this.modalService.open(TipAuditLogComponent, {
+      size: "xl",
+      backdrop: "static",
+      keyboard: false
+    });
+
+    modalRef.componentInstance.tipId = this.wbTipService.tip.id;
+    modalRef.componentInstance.tipData = this.wbTipService.tip;
+    modalRef.componentInstance.usersData = this.wbTipService.tip?.receivers || [];
   }
 }

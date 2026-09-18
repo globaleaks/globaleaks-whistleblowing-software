@@ -3,7 +3,6 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {MetricCard} from "@app/models/resolvers/statistical-template-resolver-model";
 import {NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirective} from "@ng-select/ng-select";
 
@@ -11,15 +10,15 @@ import {NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirectiv
   selector: "src-add-metric-modal",
   templateUrl: "./add-metric-modal.component.html",
   standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule, TranslatorPipe, NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirective]
+  imports: [FormsModule, CommonModule, TranslateModule, NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirective]
 })
 export class AddMetricModalComponent implements OnInit {
-  private activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
 
   @Input() availableMetrics: MetricCard[] = [];
   @Input() currentMetricIds: string[] = [];
-  @Input() canAddCards: boolean = true;
-  @Input() canAddCharts: boolean = true;
+  @Input() canAddCards = true;
+  @Input() canAddCharts = true;
 
   selectedMetricId = '';
   selectedDisplayType = 'number';
@@ -61,8 +60,9 @@ export class AddMetricModalComponent implements OnInit {
 
     this.selectedMetricId = normalizedMetricId;
     const compatibleTypes = this.getCompatibleDisplayTypes();
-    if (compatibleTypes.length > 0) {
-      this.selectedDisplayType = compatibleTypes[0];
+    const first = compatibleTypes[0];
+    if (first !== undefined) {
+      this.selectedDisplayType = first;
     }
   }
 

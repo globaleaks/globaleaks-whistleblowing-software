@@ -11,9 +11,6 @@ import {Constants} from "@app/shared/constants/constants";
 })
 export class FieldUtilitiesService {
 
-  constructor() {
-  }
-
   parseQuestionnaire(questionnaire: any, parsedFields: ParsedFields) {
     questionnaire.steps.forEach((step: Step)=> {
       parsedFields = this.parseFields(step.children, parsedFields);
@@ -87,58 +84,13 @@ export class FieldUtilitiesService {
     return rows;
   }
 
-  calculateScore(scope: any, field: any, entry: any) {
-    let i;
-
-    if (["selectbox", "multichoice"].indexOf(field.type) > -1) {
-      for (i = 0; i < field.options.length; i++) {
-        if (entry["value"] === field.options[i].id) {
-          if (field.options[i].score_type === "addition") {
-            scope.points_to_sum += field.options[i].score_points;
-          } else if (field.options[i].score_type === "multiplier") {
-            scope.points_to_mul *= field.options[i].score_points;
-          }
-        }
-      }
-    } else if (field.type === "checkbox") {
-      for (i = 0; i < field.options.length; i++) {
-        if (entry[field.options[i].id]) {
-          if (field.options[i].score_type === "addition") {
-            scope.points_to_sum += field.options[i].score_points;
-          } else if (field.options[i].score_type === "multiplier") {
-            scope.points_to_mul *= field.options[i].score_points;
-          }
-        }
-      }
-    } else if (field.type === "fieldgroup") {
-      field.children.forEach((field: any) => {
-        entry[field.id]?.forEach((entry: any) => {
-          this.calculateScore(scope, field, entry);
-        });
-      });
-
-      return;
-    }
-
-    const score = scope.points_to_sum * scope.points_to_mul;
-    if (scope.context) {
-      if (score < scope.context.score_threshold_medium) {
-        scope.score = 0;
-      } else if (score < scope.context.score_threshold_high) {
-        scope.score = 1;
-      } else {
-        scope.score = 2;
-      }
-    }
-  }
-
   updateAnswers(scope: any, parent: any, list: any, answers: any, partOfWhistleblowerIdentity: boolean) {
     let entry, option, i, j;
 
     partOfWhistleblowerIdentity = partOfWhistleblowerIdentity || (parent && parent.template_id === 'whistleblower_identity');
 
     list.forEach((field: any) => {
-      if (this.isFieldTriggered(parent, field, scope.answers, scope.score, scope.submission && scope.submission.submission.identity_provided, partOfWhistleblowerIdentity)) {
+      if (this.isFieldTriggered(parent, field, scope.answers, scope.submission && scope.submission.submission.identity_provided, partOfWhistleblowerIdentity)) {
         if (!(field.id in answers)) {
           answers[field.id] = [{}];
         }
@@ -158,12 +110,6 @@ export class FieldUtilitiesService {
 
       if (!field.enabled) {
         return;
-      }
-
-      if (scope.appDataService?.public.node.enable_scoring_system) {
-        scope.answers[field.id]?.forEach((entry: any) => {
-          this.calculateScore(scope, field, entry);
-        })
       }
 
       for (i = 0; i < answers[field.id].length; i++) {
@@ -192,6 +138,12 @@ export class FieldUtilitiesService {
         }
 
         if (["checkbox", "selectbox", "multichoice"].indexOf(field.type) > -1) {
+          // A checkbox accepts more than one answer at a time: the recipients
+          // it triggers are the ones of every box ticked, taken together. The
+          // fields answered with a single option contribute that option alone,
+          // so the same sum leaves them unchanged.
+          const triggered: string[] = [];
+
           for (j = 0; j < field.options.length; j++) {
             option = field.options[j];
             option.set = false;
@@ -210,10 +162,16 @@ export class FieldUtilitiesService {
                 scope.block_submission = true;
               }
 
-              if (scope.submission && option.trigger_receiver.length) {
-                scope.submission.override_receivers = option.trigger_receiver;
+              for (const receiver of option.trigger_receiver) {
+                if (triggered.indexOf(receiver) === -1) {
+                  triggered.push(receiver);
+                }
               }
             }
+          }
+
+          if (scope.submission && triggered.length) {
+            scope.submission.override_receivers = triggered;
           }
         }
       }
@@ -222,9 +180,6 @@ export class FieldUtilitiesService {
 
   onAnswersUpdate(scope: any) {
     scope.block_submission = false;
-    scope.score = 0;
-    scope.points_to_sum = 0;
-    scope.points_to_mul = 1;
 
     if (!scope.questionnaire) {
       return;
@@ -235,24 +190,23 @@ export class FieldUtilitiesService {
     }
 
     scope.questionnaire.steps.forEach((step: any) => {
-      step.enabled = this.isFieldTriggered(null, step, scope.answers, scope.score, scope.submission && scope.submission.submission.identity_provided, false);
+      step.enabled = this.isFieldTriggered(null, step, scope.answers, scope.submission && scope.submission.submission.identity_provided, false);
       this.updateAnswers(scope, step, step.children, scope.answers, false);
     });
 
-    for (let key in scope.uploads) {
+    for (const key in scope.uploads) {
       if (!scope.uploads[key].field.enabled) {
         delete scope.uploads[key];
       }
     }
 
     if (scope.submission) {
-      scope.submission.submission.score = scope.score;
       scope.submission.blocked = scope.block_submission;
     }
   }
 
 
-  isFieldTriggered(parent: any, field: any, answers: Answers | WhistleblowerIdentity, score: number, identity_provided: boolean, partOfIdentityQuestion: boolean) {
+  isFieldTriggered(parent: any, field: any, answers: Answers | WhistleblowerIdentity, identity_provided: boolean, partOfIdentityQuestion: boolean) {
     let count = 0;
     let i;
 
@@ -263,10 +217,6 @@ export class FieldUtilitiesService {
     }
 
     if (partOfIdentityQuestion && !identity_provided) {
-      return false;
-    }
-
-    if (field.triggered_by_score > score) {
       return false;
     }
 

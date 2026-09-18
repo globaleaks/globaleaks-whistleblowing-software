@@ -1,5 +1,5 @@
 import {Injectable, inject} from "@angular/core";
-import {ActivatedRoute, Router, UrlTree} from "@angular/router";
+import {Router, UrlTree} from "@angular/router";
 import {Observable} from "rxjs";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -9,10 +9,9 @@ import {UtilsService} from "@app/shared/services/utils.service";
   providedIn: "root"
 })
 export class AdminGuard {
-  private activatedRoute = inject(ActivatedRoute);
-  private utilsService = inject(UtilsService);
-  private router = inject(Router);
-  private appConfigService = inject(AppConfigService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly router = inject(Router);
+  private readonly appConfigService = inject(AppConfigService);
   authenticationService = inject(AuthenticationService);
 
 
@@ -21,7 +20,7 @@ export class AdminGuard {
       if(this.authenticationService.session.role === "admin"){
         this.appConfigService.setPage(this.router.url);
       }else {
-        this.router.navigateByUrl("/login").then();
+        void this.router.navigateByUrl("/login");
       }
       return true;
     } else {

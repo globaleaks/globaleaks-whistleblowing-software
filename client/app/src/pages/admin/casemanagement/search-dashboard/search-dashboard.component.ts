@@ -1,7 +1,7 @@
-import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, inject} from "@angular/core";
+import {Component, input, OnDestroy, OnInit, output, inject} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {TranslatePipe} from "@ngx-translate/core";
 import {SearchDashboardTab, SearchFilter, emptySearchQuery} from "@app/models/search/search-query";
 import {HttpService} from "@app/shared/services/http.service";
 import {forkJoin} from "rxjs";
@@ -11,14 +11,14 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 @Component({
   selector: "src-search-dashboard-config",
   standalone: true,
-  imports: [FormsModule, NgClass, NgbTooltipModule, TranslatorPipe],
+  imports: [FormsModule, NgClass, NgbTooltipModule, TranslatePipe],
   templateUrl: "./search-dashboard.component.html"
 })
 export class SearchDashboardConfigComponent implements OnInit, OnDestroy {
-  private http = inject(HttpClient);
-  private httpService = inject(HttpService);
-  @Input() recipient = false;
-  @Output() tabsChange = new EventEmitter<void>();
+  private readonly http = inject(HttpClient);
+  private readonly httpService = inject(HttpService);
+  readonly recipient = input(false);
+  readonly tabsChange = output<void>();
   defaultTabs: SearchDashboardTab[] = [];
   tabs: SearchDashboardTab[] = [];
   editingTab?: SearchDashboardTab;
@@ -28,8 +28,8 @@ export class SearchDashboardConfigComponent implements OnInit, OnDestroy {
   suggestions = new Map<SearchFilter, string[]>();
   invalidValues = new Set<SearchFilter>();
   pendingValues = new Set<SearchFilter>();
-  private suggestionTimers = new Map<SearchFilter, ReturnType<typeof setTimeout>>();
-  private suggestionTerms = new Map<SearchFilter, string>();
+  private readonly suggestionTimers = new Map<SearchFilter, ReturnType<typeof setTimeout>>();
+  private readonly suggestionTerms = new Map<SearchFilter, string>();
   fields = [
     {id: "creation_date", label: "Submission date", date: true},
     {id: "update_date", label: "Last update", date: true},
@@ -51,11 +51,11 @@ export class SearchDashboardConfigComponent implements OnInit, OnDestroy {
   ];
 
   get availableFields() {
-    return this.recipient ? this.fields : this.fields.filter(field => !field.recipientOnly);
+    return this.recipient() ? this.fields : this.fields.filter(field => !field.recipientOnly);
   }
 
   ngOnInit() {
-    if (this.recipient) {
+    if (this.recipient()) {
       this.httpService.getRecipientDashboard().subscribe(response => {
         this.defaultTabs = response.defaults.sort((a, b) => a.position - b.position);
         this.tabs = response.personal.sort((a, b) => a.position - b.position);
@@ -166,10 +166,11 @@ export class SearchDashboardConfigComponent implements OnInit, OnDestroy {
   }
 
   dateValue(filter: SearchFilter, index: number): string {
-    if (!Array.isArray(filter.value) || !Number.isFinite(filter.value[index])) {
+    const value = Array.isArray(filter.value) ? filter.value[index] : undefined;
+    if (typeof value !== "number" || !Number.isFinite(value)) {
       return "";
     }
-    return new Date(filter.value[index]).toISOString().slice(0, 10);
+    return new Date(value).toISOString().slice(0, 10);
   }
 
   updateDateValue(filter: SearchFilter, index: number, value: string) {
@@ -249,17 +250,17 @@ export class SearchDashboardConfigComponent implements OnInit, OnDestroy {
     }
     const index = this.tabs.indexOf(tab);
     const target = index + offset;
-    if (target < 0 || target >= this.tabs.length) {
+    if (index < 0 || target < 0 || target >= this.tabs.length) {
       return;
     }
-    [this.tabs[index], this.tabs[target]] = [this.tabs[target], this.tabs[index]];
+    [this.tabs[index], this.tabs[target]] = [this.tabs[target]!, this.tabs[index]!];
     this.reposition();
     this.save();
   }
 
   save(done?: () => void) {
     this.reposition();
-    if (this.recipient) {
+    if (this.recipient()) {
       this.httpService.saveRecipientTabs(this.tabs).subscribe(response => {
         this.defaultTabs = response.defaults.sort((a, b) => a.position - b.position);
         this.tabs = response.personal.sort((a, b) => a.position - b.position);
@@ -313,7 +314,7 @@ export class SearchDashboardConfigComponent implements OnInit, OnDestroy {
     this.pendingValues.add(filter);
     this.suggestionTimers.set(filter, setTimeout(() => {
       forkJoin(values.map(item => this.httpService.getSearchSuggestions(
-        this.recipient,
+        this.recipient(),
         filter.field,
         filter.operator,
         item
@@ -325,7 +326,7 @@ export class SearchDashboardConfigComponent implements OnInit, OnDestroy {
           this.pendingValues.delete(filter);
           const response = responses[responses.length - 1];
           const verifiableResponses = responses.filter(item => item.verifiable);
-          if (!verifiableResponses.length) {
+          if (!response || !verifiableResponses.length) {
             return;
           }
           this.suggestions.set(filter, response.suggestions);

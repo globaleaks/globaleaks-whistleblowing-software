@@ -13,7 +13,7 @@ export class TrustedTypesService {
           // Sanitize the input using DOMPurify or any other sanitizer library
           return (DOMPurify.sanitize(input, { RETURN_TRUSTED_TYPE: true }) as unknown) as string;
         },
-        createScript: (input: string) => {
+        createScript: () => {
           throw new Error('Scripts are not allowed by this policy.');
         },
         createScriptURL: (input: string) => {

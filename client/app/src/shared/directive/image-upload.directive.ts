@@ -1,4 +1,4 @@
-import {ComponentFactoryResolver, Directive, Input, ViewContainerRef, OnInit, inject} from "@angular/core";
+import {Directive, ViewContainerRef, OnInit, inject, input} from "@angular/core";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {User} from "@app/models/resolvers/user-resolver-model";
@@ -9,22 +9,20 @@ import {ImageUploadComponent} from "@app/shared/partials/image-upload/image-uplo
     standalone: true,
 })
 export class ImageUploadDirective implements OnInit {
-  private viewContainerRef = inject(ViewContainerRef);
-  private componentFactoryResolver = inject(ComponentFactoryResolver);
+  private readonly viewContainerRef = inject(ViewContainerRef);
 
-  @Input() imageUploadModel: contextResolverModel | nodeResolverModel | User;
-  @Input() imageUploadModelAttr: string;
-  @Input() imageUploadId: string;
-  @Input() imageSrcUrl: string;
+  readonly imageUploadModel = input.required<contextResolverModel | nodeResolverModel | User>();
+  readonly imageUploadModelAttr = input.required<string>();
+  readonly imageUploadId = input.required<string>();
+  readonly imageSrcUrl = input<string>();
 
   ngOnInit() {
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(ImageUploadComponent);
-    const componentRef = this.viewContainerRef.createComponent(componentFactory);
+    const componentRef = this.viewContainerRef.createComponent(ImageUploadComponent);
     const dynamicComponentInstance = componentRef.instance;
 
-    dynamicComponentInstance.imageUploadModel = this.imageUploadModel;
-    dynamicComponentInstance.imageUploadModelAttr = this.imageUploadModelAttr;
-    dynamicComponentInstance.imageUploadId = this.imageUploadId;
+    dynamicComponentInstance.imageUploadModel = this.imageUploadModel();
+    dynamicComponentInstance.imageUploadModelAttr = this.imageUploadModelAttr();
+    dynamicComponentInstance.imageUploadId = this.imageUploadId();
 
   }
 }

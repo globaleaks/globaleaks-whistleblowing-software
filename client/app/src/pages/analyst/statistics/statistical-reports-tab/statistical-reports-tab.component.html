@@ -1,16 +1,19 @@
 <div class="config-section reveal">
-  <div>
-    <span>{{ 'Statistical Reports' | translate }}</span>
-    <button class="btn btn-sm btn-primary show-add-report-btn" (click)="toggleAddReport()">
-      <i class="fas fa-plus"></i>
-      <span>{{ 'Create' | translate }}</span>
-    </button>
-  </div>
+  @if (filterOptions) {
+  <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="table.result" [itemsPerPage]="20"
+    [orderBy]="table.orderBy" [orderDesc]="table.orderDesc">
+    <ng-template #toolbar>
+      <button class="btn btn-sm btn-primary show-add-report-btn" (click)="toggleAddReport()">
+        <i class="fas fa-plus"></i>
+        <span>{{ 'Create' | translate }}</span>
+      </button>
+    </ng-template>
+    <ng-template #addForm>
   @if (showAddReport) {
     <div class="row">
       <div ngForm="newReport" #newReport="ngForm" class="addReport col-md-6">
         <div class="form-group">
-          <label>
+          <label for="new-report-label">
             <span>{{ 'Label' | translate }}</span>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           </label>
@@ -19,7 +22,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label>
+          <label for="new-report-template-id">
             <span>{{ 'Template' | translate }}</span>
             <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
           </label>
@@ -32,14 +35,8 @@
           </div>
         </div>
         <div class="form-group">
-          <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="new-report-realtime" name="new_report.realtime" [(ngModel)]="realtime" />
-            <label class="form-check-label" for="new-report-realtime">{{ 'Realtime' | translate }}</label>
-          </div>
-        </div>
-        <div class="form-group">
           <div id="ReportObservationFilter" class="statistics-filter-bar d-flex flex-wrap align-items-center gap-2">
-            <span class="ngb-datepicker-container" (click)="$event.stopPropagation()">
+            <span class="ngb-datepicker-container" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               <button data-cy="filter_date_button" type="button" class="btn btn-sm btn-outline-secondary"
                 [ngClass]="{'filter-active': dateFilter}" (click)="datePicker=!datePicker; closeOtherDropdowns('date')"
                 ngbTooltip="{{ dateFilter ? ((dateFilter.fromDate | date:'dd-MM-yyyy') + ' - ' + (dateFilter.toDate | date:'dd-MM-yyyy')) : ('Date range' | translate) }}">
@@ -50,13 +47,13 @@
                   <span>{{ 'Date range' | translate }}</span>
                 }
               </button>
-              <div [hidden]="!datePicker" (click)="$event.stopPropagation()">
-                <ngbd-datepicker-range class="position-absolute d-block" [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)">
-                </ngbd-datepicker-range>
+              <div [hidden]="!datePicker" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
+                <src-date-selector class="position-absolute d-block" [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)">
+                </src-date-selector>
               </div>
             </span>
 
-            <span class="dropdown-multi-select-container" (click)="$event.stopPropagation()">
+            <span class="dropdown-multi-select-container" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
               <button type="button" class="btn btn-sm btn-outline-secondary" [ngClass]="{'filter-active': channelFilterActive}"
                 (click)="toggleChannelFilter(); closeOtherDropdowns('channel')" ngbTooltip="{{ getFilterTooltip() }}">
                 <i class="fas fa-filter me-1"></i>
@@ -65,7 +62,7 @@
                   <span class="badge bg-primary ms-1">{{ channelDropdownModel.length }}</span>
                 }
               </button>
-              <span [class.d-none]="!channelDropdownVisible" (click)="$event.stopPropagation()">
+              <span [class.d-none]="!channelDropdownVisible" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
                 <ng-multiselect-dropdown [class.dropdown-visible]="channelDropdownVisible" [settings]="channelDropdownSettings" [data]="channelDropdownData" [(ngModel)]="channelDropdownModel" [ngModelOptions]="{standalone: true}" (onSelect)="onChannelFilterChange()" (onDeSelect)="onChannelFilterChange()">
                 </ng-multiselect-dropdown>
               </span>
@@ -88,15 +85,46 @@
       </div>
     </div>
   }
-  @if (filterOptions) {
-    <app-paginated-interface [items]="reportsData" [filterField]="'label'">
-      <ng-template #content let-item="item" let-index="index">
-        <div class="reportList">
-          <form id="report-{{index}}" name="editReport" #editReport="ngForm" novalidate>
-            <src-statistical-report-editor [reportData]="item" [reportsData]="reportsData" [editReport]="editReport" [filterOptions]="filterOptions" [index]="index" (dataToParent)="onReportRemoved($event)"></src-statistical-report-editor>
-          </form>
-        </div>
-      </ng-template>
-    </app-paginated-interface>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th scope="col" appTableHeader [state]="table" [label]="'Creation date' | translate" sortBy="creation_date" filter="creation_date"></th>
+        <th scope="col" appTableHeader [state]="table" [label]="'Title' | translate" sortBy="label"></th>
+        <th scope="col" appTableHeader [state]="table" [label]="'Template' | translate" sortBy="template" filter="template" [options]="templateOptions"></th>
+        <th scope="col"></th>
+      </tr>
+    </ng-template>
+    <ng-template #content let-row="item" let-index="index">
+      <tr class="reportList expandable-row" [attr.data-cy]="'statistical-report-' + index"
+        [class.expandable-row-open]="expandedReportId === row.id" (click)="onRowClick(row, $event)">
+        <td>{{ row.creation_date | date:'dd-MM-yyyy HH:mm' }}</td>
+        <td>{{ row.label }}</td>
+        <td>{{ row.template }}</td>
+        <td class="text-end">
+          <button type="button" class="btn btn-sm btn-danger" name="delete_report" id="delete_report" (click)="deleteReport(row)">
+            <span>{{ 'Delete' | translate }}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary ms-1" id="edit_report" data-cy="toggle-statistical-report"
+            [attr.aria-expanded]="expandedReportId === row.id"
+            [attr.aria-label]="(expandedReportId === row.id ? 'Collapse' : 'Expand') | translate" (click)="toggleReport(row)">
+            @if (expandedReportId === row.id) {
+              <i class="fas fa-chevron-up" aria-hidden="true"></i>
+            } @else {
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            }
+          </button>
+        </td>
+      </tr>
+      @if (expandedReportId === row.id) {
+        <tr class="expandable-detail" data-cy="statistical-report-details">
+          <td [attr.colspan]="columnCount">
+            <div class="expandable-box">
+              <src-statistical-report-editor [reportData]="row.report" [index]="index"></src-statistical-report-editor>
+            </div>
+          </td>
+        </tr>
+      }
+    </ng-template>
+  </app-paginated-interface>
   }
 </div>

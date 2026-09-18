@@ -1,9 +1,8 @@
-import io
 import os
-import time
 from datetime import datetime
 from twisted.internet import abstract
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.threads import deferToThread
 
 from globaleaks import models
 from globaleaks.jobs.job import LoopingJob
@@ -14,9 +13,6 @@ from globaleaks.utils.crypto import GCE
 from globaleaks.utils.log import log
 from globaleaks.utils.antivirus import FileAnalysis
 from globaleaks.models.enums import EnumStateFile
-from globaleaks.jobs.job import LoopingJob
-from twisted.internet.defer import inlineCallbacks
-from globaleaks.orm import transact
 
 
 __all__ = ['Delivery']
@@ -36,10 +32,8 @@ def file_delivery(session):
                              .filter(models.InternalFile.new.is_(True),
                                      models.InternalTip.id == models.InternalFile.internaltip_id) \
                              .order_by(models.InternalFile.creation_date) \
-                             .limit(20) \
                              .all()
 
-    # Extract InternalFile IDs for batch query
     itip_ids = {ifile.id: ifile.internaltip_id for ifile, _ in ifile_tip_pairs}
 
     # Fetch all ReceiverTips and Users in one query
@@ -74,7 +68,7 @@ def file_delivery(session):
             # https://github.com/globaleaks/globaleaks-whistleblowing-software/issues/444
             # avoid to mark the receiverfile as new if it is part of a submission
             # this way we avoid to send unuseful messages
-            whistleblowerfile.new = not ifile.creation_date == itip.creation_date
+            whistleblowerfile.new = ifile.creation_date != itip.creation_date
 
             session.add(whistleblowerfile)
 
@@ -155,38 +149,38 @@ class Delivery(LoopingJob):
         scanner = FileAnalysis()
 
         for file_id, file in files_map.items():
-            sf = self._get_source_file(file['src'])
-            if sf is None:
-                continue
+            try:
+                sf = self._get_source_file(file['src'])
+                if sf is None:
+                    continue
 
-            manual = isinstance(sf, io.BufferedReader)
-            if not manual:
-                sf = sf.open('r')
+                if file['scan']:
+                    yield self._scan(sf, file_id, file.get('type', 'internal'), scanner)
+                else:
+                    save_antivirus_status(file_id, None, file.get('type', 'internal'))
 
-            if file['scan']:
-                result = yield self._scan(sf, file_id, file.get('type', 'internal'), scanner)
-            else:
-                save_antivirus_status(file_id, None, file.get('type', 'internal'))
-
-            sf.seek(0)
-            (write_encrypted_file if file['key'] else write_plaintext_file)(file['key'] if file['key'] else sf, sf, file['dst'])
-            sf.close()
-            tmp_path = os.path.join(Settings.tmp_path, file_id)
-            os.remove(tmp_path)
+                if file['key']:
+                    yield deferToThread(write_encrypted_file, file['key'], sf, file['dst'])
+                else:
+                    yield deferToThread(write_plaintext_file, sf, file['dst'])
+            except Exception as e:
+                log.err("Unable to deliver a receiver file: %s", e)
 
     def _get_source_file(self, filename):
-        sf = self.state.get_tmp_file_by_name(filename)
-        if sf is None:
-            time.sleep(1)
-            sf = self.state.get_tmp_file_by_name(filename)
-        if sf is None:
-            path = os.path.join(Settings.tmp_path, filename)
-            return open(path, "rb") if os.path.exists(path) else None
-        return sf
+        # Only the sources the writers can consume are returned: they open the
+        # object themselves, so a bare file descriptor read from disk would not
+        # do. A file that is not there yet is delivered on one of the next runs.
+        return self.state.get_tmp_file_by_name(filename)
 
     @inlineCallbacks
     def _scan(self, sf, file_id, file_type, scanner):
-        sf.seek(0)
-        result = yield scanner.scan_file(sf.read())
+        # The content is read through a handle of its own so that the writers
+        # keep receiving the source object they expect.
+        with sf.open('r') as fd:
+            content = fd.read()
+
+        result = yield scanner.scan_file(content)
+
         save_antivirus_status(file_id, result, file_type)
+
         return result

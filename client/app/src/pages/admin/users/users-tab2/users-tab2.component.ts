@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {NewUserProfile} from "@app/models/admin/new-user";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {UserProfile} from "@app/models/resolvers/user-resolver-model";
@@ -9,30 +9,32 @@ import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {ProfileEditorComponent} from "../profile-editor/profile-editor.component";
+import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
+import {ADMIN_PERMISSION_KEYS} from "@app/pages/admin/users/permissions";
 import {HttpClient} from "@angular/common/http";
-import {FilterPipe} from "@app/shared/pipes/filter.pipe";
-import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
   selector: 'src-users-tab2',
   standalone: true,
-  imports: [FormsModule, NgbTooltipModule, ProfileEditorComponent, TranslatorPipe, OrderByPipe],
+  imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, ProfileEditorComponent, TranslateModule],
   templateUrl: './users-tab2.component.html',
 })
 export class UsersTab2Component implements OnInit {
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
   protected nodeResolver = inject(NodeResolver);
-  private tenantsResolver = inject(TenantsResolver);
+  private readonly tenantsResolver = inject(TenantsResolver);
   protected utilsService = inject(UtilsService);
-  private http = inject(HttpClient);
-  @ViewChild('keyUploadInput') keyUploadInput: ElementRef<HTMLInputElement>;
+  private readonly http = inject(HttpClient);
 
   showAddProfile = false;
   tenantData: tenantResolverModel;
   profilesData: UserProfile[]=[];
+
+  // The profiles offered by the list: a personal profile belongs to its own
+  // account and is configured there, not among the profiles of the tenant
+  sharedProfiles: UserProfile[]=[];
   new_profile: { name: string, role: string, roles: string [], permissions: []} = { name: "", role: "", roles: [], permissions: []};
   editing = false;
   selected = {value: []};
@@ -51,39 +53,57 @@ export class UsersTab2Component implements OnInit {
     profile.name = this.new_profile.name;
     profile.role = this.new_profile.role;
     profile.roles = [this.new_profile.role];
-    this.utilsService.addAdminUserProfile(profile).subscribe(_ => {
+    // An administrator profile starts able to manage every administrative area;
+    // the permissions can be removed afterwards to scope it to a subset
+    if (profile.role === "admin") {
+      for (const p of ADMIN_PERMISSION_KEYS) {
+        profile.permissions[p] = true;
+      }
+    }
+    this.utilsService.addAdminUserProfile(profile).subscribe(() => {
       this.getResolver();
       this.new_profile = {name: "", role: "", roles: [], permissions: []};
     });
   }
 
-  importProfile(files: FileList | null) {
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
+  importProfile(input: HTMLInputElement) {
+    const files = input.files;
+    const file = files?.[0];
+    if (file) {
+      this.utilsService.readFileAsText(file).subscribe((txt) => {
         return this.http.post("api/admin/users/profiles", txt).subscribe({
           next:()=>{
             this.getResolver();
           },
           error:()=>{
-            if (this.keyUploadInput) {
-                this.keyUploadInput.nativeElement.value = "";
-            }
+            input.value = "";
           }
         });
       });
     }
   }
 
+  onDelete(id: string) {
+    this.setProfiles(this.profilesData.filter(p => p.id !== id));
+  }
+
   getResolver() {
     return this.httpService.requestUserProfilesResource().subscribe((response: UserProfile[]) => {
-      this.profilesData = response;
+      this.setProfiles(response);
        this.roles = [
         {value:'admin', role: 'Admin'},
         {value:'analyst', role: 'Analyst'},
+        {value:'auditor', role: 'Auditor'},
         {value:'custodian', role: 'Custodian'},
         {value:'receiver', role: 'Recipient'},
+        {value:'transmitter', role: 'Transmitter'},
       ]
     });
+  }
+
+  private setProfiles(profiles: UserProfile[]) {
+    this.profilesData = profiles;
+    this.sharedProfiles = profiles.filter(profile => !profile.custom);
   }
 
   assignRole(role: {value: string, role: string}) {

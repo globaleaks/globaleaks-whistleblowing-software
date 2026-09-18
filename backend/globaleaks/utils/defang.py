@@ -1,12 +1,12 @@
 import re
-import random
+import secrets
 import string
 
 INVISIBLE_CHARS = ['\u200b', '\u200c', '\u200d', '\ufeff']
 DEFANGED_SEQS = ['[://]', '[:/]', '[:]', '[@]', '[.]']
 
 def _random_placeholder(length=12):
-    return '__DEFANG_' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=length)) + '__'
+    return '__DEFANG_' + ''.join(secrets.choice(string.ascii_uppercase + string.digits) for _ in range(length)) + '__'
 
 def defang(text: str) -> str:
     """
@@ -29,11 +29,11 @@ def defang(text: str) -> str:
 
     # 3. Replace URL/email patterns in longest-first order
     # Use regex negative lookbehind to avoid double-defanging
-    text = re.sub(r'(?<!\[)://', '[://]', text, count=1)  # first only
+    text = re.sub(r'(?<!\[)://', '[://]', text)           # double slashes
     text = re.sub(r'(?<!\[):/', '[:/]', text)             # remaining
     text = re.sub(r'(?<!\[):', '[:]', text)               # remaining colons
     text = re.sub(r'(?<!\[)\.', '[.]', text)              # dots
-    text = re.sub(r'(?<!\[)@', '[@]', text)              # at signs
+    text = re.sub(r'(?<!\[)@', '[@]', text)               # at signs
 
     # 4. Restore protected sequences
     for placeholder, seq in protected.items():

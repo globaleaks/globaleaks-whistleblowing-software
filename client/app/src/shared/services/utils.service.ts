@@ -1,17 +1,16 @@
-import {EventEmitter, Injectable, inject} from "@angular/core";
+import {Injectable, OutputEmitterRef, inject} from "@angular/core";
 import Flow from "@flowjs/flow.js";
 import {TranslateService} from "@ngx-translate/core";
-import {ActivatedRoute, Router} from "@angular/router";
-import {NgbDateStruct, NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {RouteReuseStrategy, Router} from "@angular/router";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {RequestSupportComponent} from "@app/shared/modals/request-support/request-support.component";
 import {HttpService} from "@app/shared/services/http.service";
-import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {HttpHeaders} from "@angular/common/http";
 import {Observable, map} from "rxjs";
 import {ConfirmationWithPasswordComponent} from "@app/shared/modals/confirmation-with-password/confirmation-with-password.component";
 import {ConfirmationWith2faComponent} from "@app/shared/modals/confirmation-with2fa/confirmation-with2fa.component";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
-import {ClipboardService} from "ngx-clipboard";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NewUser, NewUserProfile} from "@app/models/admin/new-user";
@@ -21,7 +20,6 @@ import {contextResolverModel} from "@app/models/resolvers/context-resolver-model
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {Field} from "@app/models/resolvers/field-template-model";
-import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {Option} from "@app/models/whistleblower/wb-tip-data";
 import {Status} from "@app/models/app/public-model";
 import {AppDataService} from "@app/app-data.service";
@@ -31,21 +29,26 @@ import {AcceptAgreementComponent} from "@app/shared/modals/accept-agreement/acce
 import {WbFile} from "@app/models/app/shared-public-model";
 import {FileViewComponent} from "@app/shared/modals/file-view/file-view.component";
 import {CryptoService} from "@app/shared/services/crypto.service";
+const datetime_never = new Date(3000, 0, 1).getTime();
+
+// Every real HTTP status (100..599): used as flow.js permanentErrors so that chunk
+// uploads are retried only on a dropped connection (XHR status 0, outside this range)
+// and never on an application reply.
+const HTTP_STATUS_CODES = Array.from({length: 500}, (_, i) => 100 + i);
+
 @Injectable({
   providedIn: "root"
 })
 export class UtilsService {
-  private authenticationService = inject(AuthenticationService);
-  private activatedRoute = inject(ActivatedRoute);
-  private appDataService = inject(AppDataService);
-  private cryptoService = inject(CryptoService);
-  private translateService = inject(TranslateService);
-  private clipboardService = inject(ClipboardService);
-  private http = inject(HttpClient);
-  private httpService = inject(HttpService);
-  private modalService = inject(NgbModal);
-  private preferenceResolver = inject(PreferenceResolver);
-  private router = inject(Router);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly translateService = inject(TranslateService);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly router = inject(Router);
+  private readonly routeReuseStrategy = inject(RouteReuseStrategy);
 
   supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
 
@@ -58,11 +61,15 @@ export class UtilsService {
       'whistleblower_logout',
     ],
     Medium: [
+      'activate_signup',
+      'authorize_signup',
       'change_password',
       'create_user',
       'enable_2fa',
       'grant_access',
       'send_password_reset_email',
+      'send_signup_invite',
+      'signup',
       'transfer_access',
       'version_update',
       'update_report_expiration',
@@ -71,7 +78,9 @@ export class UtilsService {
     ],
     High: [
       'delete_report',
+      'delete_signup_invite',
       'delete_user',
+      'deny_signup',
       'disable_2fa',
       'login_failure',
       'reset_reports',
@@ -97,7 +106,7 @@ export class UtilsService {
 
   routeGuardRedirect(route="login", skipChange = false){
     const loginUrlWithParam = `/${route}?redirect=${encodeURIComponent(location.hash.substring(1))}`;
-    this.router.navigateByUrl(loginUrlWithParam, { skipLocationChange: skipChange }).then(() => {});
+    void this.router.navigateByUrl(loginUrlWithParam, { skipLocationChange: skipChange });
   }
 
   newItemOrder(objects: any[], key: string): number {
@@ -129,7 +138,10 @@ export class UtilsService {
   isUploading(uploads?: any) {
     if (uploads) {
       for (const key in uploads) {
-        if (uploads[key].flowFile && uploads[key].flowFile.isUploading()) {
+        const flow = uploads[key]?.flowJs ?? uploads[key];
+        // Gate on !isComplete() rather than flow.isUploading(): a chunk in a pending/reading
+        // state reports no upload in progress yet still hasn't reached the server (issue #4841).
+        if (flow && Array.isArray(flow.files) && flow.files.some((file: FlowFile) => !file.isComplete())) {
           return true;
         }
       }
@@ -140,9 +152,12 @@ export class UtilsService {
   resumeFileUploads(uploads: any) {
     if (uploads) {
       for (const key in uploads) {
-        if (uploads[key] && uploads[key].flowJs) {
-          uploads[key].flowJs.upload();
-        }
+        // Resolve the same way isUploading does: regular uploads expose the Flow under .flowJs,
+        // while the voice recorder stores a raw Flow directly. Without this fallback the voice
+        // upload is never started, yet isUploading still sees its files incomplete, leaving the
+        // additional-questionnaire submit stuck in the "uploading" state.
+        const flow = uploads[key]?.flowJs ?? uploads[key];
+        flow?.upload();
       }
     }
   }
@@ -154,7 +169,7 @@ export class UtilsService {
 
   getAuditLogCategory(type: string): string {
     for (const category in this.auditLogCategories) {
-      if (this.auditLogCategories[category][type]) {
+      if (this.auditLogCategories[category]?.[type]) {
         return category;
       }
     }
@@ -164,13 +179,10 @@ export class UtilsService {
 
   view(authenticationService: AuthenticationService, url: string, _: string, callback: (blob: Blob) => void): void {
     const headers = new HttpHeaders({
-      "x-session": authenticationService.session.id
+      "x-session": authenticationService.session?.id ?? ""
     });
 
-    this.http.get(url, {
-      headers: headers,
-      responseType: "blob"
-    }).subscribe(
+    this.httpService.requestBlobResource(url, headers).subscribe(
       (response: Blob) => {
         callback(response);
       }
@@ -195,22 +207,22 @@ export class UtilsService {
 
   reloadCurrentRoute() {
     const currentUrl = this.router.url;
-    this.router.navigateByUrl("blank", {skipLocationChange: true, replaceUrl: true}).then(() => {
-      this.router.navigate([currentUrl]).then();
+    void this.router.navigateByUrl("blank", {skipLocationChange: true, replaceUrl: true}).then(() => {
+      void this.router.navigate([currentUrl]);
     });
   }
 
   reloadComponent() {
-    this.router.routeReuseStrategy.shouldReuseRoute = function () {
+    this.routeReuseStrategy.shouldReuseRoute = function () {
       return false;
     };
 
     const currentUrl = this.router.url + "?";
 
-    this.router.navigateByUrl(currentUrl)
+    void this.router.navigateByUrl(currentUrl)
       .then(() => {
         this.router.navigated = false;
-        this.router.navigate([this.router.url]).then();
+        void this.router.navigate([this.router.url]);
       });
   }
 
@@ -218,7 +230,6 @@ export class UtilsService {
     const fileNameParts = file.name.split(".");
     const fileExtension = fileNameParts.pop();
     const fileNameWithoutExtension = fileNameParts.join(".");
-    const timestamp = new Date().getTime();
     const fileNameWithTimestamp = `${fileNameWithoutExtension}.${fileExtension}`;
     const modifiedFile = new File([file], fileNameWithTimestamp, {type: file.type});
 
@@ -234,10 +245,16 @@ export class UtilsService {
       return;
     }
 
-    [questionnaire.steps[index], questionnaire.steps[target]] =
-      [questionnaire.steps[target], questionnaire.steps[index]];
+    const steps = questionnaire.steps;
+    const moved = steps[index];
+    const displaced = steps[target];
+    if (moved === undefined || displaced === undefined) {
+      return;
+    }
+    steps[index] = displaced;
+    steps[target] = moved;
 
-    this.http.put("api/admin/steps", {
+    this.httpService.requestReorderAdminQuestionnaireSteps({
       operation: "order_elements",
       args: {
         ids: questionnaire.steps.map((c: { id: string; }) => c.id),
@@ -246,7 +263,7 @@ export class UtilsService {
     }).subscribe();
   }
 
-  toggleCfg(authenticationService: AuthenticationService, tlsConfig:TlsConfig, updated:EventEmitter<string>) {
+  toggleCfg(authenticationService: AuthenticationService, tlsConfig:TlsConfig, updated: OutputEmitterRef<void>) {
     if (tlsConfig.enabled) {
       const authHeader = authenticationService.getHeader();
       this.httpService.disableTLSConfig(tlsConfig, authHeader).subscribe(() => {
@@ -263,11 +280,11 @@ export class UtilsService {
   reloadCurrentRouteFresh(removeQueryParam = false) {
     let currentUrl = this.router.url;
     if (removeQueryParam) {
-      currentUrl = this.router.url.split("?")[0];
+      currentUrl = this.router.url.split("?")[0] ?? currentUrl;
     }
 
-    this.router.navigateByUrl("/blank", {skipLocationChange: true}).then(() => {
-      this.router.navigateByUrl(currentUrl, {replaceUrl: true}).then();
+    void this.router.navigateByUrl("/blank", {skipLocationChange: true}).then(() => {
+      void this.router.navigateByUrl(currentUrl, {replaceUrl: true});
     });
   }
 
@@ -308,7 +325,11 @@ export class UtilsService {
     return btoa(result);
   }
 
-  openSupportModal() {
+  openSupportModal(event?: Event) {
+    // The trigger is an anchor (kept as a link for accessibility tooling): with
+    // hash-based routing its default action would navigate to the homepage, so
+    // suppress it and only open the modal.
+    event?.preventDefault();
     if (this.appDataService.public.node.custom_support_url) {
       window.open(this.appDataService.public.node.custom_support_url, "_blank");
     } else {
@@ -327,19 +348,19 @@ export class UtilsService {
   }
 
   copyToClipboard(data: string) {
-    this.clipboardService.copyFromContent(data);
+    void navigator.clipboard.writeText(data);
   }
 
   getSubmissionStatusText(status: string,substatus:string, submission_statuses: Status[]) {
     let text;
-    for (let i = 0; i < submission_statuses.length; i++) {
-      if (submission_statuses[i].id === status) {
-        text = submission_statuses[i].label ? this.translateService.instant(submission_statuses[i].label) : '';
+    for (const submissionStatus of submission_statuses) {
+      if (submissionStatus.id === status) {
+        text = submissionStatus.label ? this.translateService.instant(submissionStatus.label) : '';
 
-        const subStatus = submission_statuses[i].substatuses;
-        for (let j = 0; j < subStatus.length; j++) {
-          if (subStatus[j].id === substatus && subStatus[j].label) {
-            text += ' \u2013 ' + subStatus[j].label;
+        const subStatus = submissionStatus.substatuses;
+        for (const sub of subStatus) {
+          if (sub.id === substatus && sub.label) {
+            text += ' \u2013 ' + sub.label;
             break;
           }
         }
@@ -349,20 +370,42 @@ export class UtilsService {
     return text?text:"";
   }
 
-  searchInObject(obj: any, searchTerm: string) {
-    try {
-        // Convert object to a string
-        const objString = JSON.stringify(obj);
-
-        // Create a regular expression for the search term with 'i' flag for case-insensitive search
-        const regex = new RegExp(String(searchTerm).trim(), 'i');
-
-        // Test if the search term is found in the object string
-        return regex.test(objString);
-    } catch (error) {
-        // Return false in case of any exception (e.g., cyclic reference or BigInt error)
-        return false;
+  /**
+   * Tell whether the searched text appears in one of the values held by the
+   * object, however deep it is nested.
+   *
+   * The text is searched literally: it is what is typed in a search box, not
+   * an expression, and a parenthesis has to find a parenthesis. Only the
+   * values are searched, never the names of the fields, so that searching
+   * "name" does not return every element.
+   */
+  searchInObject(obj: unknown, searchTerm: string, seen = new Set<unknown>()): boolean {
+    const searched = String(searchTerm).trim().toLowerCase();
+    if (!searched) {
+      return true;
     }
+
+    return this.matchesSearch(obj, searched, seen);
+  }
+
+  private matchesSearch(value: unknown, searched: string, seen: Set<unknown>): boolean {
+    if (value === null || value === undefined) {
+      return false;
+    }
+
+    if (typeof value === "object") {
+      // The objects of the models reference each other: a value already
+      // visited would make the visit endless
+      if (seen.has(value)) {
+        return false;
+      }
+
+      seen.add(value);
+
+      return Object.values(value).some(entry => this.matchesSearch(entry, searched, seen));
+    }
+
+    return String(value).toLowerCase().includes(searched);
   }
 
   isDatePassed(time: string) {
@@ -373,7 +416,7 @@ export class UtilsService {
 
   isNever(time: string) {
     const date = new Date(time);
-    return date.getTime() >= 32503680000000;
+    return date.getTime() >= datetime_never;
   }
 
   deleteFromList(list:  Record<string, Field>[], elem: Record<string, Field>) {
@@ -381,15 +424,6 @@ export class UtilsService {
     if (idx !== -1) {
       list.splice(idx, 1);
     }
-  }
-
-  submitSupportRequest(arg: {mail_address: string,text: string} ) {
-    const param = JSON.stringify({
-      "mail_address": arg.mail_address,
-      "text": arg.text,
-      "url": window.location.href.replace("localhost", "127.0.0.1")
-    });
-    this.httpService.requestSupport(param).subscribe();
   }
 
   runUserOperation(operation: string, args: any, refresh: boolean) {
@@ -401,65 +435,7 @@ export class UtilsService {
   }
 
   go(path: string): void {
-    this.router.navigateByUrl(path).then();
-  }
-
-  maskScore(score: number, translateService: TranslateService) {
-    if (score === 1) {
-      return translateService.instant("Low");
-    } else if (score === 2) {
-      return translateService.instant("Medium");
-    } else if (score === 3) {
-      return translateService.instant("High");
-    } else {
-      return translateService.instant("None");
-    }
-  }
-
-  getStaticFilter(data: any[], model:{id: number;label: string;}[], key: string, translateService: TranslateService): any[] {
-    if (model.length === 0) {
-      return data;
-    } else {
-      const rows: any[] = [];
-      data.forEach(data_row => {
-        model.forEach(selected_option => {
-          if (key === "score") {
-            const scoreLabel = this.maskScore(data_row[key], translateService);
-            if (scoreLabel === selected_option.label) {
-              rows.push(data_row);
-            }
-          } else if (key === "status") {
-            if (data_row[key] === selected_option.label) {
-              rows.push(data_row);
-            }
-          } else {
-            if (data_row[key] === selected_option.label) {
-              rows.push(data_row);
-            }
-          }
-        });
-      });
-      return rows;
-    }
-  }
-
-  getDateFilter(Tips: rtipResolverModel[], report_date_filter:[number, number] | null, update_date_filter: [number, number] | null, expiry_date_filter: [number, number] | null): rtipResolverModel[] {
-    const filteredTips: rtipResolverModel[] = [];
-    Tips.forEach(rows => {
-      const m_row_rdate = new Date(rows.last_access).getTime();
-      const m_row_udate = new Date(rows.update_date).getTime();
-      const m_row_edate = new Date(rows.expiration_date).getTime();
-
-      if (
-        (report_date_filter === null || (report_date_filter[0] === 0 || (m_row_rdate > report_date_filter[0] && m_row_rdate < report_date_filter[1]))) &&
-        (update_date_filter === null || (update_date_filter[0] === 0 || (m_row_udate > update_date_filter[0] && m_row_udate < update_date_filter[1]))) &&
-        (expiry_date_filter === null || (expiry_date_filter[0] === 0 || (m_row_edate > expiry_date_filter[0] && m_row_edate < expiry_date_filter[1])))
-      ) {
-        filteredTips.push(rows);
-      }
-    });
-
-    return filteredTips;
+    void this.router.navigateByUrl(path);
   }
 
   print() {
@@ -482,10 +458,10 @@ export class UtilsService {
 
   saveAs(authenticationService: AuthenticationService, filename: any, url: string): void {
     const headers = new HttpHeaders({
-      "X-Session": authenticationService.session.id
+      "X-Session": authenticationService.session?.id ?? ""
     });
 
-    this.http.get(url, {responseType: "blob", headers: headers}).subscribe(
+    this.httpService.requestBlobResource(url, headers).subscribe(
       response => {
         this.saveBlobAs(filename, response);
       }
@@ -495,7 +471,7 @@ export class UtilsService {
   getMinPostponeDate(currentExpirationDate: string) {
     const currDate = new Date(currentExpirationDate);
     const minDate = new Date();
-    minDate.setDate(minDate.getDate() + 91);
+    minDate.setDate(minDate.getDate() + 90);
     return currDate > minDate ? minDate : currDate;
   }
 
@@ -504,6 +480,14 @@ export class UtilsService {
     date.setDate(date.getDate() + ttl + 1);
     date.setUTCHours(0, 0, 0, 0);
     return date;
+  }
+
+  getMaxPostponeDate(ttl: number): Date {
+    if (ttl <= 0) {
+      return new Date(datetime_never);
+    } else {
+      return this.getPostponeDate(Math.max(365, ttl * 2));
+    }
   }
 
   update(node: nodeResolverModel) {
@@ -526,7 +510,7 @@ export class UtilsService {
     return this.runOperation("api/admin/config", operation, args, refresh);
   }
 
-  deleteDialog(operation: string = "reset_submissions") {
+  deleteDialog(operation = "reset_submissions") {
     return this.openConfirmableModalDialogReport("", "", operation).subscribe();
   }
 
@@ -541,6 +525,8 @@ export class UtilsService {
       "toggle_user_escrow",
       "enable_user_permission_file_upload",
       "reset_submissions",
+      "set_user_password",
+      "send_password_reset_email",
       "reset_backups"
     ];
 
@@ -552,27 +538,30 @@ export class UtilsService {
       refresh = false;
     }
 
-    if (requireConfirmation.indexOf(operation) !== -1) {
-      return new Observable((observer) => {
-        this.getConfirmation().subscribe((secret: string) => {
-          const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
+    // A root administrator issuing a password reset link while operating on
+    // another tenant through a management session is exempted from step-up
+    // confirmation, mirroring the backend behavior.
+    const isManagementSession = !!this.authenticationService.session?.properties?.management_session;
+    const needsConfirmation = requireConfirmation.indexOf(operation) !== -1 &&
+      !(operation === "send_password_reset_email" && isManagementSession);
 
-          this.http.put(api, {"operation": operation, "args": args}, {headers}).subscribe(  {
-              next: (response) => {
-                if (refresh) {
-                  this.reloadComponent();
-                }
-                observer.next(response)
-              },
-              error: (error) => {
-                observer.error(error);
-              }
-            }
-          )
-        });
-      });
+    if (needsConfirmation) {
+      // The authorized request is performed from within the confirmation modal
+      // so that, if the confirmation secret is rejected, the modal stays open
+      // and the operator can retry instead of losing the dialog.
+      return this.getConfirmation((secret: string) => {
+        const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
+        return this.httpService.requestRunOperation(api, operation, args, headers);
+      }).pipe(
+        map((response) => {
+          if (refresh) {
+            this.reloadComponent();
+          }
+          return response;
+        })
+      );
     } else {
-      return this.http.put(api, {"operation": operation, "args": args}).pipe(
+      return this.httpService.requestRunOperation(api, operation, args).pipe(
         map((response) => {
           if (refresh) {
             this.reloadComponent();
@@ -583,7 +572,7 @@ export class UtilsService {
     }
   }
 
-  getConfirmation(): Observable<string> {
+  getConfirmation(performRequest: (secret: string) => Observable<any>): Observable<any> {
     return new Observable((observer) => {
       let modalRef;
 
@@ -593,14 +582,58 @@ export class UtilsService {
         modalRef = this.modalService.open(ConfirmationWithPasswordComponent,{backdrop: "static", keyboard: false, ariaLabelledBy: 'modal-title'});
       }
 
+      let response: any;
+      let confirmed = false;
+      let refusal: any = null;
+
+      // The modal awaits this promise and only closes when it resolves; a
+      // rejection keeps it open so the operator can correct the secret and try
+      // again. A refusal over the state of the resource is not the operator's
+      // to correct here: the dialog closes and the refusal reaches whoever
+      // asked for the operation, which is the side that states what changed.
       modalRef.componentInstance.confirmFunction = (secret: string) => {
-        observer.next(secret);
-        observer.complete();
+        return new Promise<void>((resolve, reject) => {
+          performRequest(secret).subscribe({
+            next: (res) => {
+              response = res;
+              confirmed = true;
+              resolve();
+            },
+            error: (error) => {
+              if (error.status === 409) {
+                refusal = error;
+                modalRef.dismiss();
+              }
+
+              reject(error);
+            }
+          });
+        });
       };
+
+      // The downstream subscriber is notified only after the modal has closed:
+      // it emits the response on a confirmed request, hands over a refusal that
+      // was not the operator's to correct, and simply completes when the
+      // operator dismisses the dialog.
+      modalRef.result.then(
+        () => {
+          if (confirmed) {
+            observer.next(response);
+          }
+          observer.complete();
+        },
+        () => {
+          if (refusal) {
+            observer.error(refusal);
+          } else {
+            observer.complete();
+          }
+        }
+      );
     });
   }
 
-  openConfirmableModalDialogReport(arg: string, scope: any, operation: string = "reset_submissions"): Observable<string> {
+  openConfirmableModalDialogReport(arg: string, scope: any, operation = "reset_submissions"): Observable<string> {
     scope = !scope ? this : scope;
     return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent,{backdrop: "static", keyboard: false, ariaLabelledBy: 'modal-title'});
@@ -613,34 +646,39 @@ export class UtilsService {
     });
   }
 
-  openPasswordConfirmableDialog(arg: string, scope: any, operation: string = "reset_submissions"){
+  openPasswordConfirmableDialog(arg: string, scope: any, operation = "reset_submissions"){
     return this.runAdminOperation(operation, {}, true).subscribe({
-      next: (_) => {
-      },
-      error: (_) => {
+      error: () => {
         this.openPasswordConfirmableDialog(arg, scope, operation)
       }
     });
   }
 
   getFiles(): Observable<FlowFile[]> {
-    return this.http.get<FlowFile[]>("api/admin/files");
+    return this.httpService.requestAdminFilesResource();
   }
 
   deleteFile(url: string): Observable<void> {
-    return this.http.delete<void>(url);
+    return this.httpService.requestDeleteResource(url);
+  }
+
+  deleteWithConfirmation(url: string, body: any = null): Observable<any> {
+    return this.getConfirmation((secret: string) => {
+      const headers = new HttpHeaders({"X-Confirmation": this.encodeString(secret)});
+      return this.httpService.requestDeleteResource(url, headers, body);
+    });
   }
 
   deleteAdminUser(user_id: string, expectedStats: any) {
-    return this.httpService.requestDeleteAdminUser(user_id, expectedStats);
+    return this.deleteWithConfirmation("api/admin/users/" + user_id, expectedStats);
   }
 
   deleteAdminUserProfile(user_profile_id: string) {
     return this.httpService.requestDeleteAdminUserProfile(user_profile_id);
   }
 
-  deleteAdminContext(user_id: string) {
-    return this.httpService.requestDeleteAdminContext(user_id);
+  deleteAdminContext(context_id: string) {
+    return this.deleteWithConfirmation("api/admin/contexts/" + context_id);
   }
 
   deleteStatus(url: string) {
@@ -709,14 +747,14 @@ export class UtilsService {
   }
 
   moveLeft(elem: any): void {
-    elem[this.getXOrderProperty(elem)] -= 1;
+    elem[this.getXOrderProperty()] -= 1;
   }
 
   moveRight(elem: any): void {
-    elem[this.getXOrderProperty(elem)] += 1;
+    elem[this.getXOrderProperty()] += 1;
   }
 
-  getXOrderProperty(_: Option[]): string {
+  getXOrderProperty(): string {
     return "x";
   }
 
@@ -725,11 +763,12 @@ export class UtilsService {
   }
 
   assignUniqueOrderIndex(elements: Option[]): void {
-    if (elements.length <= 0) {
+    const first = elements[0];
+    if (first === undefined) {
         return;
     }
 
-    const key: keyof Option = this.getYOrderProperty(elements[0]) as keyof Option;
+    const key: keyof Option = this.getYOrderProperty(first) as keyof Option;
     if (elements.length) {
         let i = 0;
         elements = elements.sort((a, b) => (a[key] as number) - (b[key] as number));
@@ -752,7 +791,7 @@ export class UtilsService {
       });
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
-        return this.http.put("api/user/operations", {
+        return this.httpService.requestOperations({
           operation: "accepted_privacy_policy",
           args: {}
         }).subscribe(() => {
@@ -781,9 +820,20 @@ export class UtilsService {
           cell = JSON.stringify(cell);
         }
 
-        // Escape commas, quotes, and newlines
-        if (typeof cell === 'string' && (cell.includes(',') || cell.includes('"') || cell.includes('\n'))) {
-          return `"${cell.replace(/"/g, '""')}"`;
+        if (typeof cell === 'string') {
+          // Neutralize spreadsheet formula injection by prefixing values that
+          // a spreadsheet would otherwise interpret as a formula
+          if (/^[=+\-@\t\r]/.test(cell)) {
+            cell = "'" + cell;
+          }
+
+          // Escape commas, quotes, and record separators (LF and CR): an
+          // unquoted CR is treated as a record separator by spreadsheet
+          // applications and would otherwise split the field into a new row
+          // whose first cell could be an unneutralized formula.
+          if (cell.includes(',') || cell.includes('"') || cell.includes('\n') || cell.includes('\r')) {
+            return `"${cell.replace(/"/g, '""')}"`;
+          }
         }
 
         return cell ?? ''; // Fallback to empty string
@@ -815,13 +865,11 @@ export class UtilsService {
 
   public downloadRFile(file: WbFile) {
     const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
-        next: async token => {
+    this.httpService.requestToken(param).subscribe({
+        next: token => {
           this.cryptoService.proofOfWork(token).subscribe(
               (ans) => {
-               const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
+               const url = this.authenticationService.session?.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
                 window.open(url + file.id + "?token=" + token.id + ":" + ans);
                 this.appDataService.updateShowLoadingPanel(false);
               }
@@ -831,27 +879,65 @@ export class UtilsService {
     );
   }
 
-  public getFlowOptions(): FlowOptions {
+  public getFlowOptions(overrides: Partial<FlowOptions> = {}): FlowOptions {
     return {
       chunkSize: 1000 * 1024,
       forceChunkSize: true,
       simultaneousUploads: 1,
       testChunks: false,
-      permanentErrors:[500, 501],
+      // Chunk retries are disabled: each chunk is sent exactly once. A dropped
+      // connection (XHR status 0) or any HTTP reply terminates the chunk without a
+      // re-send, so every DPoP proof is used a single time and the backend can
+      // enforce replay protection on uploads like on any other request.
+      // permanentErrors lists the whole 100..599 range so any server reply is
+      // terminal; successStatuses is evaluated first, so 2xx still counts as success.
+      permanentErrors: HTTP_STATUS_CODES,
+      maxChunkRetries: 0,
       speedSmoothingFactor:0.01,
       allowDuplicateUploads:false,
       singleFile:false,
       generateUniqueIdentifier:() => {
         return crypto.randomUUID();
       },
-      headers:() => {
-        return {"X-Session": this.authenticationService.session.id};
+      // Per-call-site specifics (target, query, singleFile, ...) are merged in
+      // here. The DPoP hooks below are intentionally placed AFTER this spread so
+      // that no call site can override them and silently upload without a proof.
+      ...overrides,
+      // flow.js cannot sign asynchronously inside the (synchronous) headers
+      // callback, so each chunk is signed in the async preprocess hook and the
+      // resulting DPoP proof is stashed on the chunk for headers() to read.
+      preprocess: (chunk: any) => {
+        const target = chunk?.fileObj?.flowObj?.opts?.target || "";
+        let path = "/" + (String(target).split(/[?#]/)[0] ?? "").replace(/^\/+/, "");
+        // Match the backend htu: the request path only (no scheme/host), with the
+        // tenant prefix stripped. The proof binds method + path so it survives the
+        // proxies that commonly front GlobaLeaks and rewrite the origin.
+        path = path.replace(/^\/t\/[^/]+/, "");
+        const session = this.authenticationService.session;
+
+        this.cryptoService.generateDpopProof(
+          "POST",
+          path,
+          session ? session.id : undefined
+        ).then((proof) => {
+          chunk.dpopProof = proof;
+          chunk.preprocessFinished();
+        }).catch(() => {
+          chunk.preprocessFinished();
+        });
+      },
+      headers:(_file: any, chunk: any) => {
+        const headers: Record<string, string> = {"X-Session": this.authenticationService.session?.id ?? ""};
+        if (chunk && chunk.dpopProof) {
+          headers["DPoP"] = chunk.dpopProof;
+        }
+        return headers;
       }
-    };
+    } as FlowOptions;
   }
 
-  public getFlowInstance(): Flow {
-    return new Flow(this.getFlowOptions());
+  public getFlowInstance(overrides: Partial<FlowOptions> = {}): Flow {
+    return new Flow(this.getFlowOptions(overrides));
   }
 
   getRoleDisplayName(role: any): any {

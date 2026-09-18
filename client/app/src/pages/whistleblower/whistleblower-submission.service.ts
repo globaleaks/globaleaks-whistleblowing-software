@@ -4,14 +4,12 @@ import {Injectable} from '@angular/core';
   providedIn: 'root'
 })
 export class WhistleblowerSubmissionService {
-  constructor() { }
-
   checkForInvalidFields(scope:any) {
     let enabled_counter = 0;
     for (let counter = 0; counter <= scope.navigation; counter++) {
       scope.validate[counter] = true;
       if (scope.questionnaire.steps[counter].enabled) {
-        if (scope.stepForms.get(enabled_counter)?.invalid) {
+        if (scope.stepForms().at(enabled_counter)?.invalid) {
           scope.navigation = counter;
           return false;
         }
@@ -27,7 +25,7 @@ export class WhistleblowerSubmissionService {
     }
 
     for (let i = scope.navigation - 1; i >= scope.firstStepIndex(); i--) {
-      if (i === -1 || scope.fieldUtilitiesService.isFieldTriggered(null, scope.questionnaire.steps[i], scope.answers, scope.score, scope.identity_provided, false)) {
+      if (i === -1 || scope.fieldUtilitiesService.isFieldTriggered(null, scope.questionnaire.steps[i], scope.answers, scope.identity_provided, false)) {
         scope.navigation = i;
         scope.utilsService.scrollToTop();
         return;
@@ -48,7 +46,7 @@ export class WhistleblowerSubmissionService {
     }
 
     for (let i = scope.navigation + 1; i <= scope.lastStepIndex(); i++) {
-      if (scope.fieldUtilitiesService.isFieldTriggered(null, scope.questionnaire.steps[i], scope.answers, scope.score, scope.submission.identity_provided, false)) {
+      if (scope.fieldUtilitiesService.isFieldTriggered(null, scope.questionnaire.steps[i], scope.answers, scope.submission.identity_provided, false)) {
         scope.navigation = i;
         scope.utilsService.scrollToTop();
         return;

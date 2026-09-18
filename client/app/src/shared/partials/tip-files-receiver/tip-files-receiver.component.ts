@@ -1,4 +1,5 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
+import {Component, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
@@ -9,9 +10,8 @@ import {WbFile} from "@app/models/app/shared-public-model";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {MaskService} from "@app/shared/services/mask.service";
 import {RedactionData} from "@app/models/component-model/redaction";
-import {NgClass, DatePipe} from "@angular/common";
+import {DatePipe} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -21,9 +21,9 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-files-receiver",
     templateUrl: "./tip-files-receiver.component.html",
     standalone: true,
-    imports: [NgClass, DatePipe, TranslateModule, TranslatorPipe, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
+    imports: [CollapsiblePanelComponent, DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
 })
-export class TipFilesReceiverComponent implements OnInit {
+export class TipFilesReceiverComponent {
   protected maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);
   protected modalService = inject(NgbModal);
@@ -33,13 +33,10 @@ export class TipFilesReceiverComponent implements OnInit {
   protected tipService = inject(ReceiverTipService);
   protected appDataService = inject(AppDataService);
 
-  @Input() fileUploadUrl: string;
-  @Input() redactMode: boolean;
+  readonly fileUploadUrl = input<string>();
+  readonly redactMode = input(false);
 
   collapsed = false;
-
-  ngOnInit(): void {
-  }
 
   getSortedWBFiles(data: WbFile[]): WbFile[] {
     return data;
@@ -47,6 +44,27 @@ export class TipFilesReceiverComponent implements OnInit {
 
   isWbFileRead(file: WbFile): boolean {
     return new Date(this.tipService.tip.last_access) > new Date(file.creation_date);
+  }
+
+  displayName(file: WbFile): string {
+    // Privileged recipients receive the real name from the server; cover it
+    // with the same placeholder used elsewhere while outside the masking editor.
+    if (this.maskService.isMasked(file.ifile_id, this.tipService.tip) && !this.redactMode() &&
+        (this.preferenceResolver.dataModel?.profile?.permissions?.can_mask_information ||
+         this.preferenceResolver.dataModel?.profile?.permissions?.can_redact_information)) {
+      return String.fromCharCode(0x2591).repeat(file.name.length);
+    }
+
+    return file.name;
+  }
+
+  canAccessFile(file: WbFile): boolean {
+    // The content is reachable when the file is not masked, or when a
+    // privileged recipient views it inside the masking editor (redact mode).
+    return !this.maskService.isMasked(file.ifile_id, this.tipService.tip) ||
+      (this.redactMode() &&
+        (this.preferenceResolver.dataModel?.profile?.permissions?.can_mask_information ||
+         this.preferenceResolver.dataModel?.profile?.permissions?.can_redact_information));
   }
 
   redactFileOperation(operation: string, content_type: string, file: any, tip_id: string) {

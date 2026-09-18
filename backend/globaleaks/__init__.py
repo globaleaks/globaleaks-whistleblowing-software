@@ -6,7 +6,7 @@ import operator
 __author__ = 'GlobaLeaks'
 __email__ = 'info@globaleaks.org'
 __copyright__ = '2011-2026 - GlobaLeaks'
-__version__ = '5.0.90'
+__version__ = '5.0.99'
 __license__ = 'AGPL-3.0'
 
 DATABASE_VERSION = 71
@@ -103,11 +103,46 @@ LANGUAGES_SUPPORTED = [
     {'code': 'zh_TW', 'name': 'Traditional Chinese (Taiwan)', 'native': '\u7e41\u9ad4\u4e2d\u6587 (\u4e2d\u570b\u9999\u6e2f\u7279\u5225\u884c\u653f\u5340)'}
 ]
 
+# Languages written right-to-left
+LANGUAGES_RTL = {'ar', 'dv', 'fa', 'fa_AF', 'he', 'ps', 'ug', 'ur'}
+
 # Sorting the list of dict using the key 'code'
 LANGUAGES_SUPPORTED.sort(key=operator.itemgetter('name'))
 
 # Creating LANGUAGES_SUPPORTED_CODES form the ordered LANGUAGES_SUPPORTED
 LANGUAGES_SUPPORTED_CODES = {i['code'] for i in LANGUAGES_SUPPORTED}
+
+
+def get_language_direction(code):
+    """Return the writing direction ('rtl' or 'ltr') for a language code."""
+    return 'rtl' if code in LANGUAGES_RTL else 'ltr'
+
+
+# Internally GlobaLeaks uses POSIX/gettext-style locale codes (e.g. 'pt_BR',
+# 'sr_RS@latin') as the canonical identifier across the DB, the REST API and
+# the ~80 translation files on disk. Browser-facing surfaces (the HTML 'lang'
+# attribute, the Content-Language header, ...) instead require a BCP 47 language
+# tag (e.g. 'pt-BR', 'sr-Latn-RS'). Most codes only need '_' -> '-'; the POSIX
+# '@modifier' codes map onto BCP 47 script/variant subtags and are listed here.
+LANGUAGES_BCP47_OVERRIDES = {
+    'ca@valencia': 'ca-valencia',
+    'sr_ME@latin': 'sr-Latn-ME',
+    'sr_RS@latin': 'sr-Latn-RS',
+    'ug@Latin': 'ug-Latn',
+    'ug@Cyrl': 'ug-Cyrl',
+}
+
+
+def to_bcp47(code):
+    """Convert an internal POSIX/gettext locale code to a BCP 47 language tag.
+
+    The POSIX form is canonical internally; this conversion must be applied
+    only at browser-facing boundaries where a valid BCP 47 tag is required.
+    """
+    if code in LANGUAGES_BCP47_OVERRIDES:
+        return LANGUAGES_BCP47_OVERRIDES[code]
+
+    return code.replace('_', '-')
 
 # Versioning for exported questionnaire's
 QUESTIONNAIRE_EXPORT_VERSION = '0.0.1'

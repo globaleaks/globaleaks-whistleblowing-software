@@ -5,7 +5,7 @@ from globaleaks.tests import helpers
 
 # special guest:
 
-stuff = u"³²¼½¬¼³²"
+stuff = "³²¼½¬¼³²"
 
 
 class TestNotificationInstance(helpers.TestHandlerWithPopulatedDB):

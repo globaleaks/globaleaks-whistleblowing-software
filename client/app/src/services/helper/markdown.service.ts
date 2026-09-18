@@ -1,32 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Renderer } from 'marked';
 
-interface Link {
-  href: string;
-  title?: string | null;
-  tokens?: any[];
-}
-
 @Injectable({
   providedIn: 'root',
 })
 export class MarkdownRendererService {
-  constructor() {}
-
   getCustomRenderer(): Renderer {
-    const customRenderer = new Renderer();
+    const renderer = new Renderer();
+    const defaultLink = Renderer.prototype.link;
 
-    customRenderer.link = ({ href, title, tokens }: Link): string => {
-      const text = tokens?.[0]?.raw || href;
-
-      // Detect if the markdown code includes images
-      const match = text.match(/!\[(.*?)\]\((.*?)\)/);
-
-      return match
-        ? `<a href="${href}"><img src="${match[2]}" alt="${match[1]}" /></a>`
-        : `<a href="${href}"${title ? ` title="${title}"` : ''}>${text}</a>`;
+    renderer.link = function (token: any) {
+      const html = defaultLink.call(this, token);
+      return html.startsWith('<a ')
+        ? '<a target="_blank" rel="noopener noreferrer" ' + html.slice(3)
+        : html;
     };
 
-    return customRenderer;
+    return renderer;
   }
 }

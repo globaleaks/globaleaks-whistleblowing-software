@@ -1,15 +1,15 @@
-import binascii
 import hashlib
 import os
 import pyotp
-import random
 import secrets
 import string
 import struct
 import threading
 
+from contextlib import nullcontext
+
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import constant_time, hashes
+from cryptography.hazmat.primitives import constant_time
 
 from nacl.encoding import Base64Encoder
 from nacl.pwhash import argon2id
@@ -18,7 +18,7 @@ from nacl.secret import SecretBox
 from nacl.utils import EncryptedMessage
 from nacl.utils import random as nacl_random
 
-from typing import Any, Optional, Tuple, Union
+from typing import Any
 
 # --- Optional SecretStream bindings (libsodium >= 1.0.14) ---
 try:
@@ -47,7 +47,7 @@ MAGIC = b'GCE\x00'
 VERSION_V2 = 2
 
 
-def _convert_to_bytes(arg: Union[bytes, str]) -> bytes:
+def _convert_to_bytes(arg: bytes | str) -> bytes:
     """
     Convert the argument to bytes if of string type
     :param arg: a string or a byte object
@@ -59,31 +59,27 @@ def _convert_to_bytes(arg: Union[bytes, str]) -> bytes:
     return arg
 
 
-def sha256(data: Union[bytes, str]) -> bytes:
+def sha256(data: bytes | str) -> bytes:
     """
     Perform the sha256 of the passed data
     :param data: A data to be hashed
     :return: A hash value
     """
-    h = hashes.Hash(hashes.SHA256(), backend=crypto_backend)
-    h.update(_convert_to_bytes(data))
-    return binascii.b2a_hex(h.finalize())
+    return hashlib.sha256(_convert_to_bytes(data)).hexdigest().encode()
 
-def sha512(data: Union[bytes, str]) -> bytes:
+def sha512(data: bytes | str) -> bytes:
     """
     Perform the sha512 of the passed data
     :param data: A data to be hashed
     :return: A hash value
     """
-    h = hashes.Hash(hashes.SHA512(), backend=crypto_backend)
-    h.update(_convert_to_bytes(data))
-    return binascii.b2a_hex(h.finalize())
+    return hashlib.sha512(_convert_to_bytes(data)).hexdigest().encode()
 
 def generateRandomKey() -> str:
     """
     Return a random secret of 256bits (hex string).
     """
-    return nacl_random(32).hex()
+    return secrets.token_hex(32)
 
 
 def generateRandomPassword(N: int) -> str:
@@ -99,24 +95,27 @@ def generateRandomPassword(N: int) -> str:
     accessible_special_symbols = "!?@#+-/*="
     accessible_symbols_set = string.ascii_letters + string.digits + accessible_special_symbols
 
-    password = ''.join(secrets.SystemRandom().choice(accessible_symbols_set) for _ in range(N - 4))
-    password += secrets.SystemRandom().choice(string.ascii_lowercase)
-    password += secrets.SystemRandom().choice(string.ascii_uppercase)
-    password += secrets.SystemRandom().choice(string.digits)
-    password += secrets.SystemRandom().choice(accessible_special_symbols)
+    password = [secrets.choice(accessible_symbols_set) for _ in range(N - 4)]
+    password.append(secrets.choice(string.ascii_lowercase))
+    password.append(secrets.choice(string.ascii_uppercase))
+    password.append(secrets.choice(string.digits))
+    password.append(secrets.choice(accessible_special_symbols))
 
-    password = ''.join(random.sample(password, N))
+    # Shuffled so that the guaranteed characters do not sit at the end
+    for i in range(N - 1, 0, -1):
+        j = secrets.randbelow(i + 1)
+        password[i], password[j] = password[j], password[i]
 
-    return password
+    return ''.join(password)
 
 
 def totpVerify(secret: str, token: str) -> None:
     # RFC 6238: step size 30 sec; valid_window = 1; total size of the window: 1.30 sec
     if not pyotp.TOTP(secret).verify(token, valid_window=1):
-        raise Exception
+        raise ValueError("Invalid TOTP token")
 
 
-class _StreamingEncryptionObject(object):
+class _StreamingEncryptionObject:
     """
     Streaming encrypt/decrypt with:
         - v1 streaming (SecretBox chunked format)
@@ -125,21 +124,21 @@ class _StreamingEncryptionObject(object):
 
     PADDING_FRACTION = 0.05
     PADDING_MIN = 8
-    PADDING_MAX = 65536
+    PADDING_MAX = 65535
 
-    def __init__(self, mode: str, user_key: Union[bytes, str], filepath: str) -> None:
+    def __init__(self, mode: str, user_key: bytes | str, filepath: str) -> None:
         self.mode = mode
         self.user_key = user_key
         self.filepath = filepath
 
-        self.key: Optional[bytes] = None
-        self.partial_nonce: Optional[bytes] = None
+        self.key: bytes | None = None
+        self.partial_nonce: bytes | None = None
         self.EOF = False
         self.index = 0
         self.use_secretstream = False
-        self.version: Optional[int] = None
+        self.version: int | None = None
 
-        self.fd = open(filepath, 'wb' if mode == 'ENCRYPT' else 'rb')
+        self.fd = open(filepath, 'wb' if mode == 'ENCRYPT' else 'rb')  # noqa: SIM115 - long-lived handle for streaming (de)cryption, closed explicitly
         if mode == 'ENCRYPT':
             self._init_encrypt()
         else:
@@ -149,7 +148,7 @@ class _StreamingEncryptionObject(object):
         data = _convert_to_bytes(data)
         n = len(data)
         max_pad = min(max(int(n * self.PADDING_FRACTION), self.PADDING_MIN), self.PADDING_MAX)
-        pad_len = random.randint(0, max_pad)
+        pad_len = secrets.randbelow(max_pad + 1)
         padding = os.urandom(pad_len)
         trailer = struct.pack(">H", pad_len)
         return data + padding + trailer
@@ -242,7 +241,7 @@ class _StreamingEncryptionObject(object):
         chunk_nonce = self.getNextNonce(last)
         self.fd.write(struct.pack('>B', last))
         self.fd.write(struct.pack('>I', len(chunk)))
-        self.fd.write(self.box.encrypt(chunk, chunk_nonce)[24:])
+        self.fd.write(self.box.encrypt(chunk, chunk_nonce).ciphertext)
 
     def _encrypt_chunk_v2(self, chunk: bytes, last: int) -> None:
         chunk = self._pad_bytes(chunk)
@@ -255,7 +254,7 @@ class _StreamingEncryptionObject(object):
         chunk = _convert_to_bytes(chunk)
         (self._encrypt_chunk_v2 if self.use_secretstream else self._encrypt_chunk_v1)(chunk, last)
 
-    def _decrypt_chunk_v1(self) -> Tuple[int, bytes]:
+    def _decrypt_chunk_v1(self) -> tuple[int, bytes]:
         last_flag = self.fd.read(1)
         if not last_flag:
             self.EOF = True
@@ -271,7 +270,7 @@ class _StreamingEncryptionObject(object):
             raise ValueError("Corrupted v1 stream: truncated ciphertext")
         return last, self.box.decrypt(ct, self.getNextNonce(last))
 
-    def _decrypt_chunk_v2(self) -> Tuple[int, bytes]:
+    def _decrypt_chunk_v2(self) -> tuple[int, bytes]:
         sz = self.fd.read(4)
         if not sz:
             self.EOF = True
@@ -287,7 +286,7 @@ class _StreamingEncryptionObject(object):
         self.EOF = bool(last)
         return last, self._strip_padded_bytes(msg)
 
-    def decrypt_chunk(self) -> Tuple[int, bytes]:
+    def decrypt_chunk(self) -> tuple[int, bytes]:
         return (self._decrypt_chunk_v2 if self.use_secretstream else self._decrypt_chunk_v1)()
 
     def read(self, a: int) -> bytes:
@@ -301,15 +300,11 @@ class _StreamingEncryptionObject(object):
     def __enter__(self) -> '_StreamingEncryptionObject':
         return self
 
-    def __exit__(self, exc_type: Optional[Any], exc_val: Optional[Any], exc_tb: Optional[Any]) -> None:
-        self.close()
-
-    def __del__(self) -> None:
+    def __exit__(self, exc_type: Any | None, exc_val: Any | None, exc_tb: Any | None) -> None:
         self.close()
 
 
-
-class _GCE(object):
+class _GCE:
     options = {
         'OPSLIMIT': 16,
         'MEMLIMIT': 27  # 128MB
@@ -330,17 +325,19 @@ class _GCE(object):
         """
         Return a random receipt of 16 digits.
         """
-        return ''.join(random.SystemRandom().choice(string.digits) for _ in range(16))
+        return f"{secrets.randbelow(10**16):016d}"
 
     @staticmethod
     def generate_salt(seed: str = '') -> str:
         """
         Return a salt with 128 bits of entropy.
         """
-        random_bytes = nacl_random(16)
-        deterministic_bytes = hashlib.sha256(seed.encode()).digest()[:16]
+        if seed:
+            salt = hashlib.sha256(seed.encode()).digest()[:16]
+        else:
+            salt = nacl_random(16)
 
-        return Base64Encoder.encode(deterministic_bytes if seed else random_bytes).decode()
+        return Base64Encoder.encode(salt).decode()
 
     @staticmethod
     def generate_key() -> bytes:
@@ -357,8 +354,18 @@ class _GCE(object):
         password = _convert_to_bytes(password)
         salt = _convert_to_bytes(salt)
 
-        with lock:
-            salt_dec = Base64Encoder.decode(salt)
+        salt_dec = Base64Encoder.decode(salt)
+
+        # The global lock serializes the memory-hard KDFs (login and key
+        # derivation, 128MiB each) so that concurrent requests cannot pile up
+        # their allocations and exhaust memory. The proof-of-work token verify
+        # uses a tiny 1MiB cost and runs on the reactor thread: it must not
+        # contend on that lock, otherwise an in-flight password KDF held in the
+        # thread pool would stall the single-threaded event loop for its whole
+        # duration. libsodium's kdf is itself thread-safe, so the cheap path is
+        # safe to run unlocked.
+        ctx = lock if memlimit > (1 << 20) else nullcontext()
+        with ctx:
             hashv = argon2id.kdf(
                 32,
                 password,
@@ -366,17 +373,18 @@ class _GCE(object):
                 opslimit=opslimit,
                 memlimit=memlimit
             )
-            return Base64Encoder.encode(hashv).decode()
+
+        return Base64Encoder.encode(hashv).decode()
 
     @staticmethod
-    def derive_key(password: Union[bytes, str], salt: str) -> bytes:
+    def derive_key(password: bytes | str, salt: str) -> bytes:
         """
         Perform key derivation from a user password.
         """
         return _GCE.argon2id(password, salt, _GCE.options['OPSLIMIT'], 1 << _GCE.options['MEMLIMIT'])
 
     @staticmethod
-    def calculate_key_and_hash(password: Union[bytes, str], salt: str) -> Tuple[bytes, bytes]:
+    def calculate_key_and_hash(password: bytes | str, salt: str) -> tuple[bytes, bytes]:
         """
         Calculate and returns password key derivation and key hashing.
         """
@@ -387,7 +395,7 @@ class _GCE(object):
         return key, hashv
 
     @staticmethod
-    def generate_keypair() -> Tuple[bytes, bytes]:
+    def generate_keypair() -> tuple[bytes, bytes]:
         """
         Generate a curve25519 keypair.
         """
@@ -395,7 +403,7 @@ class _GCE(object):
         return prv_key.encode(Base64Encoder), prv_key.public_key.encode(Base64Encoder)
 
     @staticmethod
-    def generate_recovery_key(prv_key: bytes) -> Tuple[bytes, bytes]:
+    def generate_recovery_key(prv_key: bytes) -> tuple[bytes, bytes]:
         rec_key = _GCE.generate_key()
         pub_key = PrivateKey(prv_key, Base64Encoder).public_key.encode(Base64Encoder)
         bkp_key = _GCE.symmetric_encrypt(rec_key, prv_key)
@@ -417,12 +425,10 @@ class _GCE(object):
         pmax = _StreamingEncryptionObject.PADDING_MAX
 
         max_pad = int(n * frac)
-        if max_pad < pmin:
-            max_pad = pmin
-        if max_pad > pmax:
-            max_pad = pmax
+        max_pad = max(max_pad, pmin)
+        max_pad = min(max_pad, pmax)
 
-        pad_len = random.randint(0, max_pad)
+        pad_len = secrets.randbelow(max_pad + 1)
         padding = os.urandom(pad_len)
         trailer = struct.pack(">H", pad_len)
 
@@ -475,7 +481,7 @@ class _GCE(object):
         return _GCE._strip_message_padding(plaintext)
 
     @staticmethod
-    def asymmetric_encrypt(pub_key: Union[bytes, str], data: Union[bytes, str]) -> bytes:
+    def asymmetric_encrypt(pub_key: bytes | str, data: bytes | str) -> bytes:
         """
         Perform asymmetric encryption using libsodium sealedbox (Curve25519, XSalsa20-Poly1305).
         """
@@ -491,7 +497,7 @@ class _GCE(object):
         return SealedBox(prv).decrypt(_convert_to_bytes(data))
 
     @staticmethod
-    def streaming_encryption_open(mode: str, user_key: Union[bytes, str], filepath: str) -> _StreamingEncryptionObject:
+    def streaming_encryption_open(mode: str, user_key: bytes | str, filepath: str) -> _StreamingEncryptionObject:
         return _StreamingEncryptionObject(mode, user_key, filepath)
 
 

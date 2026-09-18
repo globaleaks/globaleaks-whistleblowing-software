@@ -1,5 +1,6 @@
 import { config, library, dom } from '@fortawesome/fontawesome-svg-core';
 import * as solidIcons from '@fortawesome/free-solid-svg-icons';
+import { faGlobaleaks } from '@fortawesome/free-brands-svg-icons';
 
 // disable auto CSS injection
 config.autoAddCss = false;
@@ -8,6 +9,7 @@ config.autoReplaceSvg = 'nest';
 // Collect the icons you actually want
 const icons = [
   solidIcons.faArrowLeft,
+  solidIcons.faArrowRight,
   solidIcons.faArrowsRotate,
   solidIcons.faAsterisk,
   solidIcons.faBackward,
@@ -19,6 +21,7 @@ const icons = [
   solidIcons.faBell,
   solidIcons.faBellSlash,
   solidIcons.faBolt,
+  solidIcons.faBuilding,
   solidIcons.faCalendar,
   solidIcons.faCaretDown,
   solidIcons.faCaretUp,
@@ -41,6 +44,7 @@ const icons = [
   solidIcons.faClock,
   solidIcons.faClone,
   solidIcons.faComment,
+  solidIcons.faCommentDots,
   solidIcons.faCopy,
   solidIcons.faDownload,
   solidIcons.faEnvelope,
@@ -61,6 +65,7 @@ const icons = [
   solidIcons.faHourglass,
   solidIcons.faHouse,
   solidIcons.faInbox,
+  solidIcons.faKey,
   solidIcons.faLifeRing,
   solidIcons.faLock,
   solidIcons.faMagnifyingGlass,
@@ -72,11 +77,14 @@ const icons = [
   solidIcons.faPlay,
   solidIcons.faPlus,
   solidIcons.faPrint,
+  solidIcons.faQuestion,
   solidIcons.faRankingStar,
   solidIcons.faRightFromBracket,
   solidIcons.faRightToBracket,
+  solidIcons.faRotateLeft,
   solidIcons.faRotateRight,
   solidIcons.faSitemap,
+  solidIcons.faShare,
   solidIcons.faSliders,
   solidIcons.faSort,
   solidIcons.faSortDown,
@@ -96,6 +104,7 @@ const icons = [
   solidIcons.faVolumeLow,
   solidIcons.faVolumeXmark,
   solidIcons.faXmark,
+  faGlobaleaks,
 ];
 
 // Register them all at once

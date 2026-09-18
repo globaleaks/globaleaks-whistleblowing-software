@@ -3,6 +3,10 @@ export class StatisticalReportTemplate {
   tid: number;
   label: string;
   creation_date: string;
+  /** Whether the site holds the template and may therefore write it */
+  editable: boolean;
+  /** Whether the statistics of the site are presented with the template */
+  default: boolean;
   data: any;
 }
 
@@ -11,6 +15,8 @@ export class statisticalTemplateResolverModel {
   tid: number;
   label: string;
   creation_date: string;
+  editable: boolean;
+  default: boolean;
   data: any;
 }
 
@@ -39,7 +45,7 @@ export class ChartType {
 export class ChartConfig {
   id: string;
   title: string;
-  type: 'bar' | 'pie' | 'line';
+  type: 'bar' | 'pie';
   data: any;
   options: any;
   labels?: string[];
@@ -57,9 +63,9 @@ export class DateFilter {
 }
 
 export class StatisticsFilter {
-  channel?: Array<string | number>;
-  date_from?: number;
-  date_to?: number;
+  channel?: (string | number)[];
+  date_from?: number | string;
+  date_to?: number | string;
 }
 
 export class MetricModalResult {

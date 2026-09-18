@@ -1,10 +1,13 @@
-import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, inject, input, viewChild, output} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Constants} from "@app/shared/constants/constants";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
+import {PermissionGroup, buildPermissionGroups} from "@app/pages/admin/users/permissions";
+import {PasswordSetComponent} from "@app/shared/modals/password-set/password-set.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -12,46 +15,58 @@ import {Observable} from "rxjs";
 import {User, UserProfile} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
-import {NgClass, DatePipe, CommonModule} from "@angular/common";
+import {DatePipe} from "@angular/common";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
-import {PasswordStrengthValidatorDirective} from "@app/shared/directive/password-strength-validator.directive";
-import {PasswordMeterComponent} from "@app/shared/components/password-meter/password-meter.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 
 @Component({
     selector: "src-user-editor",
     templateUrl: "./user-editor.component.html",
     standalone: true,
-    imports: [CommonModule, ImageUploadDirective, FormsModule, PasswordStrengthValidatorDirective, NgbTooltipModule, NgClass, PasswordMeterComponent, DatePipe, TranslatorPipe]
+    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, DatePipe, ListItemComponent]
 })
 export class UserEditorComponent implements OnInit {
-  private modalService = inject(NgbModal);
-  private appDataService = inject(AppDataService);
-  private preference = inject(PreferenceResolver);
-  private authenticationService = inject(AuthenticationService);
-  private nodeResolver = inject(NodeResolver);
+  private readonly modalService = inject(NgbModal);
+  private readonly appDataService = inject(AppDataService);
+  private readonly preference = inject(PreferenceResolver);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly nodeResolver = inject(NodeResolver);
   protected utilsService = inject(UtilsService);
-  private cryptoService = inject(CryptoService);
+  private readonly cryptoService = inject(CryptoService);
   protected preferenceResolver = inject(PreferenceResolver);
+  private readonly elementRef = inject(ElementRef);
 
-  @Input() user: User;
-  @Input() users: User[];
-  @Input() index: number;
-  @Input() editUser: NgForm;
-  @Input() profiles: UserProfile[];
-  @Output() deleted = new EventEmitter<string>();
-  @ViewChild("uploader") uploaderInput: ElementRef;
+  readonly user = input.required<User>();
+  readonly users = input<User[]>();
+  readonly index = input<number>();
+  readonly editUser = input.required<NgForm>();
+  readonly profiles = input<UserProfile[]>([]);
+  // A link pointing at this user opens its card and brings it into view
+  readonly expanded = input(false);
+  readonly deleted = output<string>();
+  readonly uploaderInput = viewChild<ElementRef>("uploader");
   editing = false;
   filteredProfiles: UserProfile[];
-  setPasswordArgs: { user_id: string, password: string };
   changePasswordArgs: { password_change_needed: string };
-  passwordStrengthScore = 0;
   nodeData: nodeResolverModel;
   preferenceData: preferenceResolverModel;
   authenticationData: AuthenticationService;
   appServiceData: AppDataService;
   protected readonly Constants = Constants;
+
+  // Permissions of the personal profile grouped by role; labels shared with the profile editor
+  get permissionGroups(): PermissionGroup[] {
+    const groups = buildPermissionGroups(this.user().profile?.roles || [], this.nodeData.tid === 1);
+
+    if (this.nodeData.can_postpone_expiration) {
+      for (const group of groups) {
+        group.permissions = group.permissions.filter(perm => perm.key !== "can_postpone_expiration");
+      }
+    }
+
+    return groups;
+  }
 
   ngOnInit(): void {
     if (this.nodeResolver.dataModel) {
@@ -66,42 +81,52 @@ export class UserEditorComponent implements OnInit {
     if (this.appDataService) {
       this.appServiceData = this.appDataService;
     }
-    this.setPasswordArgs = {
-      user_id: this.user.id,
-      password: ""
-    };
     this.changePasswordArgs = {
       password_change_needed: ""
     };
 
-    this.user.profile = this.profiles.filter(profile => profile.id == this.user.profile_id)[0];
-    this.filteredProfiles = this.profiles.filter(p => p.custom === false);
-  }
+    const profile = this.profiles().find(profile => profile.id === this.user().profile_id);
+    if (profile) {
+      this.user().profile = profile;
+    }
+    this.filteredProfiles = this.profiles().filter(profile => !profile.custom);
 
-  toggleEditing() {
-    this.editing = !this.editing;
-  }
-
-  onPasswordStrengthChange(score: number) {
-    this.passwordStrengthScore = score;
+    if (this.expanded()) {
+      this.editing = true;
+      // The card is reached from elsewhere: it is brought into view once the
+      // list holding it has been laid out
+      setTimeout(() => this.elementRef.nativeElement.scrollIntoView({behavior: "smooth", block: "start"}));
+    }
   }
 
   disable2FA(user: User) {
-    this.utilsService.runAdminOperation("disable_2fa", {"value": user.id}, true).subscribe();
+    this.utilsService.runAdminOperation("disable_2fa", {"value": user.id}, false).subscribe(() => {
+      user.two_factor = false;
+    });
   }
 
   resetIdpBinding(user: User) {
     this.utilsService.runAdminOperation("reset_idp_binding", {"value": user.id}, true).subscribe();
   }
 
-  async setPassword(setPasswordArgs: { user_id: string, password: string }) {
-    this.appDataService.updateShowLoadingPanel(true);
-    setPasswordArgs.password = await this.cryptoService.hashArgon2(setPasswordArgs.password, this.user.salt);
-    this.appDataService.updateShowLoadingPanel(false);
+  async setPassword(user: User) {
+    // Generate a random password on the client. The plaintext is shown to the
+    // administrator only after the change has been confirmed and applied so
+    // that it can be communicated to the user; only the derived hash is sent.
+    const password = this.cryptoService.generatePassword();
 
-    this.utilsService.runAdminOperation("set_user_password", setPasswordArgs, false).subscribe();
-    this.user.newpassword = false;
-    this.setPasswordArgs.password = "";
+    let hash: string;
+    this.appDataService.updateShowLoadingPanel(true);
+    try {
+      hash = await this.cryptoService.hashArgon2(password, user.salt);
+    } finally {
+      this.appDataService.updateShowLoadingPanel(false);
+    }
+
+    this.utilsService.runAdminOperation("set_user_password", {user_id: user.id, password: hash}, false).subscribe(() => {
+      const modalRef = this.modalService.open(PasswordSetComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: "modal-title"});
+      modalRef.componentInstance.password = password;
+    });
   }
 
   saveUser(userData: User) {
@@ -115,10 +140,10 @@ export class UserEditorComponent implements OnInit {
     }
 
     return this.utilsService.updateAdminUser(userData.id, userData).subscribe({
-      next:()=>{},
       error:()=>{
-        if (this.uploaderInput) {
-          this.uploaderInput.nativeElement.value = "";
+        const uploaderInput = this.uploaderInput();
+        if (uploaderInput) {
+          uploaderInput.nativeElement.value = "";
         }
       }
     });
@@ -131,15 +156,19 @@ export class UserEditorComponent implements OnInit {
   openConfirmableModalDialog(arg: User, statsChanged = false): Observable<string> {
     return new Observable((observer) => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
-      modalRef.componentInstance.user = arg;
-      modalRef.componentInstance.statsChanged = statsChanged;
+      // The dialog states what the deletion carries away and closes before it is performed: its
+      // counts are read from the instance
+      const dialog = modalRef.componentInstance;
+      dialog.user = arg;
+      dialog.statsChanged = statsChanged;
 
-      modalRef.componentInstance.confirmFunction = () => {
-        const stats = modalRef.componentInstance.userStats;
+      dialog.confirmFunction = () => {
+        const stats = dialog.userStats;
         observer.complete();
+
         return this.utilsService.deleteAdminUser(arg.id, stats).subscribe({
           next: () => {
-            this.deleted.emit(this.user.id);
+            this.deleted.emit(this.user().id);
           },
           error: (err) => {
             if (err.status === 409) {
@@ -156,10 +185,11 @@ export class UserEditorComponent implements OnInit {
   }
 
   loadPublicKeyFile(files: FileList | null, user:User) {
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0])
+    const file = files?.[0];
+    if (file) {
+      this.utilsService.readFileAsText(file)
         .subscribe((txt: string) => {
-          this.user.pgp_key_public = txt;
+          this.user().pgp_key_public = txt;
           return this.saveUser(user);
         });
     }
@@ -170,19 +200,20 @@ export class UserEditorComponent implements OnInit {
   }
 
   getUserProfile(profileId: string): UserProfile | undefined {
-    return this.profiles.find((p) => p.id === profileId);
+    return this.profiles().find((profile) => profile.id === profileId);
   }
 
   getUserRoleOrProfileLabel(user: any): string {
-    const roleMap: { [key: string]: string } = {
+    const roleMap: Record<string, string> = {
       'admin': 'Admin',
       'analyst': 'Analyst',
+      'auditor': 'Auditor',
       'custodian': 'Custodian',
       'receiver': 'Recipient'
     };
 
     if (user.id == user.profile_id) {
-      return roleMap[user.role];
+      return roleMap[user.role] ?? user.role;
     } else {
       return this.getUserProfile(user.profile_id)!.name;
     }
@@ -191,42 +222,24 @@ export class UserEditorComponent implements OnInit {
   getUserDisplayName(user:any) {
     const profileName = this.getUserProfile(user.profile_id)!.name;
 
-    let roleDisplay = '';
-    switch (user.role) {
-      case 'admin':
-        roleDisplay = 'Admin';
-        break;
-      case 'receiver':
-        roleDisplay = 'Recipient';
-        break;
-      case 'custodian':
-        roleDisplay = 'Custodian';
-        break;
-      case 'analyst':
-        roleDisplay = 'Analyst';
-        break;
-      default:
-        roleDisplay = '';
-    }
+    const roleNames: Record<string, string> = {
+      admin: 'Admin',
+      receiver: 'Recipient',
+      custodian: 'Custodian',
+      analyst: 'Analyst',
+      auditor: 'Auditor'
+    };
+    const roleDisplay = roleNames[user.role] || '';
 
     return user.id !== user.profile_id ? `${profileName} (${roleDisplay})` : roleDisplay;
   }
 
   onUserProfileChange() {
-    const profile = this.getUserProfile(this.user.profile_id);
+    const profile = this.getUserProfile(this.user().profile_id);
 
     if (profile) {
-        this.user.profile = profile;
-        this.user.role = profile.role;
+        this.user().profile = profile;
+        this.user().role = profile.role;
     }
-  }
-
-  toggleUserEscrow(user: User) {
-    this.utilsService.runAdminOperation("toggle_user_escrow", {"value": user.id}, true).subscribe({
-      next:()=>{},
-      error:()=>{
-        user.escrow = !user.escrow;
-      }
-    });
   }
 }

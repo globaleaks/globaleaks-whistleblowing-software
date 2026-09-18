@@ -20,7 +20,6 @@ export class AppDataService {
   connection: { tor: any };
   languages_enabled_selector: any[];
   ctx: string;
-  receipt: string;
   score: number;
   receivers_by_id: any = {};
   submissionStatuses: any[];
@@ -29,13 +28,11 @@ export class AppDataService {
   contexts_by_id: any = {};
   questionnaires_by_id: any = {};
 
-  private showLoadingPanelSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
+  private readonly showLoadingPanelSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(true);
   showLoadingPanel$: Observable<boolean> = this.showLoadingPanelSubject.asObservable();
 
   public publicSubject: BehaviorSubject<Root> = new BehaviorSubject<Root>({} as Root);
   public$: Observable<Root> = this.publicSubject.asObservable();
-
-  constructor() {}
 
   updateShowLoadingPanel(newValue: boolean) {
     this.showLoadingPanelSubject.next(newValue);

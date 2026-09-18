@@ -14,7 +14,7 @@
 </div>
 <div class="modal-footer">
   <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">{{'Confirm' | translate}}</button>
-  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()" (keydown.enter)="cancel()" tabindex="0" role="button">
     <i class="fas fa-xmark" aria-hidden="true"></i>
     <span>{{'Close' | translate}}</span>
   </a>

@@ -1,3 +1,31 @@
+"""
+Migration 68 -> 69: bring a database of the stable branch to the schema of
+the ANAC fork.
+
+The installations of the ANAC fork run on schema 69, that is the schema of the
+stable branch extended with the columns and the tables the fork introduced and
+new-stable retained. The migration adds those extensions to a stable database
+so that, from 69 on, every installation shares the same schema and the same
+migration path:
+
+- Statistical reports: field.statistical, internaltipanswers.stat_answers,
+  user.crypto_global_stat_prv_key and the statistical keys of the tenants in
+  the configuration; the keys are generated here for the stable databases.
+- Antivirus: internalfile.state and internalfile.verification_date.
+- Secondary SMTP: mail.secondary_smtp.
+- Signup accreditation: the accreditation columns of subscriber.
+- Transmission: the table internaltip_transmission.
+
+The columns and the tables the fork added and new-stable did not retain are
+not modeled: a fork database carries them up to 69 and leaves them behind.
+
+The new columns take their defaults. The answers of the reports are stored by
+the fork as raw text where the stable branch stores them JSON-encoded: the
+migration writes them the way the fork does so that the databases are aligned
+and migration 70 can normalize both the same way.
+"""
+import json
+
 from globaleaks import models
 from globaleaks.models.enums import EnumFieldInstance
 from globaleaks.utils.crypto import GCE, Base64Encoder
@@ -7,7 +35,7 @@ from globaleaks.models.properties import *
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
-class Subscriber_v_68(Model):
+class SubscriberV68(Model):
     __tablename__ = 'subscriber'
 
     tid = Column(Integer, primary_key=True)
@@ -29,7 +57,7 @@ class Subscriber_v_68(Model):
     tos2 = Column(UnicodeText, default='', nullable=False)
 
 
-class Tenant_v_68(Model):
+class TenantV68(Model):
     __tablename__ = 'tenant'
 
     id = Column(Integer, primary_key=True)
@@ -37,7 +65,7 @@ class Tenant_v_68(Model):
     active = Column(Boolean, default=False, nullable=False)
 
 
-class Field_v_68(Model):
+class FieldV68(Model):
     __tablename__ = 'field'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -61,7 +89,7 @@ class Field_v_68(Model):
     template_override_id = Column(UnicodeText(36), index=True)
 
 
-class InternalFile_v_68(Model):
+class InternalFileV68(Model):
     """
     This model keeps track of submission files
     """
@@ -77,7 +105,7 @@ class InternalFile_v_68(Model):
     reference_id = Column(UnicodeText(36), default='', nullable=False)
 
 
-class InternalTipAnswers_v_68(Model):
+class InternalTipAnswersV68(Model):
     """
     This is the internal representation of Tip Questionnaire Answers
     """
@@ -89,7 +117,7 @@ class InternalTipAnswers_v_68(Model):
     answers = Column(JSON, default=dict, nullable=False)
 
 
-class Mail_v_68(Model):
+class MailV68(Model):
     __tablename__ = 'mail'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -100,7 +128,7 @@ class Mail_v_68(Model):
     body = Column(UnicodeText, nullable=False)
 
 
-class ReceiverFile_v_68(Model):
+class ReceiverFileV68(Model):
     """
     This models stores metadata of files uploaded by recipients intended to bes
     delivered to the whistleblower. This file is not encrypted and nor is it
@@ -121,7 +149,7 @@ class ReceiverFile_v_68(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
-class User_v_68(Model):
+class UserV68(Model):
     """
     This model keeps track of users.
     """
@@ -178,7 +206,24 @@ class User_v_68(Model):
 
 
 class MigrationScript(MigrationBase):
+    # The fork stores the answers of a report as raw text: the ciphertext as
+    # is, or the JSON text of the answers of a report created before the
+    # encryption. The stable branch stores both JSON-encoded. The values are
+    # written the way the fork does, so that a stable database reaches 69
+    # with the same content a fork database has.
+    converted_attrs = {
+        'InternalTipAnswers': {
+            'answers': lambda o: o.answers if isinstance(o.answers, str) else json.dumps(o.answers),
+            'stat_answers': lambda o: '{}'
+        }
+    }
+
     def add_encryption_keys_for_statistics(self):
+        """
+        Statistical reports: every tenant receives a keypair for the
+        statistical data, whose private key is escrowed to the root tenant and
+        handed to the administrators and the analysts of the tenant.
+        """
         root_tenant_escrow_pub = self.session_old.query(self.model_from['Config'].value).filter(self.model_from['Config'].tid == 1, self.model_from['Config'].var_name == 'crypto_escrow_pub_key').one()[0]
 
         keys = {}
@@ -187,10 +232,10 @@ class MigrationScript(MigrationBase):
             crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
 
             config = self.model_to['Config']()
+            config.tid = t.id
             config.var_name = 'crypto_global_stat_pub_key'
             config.value = crypto_stat_pub_key
-            config.tid = t.id
-            self.session_new.add(config)
+            self.add_entry('Config', config)
 
             if t.id != 1 and root_tenant_escrow_pub:
                 _prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_escrow_pub, crypto_stat_prv_key))
@@ -198,14 +243,12 @@ class MigrationScript(MigrationBase):
                 _prv_key = ''
 
             config = self.model_to['Config']()
+            config.tid = t.id
             config.var_name = 'crypto_global_stat_prv_key'
             config.value = _prv_key
-            config.tid = t.id
-            self.session_new.add(config)
+            self.add_entry('Config', config)
 
             keys[t.id] = crypto_stat_prv_key
-
-            self.entries_count['Config'] += 2
 
         users = self.session_new.query(self.model_from['User']) \
                                 .filter(self.model_from['User'].role.in_([EnumUserRole.admin.name, EnumUserRole.analyst.name]))
@@ -213,8 +256,8 @@ class MigrationScript(MigrationBase):
         for user in users:
             crypto_stat_key = Base64Encoder.encode(
                 GCE.asymmetric_encrypt(user.crypto_pub_key, keys[user.tid])).decode()
-            self.session_new.query(models.User) \
-                                .filter(models.User.id == user.id)\
+            self.session_new.query(self.model_to['User']) \
+                                .filter(self.model_to['User'].id == user.id)\
                                 .update({'crypto_global_stat_prv_key': crypto_stat_key})
 
     def epilogue(self):

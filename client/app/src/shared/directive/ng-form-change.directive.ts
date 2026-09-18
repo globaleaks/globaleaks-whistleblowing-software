@@ -1,21 +1,21 @@
-import {Directive, EventEmitter, OnDestroy, OnInit, Output, inject} from "@angular/core";
+import {Directive, OnDestroy, OnInit, inject, output} from "@angular/core";
 import {debounceTime, Subscription} from "rxjs";
 import {NgForm} from "@angular/forms";
 
 @Directive({
-    selector: "[ngFormChanges]",
+    selector: "[srcNgFormChanges]",
     standalone: true
 })
 export class NgFormChangeDirective implements OnInit, OnDestroy {
-  private ngForm = inject(NgForm);
+  private readonly ngForm = inject(NgForm);
 
 
-  @Output("ngFormChange") formChange: EventEmitter<any> = new EventEmitter<any>();
+  readonly ngFormChange = output<void>();
   private formSubscription: Subscription;
 
   ngOnInit() {
     this.formSubscription = this.ngForm.form.valueChanges.pipe(debounceTime(150)).subscribe(() => {
-      this.formChange.emit();
+      this.ngFormChange.emit();
     });
   }
 

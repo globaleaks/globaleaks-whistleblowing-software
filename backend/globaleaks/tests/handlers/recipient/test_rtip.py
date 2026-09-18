@@ -1,11 +1,15 @@
 import time
 from datetime import datetime
-from unittest.mock import patch
+from types import SimpleNamespace
+from uuid import uuid4
 from sqlalchemy.orm.exc import NoResultFound
-from twisted.internet.defer import inlineCallbacks, succeed
+from twisted.internet import reactor, task
+from twisted.internet.defer import DeferredLock, inlineCallbacks
+from twisted.trial import unittest
 
 from globaleaks import models
 from globaleaks.handlers.recipient import rtip
+from globaleaks.handlers.whistleblower import wbtip
 from globaleaks.jobs.delivery import Delivery
 from globaleaks.models.config import db_set_config_variable
 from globaleaks.orm import transact
@@ -14,15 +18,64 @@ from globaleaks.tests import helpers
 from globaleaks.utils.utility import datetime_never, datetime_now
 
 
+@transact
+def create_substatus(session, submissionstatus_id):
+    substatus = models.SubmissionSubStatus()
+    substatus.tid = 1
+    substatus.submissionstatus_id = submissionstatus_id
+    substatus.label = {'en': 'Test'}
+    substatus.order = 0
+    session.add(substatus)
+    session.flush()
+    return substatus.id
+
+
+@transact
+def set_context_additional_questionnaires(session, context_id, questionnaire_ids):
+    session.query(models.ContextAdditionalQuestionnaire) \
+           .filter(models.ContextAdditionalQuestionnaire.context_id == context_id).delete()
+
+    for questionnaire_id in questionnaire_ids:
+        session.add(models.ContextAdditionalQuestionnaire({'context_id': context_id,
+                                                           'questionnaire_id': questionnaire_id}))
+
+
+@transact
+def close_reports(session):
+    session.query(models.InternalTip).update({'status': 'closed'})
+
+
+@transact
+def record_answers(session, itip_id, questionnaire_id):
+    """
+    Record on a report the answers it gave to a questionnaire
+    """
+    answers = models.InternalTipAnswers()
+    answers.internaltip_id = itip_id
+    answers.questionnaire_id = questionnaire_id
+    answers.questionnaire_hash = questionnaire_id * 8
+
+    session.add(answers)
+
+
+@transact
+def remove_receivertip(session, itip_id, receiver_id):
+    session.query(models.ReceiverTip) \
+           .filter(models.ReceiverTip.internaltip_id == itip_id,
+                   models.ReceiverTip.receiver_id == receiver_id).delete()
+
+
 class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
     _handler = rtip.RTipInstance
 
     @inlineCallbacks
     def setUp(self):
-        self.one_year_from_now_timestamp = time.time() + 365 * 86400
+        now = int(time.time())
+
+        self.one_year_from_now_timestamp = now + 365 * 86400
         self.one_year_from_now_datetime = datetime.fromtimestamp(self.one_year_from_now_timestamp)
 
-        self.two_year_from_now_timestamp = time.time() + 365 * 86400
+        self.two_year_from_now_timestamp = now + 2 * 365 * 86400
         self.two_year_from_now_datetime = datetime.fromtimestamp(self.two_year_from_now_timestamp)
 
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
@@ -36,11 +89,6 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.get(rtip_desc['id'])
 
-    @inlineCallbacks
-    def test_questionnaire_hashes(self):
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            self.verify_questionnaire_hashes(rtip_desc)
 
     @inlineCallbacks
     def test_postpone(self):
@@ -142,7 +190,7 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         count = yield self.get_model_count(models.ReceiverTip)
 
         # Perform two cycles of revoke ensuring the second cycle results in a nop
-        for cycle in range(0, 1):
+        for cycle in range(1):
             rtip_descs = yield self.get_rtips()
             for rtip_desc in rtip_descs:
                 # Decrement should happen only during the first cycle
@@ -152,17 +200,18 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
                 operation = {
                     'operation': 'revoke',
                     'args': {
-                        'receiver':  self.dummyReceiver_2['id']
+                        'receiver':  self.dummy_receiver_2['id']
                     }
                 }
 
-                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'], permissions={'can_grant_access_to_reports': True})
+                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'],
+                                       permissions={'can_grant_access_to_reports': True})
                 yield handler.put(rtip_desc['id'])
                 self.assertEqual(handler.request.code, 200)
                 yield self.test_model_count(models.ReceiverTip, count)
 
         # Perform two cycles of grant ensuring the second cycle results in a nop
-        for cycle in range(0, 1):
+        for cycle in range(1):
             for rtip_desc in rtip_descs:
                 # Increment should happen only during the first cycle
                 if cycle == 0:
@@ -171,11 +220,12 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
                 operation = {
                     'operation': 'grant',
                     'args': {
-                        'receiver':  self.dummyReceiver_2['id']
+                        'receiver':  self.dummy_receiver_2['id']
                     }
                 }
 
-                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'], permissions={'can_grant_access_to_reports': True})
+                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'],
+                                       permissions={'can_grant_access_to_reports': True})
                 yield handler.put(rtip_desc['id'])
                 self.assertEqual(handler.request.code, 200)
                 yield self.test_model_count(models.ReceiverTip, count)
@@ -188,11 +238,12 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             operation = {
               'operation': 'revoke',
               'args': {
-                'receiver':  self.dummyReceiver_2['id']
+                'receiver':  self.dummy_receiver_2['id']
               }
             }
 
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'], permissions={'can_grant_access_to_reports': True})
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'],
+                                   permissions={'can_grant_access_to_reports': True})
             yield handler.put(rtip_desc['id'])
             self.assertEqual(handler.request.code, 200)
 
@@ -203,11 +254,12 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             operation = {
               'operation': 'transfer',
               'args': {
-                'receiver':  self.dummyReceiver_2['id']
+                'receiver':  self.dummy_receiver_2['id']
               }
             }
 
-            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'], permissions={'can_transfer_access_to_reports': True})
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'],
+                                   permissions={'can_transfer_access_to_reports': True})
             yield handler.put(rtip_desc['id'])
             self.assertEqual(handler.request.code, 200)
             yield self.test_model_count(models.ReceiverTip, count)
@@ -321,6 +373,49 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             self.assertEqual(rtip_desc['status'], 'opened')
 
+    @inlineCallbacks
+    def test_update_status_with_invalid_values(self):
+        opened_substatus_id = yield create_substatus('opened')
+        closed_substatus_id = yield create_substatus('closed')
+
+        rtip_descs = yield self.get_rtips()
+
+        for rtip_desc in rtip_descs:
+            for args in [{'status': 'unexistent_status', 'substatus': ''},
+                         {'status': 'closed', 'substatus': 'unexistent_substatus'},
+                         {'status': 'closed', 'substatus': opened_substatus_id}]:
+                args['motivation'] = ''
+                operation = {
+                  'operation': 'update_status',
+                  'args': args
+                }
+
+                handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+                yield self.assertFailure(handler.put(rtip_desc['id']), NoResultFound)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertNotEqual(rtip_desc['status'], 'closed')
+
+        for rtip_desc in rtip_descs:
+            operation = {
+              'operation': 'update_status',
+              'args': {
+                'status': 'closed',
+                'substatus': closed_substatus_id,
+                'motivation': ''
+              }
+            }
+
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+            yield handler.put(rtip_desc['id'])
+            self.assertEqual(handler.request.code, 200)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertEqual(rtip_desc['status'], 'closed')
+            self.assertEqual(rtip_desc['substatus'], closed_substatus_id)
+
     def test_mark_important(self):
         return self.switch_enabler('important')
 
@@ -342,6 +437,23 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
 
             response = yield handler.get(rtip_desc['id'])
             self.assertEqual(response['label'], operation['args']['value'])
+
+    @inlineCallbacks
+    def test_set_status_forbidden(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            operation = {
+              'operation': 'set',
+              'args': {
+                'key': 'status',
+                'value': 'closed'
+              }
+            }
+
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+
+            with self.assertRaises(errors.ForbiddenOperation):
+                yield handler.put(rtip_desc['id'])
 
     @inlineCallbacks
     def test_silence_notify(self):
@@ -368,8 +480,9 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(len(rtip_descs) * 2, self.population_of_submissions * self.population_of_recipients)
 
         # we delete the first and then we verify that the second does not exist anymore
-        handler = self.request(role='receiver', user_id=rtip_descs[0]['receiver_id'], permissions={'can_delete_submission': True})
-        yield handler.delete(rtip_descs[0]['id'],)
+        handler = self.request(role='receiver', user_id=rtip_descs[0]['receiver_id'],
+                               permissions={'can_delete_submission': True})
+        yield handler.delete(rtip_descs[0]['id'])
 
         rtip_descs = yield self.get_rtips()
 
@@ -381,15 +494,30 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
 
         for rtip_desc in rtip_descs:
             handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-            yield self.assertFailure(handler.delete(u"unexistent_tip"), NoResultFound)
+            yield self.assertFailure(handler.delete("unexistent_tip"), NoResultFound)
 
     @inlineCallbacks
     def test_delete_existent_tip_by_existent_and_logged_but_wrong_receiver(self):
         rtip_descs = yield self.get_rtips()
 
-        for rtip_desc in rtip_descs:
-            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-            yield self.assertFailure(handler.delete(u"unexistent_tip"), NoResultFound)
+        # Drop receiver2's access to the report so it becomes a report the
+        # receiver is logged in but not entitled to.
+        itip_id = rtip_descs[0]['id']
+        yield remove_receivertip(itip_id, self.dummy_receiver_2['id'])
+
+        handler = self.request(role='receiver', user_id=self.dummy_receiver_2['id'])
+        yield self.assertFailure(handler.delete(itip_id), NoResultFound)
+
+    @inlineCallbacks
+    def test_get_existent_tip_by_existent_and_logged_but_wrong_receiver(self):
+        rtip_descs = yield self.get_rtips()
+
+        # A receiver without a ReceiverTip on the report cannot read it.
+        itip_id = rtip_descs[0]['id']
+        yield remove_receivertip(itip_id, self.dummy_receiver_2['id'])
+
+        handler = self.request(role='receiver', user_id=self.dummy_receiver_2['id'])
+        yield self.assertFailure(handler.get(itip_id), NoResultFound)
 
     @inlineCallbacks
     def test_set_reminder_and_reset_upon_close(self):
@@ -433,6 +561,187 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             self.assertEqual(rtip_desc['reminder_date'], datetime_never())
 
 
+class TestRTipAdditionalQuestionnaireRequest(helpers.TestHandlerWithPopulatedDB):
+    """
+    The recipients ask an additional questionnaire of a single report.
+    """
+    _handler = rtip.RTipInstance
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+        yield Delivery().run()
+
+        # The questionnaire composing the reports is answered by them from the
+        # moment they are filed and is never among what they can be asked: the
+        # channel names two others
+        self.second = yield self.copy_questionnaire(self.dummy_context['questionnaire_id'], 'second')
+
+        yield set_context_additional_questionnaires(self.dummy_context['id'],
+                                                    ['default', self.second['id']])
+
+    def request_operation(self, rtip_desc, questionnaire_id):
+        operation = {
+          'operation': 'request_additional_questionnaire',
+          'args': {
+            'questionnaire': questionnaire_id
+          }
+        }
+
+        return self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+
+    @inlineCallbacks
+    def test_request(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertTrue(rtip_desc['additional_questionnaire_requestable'])
+            self.assertEqual(rtip_desc['additional_questionnaire_id'], '')
+
+            handler = self.request_operation(rtip_desc, 'default')
+            yield handler.put(rtip_desc['id'])
+            self.assertEqual(handler.request.code, 200)
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], 'default')
+            # The request stands and is still open to be withdrawn or replaced
+            self.assertTrue(response['additional_questionnaire_requestable'])
+
+    @inlineCallbacks
+    def test_the_request_is_replaced_while_it_stands(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request_operation(rtip_desc, 'default')
+            yield handler.put(rtip_desc['id'])
+
+            handler = self.request_operation(rtip_desc, self.second['id'])
+            yield handler.put(rtip_desc['id'])
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], self.second['id'])
+
+    @inlineCallbacks
+    def test_the_request_is_withdrawn_by_asking_nothing(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request_operation(rtip_desc, 'default')
+            yield handler.put(rtip_desc['id'])
+
+            handler = self.request_operation(rtip_desc, '')
+            yield handler.put(rtip_desc['id'])
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], '')
+
+    @inlineCallbacks
+    def test_a_questionnaire_the_channel_does_not_name_is_rejected(self):
+        yield set_context_additional_questionnaires(self.dummy_context['id'], ['default'])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request_operation(rtip_desc, self.second['id'])
+            with self.assertRaises(errors.InputValidationError):
+                yield handler.put(rtip_desc['id'])
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], '')
+
+    @inlineCallbacks
+    def test_a_questionnaire_of_another_site_is_rejected(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request_operation(rtip_desc, str(uuid4()))
+            with self.assertRaises(errors.InputValidationError):
+                yield handler.put(rtip_desc['id'])
+
+            response = yield handler.get(rtip_desc['id'])
+            self.assertEqual(response['additional_questionnaire_id'], '')
+
+    @inlineCallbacks
+    def test_a_channel_naming_nothing_leaves_nothing_to_decide(self):
+        yield set_context_additional_questionnaires(self.dummy_context['id'], [])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertFalse(rtip_desc['additional_questionnaire_requestable'])
+
+            handler = self.request_operation(rtip_desc, 'default')
+            with self.assertRaises(errors.InputValidationError):
+                yield handler.put(rtip_desc['id'])
+
+    @inlineCallbacks
+    def test_a_closed_report_is_asked_nothing_more(self):
+        yield close_reports()
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertFalse(rtip_desc['additional_questionnaire_requestable'])
+
+            handler = self.request_operation(rtip_desc, 'default')
+            with self.assertRaises(errors.ForbiddenOperation):
+                yield handler.put(rtip_desc['id'])
+
+
+class TestRTipQuestionnairesCollection(helpers.TestHandlerWithPopulatedDB):
+    _handler = rtip.RTipQuestionnairesCollection
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+        yield Delivery().run()
+
+    @inlineCallbacks
+    def test_the_channel_decides_what_can_be_asked(self):
+        yield set_context_additional_questionnaires(self.dummy_context['id'], ['default'])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+
+            self.assertEqual([questionnaire['id'] for questionnaire in response], ['default'])
+
+    @inlineCallbacks
+    def test_a_channel_naming_nothing_offers_nothing(self):
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+
+            self.assertEqual(response, [])
+
+    @inlineCallbacks
+    def test_an_answered_questionnaire_is_not_offered_again(self):
+        second = yield self.copy_questionnaire(self.dummy_context['questionnaire_id'], 'second')
+
+        yield set_context_additional_questionnaires(self.dummy_context['id'], ['default', second['id']])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield record_answers(rtip_desc['id'], 'default')
+
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+
+            self.assertEqual([questionnaire['id'] for questionnaire in response], [second['id']])
+
+    @inlineCallbacks
+    def test_the_questionnaire_composing_the_report_is_not_offered(self):
+        """
+        The report answers it from the moment it is filed: a questionnaire is
+        """
+        yield set_context_additional_questionnaires(self.dummy_context['id'],
+                                                    ['default', self.dummy_context['questionnaire_id']])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
+            response = yield handler.get(rtip_desc['id'])
+
+            self.assertEqual([questionnaire['id'] for questionnaire in response], ['default'])
+
+
 class TestRTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
     _handler = rtip.RTipCommentCollection
 
@@ -452,6 +761,117 @@ class TestRTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.post(rtip_desc['id'])
+
+
+class TestRedactContent(unittest.TestCase):
+    def test_inclusive_range(self):
+        self.assertEqual(rtip.redact_content('hello', [{'start': 1, 'end': 3}], '0x2591'), 'h░░░o')
+
+    def test_oversized_range_is_bounded_to_content_length(self):
+        # A type-valid but oversized range must not allocate more than the content length
+        out = rtip.redact_content('x', [{'start': 0, 'end': 1000000000}], '0x2591')
+        self.assertEqual(out, '░')
+
+    def test_non_integer_ranges_are_ignored(self):
+        for ranges in ([{'start': 1.5, 'end': 3.5}],
+                       [{'start': None, 'end': None}],
+                       [{'start': '-inf', 'end': 'inf'}],
+                       [{'start': True, 'end': False}]):
+            self.assertEqual(rtip.redact_content('hello', ranges, '0x2591'), 'hello')
+
+    def test_negative_start_is_clamped(self):
+        self.assertEqual(rtip.redact_content('hello', [{'start': -5, 'end': 1}], '0x2591'), '░░llo')
+
+    def test_non_mapping_ranges_are_ignored(self):
+        # The stored temporary_redaction comes from an unvalidated JSON column;
+        # a non-list container or non-dict element must not crash consumption.
+        for ranges in (None, 'abc', 123, [1, 2, 3], [None], [[0, 1]], ['x']):
+            self.assertEqual(rtip.redact_content('hello', ranges, '0x2591'), 'hello')
+
+    def test_astral_chars_before_range_do_not_leak(self):
+        # The client measures selection offsets in UTF-16 code units; an astral
+        # character (U+10000+) before a redacted token must not shift the mask
+        # and leak the leading character(s) of the redacted value. This is not an
+        # emoji-only edge case: supplementary-plane CJK ideographs occur in
+        # ordinary personal and place names (here U+20BB7 '𠮷', the variant of
+        # '吉' used in the surname Yoshida), so the redacted PII can itself carry
+        # the astral character that triggers the leak.
+
+        # A redacted phone number after a name containing a supplementary-plane
+        # ideograph: '𠮷' = 2 UTF-16 units, '田' = 1, ': ' = 2 -> phone at 5..11.
+        content = '𠮷田: 5551234'
+        out = rtip.redact_content(content, [{'start': 5, 'end': 11}], '0x2588')
+        self.assertEqual(out, '𠮷田: ███████')
+
+        # The redacted name itself, with the astral character at its start:
+        # 'Source: ' = 8 units, then '𠮷田' spans units 8..10.
+        content = 'Source: 𠮷田 called'
+        out = rtip.redact_content(content, [{'start': 8, 'end': 10}], '0x2588')
+        self.assertEqual(out, 'Source: ███ called')
+
+
+class TestRedactionHelpers(unittest.TestCase):
+    def test_validate_ranges(self):
+        current = [{'start': 0, 'end': 10}]
+        # A new range fully contained in the current mask is accepted
+        self.assertTrue(rtip.validate_ranges(current, [{'start': 2, 'end': 5}]))
+        # A new range exceeding the current mask is rejected
+        self.assertFalse(rtip.validate_ranges(current, [{'start': 5, 'end': 15}]))
+
+    def test_merge_and_sort_ranges(self):
+        self.assertEqual(rtip.merge_and_sort_ranges([], []), [])
+        # Adjacent ranges in list2 are coalesced, then disjoint ranges stay split
+        self.assertEqual(rtip.merge_and_sort_ranges([{'start': 0, 'end': 2}],
+                                                    [{'start': 4, 'end': 6}, {'start': 7, 'end': 9}]),
+                         [{'start': 0, 'end': 2}, {'start': 4, 'end': 9}])
+        # Overlapping ranges across the two lists are merged into one
+        self.assertEqual(rtip.merge_and_sort_ranges([{'start': 0, 'end': 5}],
+                                                    [{'start': 3, 'end': 8}]),
+                         [{'start': 0, 'end': 8}])
+
+    def test_get_new_temporary_redaction(self):
+        # Redacting the middle of a temporary range splits it in two
+        self.assertEqual(rtip.get_new_temporary_redaction([{'start': 0, 'end': 10}],
+                                                          [{'start': 3, 'end': 5}]),
+                         [{'start': 0, 'end': 2}, {'start': 6, 'end': 10}])
+        # A non-overlapping redaction leaves the temporary range untouched
+        self.assertEqual(rtip.get_new_temporary_redaction([{'start': 0, 'end': 2}],
+                                                          [{'start': 5, 'end': 7}]),
+                         [{'start': 0, 'end': 2}])
+
+    def test_db_redact_answers(self):
+        key = str(uuid4())
+        answers = {key: [{'index': '0', 'value': 'hello'}]}
+        redaction = SimpleNamespace(reference_id=key, entry='0',
+                                    permanent_redaction=[{'start': 1, 'end': 3}])
+        rtip.db_redact_answers(answers, redaction)
+        self.assertEqual(answers[key][0]['value'], 'h███o')
+
+    def test_db_redact_answers_recurses_and_skips_non_uuid_keys(self):
+        outer, inner = str(uuid4()), str(uuid4())
+        answers = {
+            'not-a-uuid': 'ignored',
+            outer: [{'index': '0', inner: [{'index': '0-0', 'value': 'secret'}]}]
+        }
+        redaction = SimpleNamespace(reference_id=inner, entry='0-0',
+                                    permanent_redaction=[{'start': 0, 'end': 5}])
+        rtip.db_redact_answers(answers, redaction)
+        self.assertEqual(answers[outer][0][inner][0]['value'], '██████')
+
+    def test_db_redact_whistleblower_identities(self):
+        key, group, leaf = str(uuid4()), str(uuid4()), str(uuid4())
+        identities = {
+            'enabled': True,  # boolean entries must be skipped
+            key: [{'value': 'secret'}],
+            group: [{leaf: [{'value': 'nested'}]}]
+        }
+        rtip.db_redact_whistleblower_identities(identities,
+            SimpleNamespace(reference_id=key, permanent_redaction=[{'start': 0, 'end': 5}]))
+        self.assertEqual(identities[key][0]['value'], '██████')
+        # The recursion reaches values nested under a group field
+        rtip.db_redact_whistleblower_identities(identities,
+            SimpleNamespace(reference_id=leaf, permanent_redaction=[{'start': 0, 'end': 5}]))
+        self.assertEqual(identities[group][0][leaf][0]['value'], '██████')
 
 
 class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
@@ -525,6 +945,288 @@ class TestRTipRedactionCollection(helpers.TestHandlerWithPopulatedDB):
             handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.put(rtip_desc['redactions'][0]['id'])
 
+    @transact
+    def get_answer_field_id(self, session):
+        # The step-level inputbox is a top-level questionnaire answer entry
+        # (index '0'), so it can be redacted via the 'answer' content type.
+        field = session.query(models.Field) \
+                       .filter(models.Field.type == 'inputbox',
+                               models.Field.step_id != '').first()
+        return field.id
+
+    @inlineCallbacks
+    def post_redaction(self, rtip_desc, reference_id, temporary_redaction):
+        body = {
+            'internaltip_id': rtip_desc['id'],
+            'reference_id': reference_id,
+            'entry': '0',
+            'permanent_redaction': '',
+            'temporary_redaction': temporary_redaction
+        }
+
+        handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.post()
+
+    @inlineCallbacks
+    def put_redaction(self, rtip_desc, redaction_id, content_type, reference_id,
+                      permanent_redaction, temporary_redaction):
+        body = {
+            'id': redaction_id,
+            'operation': 'redact',
+            'content_type': content_type,
+            'internaltip_id': rtip_desc['id'],
+            'reference_id': reference_id,
+            'entry': '0',
+            'permanent_redaction': permanent_redaction,
+            'temporary_redaction': temporary_redaction
+        }
+
+        handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
+        yield handler.put(redaction_id)
+
+    @inlineCallbacks
+    def test_redact_answer(self):
+        field_id = yield self.get_answer_field_id()
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield self.post_redaction(rtip_desc, field_id, [{'start': 0, 'end': 10}])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield self.put_redaction(rtip_desc, rtip_desc['redactions'][0]['id'],
+                                     'answer', field_id,
+                                     [{'start': 0, 'end': 3}], [{'start': 0, 'end': 10}])
+
+    @inlineCallbacks
+    def test_redact_comment(self):
+        rtip_descs = yield self.get_rtips()
+        comment_ids = {}
+        for rtip_desc in rtip_descs:
+            comment = yield rtip.create_comment(1, rtip_desc['receiver_id'],
+                                                rtip_desc['id'], 'sensitive comment')
+            comment_ids[rtip_desc['id']] = comment['id']
+            yield self.post_redaction(rtip_desc, comment['id'], [{'start': 0, 'end': 16}])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            yield self.put_redaction(rtip_desc, rtip_desc['redactions'][0]['id'],
+                                     'comment', comment_ids[rtip_desc['id']],
+                                     [{'start': 0, 'end': 5}], [{'start': 0, 'end': 16}])
+
+    @transact
+    def add_receiver_files(self, session, itip_id, author_id):
+        # Insert a personal and a public receiver file authored by author_id,
+        # bypassing the upload machinery which is irrelevant to this guard.
+        ids = {}
+        for visibility in ('personal', 'public'):
+            rfile = models.ReceiverFile()
+            rfile.internaltip_id = itip_id
+            rfile.author_id = author_id
+            rfile.name = 'attachment.txt'
+            rfile.size = 1
+            rfile.content_type = 'text/plain'
+            rfile.visibility = visibility
+            session.add(rfile)
+            session.flush()
+            ids[visibility] = rfile.id
+
+        return ids
+
+    @inlineCallbacks
+    def test_create_redaction_rejects_personal_object_of_other_recipient(self):
+        # A personal (visibility == 2) comment or receiver file is visible only
+        # to its author. A second recipient must not be able to reference either
+        # one in a redaction -- mirroring db_access_rfile and serialize_rtip's
+        # per-recipient visibility filter -- while a public object of the same
+        # kind stays referenceable.
+        itip_id = (yield self.get_rtips())[0]['id']
+        other = self.dummy_receiver_2['id']
+
+        references = {'personal': [], 'public': []}
+
+        for visibility in ('personal', 'public'):
+            comment = yield rtip.create_comment(1, other, itip_id, 'note', visibility)
+            references[visibility].append(comment['id'])
+
+        file_ids = yield self.add_receiver_files(itip_id, other)
+        for visibility in ('personal', 'public'):
+            references[visibility].append(file_ids[visibility])
+
+        body = {
+            'internaltip_id': itip_id,
+            'reference_id': None,
+            'entry': '0',
+            'permanent_redaction': '',
+            'temporary_redaction': [{'start': 0, 'end': 5}]
+        }
+
+        # Personal objects owned by the other recipient are rejected.
+        for reference_id in references['personal']:
+            body['reference_id'] = reference_id
+            handler = self.request(body, role='receiver', user_id=self.dummy_receiver_1['id'])
+            yield self.assertFailure(handler.post(), errors.InputValidationError)
+
+        # Public objects of the same kinds stay referenceable.
+        for reference_id in references['public']:
+            body['reference_id'] = reference_id
+            handler = self.request(body, role='receiver', user_id=self.dummy_receiver_1['id'])
+            yield handler.post()
+
+    @inlineCallbacks
+    def test_redact_file(self):
+        yield Delivery().run()
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            wbfile_ids = yield self.get_wbfiles(rtip_desc['rtip_id'])
+            # The 'file' redaction path triggers deletion of the referenced file
+            # and is keyed by the sentinel temporary range [-inf, inf].
+            yield self.post_redaction(rtip_desc, wbfile_ids[0],
+                                      [{'start': '-inf', 'end': 'inf'}])
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            redaction = rtip_desc['redactions'][0]
+            yield self.put_redaction(rtip_desc, redaction['id'], 'file',
+                                     redaction['reference_id'], [], [{'start': '-inf', 'end': 'inf'}])
+
+
+class TestReportTemporaryRedaction(helpers.TestHandlerWithPopulatedDB):
+    """
+    A temporary (display-time) redaction over a comment or an answer must be
+    masked on every non-privileged read path -- a recipient lacking the
+    masking/redaction permission and the whistleblower -- while a privileged
+    recipient keeps reading the original content.
+    """
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+
+    @inlineCallbacks
+    def read_rtip(self, itip_id, receiver_id):
+        self._handler = rtip.RTipInstance
+        handler = self.request(role='receiver', user_id=receiver_id)
+        ret = yield handler.get(itip_id)
+        return ret
+
+    @inlineCallbacks
+    def read_wbtip(self, itip_id):
+        self._handler = wbtip.WBTipInstance
+        handler = self.request(role='whistleblower', user_id=itip_id)
+        ret = yield handler.get()
+        return ret
+
+    def find_redactable_answer(self, tip):
+        # A top-level questionnaire answer holding a non-empty string value,
+        # suitable for a text redaction.
+        for q in tip['questionnaires']:
+            for field_id, entries in q['answers'].items():
+                for entry in entries:
+                    value = entry.get('value')
+                    if isinstance(value, str) and value:
+                        return field_id, entry['index'], value
+        return None, None, None
+
+    def answer_value(self, tip, field_id, entry):
+        for q in tip['questionnaires']:
+            for a in q['answers'].get(field_id, []):
+                if a.get('index') == entry:
+                    return a.get('value')
+        return None
+
+    def comment_content(self, tip, comment_id):
+        for comment in tip['comments']:
+            if comment['id'] == comment_id:
+                return comment['content']
+        return None
+
+    @inlineCallbacks
+    def test_temporary_redaction_enforced_on_recipient_and_whistleblower_reads(self):
+        mask = chr(0x2591)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            itip_id = rtip_desc['id']
+            receiver_id = rtip_desc['receiver_id']
+
+            comment = yield rtip.create_comment(1, receiver_id, itip_id, 'SECRET comment')
+
+            tip = yield self.read_rtip(itip_id, receiver_id)
+            field_id, entry, original_answer = self.find_redactable_answer(tip)
+            self.assertTrue(original_answer)
+
+            yield self.add_redaction(itip_id, comment['id'], [{'start': 0, 'end': 100}])
+            yield self.add_redaction(itip_id, field_id, [{'start': 0, 'end': 100}], entry)
+
+            # A privileged recipient reads the original content.
+            tip = yield self.read_rtip(itip_id, receiver_id)
+            self.assertEqual(self.comment_content(tip, comment['id']), 'SECRET comment')
+            self.assertEqual(self.answer_value(tip, field_id, entry), original_answer)
+
+            # A recipient without the permission reads the masked content.
+            yield self.set_redaction_privileges(receiver_id, False)
+            tip = yield self.read_rtip(itip_id, receiver_id)
+            self.assertNotIn('SECRET', self.comment_content(tip, comment['id']))
+            self.assertIn(mask, self.comment_content(tip, comment['id']))
+            self.assertIn(mask, self.answer_value(tip, field_id, entry))
+
+            # The whistleblower (no User record, hence non-privileged) reads the
+            # masked content too.
+            tip = yield self.read_wbtip(itip_id)
+            self.assertNotIn('SECRET', self.comment_content(tip, comment['id']))
+            self.assertIn(mask, self.comment_content(tip, comment['id']))
+            self.assertIn(mask, self.answer_value(tip, field_id, entry))
+
+            # Restore the permission for the next report iteration.
+            yield self.set_redaction_privileges(receiver_id, True)
+
+    @inlineCallbacks
+    def test_temporary_redaction_masks_whistleblower_identity(self):
+        # The whistleblower identity is masked on the consumption-time pass
+        # (redact_report, shared by the rtip detail, wbtip and export paths): a
+        # temporary mask over an identity field must hide it from a non-privileged
+        # recipient while a privileged one keeps reading it. The identity is
+        # extracted from the questionnaire answers and, unlike them, is not
+        # indexed at read time, so it is matched by reference id only -- masking
+        # it as a plain answer (which requires an 'index') would raise KeyError.
+        mask = chr(0x2591)
+        identity_field_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+
+        def build_report(itip_id):
+            return {
+                'id': itip_id,
+                'questionnaires': [],
+                'comments': [],
+                'wbfiles': [],
+                'rfiles': [],
+                'data': {'whistleblower_identity': {
+                    identity_field_id: [{'value': 'SECRET identity'}]
+                }}
+            }
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            itip_id = rtip_desc['id']
+            receiver_id = rtip_desc['receiver_id']
+
+            yield self.add_redaction(itip_id, identity_field_id, [{'start': 0, 'end': 100}])
+
+            # A privileged recipient reads the original identity.
+            report = yield rtip.redact_report(SimpleNamespace(user_id=receiver_id), build_report(itip_id))
+            self.assertEqual(report['data']['whistleblower_identity'][identity_field_id][0]['value'],
+                             'SECRET identity')
+
+            # A recipient without the permission reads the masked identity.
+            yield self.set_redaction_privileges(receiver_id, False)
+            report = yield rtip.redact_report(SimpleNamespace(user_id=receiver_id), build_report(itip_id))
+            value = report['data']['whistleblower_identity'][identity_field_id][0]['value']
+            self.assertNotIn('SECRET', value)
+            self.assertIn(mask, value)
+
+            yield self.set_redaction_privileges(receiver_id, True)
+
 
 class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
     _handler = rtip.WhistleblowerFileDownload
@@ -557,6 +1259,41 @@ class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):
                 yield handler.get(wbfile_id)
                 self.assertNotEqual(handler.request.getResponseBody(), '')
 
+    @inlineCallbacks
+    def test_pgp_download_serialized_per_user(self):
+        # The recipient has a PGP key (pgp_configuration='ALL'), so the download
+        # is PGP-wrapped and must be serialized per user: while one is in flight
+        # a second waits its turn rather than running in parallel, and the lock
+        # is dropped once idle.
+        yield self.perform_minimal_submission_actions()
+        yield Delivery().run()
+
+        rtip_descs = yield self.get_rtips()
+        rtip_desc = rtip_descs[0]
+        receiver_id = rtip_desc['receiver_id']
+        wbfile_ids = yield self.get_wbfiles(rtip_desc['rtip_id'])
+
+        self.assertEqual(self.state.download_locks, {})
+
+        # Hold the receiver's lock to stand in for an in-flight heavy download.
+        lock = DeferredLock()
+        self.state.download_locks[receiver_id] = lock
+        yield lock.acquire()
+
+        handler = self.request(role='receiver', user_id=receiver_id)
+        d = handler.get(wbfile_ids[0])
+
+        # With the lock held, the PGP download must park rather than complete.
+        yield task.deferLater(reactor, 0.5)
+        self.assertFalse(d.called)
+
+        # Releasing the lock lets the queued download finish and the lock is
+        # then removed from the mapping.
+        lock.release()
+        yield d
+        self.assertNotEqual(handler.request.getResponseBody(), b'')
+        self.assertEqual(self.state.download_locks, {})
+
 
 class TestIdentityAccessRequestsCollection(helpers.TestHandlerWithPopulatedDB):
     _handler = rtip.IdentityAccessRequestsCollection
@@ -576,20 +1313,3 @@ class TestIdentityAccessRequestsCollection(helpers.TestHandlerWithPopulatedDB):
         for rtip_desc in rtip_descs:
             handler = self.request(body, role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.post(rtip_desc['id'])
-
-
-class TestReportAuditLog(helpers.TestHandlerWithPopulatedDB):
-    _handler = rtip.ReportAuditLog
-
-    @inlineCallbacks
-    def setUp(self):
-        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
-        yield self.perform_full_submission_actions()
-        yield Delivery().run()
-
-    @inlineCallbacks
-    def test_get(self):
-        rtip_descs = yield self.get_rtips()
-        for rtip_desc in rtip_descs:
-            handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
-            yield handler.get(rtip_desc['id'])

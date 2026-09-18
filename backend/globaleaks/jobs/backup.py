@@ -37,7 +37,7 @@ def launch_rsync(source, destination, excludes=None, link_dest=None):
     def check(result):
         _, err, code = result
         if code != 0:
-            raise Exception("rsync exited with %d: %s" % (code, err.decode(errors='replace').strip()))
+            raise RuntimeError(f"rsync exited with {code}: {err.decode(errors='replace').strip()}")
 
     return d.addCallback(check)
 
@@ -99,7 +99,7 @@ def get_rsync_excludes(backup_path):
     target_path = os.path.realpath(backup_path)
 
     if target_path == working_path:
-        raise Exception("backup_path must not be the working directory itself")
+        raise ValueError("backup_path must not be the working directory itself")
 
     if target_path.startswith(working_path + os.sep):
         excludes.append('/' + os.path.relpath(target_path, working_path))
@@ -217,7 +217,7 @@ def publish_snapshot_threaded(backup_path, snapshots_path, incomplete_path, fina
 @defer.inlineCallbacks
 def backup_sqlite_database_and_files(backup_path, backup_retention):
     if not shutil.which("rsync"):
-        raise Exception("rsync not found in PATH")
+        raise FileNotFoundError("rsync not found in PATH")
 
     source_path = os.path.join(Settings.working_path, '')
     excludes = get_rsync_excludes(backup_path)
@@ -309,6 +309,7 @@ def do_backup():
 
 class BackupList(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_settings'
 
     @inlineCallbacks
     def get(self):
@@ -323,6 +324,27 @@ class BackupList(BaseHandler):
         returnValue(backups)
 
 
+def next_run(now, backup_time, backup_period):
+    # Backups run on a grid anchored at backup_time and stepped by the period:
+    # with backup_period < 24h the first run lands on the next grid slot rather
+    # than waiting for tomorrow's backup_time. Aligning here and looping at the
+    # same interval keeps every subsequent run on the grid.
+    period_s = backup_period * SECONDS_IN_HOUR
+
+    backup_dt = datetime.strptime(backup_time, "%H:%M")
+    anchor = now.replace(hour=backup_dt.hour, minute=backup_dt.minute, second=0, microsecond=0)
+
+    if now <= anchor:
+        nxt = anchor
+    else:
+        steps = -(-int((now - anchor).total_seconds()) // period_s)
+        nxt = anchor + timedelta(seconds=steps * period_s)
+        if nxt <= now:
+            nxt += timedelta(seconds=period_s)
+
+    return int((nxt - now).total_seconds())
+
+
 class Backup(PeriodJob):
     interval = 24 * SECONDS_IN_HOUR
 
@@ -332,26 +354,9 @@ class Backup(PeriodJob):
             self.interval = Backup.interval
             return 24 * SECONDS_IN_HOUR
 
-        period_s = backup_period * SECONDS_IN_HOUR
-        self.interval = period_s
+        self.interval = backup_period * SECONDS_IN_HOUR
 
-        # Backups run on a grid anchored at backup_time and stepped by the
-        # period: with backup_period < 24h the first run lands on the next grid
-        # slot rather than waiting for tomorrow's backup_time. Aligning here and
-        # looping at the same interval keeps every subsequent run on the grid.
-        backup_dt = datetime.strptime(backup_time, "%H:%M")
-        now = datetime.now()
-        anchor = now.replace(hour=backup_dt.hour, minute=backup_dt.minute, second=0, microsecond=0)
-
-        if now <= anchor:
-            nxt = anchor
-        else:
-            steps = -(-int((now - anchor).total_seconds()) // period_s)
-            nxt = anchor + timedelta(seconds=steps * period_s)
-            if nxt <= now:
-                nxt += timedelta(seconds=period_s)
-
-        return int((nxt - now).total_seconds())
+        return next_run(datetime.now(), backup_time, backup_period)
 
     def operation(self):
         return do_backup()

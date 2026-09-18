@@ -1,3 +1,4 @@
+import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {Component, inject} from "@angular/core";
 import {IarResolver} from "@app/shared/resolvers/iar-resolver.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -8,17 +9,26 @@ import {
 } from "@app/shared/modals/tip-operation-file-identity-access-reply/tip-operation-file-identity-access-reply.component";
 import {DatePipe} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-identity-access-requests",
     templateUrl: "./identity-access-requests.component.html",
     standalone: true,
-    imports: [DatePipe, NgbTooltipModule, TranslateModule, TranslatorPipe]
+    imports: [PaginatedInterfaceComponent, DatePipe, NgbTooltipModule, TranslateModule]
 })
 export class IdentityAccessRequestsComponent {
-  private modalService = inject(NgbModal);
-  private httpService = inject(HttpService);
+  usersNames: Record<string, string> = {};
+
+  constructor() {
+    this.utilsService.runUserOperation("get_users_names", {}, false).subscribe({
+      next: response => {
+        this.usersNames = response as Record<string, string>;
+      }
+    });
+  }
+
+  private readonly modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
   protected iarResolver = inject(IarResolver);
   protected utilsService = inject(UtilsService);
 

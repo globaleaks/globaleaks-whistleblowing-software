@@ -1,4 +1,4 @@
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -52,6 +52,7 @@ def create(session, tid, request):
 
 class RedirectCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_network'
     root_tenant_or_management_only = True
     invalidate_cache = True
 
@@ -72,11 +73,12 @@ class RedirectCollection(BaseHandler):
 
         yield update_redirects_state(self.request.tid)
 
-        returnValue(redirect)
+        return redirect
 
 
 class RedirectInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_network'
     root_tenant_or_management_only = True
     invalidate_cache = True
 

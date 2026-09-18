@@ -10,29 +10,33 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 
 
-def fieldtree_ancestors(session, field_id):
-    """
-    Transaction to extract the parents of a field
-
-    :param session: An ORM session
-    :param field_id: The field ID
-    """
-    field = session.query(models.Field).filter(models.Field.id == field_id).one_or_none()
-    if field.fieldgroup_id is not None:
-        yield field.fieldgroup_id
-        yield fieldtree_ancestors(session, field.fieldgroup_id)
+# Maximum supported fieldgroup nesting depth. Field trees are serialized
+# recursively (see serialize_field); without an upper bound an admin could
+# persist a chain deep enough to exhaust the interpreter recursion limit and
+# crash every serialization of the questionnaire (public submission render,
+# schema archival, admin export). Real questionnaires nest a couple of levels;
+# this bound stays well within that while remaining far below the recursion limit.
+MAX_FIELD_GROUP_NESTING = 3
 
 
-def db_create_option_trigger(session, option_id, type, object_id, sufficient):
+def db_create_option_trigger(session, tid, option_id, type, object_id, sufficient):
     """
     Transaction for creating an option trigger
 
     :param session: An ORM session
+    :param tid: The tenant ID
     :param option_id: The option id
     :param type: The trigger type
     :param object_id: The object to be connected to the trigger
     :param sufficient: A boolean indicating if the condition is sufficient
     """
+    # Authorize: the referenced option must belong to the requesting tenant
+    db_get(session,
+           models.FieldOption,
+           (models.FieldOption.id == option_id,
+            models.FieldOption.field_id == models.Field.id,
+            models.Field.tid == tid))
+
     o = trigger_map[type]()
     o.option_id = option_id
     o.object_id = object_id
@@ -159,31 +163,100 @@ def db_update_fieldattrs(session, field_id, field_attrs, language):
            .delete(synchronize_session=False)
 
 
-def check_field_association(session, tid, request):
+def db_field_subtree_height(session, tid, root_id, cap):
+    """
+    Return the height (number of levels, root included) of the field subtree
+    rooted at root_id, capped at cap + 1 and safe against pre-existing cycles.
+
+    A field with no children has height 1; an empty/None root has height 1.
+
+    :param session: The ORM session
+    :param tid: The tenant ID
+    :param root_id: The id of the subtree root
+    :param cap: The maximum height worth computing
+    """
+    if not root_id:
+        return 1
+
+    height = 0
+    visited = set()
+    level = {root_id}
+    while level and height <= cap:
+        height += 1
+        visited |= level
+        rows = session.query(models.Field.id).filter(
+            models.Field.tid == tid,
+            models.Field.fieldgroup_id.in_(level)).all()
+        level = {r[0] for r in rows if r[0] not in visited}
+
+    return height
+
+
+def check_field_association(session, tid, request, field_id=None):
     """
     Transaction to check consistency of field association
 
     :param session: The ORM session
     :param tid: The tenant ID
     :param request: The request data to be verified
+    :param field_id: The authoritative id of the field being updated, if any
     """
-    if request.get('fieldgroup_id', '') and session.query(models.Field).filter(models.Field.id == request['fieldgroup_id'],
-                                                                               models.Field.tid != tid).count():
+    if request.get('fieldgroup_id', '') and session.query(models.Field).filter(
+            models.Field.id == request['fieldgroup_id'],
+            models.Field.tid != tid).count():
         raise errors.InputValidationError
 
-    if request.get('template_id', '') and session.query(models.Field).filter(models.Field.id == request['template_id'],
-                                                                             not_(models.Field.tid.in_({1, tid}))).count():
+    if request.get('template_id', '') and session.query(models.Field).filter(
+            models.Field.id == request['template_id'],
+            not_(models.Field.tid.in_({1, tid}))).count():
         raise errors.InputValidationError
 
-    if request.get('step_id', '') and session.query(models.Step).filter(models.Step.id == request['step_id'],
-                                                                        models.Questionnaire.id == models.Step.questionnaire_id,
-                                                                         not_(models.Questionnaire.tid.in_({1, tid}))).count():
+    if request.get('template_override_id', '') and session.query(models.Field).filter(
+            models.Field.id == request['template_override_id'],
+            not_(models.Field.tid.in_({1, tid}))).count():
+        raise errors.InputValidationError
+
+    if request.get('step_id', '') and session.query(models.Step).filter(
+            models.Step.id == request['step_id'],
+            models.Questionnaire.id == models.Step.questionnaire_id,
+            models.Questionnaire.tid != tid).count():
+        raise errors.InputValidationError
+
+    option_ids = [t['option'] for t in request.get('triggered_by_options', []) if t.get('option')]
+    if option_ids and session.query(models.FieldOption).filter(
+            models.FieldOption.id.in_(option_ids),
+            models.FieldOption.field_id == models.Field.id,
+            models.Field.tid != tid).count():
         raise errors.InputValidationError
 
     if request.get('fieldgroup_id', ''):
-        ancestors = set(fieldtree_ancestors(session, request['fieldgroup_id']))
-        if request['id'] == request['fieldgroup_id'] or request['id'] in ancestors:
-            raise errors.InputValidationError("Provided field association would cause recursion loop")
+        # The authoritative identity of the field being (re)associated is the
+        # field_id from the URL on update; request['id'] may be empty or forged.
+        node_id = field_id or request.get('id', '')
+
+        # Walk the ancestor chain upward from the new parent, counting its depth
+        # and rejecting any association that would close a cycle back onto the
+        # field itself.
+        ancestor = request['fieldgroup_id']
+        ancestors = 0
+        seen = set()
+        while ancestor:
+            if node_id and ancestor == node_id:
+                raise errors.InputValidationError("Provided field association would cause recursion loop")
+            if ancestor in seen:  # pre-existing cycle in stored data: stop, don't hang
+                break
+            seen.add(ancestor)
+            ancestors += 1
+            ancestor = session.query(models.Field.fieldgroup_id) \
+                              .filter(models.Field.id == ancestor).scalar()
+
+        # Re-parenting moves the field together with its whole descendant
+        # subtree; the resulting nesting is the depth above the new parent plus
+        # the height of that subtree. Bound it so a deep tree cannot crash the
+        # recursive serialization.
+        subtree_height = db_field_subtree_height(session, tid, node_id, MAX_FIELD_GROUP_NESTING)
+        if ancestors + subtree_height > MAX_FIELD_GROUP_NESTING:
+            raise errors.InputValidationError("Provided field association would exceed the maximum nesting depth")
 
 
 def db_get_field(session, tid, field_id, language=None, data=None, serialize_templates=False):
@@ -227,7 +300,7 @@ def db_create_field(session, tid, request, language):
         db_update_fieldoptions(session, field.id, options, language)
 
         for trigger in request.get('triggered_by_options', []):
-            db_create_option_trigger(session, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
+            db_create_option_trigger(session, tid, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
     else:
         if request['template_id'] == 'whistleblower_identity':
             if request.get('step_id', '') == '':
@@ -245,7 +318,12 @@ def db_create_field(session, tid, request, language):
             if field is not None:
                 raise errors.InputValidationError("Whistleblower identity field already present")
 
-        template = session.query(models.Field).filter(models.Field.id == request['template_id']).one()
+        template = session.query(models.Field) \
+                          .filter(models.Field.id == request['template_id'],
+                                  models.Field.tid.in_({1, tid})).one_or_none()
+        if template is None:
+            raise errors.InputValidationError("Invalid template reference")
+
         request['statistical'] = template.statistical
 
         field = db_add(session, models.Field, request)
@@ -301,7 +379,7 @@ def db_update_field(session, tid, field_id, request, language):
                    (models.Field.tid == tid,
                     models.Field.id == field_id))
 
-    check_field_association(session, tid, request)
+    check_field_association(session, tid, request, field_id)
 
     fill_localized_keys(request, models.Field.localized_keys, language)
 
@@ -314,7 +392,7 @@ def db_update_field(session, tid, field_id, request, language):
     db_reset_option_triggers(session, 'field', field.id)
 
     for trigger in request.get('triggered_by_options', []):
-        db_create_option_trigger(session, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
+        db_create_option_trigger(session, tid, trigger['option'], 'field', field.id, trigger.get('sufficient', True))
 
     if field.instance != 'reference':
         db_update_fieldoptions(session, field.id, request['options'], language)
@@ -394,6 +472,7 @@ def get_fieldtemplate_list(session, tid, language):
 
 class FieldTemplatesCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def get(self):
@@ -424,6 +503,7 @@ class FieldTemplatesCollection(BaseHandler):
 
 class FieldTemplateInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def get(self, field_id):
@@ -453,6 +533,7 @@ class FieldTemplateInstance(BaseHandler):
 
 class FieldsCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def post(self):
@@ -469,6 +550,7 @@ class FieldsCollection(BaseHandler):
 
 class FieldInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def put(self, field_id):

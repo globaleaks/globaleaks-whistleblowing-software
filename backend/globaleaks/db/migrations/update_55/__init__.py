@@ -1,12 +1,12 @@
 # -*- coding: UTF-8
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.enums import EnumUserRole
+from globaleaks.models.properties import Boolean, Column, DateTime, Enum, Integer, JSON, UnicodeText, uuid4
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
-class SubmissionStatusChange_v_54(Model):
+class SubmissionStatusChangeV54(Model):
     __tablename__ = 'submissionstatuschange'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     internaltip_id = Column(UnicodeText(36), nullable=False)
@@ -16,7 +16,7 @@ class SubmissionStatusChange_v_54(Model):
     changed_by = Column(UnicodeText(36), nullable=False)
 
 
-class User_v_54(Model):
+class UserV54(Model):
     __tablename__ = 'user'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -81,5 +81,4 @@ class MigrationScript(MigrationBase):
               'substatus': ssc.substatus
             }
 
-            self.session_new.add(log)
-            self.entries_count['AuditLog'] += 1
+            self.add_entry('AuditLog', log)

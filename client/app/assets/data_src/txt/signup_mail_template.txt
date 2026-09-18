@@ -2,9 +2,6 @@ Dear {RecipientName},
 
 Your whistleblowing platform is almost ready!
 
-Click the link to activate the platform:
-{ActivationUrl}
-
 Kind regards,
 
 {NodeName}

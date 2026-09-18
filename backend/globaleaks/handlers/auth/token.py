@@ -14,4 +14,11 @@ class TokenHandler(BaseHandler):
         This API create a Token, a temporary memory only object able to
         keep track and limit user actions.
         """
-        return State.tokens.new(self.request.tid, self.session).serialize()
+        # A session bearing token must only be minted for a request that proved
+        # possession of the session key. The token path is exempt from the DPoP
+        # check, so minting from a token carried session would let a single
+        # captured token be renewed indefinitely, outliving the session it was
+        # derived from.
+        session = None if self.session_from_token else self.session
+
+        return State.tokens.new(self.request.tid, session).serialize()

@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {Constants} from "@app/shared/constants/constants";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
@@ -17,26 +17,26 @@ import {ConfirmationWith2faComponent} from "@app/shared/modals/confirmation-with
 import {
   ConfirmationWithPasswordComponent
 } from "@app/shared/modals/confirmation-with-password/confirmation-with-password.component";
-import {NgClass, DatePipe} from "@angular/common";
+import {DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {NgSelectComponent} from "@ng-select/ng-select";
 
 @Component({
     selector: "src-preference-tab1",
     templateUrl: "./preference-tab1.component.html",
     standalone: true,
-    imports: [FormsModule, NgSelectComponent, NgClass, DatePipe, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgSelectComponent, DatePipe, TranslateModule]
 })
 export class PreferenceTab1Component implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   protected appConfigService = inject(AppConfigService);
-  private translateService = inject(TranslateService);
-  private httpService = inject(HttpService);
-  private twoFactorAuthData = inject(TwoFactorAuthData);
-  private modalService = inject(NgbModal);
+  private readonly translateService = inject(TranslateService);
+  private readonly httpService = inject(HttpService);
+  private readonly twoFactorAuthData = inject(TwoFactorAuthData);
+  private readonly modalService = inject(NgbModal);
   appDataService = inject(AppDataService);
   protected preferenceResolver = inject(PreferenceResolver);
-  private utilsService = inject(UtilsService);
+  private readonly utilsService = inject(UtilsService);
   protected authenticationService = inject(AuthenticationService);
 
 
@@ -47,7 +47,7 @@ export class PreferenceTab1Component implements OnInit {
   editingEmailAddress: boolean;
   languageModel = "";
   role = "";
-  @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
+  readonly uploaderInput = viewChild<ElementRef<HTMLInputElement>>('uploader');
   userRole: string;
   roleOptions: { value: string, role: string }[] = [];
 
@@ -56,10 +56,11 @@ export class PreferenceTab1Component implements OnInit {
   }
 
   ngOnInit(): void {
-    this.role = this.utilsService.rolel10n(this.authenticationService.session.role);
+    this.role = this.utilsService.rolel10n(this.authenticationService.session?.role ?? "");
     this.role = this.role ? this.translateService.instant(this.role) : '';
     setTimeout(() => {
       this.languageModel = this.preferenceResolver.dataModel.language;
+      this.cdr.markForCheck();
     }, 150);
     const roles = this.preferenceResolver.dataModel.profile.roles || [];
     this.roleOptions = roles.map(role => ({value: role, role: role === 'receiver' ? 'Recipient' : (role.charAt(0).toUpperCase() + role.slice(1))}));
@@ -86,7 +87,6 @@ export class PreferenceTab1Component implements OnInit {
 
       this.twoFactorAuthData.totp.secret = "";
       this.twoFactorAuthData.totp.qrcode_string = "";
-      this.twoFactorAuthData.totp.edit = false;
 
       this.modalService.open(Enable2faComponent, {backdrop: 'static', keyboard: false, ariaLabelledBy: 'modal-title'});
 
@@ -101,11 +101,11 @@ export class PreferenceTab1Component implements OnInit {
 
           this.httpService.requestOperationsRecovery(data, this.utilsService.encodeString(secret)).subscribe(
             {
-              next: _ => {
+              next: () => {
                 this.preferenceResolver.dataModel.two_factor = !this.preferenceResolver.dataModel.two_factor;
                 this.utilsService.reloadCurrentRoute();
               },
-              error: (_: any) => {
+              error: () => {
                this.toggle2FA(event);
               }
             }
@@ -179,10 +179,10 @@ export class PreferenceTab1Component implements OnInit {
     const requestObservable = this.httpService.updatePreferenceResource(JSON.stringify(this.preferenceResolver.dataModel));
     requestObservable.subscribe(
       {
-        next: _ => {},
-        error: _ =>{
-          if (this.uploaderInput) {
-            this.uploaderInput.nativeElement.value = "";
+        error: () =>{
+          const uploaderInput = this.uploaderInput();
+          if (uploaderInput) {
+            uploaderInput.nativeElement.value = "";
           }
         }
       }

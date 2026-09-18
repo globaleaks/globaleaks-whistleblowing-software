@@ -1,120 +1,98 @@
 import importlib
 import os
+import re
 import shutil
 import sys
 from collections import OrderedDict
 
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 from globaleaks import __version__, models, \
     DATABASE_VERSION, FIRST_DATABASE_VERSION_SUPPORTED, LANGUAGES_SUPPORTED_CODES
 from globaleaks.db.appdata import load_appdata, db_load_defaults
 from globaleaks.orm import db_log
 
-from globaleaks.db.migrations.update_53 import FieldAttr_v_52, InternalTip_v_52, \
-    ReceiverTip_v_52, Subscriber_v_52, \
-    Tenant_v_52, User_v_52
-from globaleaks.db.migrations.update_54 import File_v_53
-from globaleaks.db.migrations.update_55 import SubmissionStatusChange_v_54, User_v_54
-from globaleaks.db.migrations.update_57 import User_v_56
-from globaleaks.db.migrations.update_58 import InternalTip_v_57, \
-    WhistleblowerFile_v_57, ReceiverTip_v_57, ReceiverFile_v_57
-from globaleaks.db.migrations.update_59 import ReceiverTip_v_58
-from globaleaks.db.migrations.update_60 import InternalTip_v_59, ReceiverTip_v_59, WhistleblowerTip_v_59
-from globaleaks.db.migrations.update_62 import AuditLog_v_61, Context_v_61, ReceiverTip_v_61, User_v_61
-from globaleaks.db.migrations.update_63 import Subscriber_v_62
-from globaleaks.db.migrations.update_64 import Context_v_63, InternalTip_v_63
-from globaleaks.db.migrations.update_65 import Comment_v_64, \
-    IdentityAccessRequest_v_64, InternalFile_v_64, InternalTip_v_64, \
-    Message_v_64, ReceiverTip_v_64, \
-    SubmissionStatus_v_64, SubmissionSubStatus_v_64, \
-    User_v_64, ReceiverFile_v_64, WhistleblowerFile_v_64
-from globaleaks.db.migrations.update_66 import SubmissionSubStatus_v_65
-from globaleaks.db.migrations.update_67 import \
-        InternalTip_v_66, ReceiverFile_v_66, Redaction_v_66, User_v_66, WhistleblowerFile_v_66
-from globaleaks.db.migrations.update_68 import Subscriber_v_67
-from globaleaks.db.migrations.update_69 import Field_v_68, InternalTipAnswers_v_68, User_v_68, Tenant_v_68, \
-    Subscriber_v_68, InternalFile_v_68, ReceiverFile_v_68, Mail_v_68
-from globaleaks.db.migrations.update_70 import InternalTipAnswers_v_69, User_v_69
-from globaleaks.db.migrations.update_71 import Tenant_v_70, Comment_v_70, InternalFile_v_70, ReceiverFile_v_70
-
 from globaleaks.orm import get_engine, get_session, make_db_uri
-from globaleaks.models import config, Base
+from globaleaks.models import config, Base, Model
 from globaleaks.settings import Settings
 from globaleaks.utils.fs import srm
 from globaleaks.utils.log import log
 from globaleaks.utils.utility import datetime_now
 
 
-migration_mapping = OrderedDict([
-    ('ArchivedSchema', [models._ArchivedSchema, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('AuditLog', [-1, -1, AuditLog_v_61, 0, 0, 0, 0, 0, 0, 0, models._AuditLog, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('Comment', [Comment_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, Comment_v_70, 0, 0, 0, 0, 0, models._Comment]),
-    ('Config', [models._Config, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('ConfigL10N', [models._ConfigL10N, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('ContentForwarding', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, models._ContentForwarding, 0, 0]),
-    ('Context', [Context_v_61, 0, 0, 0, 0, 0, 0, 0, 0, 0, Context_v_63, 0, models._Context, 0, 0, 0, 0, 0, 0, 0]),
-    ('CustomTexts', [models._CustomTexts, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('EnabledLanguage', [models._EnabledLanguage, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('Field', [Field_v_68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._Field, 0, 0]),
-    ('FieldAttr', [FieldAttr_v_52, models._FieldAttr, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('FieldOption', [models._FieldOption, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('FieldOptionTriggerField', [models._FieldOptionTriggerField, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('FieldOptionTriggerStep', [models._FieldOptionTriggerStep, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('File', [File_v_53, 0, models._File, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('IdentityAccessRequest', [IdentityAccessRequest_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._IdentityAccessRequest, 0, 0, 0, 0, 0, 0]),
-    ('IdentityAccessRequestCustodian', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, models._IdentityAccessRequestCustodian, 0, 0, 0, 0, 0, 0]),
-    ('InternalFile', [InternalFile_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, InternalFile_v_68, 0, 0, 0, InternalFile_v_70, 0, models._InternalFile]),
-    ('InternalTip', [InternalTip_v_52, InternalTip_v_57, 0, 0, 0, 0, InternalTip_v_59, 0, InternalTip_v_63, 0, 0, 0, InternalTip_v_64, InternalTip_v_66, 0, models._InternalTip, 0, 0, 0, 0]),
-    ('InternalTipAnswers', [InternalTipAnswers_v_68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, InternalTipAnswers_v_69, models._InternalTipAnswers, 0]),
-    ('InternalTipData', [models._InternalTipData, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('InternalTipForwarding', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, models._InternalTipForwarding, 0, 0]),
-    ('Mail', [Mail_v_68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._Mail, 0, 0]),
-    ('Message', [Message_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1]),
-    ('Questionnaire', [models._Questionnaire, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('ReceiverContext', [models._ReceiverContext, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('ReceiverFile', [ReceiverFile_v_57, 0, 0, 0, 0, 0, ReceiverFile_v_64, 0, 0, 0, 0, 0, 0, ReceiverFile_v_66, 0, ReceiverFile_v_68, 0, ReceiverFile_v_70, 0, models._ReceiverFile]),
-    ('ReceiverTip', [ReceiverTip_v_52, ReceiverTip_v_57, 0, 0, 0, 0, ReceiverTip_v_58, ReceiverTip_v_59, ReceiverTip_v_61, 0, ReceiverTip_v_64, 0, 0, models._ReceiverTip, 0, 0, 0, 0, 0, 0]),
-    ('Redaction', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, Redaction_v_66, 0, models._Redaction, 0, 0, 0, 0]),
-    ('Redirect', [models._Redirect, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('SubmissionStatus', [SubmissionStatus_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, models._SubmissionStatus, 0, 0, 0, 0, 0]),
-    ('SubmissionSubStatus', [SubmissionSubStatus_v_64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, SubmissionSubStatus_v_65, 0, models._SubmissionSubStatus, 0, 0, 0, 0]),
-    ('SubmissionStatusChange', [SubmissionStatusChange_v_54, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]),
-    ('StatisticalReport', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, models._StatisticalReport]),
-    ('StatisticalReportTemplate', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, models._StatisticalReportTemplate]),
-    ('Step', [models._Step, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
-    ('Subscriber', [Subscriber_v_52, Subscriber_v_62, 0, 0, 0, 0, 0, 0, 0, 0, 0, Subscriber_v_67, 0, 0, 0, 0, Subscriber_v_68, models._Subscriber, 0, 0]),
-    ('Tenant', [Tenant_v_52, Tenant_v_68, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  0, Tenant_v_70, 0, models._Tenant]),
-    ('User', [User_v_52, User_v_54, 0, User_v_56, 0, User_v_61, 0, 0, 0, 0, User_v_64, 0, 0, User_v_66, 0, User_v_68, 0, User_v_69, 0, models._User]),
-    ('UserProfile', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, models._UserProfile]),
-    ('UserProfilePermission', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, models._UserProfilePermission]),
-    ('UserProfileRole', [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, models._UserProfileRole]),
-    ('WhistleblowerFile', [WhistleblowerFile_v_57, 0, 0, 0, 0, 0, WhistleblowerFile_v_64, 0, 0, 0, 0, 0, 0, WhistleblowerFile_v_66, 0, models._WhistleblowerFile, 0, 0, 0, 0]),
-    ('WhistleblowerTip', [WhistleblowerTip_v_59, 0, 0, 0, 0, 0, 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1])
-])
+# The schema of a table at a given version is described by the snapshot of
+# its model archived by the migration that changed it: the class XVN in the
+# module update_{N+1} is the model of X up to version N included. A table
+# lacking a snapshot from a version on is described by its current model.
+#
+# The tables that do not exist over the whole range of the supported versions
+# are the only ones needing a declaration: the version they were introduced at
+# (a table missing a current model is dropped after its last snapshot).
+tables_since = {
+    'AuditLog': 54,
+    'IdentityAccessRequestCustodian': 65,
+    'Redaction': 65,
+    'InternalTipTransmission': 69,
+    'ContextAdditionalQuestionnaire': 71,
+    'Exchange': 71,
+    'StatisticalReport': 71,
+    'StatisticalReportTemplate': 71,
+    'SupportMessage': 71,
+    'SupportRequest': 71,
+    'UserProfile': 71,
+    'UserProfileContext': 71,
+    'UserProfilePermission': 71,
+    'UserProfileRole': 71
+}
 
 
-def get_right_model(migration_mapping, model_name, version):
+def load_snapshots():
+    """
+    Collect the snapshots of the models archived by the migrations
+
+    :return: A dictionary {model_name: {version: snapshot}}
+    """
+    snapshots = {}
+
+    for version in range(FIRST_DATABASE_VERSION_SUPPORTED, DATABASE_VERSION):
+        module = importlib.import_module(f"globaleaks.db.migrations.update_{version + 1}")
+
+        for name, cls in vars(module).items():
+            match = re.fullmatch(r'(\w+)V(\d+)', name)
+            if match and isinstance(cls, type) and issubclass(cls, Model) and cls.__module__ == module.__name__:
+                snapshots.setdefault(match.group(1), {})[int(match.group(2))] = cls
+
+    return snapshots
+
+
+def load_models():
+    """
+    Collect the current models of the application
+
+    :return: A dictionary {model_name: model}
+    """
+    return {name[1:]: cls for name, cls in vars(models).items()
+            if name.startswith('_') and isinstance(cls, type) and issubclass(cls, Model) and '__tablename__' in vars(cls)}
+
+
+def get_right_model(snapshots, current, model_name, version):
     """
     Utility function to retrieve the model corresponding to a specific model name in a specific database version
-    :param migration_mapping: The model mappung table
+    :param snapshots: The snapshots archived by the migrations
+    :param current: The current models
     :param model_name: The model name
     :param version: The database version
     :return: The model corresponding to a specific model name in a specific database version
     """
-    table_index = (version - FIRST_DATABASE_VERSION_SUPPORTED)
-
-    if migration_mapping[model_name][table_index] == -1:
+    if version < tables_since.get(model_name, FIRST_DATABASE_VERSION_SUPPORTED):
         return None
 
-    while table_index >= 0:
-        if migration_mapping[model_name][table_index] != 0:
-            return migration_mapping[model_name][table_index]
-        table_index -= 1
+    archived = [v for v in snapshots.get(model_name, {}) if v >= version]
+    if archived:
+        return snapshots[model_name][min(archived)]
 
-    return None
+    return current.get(model_name)
 
 
 def perform_data_update(db_file):
@@ -135,7 +113,7 @@ def perform_data_update(db_file):
     if removed_languages:
         removed_languages.sort()
         removed_languages = ', '.join(removed_languages)
-        raise Exception("FATAL: cannot complete the upgrade because the support for some of the enabled languages is currently incomplete (%s)\n" % removed_languages)
+        raise RuntimeError(f"FATAL: cannot complete the upgrade because the support for some of the enabled languages is currently incomplete ({removed_languages})\n")
 
     try:
         original_version = config.ConfigFactory(session, 1).get_val('version')
@@ -156,11 +134,96 @@ def perform_data_update(db_file):
             db_log(session, tid=1, type='version_update', user_id='system', data={'from': original_version, 'to': __version__})
 
         session.commit()
-    except:
+    except Exception:
         session.rollback()
         raise
     finally:
         session.close()
+
+
+def _migration_engine(version, j, new_db_file):
+    """
+    Return the engine holding the database at the version a migration step produces
+
+    :param version: The version the migration step starts from
+    :param j: The index of the version among the supported ones
+    :param new_db_file: The path of the database file the last step writes
+    :return: An engine with the schema of the produced version already created
+    """
+    if version == DATABASE_VERSION - 1:
+        engine = get_engine(make_db_uri(new_db_file), foreign_keys=False, orm_lockdown=False)
+    else:
+        engine = create_engine("sqlite:///:memory:")
+
+    if FIRST_DATABASE_VERSION_SUPPORTED + j + 1 == DATABASE_VERSION:
+        Base.metadata.create_all(engine)
+    else:
+        Bases[j+1].metadata.create_all(engine)
+
+    return engine
+
+
+def _migrated_models(migration_script):
+    """
+    Return the name of the models that the migration step both reads and writes
+
+    :param migration_script: The migration script of the step
+    """
+    for model_name in migration_mapping:
+        if migration_script.model_from[model_name] is not None and migration_script.model_to[model_name] is not None:
+            yield model_name
+
+
+def _run_migration_script(migration_script):
+    """
+    Run a migration step: its prologue, every table it migrates and its epilogue
+
+    :param migration_script: The migration script of the step
+    """
+    try:
+        migration_script.prologue()
+    except Exception as exception:
+        log.err(f"Failure while executing migration prologue: {exception}")
+        raise exception
+
+    for model_name in _migrated_models(migration_script):
+        try:
+            migration_script.migrate_model(model_name)
+
+            # Commit at every table migration in order to be able to detect
+            # the precise migration that may fail.
+            migration_script.commit()
+        except Exception as exception:
+            log.err(f"Failure while migrating table {model_name}: {exception} ")
+            raise exception
+
+    try:
+        migration_script.epilogue()
+        migration_script.commit()
+    except Exception as exception:
+        log.err(f"Failure while executing migration epilogue: {exception} ")
+        raise exception
+
+
+def _check_migration_stats(migration_script, session_new):
+    """
+    Verify that every migrated table holds the number of entries it started from
+
+    :param migration_script: The migration script of the step
+    :param session_new: An ORM session on the database the step produced
+    """
+    log.info("Migration stats:")
+
+    for model_name in _migrated_models(migration_script):
+        expected = migration_script.entries_count[model_name]
+        count = session_new.query(migration_script.model_to[model_name]).count()
+
+        if expected == count:
+            log.info(f" * {model_name} table migrated ({expected} entry(s))")
+        elif migration_script.skip_count_check.get(model_name, False):
+            log.info(f" * {model_name} table migrated (entries count changed from {expected} to {count})")
+        else:
+            raise AssertionError(f"Integrity check failed on count equality for table {model_name}: {count} != {expected}")
 
 
 def perform_migration(version):
@@ -169,7 +232,7 @@ def perform_migration(version):
     :param version: The current version of the database to update
     """
     if version < FIRST_DATABASE_VERSION_SUPPORTED:
-        log.info("Migrations from DB version lower than %d are no longer supported!" % FIRST_DATABASE_VERSION_SUPPORTED)
+        log.info(f"Migrations from DB version lower than {FIRST_DATABASE_VERSION_SUPPORTED} are no longer supported!")
         sys.exit(1)
 
     tmpdir = os.path.abspath(os.path.join(Settings.tmp_path, 'tmp'))
@@ -187,20 +250,11 @@ def perform_migration(version):
 
     try:
         while version < DATABASE_VERSION:
-            log.info("Updating DB from version %d to version %d" %
-                     (version, version + 1))
+            log.info(f"Updating DB from version {version} to version {version + 1}")
 
             j = version - FIRST_DATABASE_VERSION_SUPPORTED
 
-            if version == DATABASE_VERSION - 1:
-                engine = get_engine(make_db_uri(new_db_file), foreign_keys=False, orm_lockdown=False)
-            else:
-                engine = create_engine("sqlite:///:memory:")
-
-            if FIRST_DATABASE_VERSION_SUPPORTED + j + 1 == DATABASE_VERSION:
-                Base.metadata.create_all(engine)
-            else:
-                Bases[j+1].metadata.create_all(engine)
+            engine = _migration_engine(version, j, new_db_file)
 
             if session_new:
                 session_old = session_new
@@ -208,36 +262,13 @@ def perform_migration(version):
             session_new = sessionmaker(bind=engine)()
 
             # Here is instanced the migration script
-            MigrationModule = importlib.import_module("globaleaks.db.migrations.update_%d" % (version + 1))
-            migration_script = MigrationModule.MigrationScript(migration_mapping, version, session_old, session_new)
+            migration_module = importlib.import_module(f"globaleaks.db.migrations.update_{version + 1}")
+            migration_script = migration_module.MigrationScript(migration_mapping, version, session_old, session_new)
 
             log.info("Migrating table:")
 
             try:
-                try:
-                    migration_script.prologue()
-                except Exception as exception:
-                    log.err("Failure while executing migration prologue: %s" % exception)
-                    raise exception
-
-                for model_name, _ in migration_mapping.items():
-                    if migration_script.model_from[model_name] is not None and migration_script.model_to[model_name] is not None:
-                        try:
-                            migration_script.migrate_model(model_name)
-
-                            # Commit at every table migration in order to be able to detect
-                            # the precise migration that may fail.
-                            migration_script.commit()
-                        except Exception as exception:
-                            log.err("Failure while migrating table %s: %s " % (model_name, exception))
-                            raise exception
-                try:
-                    migration_script.epilogue()
-                    migration_script.commit()
-                except Exception as exception:
-                    log.err("Failure while executing migration epilogue: %s " % exception)
-                    raise exception
-
+                _run_migration_script(migration_script)
             finally:
                 # the database should be always closed before leaving the application
                 # in order to not keep leaking journal files.
@@ -245,26 +276,12 @@ def perform_migration(version):
 
             log.info("Migration completed with success.")
 
-            log.info("Migration stats:")
-
-            for model_name, _ in migration_mapping.items():
-                if migration_script.model_from[model_name] is not None and migration_script.model_to[model_name] is not None:
-                    count = session_new.query(migration_script.model_to[model_name]).count()
-                    if migration_script.entries_count[model_name] != count:
-                        if migration_script.skip_count_check.get(model_name, False):
-                            log.info(" * %s table migrated (entries count changed from %d to %d)" %
-                                     (model_name, migration_script.entries_count[model_name], count))
-                        else:
-                            raise AssertionError("Integrity check failed on count equality for table %s: %d != %d" %
-                                                 (model_name, count, migration_script.entries_count[model_name]))
-                    else:
-                        log.info(" * %s table migrated (%d entry(s))" %
-                                             (model_name, migration_script.entries_count[model_name]))
+            _check_migration_stats(migration_script, session_new)
 
             version += 1
 
         perform_data_update(new_db_file)
-    except:
+    except Exception:
         raise
     else:
         # in case of success first copy the new migrated db, then as last action delete the original db file
@@ -277,22 +294,21 @@ def perform_migration(version):
         shutil.rmtree(tmpdir)
 
 
-mp = OrderedDict()
+snapshots = load_snapshots()
+current = load_models()
+
+migration_mapping = OrderedDict()
 Bases = {}
 for i in range(DATABASE_VERSION - FIRST_DATABASE_VERSION_SUPPORTED + 1):
     Bases[i] = declarative_base()
-    for k in migration_mapping:
-        if k not in mp:
-            mp[k] = []
+    for k in sorted(set(snapshots) | set(current)):
+        if k not in migration_mapping:
+            migration_mapping[k] = []
 
-        x = get_right_model(migration_mapping, k,
-                            FIRST_DATABASE_VERSION_SUPPORTED + i)
+        x = get_right_model(snapshots, current, k, FIRST_DATABASE_VERSION_SUPPORTED + i)
         if x is not None:
             class_name = f"MigrationModel_{k}_v{FIRST_DATABASE_VERSION_SUPPORTED + i}"
             y = type(class_name, (x, Bases[i]), {})
-            mp[k].append(y)
+            migration_mapping[k].append(y)
         else:
-            mp[k].append(None)
-
-
-migration_mapping = mp
+            migration_mapping[k].append(None)

@@ -6,13 +6,11 @@ from nacl.encoding import Base64Encoder
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.handlers.admin.file import special_files
 from globaleaks.models import Model
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Column, Integer, UnicodeText, uuid4
 from globaleaks.state import State
-from globaleaks.utils.utility import uuid4
 
 
-class File_v_53(Model):
+class FileV53(Model):
     __tablename__ = 'file'
     tid = Column(Integer, primary_key=True, default=1)
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -21,12 +19,9 @@ class File_v_53(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_File(self):
+    def migrate_file(self):
         for old_obj in self.session_old.query(self.model_from['File']):
-            new_obj = self.model_to['File']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if hasattr(old_obj, key):
-                    setattr(new_obj, key, getattr(old_obj, key))
+            new_obj = self.copy('File', old_obj)
 
             if old_obj.id in special_files:
                 new_obj.id = uuid4()

@@ -6,7 +6,7 @@ from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.admin.user import db_get_users
-from globaleaks.handlers.user import serialize_user
+from globaleaks.handlers.user import user_serialize_user
 from globaleaks.jobs.job import DailyJob
 from globaleaks.orm import transact
 from globaleaks.transactions import db_schedule_email
@@ -30,6 +30,10 @@ class PGPCheck(DailyJob):
     monitor_interval = 5 * 60
 
     def prepare_admin_pgp_alerts(self, session, tid, expired_or_expiring):
+        notif = self.state.tenants[tid].cache.notification
+        if notif and not notif.enable_admin_notification_emails:
+            return
+
         for user_desc in db_get_users(session, tid, 'admin'):
             user_language = user_desc['language']
 
@@ -47,6 +51,9 @@ class PGPCheck(DailyJob):
                               mail_uses_smtp2(data['notification'], data['type']))
 
     def prepare_user_pgp_alerts(self, session, tid, user_desc):
+        if not user_desc['notification']:
+            return
+
         user_language = user_desc['language']
 
         data = {
@@ -66,7 +73,7 @@ class PGPCheck(DailyJob):
         tenant_expiry_map = {1: []}
 
         for user in db_get_expired_or_expiring_pgp_users(session, self.state.tenants.keys()):
-            user_desc = serialize_user(session, user, user.language)
+            user_desc = user_serialize_user(session, user, user.language)
             tenant_expiry_map.setdefault(user.tid, []).append(user_desc)
 
             log.info('Removing expired PGP key of: %s', user.username, tid=user.tid)
@@ -78,9 +85,6 @@ class PGPCheck(DailyJob):
         for tid, expired_or_expiring in tenant_expiry_map.items():
             for user_desc in expired_or_expiring:
                 self.prepare_user_pgp_alerts(session, tid, user_desc)
-
-            if self.state.tenants[tid].cache.notification.enable_notification_emails_admin:
-                continue
 
             if expired_or_expiring:
                 self.prepare_admin_pgp_alerts(session, tid, expired_or_expiring)

@@ -31,7 +31,7 @@
     </div>
   }
 
-  @if (recipient && defaultTabs.length) {
+  @if (recipient() && defaultTabs.length) {
     <div>
       @for (tab of defaultTabs; track tab.id; let tabIndex = $index) {
         <div>
@@ -63,7 +63,7 @@
           } @else {
             <span class="me-2">{{ tab.name }}</span>
           }
-            <span class="badge bg-secondary">{{ (recipient ? "Personal" : "Default") | translate }}</span>
+            <span class="badge bg-secondary">{{ (recipient() ? "Personal" : "Default") | translate }}</span>
           </span>
           <span class="col-md-5 clearfix">
             <span class="float-end" role="group" [attr.aria-label]="'Tab actions' | translate">
@@ -137,7 +137,7 @@
               <div class="form-group col-lg-4">
                 <label [for]="'filter-value-' + tabIndex + '-' + filterIndex">{{ "Value" | translate }}</label>
                 <input [id]="'filter-value-' + tabIndex + '-' + filterIndex" class="form-control"
-                       [class.is-invalid]="invalidValues.has(filter)"
+                       [class.is-invalid]="invalidValues.has(filter) && !suggestions.get(filter)?.length"
                        autocomplete="off"
                        [ngModel]="filterValue(filter)" (ngModelChange)="updateValue(filter, $event)"
                        [placeholder]="filter.operator === 'in' ? ('Separate multiple values with commas' | translate) : ('Value' | translate)">
@@ -152,7 +152,7 @@
                     }
                   </div>
                 }
-                @if (invalidValues.has(filter)) {
+                @if (invalidValues.has(filter) && !suggestions.get(filter)?.length) {
                   <div class="invalid-feedback">{{ "No matching value exists" | translate }}</div>
                 }
               </div>

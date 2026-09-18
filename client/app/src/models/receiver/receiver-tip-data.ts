@@ -10,6 +10,10 @@ import {IarData} from "@app/models/receiver/iar-data";
 import {RedactionData} from "@app/models/component-model/redaction";
 
 export interface Questionnaire {
+  // The questionnaire these answers were given to: a report carries the one
+  // composing it and the additional ones it has been asked over its life
+  questionnaire_id?: string;
+  name?: string;
   steps: Step[];
   answers: Answers;
 }
@@ -21,6 +25,11 @@ export class RecieverTipData {
   expiration_date: string;
   progressive: number;
   context_id: string;
+  type: string;
+  allow_transmission: boolean;
+  can_communicate: boolean;
+  can_decide_request: boolean;
+  receipt_valid: boolean;
   questionnaires: Questionnaire[];
   tor: boolean;
   mobile: boolean;
@@ -28,6 +37,8 @@ export class RecieverTipData {
   identity_provided: boolean;
   last_access: string;
   itip_last_access: string;
+  counterpart_last_access: string;
+  owned: boolean;
   score: number;
   status: string;
   substatus: string;
@@ -52,6 +63,17 @@ export class RecieverTipData {
   whistleblower_identity_field: Children;
   tip_id: string;
   redactions: RedactionData[];
+  exchanges: ExchangeReport[];
+  exchange: ExchangeChannel | null;
+  additional_questionnaire_requestable: boolean;
+  // The additional questionnaire the report is asked, if it is asked one
+  additional_questionnaire_id: string;
+}
+
+// The identity and the name of a questionnaire the report can be asked to fill
+export interface RequestableQuestionnaire {
+  id: string;
+  name: string;
 }
 
 export type Answers = Record<string, {
@@ -62,18 +84,47 @@ export type Answers = Record<string, {
 export interface Receiver {
   id: string;
   name: string;
+  // A report names, besides the recipients holding it, the ones that took part
+  // in it and hold it no longer: only the former are active
   active: boolean;
   last_access: string | null;
+}
+
+export interface ExchangeReport {
+  id: string;
+  creation_date: string;
+  target_tid: number;
+  tenant_name: string;
+  progressive: number;
+  status: string;
+  substatus: string;
+  accessible: boolean;
+}
+
+export interface ExchangeChannel {
+  type: string;
+  from_tenant_name: string;
+  to_tenant_name: string;
+  update_date: string;
+  internaltip_id: string;
 }
 
 export interface Data {
   whistleblower_identity_provided: boolean;
   whistleblower_identity: WhistleblowerIdentity;
   whistleblower_identity_date: string;
+  transmitted_from?: {
+    source_tid: number | string;
+  };
+  request?: {
+    source_tid: number | string;
+  };
+  receipt?: string;
 }
 
 export interface Context {
   id: string;
+  slug: string;
   hidden: boolean;
   order: number;
   tip_timetolive: number;

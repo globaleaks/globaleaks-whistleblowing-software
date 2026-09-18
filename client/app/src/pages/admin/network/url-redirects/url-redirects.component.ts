@@ -1,21 +1,22 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {redirectResolverModel} from "@app/models/resolvers/redirect-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
-
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
+import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 @Component({
     selector: "src-url-redirects",
     templateUrl: "./url-redirects.component.html",
     standalone: true,
-    imports: [FormsModule, TranslatorPipe, OrderByPipe]
+    imports: [TranslatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent]
 })
 export class UrlRedirectsComponent implements OnInit {
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
 
-  redirectData: redirectResolverModel[];
+  redirectData: redirectResolverModel[] = [];
+  showAddRedirect = false;
   new_redirect = {
     path1: "",
     path2: ""
@@ -25,12 +26,8 @@ export class UrlRedirectsComponent implements OnInit {
     this.getResolver();
   }
 
-  redirectPath(path: redirectResolverModel, index: number) {
-    if (index === 1) {
-      return path.path1;
-    } else {
-      return path.path2;
-    }
+  toggleAddRedirect(): void {
+    this.showAddRedirect = !this.showAddRedirect;
   }
 
   addRedirect() {
@@ -38,8 +35,7 @@ export class UrlRedirectsComponent implements OnInit {
       path1: this.new_redirect.path1,
       path2: this.new_redirect.path2
     };
-    this.httpService.requestPostRedirectsResource(arg).subscribe((res) => {
-      this.redirectData.push(res);
+    this.httpService.requestPostRedirectsResource(arg).subscribe(() => {
       this.new_redirect.path1 = "";
       this.new_redirect.path2 = "";
       this.getResolver();

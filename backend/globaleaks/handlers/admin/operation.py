@@ -1,18 +1,21 @@
+import contextlib
 import os
 from nacl.encoding import Base64Encoder
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.analyst import set_default_statistical_template
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
 from globaleaks.handlers.user import get_user
 from globaleaks.handlers.user.operation import disable_2fa, reset_idp_binding
 from globaleaks.models import Config, InternalTip, User
-from globaleaks.models.config import db_set_config_variable, get_default, ConfigDescriptor, ConfigFactory, ConfigL10NFactory
+from globaleaks.models.config import configurable_keys, db_get_protected_users, db_get_unlocked_keys, db_reset_key, db_set_config_variable, get_default, protected_keys, unlockable_keys, ConfigDescriptor, ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors
+from globaleaks.sessions import Sessions
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
 from globaleaks.utils.crypto import GCE, sha256
@@ -22,8 +25,9 @@ from globaleaks.utils.utility import datetime_now
 
 
 @transact
-def enable_encryption(session, tid):
+def enable_encryption(session, tid, user_id):
     ConfigFactory(session, tid).set_val('encryption', True)
+    db_log(session, tid=tid, type='enable_encryption', user_id=user_id)
 
 
 @transact
@@ -31,16 +35,27 @@ def check_hostname(session, tid, hostname):
     """
     Ensure the hostname does not collide across tenants or include an origin that it shouldn't.
 
+    A hostname matching another tenant's hostname or subdomain is rejected.
+
     :param session: An ORM session
     :param tid: A tenant id
     :param hostname: The hostname to be evaluated
     """
     forbidden_endings = ('onion', 'localhost')
+
     existing_hostnames = {h.value for h in session.query(Config)
                                                   .filter(Config.tid != tid,
                                                           Config.var_name == 'hostname')}
 
-    if hostname and (hostname.endswith(forbidden_endings) or hostname in existing_hostnames):
+    existing_subdomains = {s.value for s in session.query(Config)
+                                                   .filter(Config.tid != tid,
+                                                           Config.var_name == 'subdomain')}
+
+    existing_subdomains.discard('')
+
+    if hostname and (hostname.endswith(forbidden_endings) or
+                     hostname in existing_hostnames or
+                     hostname.split('.')[0] in existing_subdomains):
         raise errors.InputValidationError('Hostname contains a forbidden origin or is already reserved')
 
 
@@ -67,13 +82,25 @@ def reset_submissions(session, tid, user_id):
     db_log(session, tid=tid, type='reset_reports', user_id=user_id)
 
 
+def db_get_session_escrow_key(session, user_session):
+    """
+    Load and decrypt the operator's escrow private key on demand.
+
+    The session only records whether the operator has escrow access (ek); the
+    key itself is reloaded from the operator's record and decrypted with the
+    session crypto key when actually needed.
+    """
+    operator = db_get(session, models.User,
+                      (models.User.id == user_session.user_id,
+                       models.User.tid == user_session.user_tid))
+
+    return GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(operator.crypto_escrow_prv_key))
+
+
 @transact
 def reset_backups(session, tid, user_id):
     """
     Transaction to reset the backup configuration of the specified tenant
-
-    Every backup variable is restored to its default (disabling the feature),
-    so the snapshots deletion that follows starts from a clean configuration.
 
     :param session: An ORM session
     :param tid: A tenant ID
@@ -105,33 +132,42 @@ def toggle_escrow(session, tid, user_session):
             config.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, stat_prv_key)))
 
         if user.tid == tid:
-            user_session.ek = user.crypto_escrow_prv_key
             user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_escrow_prv_key))
+            user_session.ek = True
 
         crypto_escrow_bkp_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, user_session.cc))
 
         if tid == 1:
             user.crypto_escrow_bkp1_key = crypto_escrow_bkp_key
-            session.query(models.User).filter(models.User.id != user_session.user_id).update({'password_change_needed': True}, synchronize_session=False)
+            session.query(models.User).filter(models.User.id != user_session.user_id).update({models.User.password_change_needed: True}, synchronize_session=False)
         else:
             user.crypto_escrow_bkp2_key = crypto_escrow_bkp_key
             root_config_escrow = root_config.get_val('crypto_escrow_pub_key')
             if root_config_escrow:
                 config.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_config_escrow, crypto_escrow_prv_key)))
 
-            session.query(models.User).filter(models.User.tid == tid, models.User.id != user_session.user_id).update({'password_change_needed': True}, synchronize_session=False)
+            session.query(models.User).filter(models.User.tid == tid, models.User.id != user_session.user_id).update({models.User.password_change_needed: True}, synchronize_session=False)
 
     else:
+        # Only protected users may dismantle key escrow. When protected users
+        # exist, a non-protected operator must not be able to disable escrow
+        # and thus invalidate the privileged key recovery capability.
+        protected_users = db_get_protected_users(session, tid)
+        if protected_users and user_session.user_id not in protected_users:
+            raise errors.ForbiddenOperation
+
         if tid == 1:
             session.query(models.User).update({'crypto_escrow_bkp1_key': ''}, synchronize_session=False)
         else:
-            session.query(models.User).update({'crypto_escrow_bkp2_key': ''}, synchronize_session=False)
+            session.query(models.User).filter(models.User.tid == tid).update({'crypto_escrow_bkp2_key': ''}, synchronize_session=False)
 
         session.query(models.User).filter(models.User.tid == tid).update({'crypto_escrow_prv_key': ''}, synchronize_session=False)
 
         config.set_val('crypto_escrow_pub_key', '')
         config.set_val('crypto_escrow_prv_key', '')
         config.set_val('crypto_stat_prv_key', '')
+
+    db_log(session, tid=tid, type='toggle_escrow', user_id=user_session.user_id)
 
 
 @transact
@@ -152,14 +188,23 @@ def toggle_user_escrow(session, tid, user_session, user_id):
         return
 
     if not user.crypto_escrow_prv_key:
-        crypto_escrow_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(user_session.ek))
+        crypto_escrow_prv_key = db_get_session_escrow_key(session, user_session)
 
         if user_session.user_tid == 1 and tid != 1:
             crypto_escrow_prv_key = GCE.asymmetric_decrypt(crypto_escrow_prv_key, Base64Encoder.decode(ConfigFactory(session, tid).get_val('crypto_escrow_prv_key')))
 
         user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_escrow_prv_key))
     else:
+        # Only protected users may revoke key escrow access. When protected
+        # users exist, a non-protected operator must not be able to revoke
+        # escrow keys and thus invalidate the privileged key recovery capability.
+        protected_users = db_get_protected_users(session, tid)
+        if protected_users and user_session.user_id not in protected_users:
+            raise errors.ForbiddenOperation
+
         user.crypto_escrow_prv_key = ''
+
+    db_log(session, tid=tid, type='toggle_user_escrow', user_id=user_session.user_id, object_id=user_id)
 
 
 @transact
@@ -186,13 +231,84 @@ def disable_user_permission_file_upload(session, tid, user_session):
     user_session.permissions['can_upload_files'] = False
 
 
+def db_reset_smtp_settings(session, tid):
+    config = ConfigFactory(session, tid)
+    config.set_val('smtp_server', 'mail.globaleaks.org')
+    config.set_val('smtp_port', 587)
+    config.set_val('smtp_username', 'globaleaks')
+    config.set_val('smtp_password', 'globaleaks')
+    config.set_val('smtp_source_email', 'notifications@globaleaks.org')
+    config.set_val('smtp_security', 'TLS')
+    config.set_val('smtp_authentication', True)
+
+
 @transact
-def reset_templates(session, tid):
+def reset_templates(session, tid, user_id):
     ConfigL10NFactory(session, tid).reset('notification')
+    db_log(session, tid=tid, type='reset_templates', user_id=user_id)
+
+
+@transact
+def set_key_unlocked(session, tid, user_id, var_name, unlocked):
+    """
+    Leave to the sites naming a profile a variable they may customize, or take it back
+
+    A site holds what its profile hands it: the profile names here the few variables it does not
+    hold on their behalf, among the ones the application allows to be left free at all.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the profile
+    :param user_id: The id of the user deciding it
+    :param var_name: The name of the variable
+    :param unlocked: Whether the sites naming the profile may customize it
+    """
+    # Only a profile hands variables to other sites, and so only a profile withholds them. The
+    # default profile is not one of them: what a site inherits from it, it may write.
+    if tid <= DEFAULT_PROFILE_ID:
+        raise errors.ForbiddenOperation
+
+    if var_name not in unlockable_keys:
+        raise errors.InputValidationError
+
+    keys = set(db_get_unlocked_keys(session, tid))
+
+    if unlocked:
+        keys.add(var_name)
+    else:
+        keys.discard(var_name)
+
+    db_set_config_variable(session, tid, 'unlocked_keys', sorted(keys))
+
+    db_log(session, tid=tid, type='unlock_key' if unlocked else 'lock_key', user_id=user_id)
+
+
+@transact
+def reset_key(session, tid, user_id, var_name):
+    """
+    Give up the value the tenant holds of its own for a variable
+
+    What the profile hands reaches the tenant again, and follows it from then on. A variable the
+    tenant owns in any case is refused: there is no other value for it to go back to.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param user_id: The id of the user asking for it
+    :param var_name: The name of the variable
+    """
+    if var_name in protected_keys or var_name not in configurable_keys:
+        raise errors.InputValidationError
+
+    db_reset_key(session, tid, var_name)
+
+    db_log(session, tid=tid, type='reset_key', user_id=user_id)
 
 
 def db_set_user_password(session, tid, user_session, user_id, key):
     user = db_get_user(session, tid, user_id)
+
+    if user.id in db_get_protected_users(session, tid):
+        # Prevent password reset of protected users
+        raise errors.ForbiddenOperation
 
     # if encryption is enabled accept password changes only if the admin has access to escrow keys
     if user.crypto_pub_key and not user_session.ek:
@@ -201,7 +317,7 @@ def db_set_user_password(session, tid, user_session, user_id, key):
     key = Base64Encoder.decode(key.encode())
 
     if user.crypto_pub_key and user_session.ek:
-        crypto_escrow_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(user_session.ek))
+        crypto_escrow_prv_key = db_get_session_escrow_key(session, user_session)
 
         if user_session.user_tid == 1:
             user_cc = GCE.asymmetric_decrypt(crypto_escrow_prv_key, Base64Encoder.decode(user.crypto_escrow_bkp1_key))
@@ -214,6 +330,11 @@ def db_set_user_password(session, tid, user_session, user_id, key):
     user.password_change_date = datetime_now()
     user.password_change_needed = True
 
+    # Drop the target user's active sessions: a credential change must not leave
+    # previously authenticated sessions usable; never revoke the operator's own.
+    if user_session.user_id != user_id:
+        Sessions.revoke(tid, user_id)
+
     db_log(session, tid=tid, type='change_password', user_id=user_session.user_id, object_id=user_id)
 
 
@@ -222,9 +343,9 @@ def set_user_password(session, tid, user_session, user_id, password):
   return db_set_user_password(session, tid, user_session, user_id, password)
 
 
-def set_tmp_key(user_session, user, token, user_cc=''):
+def set_tmp_key(session, user_session, user, token, user_cc=''):
     if not user_cc:
-        crypto_escrow_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(user_session.ek))
+        crypto_escrow_prv_key = db_get_session_escrow_key(session, user_session)
 
         if user_session.user_tid == 1:
             user_cc = GCE.asymmetric_decrypt(crypto_escrow_prv_key, Base64Encoder.decode(user.crypto_escrow_bkp1_key))
@@ -234,12 +355,11 @@ def set_tmp_key(user_session, user, token, user_cc=''):
     key = Base64Encoder.decode(GCE.derive_key(token, user.salt).encode())
     key = Base64Encoder.encode(GCE.symmetric_encrypt(key, user_cc))
 
-    try:
-        with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, token)), "ab") as f:
+    with contextlib.suppress(OSError):
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
+        with open(filepath, "ab") as f:
             f.write(b":")
             f.write(key)
-    except:
-        pass
 
 
 def db_admin_generate_password_reset_token(session, tid, user_session, user_id, user_cc=''):
@@ -247,10 +367,14 @@ def db_admin_generate_password_reset_token(session, tid, user_session, user_id, 
     if user is None:
         return
 
+    if user.id in db_get_protected_users(session, tid):
+        # Prevent sending password reset links via mail to protected users
+        raise errors.ForbiddenOperation
+
     token = db_generate_password_reset_token(session, user)
 
     if user.crypto_pub_key and (user_cc or user_session.ek):
-        set_tmp_key(user_session, user, token, user_cc)
+        set_tmp_key(session, user_session, user, token, user_cc)
 
 
 @transact
@@ -267,6 +391,36 @@ class AdminOperationHandler(OperationHandler):
     check_roles = 'admin'
     invalidate_cache = True
 
+    # Each operation is gated on the permission of its area, not on a class-wide one: the
+    # operations are grouped under the permission gating them, and the map the base handler
+    # reads is derived from the grouping
+    permission_operations = {
+        'can_manage_settings': ['enable_encryption',
+                                'reset_submissions',
+                                'reset_backups',
+                                'toggle_escrow',
+                                'toggle_user_escrow',
+                                'validate_idp',
+                                'unlock_key',
+                                'lock_key',
+                                'reset_key'],
+        'can_manage_network': ['set_hostname',
+                               'reset_onion_private_key'],
+        'can_manage_notifications': ['test_mail',
+                                     'reset_templates'],
+        'can_manage_users': ['set_user_password',
+                             'send_password_reset_email',
+                             'disable_2fa',
+                             'reset_idp_binding',
+                             'enable_user_permission_file_upload',
+                             'disable_user_permission_file_upload'],
+        'can_configure_statistical_report_templates': ['set_default_statistical_template']
+    }
+
+    operation_permissions = {operation: permission
+                             for permission, operations in permission_operations.items()
+                             for operation in operations}
+
     require_confirmation = [
         'enable_encryption',
         'disable_2fa',
@@ -275,17 +429,40 @@ class AdminOperationHandler(OperationHandler):
         'toggle_user_escrow',
         'enable_user_permission_file_upload',
         'reset_submissions',
+        'set_user_password',
         'reset_backups'
     ]
 
     def enable_encryption(self, req_args, *args, **kwargs):
-        return enable_encryption(self.request.tid)
+        return enable_encryption(self.request.tid, self.session.user_id)
 
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.request.tid, self.session.user_id, req_args['value'])
 
     def reset_idp_binding(self, req_args, *args, **kwargs):
         return reset_idp_binding(self.request.tid, self.session.user_id, req_args['value'])
+
+    @inlineCallbacks
+    def validate_idp(self, req_args, *args, **kwargs):
+        # The issuer is validated by the OIDC discovery and the JWKS fetch, the client by probing
+        # the token endpoint
+        try:
+            yield State.oidcauth.validate_issuer(req_args['issuer'])
+            yield State.oidcauth.validate_client(req_args['issuer'], req_args['client_id'])
+        except Exception as e:
+            raise errors.InputValidationError(str(e))
+
+    def set_default_statistical_template(self, req_args, *args, **kwargs):
+        return tw(set_default_statistical_template, self.request.tid, req_args['value'])
+
+    def unlock_key(self, req_args, *args, **kwargs):
+        return set_key_unlocked(self.request.tid, self.session.user_id, req_args['value'], True)
+
+    def lock_key(self, req_args, *args, **kwargs):
+        return set_key_unlocked(self.request.tid, self.session.user_id, req_args['value'], False)
+
+    def reset_key(self, req_args, *args, **kwargs):
+        return reset_key(self.request.tid, self.session.user_id, req_args['value'])
 
     def set_user_password(self, req_args, *args, **kwargs):
         if self.session.user_id == req_args['user_id']:
@@ -299,6 +476,14 @@ class AdminOperationHandler(OperationHandler):
     def send_password_reset_email(self, req_args, *args, **kwargs):
         if self.session.user_id == req_args['value']:
             raise errors.ForbiddenOperation
+
+        # Require step-up confirmation only when an administrator operates
+        # directly on a tenant (including the root one). A root tenant
+        # administrator operating on another tenant via a management session
+        # already authenticated fully on the root tenant before switching and
+        # is therefore exempted.
+        if not self.session.properties.get('management_session', False):
+            self.check_confirmation()
 
         return send_password_reset_token(self.request.tid,
                                          self.session,
@@ -317,11 +502,14 @@ class AdminOperationHandler(OperationHandler):
         if self.state.tor:
             yield self.state.tor.load_onion_service(self.request.tid, hostname, key)
 
-        returnValue({
+        yield tw(db_log, tid=self.request.tid, type='reset_onion_key', user_id=self.session.user_id)
+
+        return {
             'onionservice': hostname
-        })
+        }
 
     def reset_submissions(self, req_args, *args, **kwargs):
+        self.check_root_or_management_session()
         return reset_submissions(self.request.tid, self.session.user_id)
 
     @inlineCallbacks
@@ -334,8 +522,8 @@ class AdminOperationHandler(OperationHandler):
         # Imported lazily: globaleaks.jobs pulls in handlers that import back into
         # this module (admin.operation), so a top-level import here would create a
         # circular import at startup.
-        from globaleaks.jobs.backup import reset_backups_threaded
-        from globaleaks.jobs.job import stop_job
+        from globaleaks.jobs.backup import reset_backups_threaded  # noqa: PLC0415
+        from globaleaks.jobs.job import stop_job  # noqa: PLC0415
 
         # Stop the running job first so no backup runs against the directory
         # while it is being cleared, then restore the default configuration
@@ -353,6 +541,8 @@ class AdminOperationHandler(OperationHandler):
         yield check_hostname(self.request.tid, req_args['value'])
         yield tw(db_set_config_variable, self.request.tid, 'hostname', req_args['value'])
         self.state.tenants[self.request.tid].cache.hostname = req_args['value']
+
+        yield tw(db_log, tid=self.request.tid, type='set_hostname', user_id=self.session.user_id)
 
     @inlineCallbacks
     def test_mail(self, req_args, *args, **kwargs):
@@ -389,13 +579,14 @@ class AdminOperationHandler(OperationHandler):
         return disable_user_permission_file_upload(self.request.tid, self.session)
 
     def reset_templates(self, req_args):
-        return reset_templates(self.request.tid)
+        return reset_templates(self.request.tid, self.session.user_id)
 
     def operation_descriptors(self):
         return {
             'enable_encryption': AdminOperationHandler.enable_encryption,
             'disable_2fa': AdminOperationHandler.disable_2fa,
             'reset_idp_binding': AdminOperationHandler.reset_idp_binding,
+            'validate_idp': AdminOperationHandler.validate_idp,
             'reset_onion_private_key': AdminOperationHandler.reset_onion_private_key,
             'reset_submissions': AdminOperationHandler.reset_submissions,
             'reset_backups': AdminOperationHandler.reset_backups,
@@ -407,5 +598,9 @@ class AdminOperationHandler(OperationHandler):
             'toggle_user_escrow': AdminOperationHandler.toggle_user_escrow,
             'enable_user_permission_file_upload': AdminOperationHandler.enable_user_permission_file_upload,
             'disable_user_permission_file_upload': AdminOperationHandler.disable_user_permission_file_upload,
-            'reset_templates': AdminOperationHandler.reset_templates
+            'reset_templates': AdminOperationHandler.reset_templates,
+            'set_default_statistical_template': AdminOperationHandler.set_default_statistical_template,
+            'unlock_key': AdminOperationHandler.unlock_key,
+            'lock_key': AdminOperationHandler.lock_key,
+            'reset_key': AdminOperationHandler.reset_key
         }

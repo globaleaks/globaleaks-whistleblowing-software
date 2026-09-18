@@ -6,23 +6,21 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AppDataService} from "@app/app-data.service";
 import {TranslationService} from "@app/services/helper/translation.service";
 import {HttpService} from "@app/shared/services/http.service";
-import {ActivatedRoute, Router} from "@angular/router";
-import {NgClass} from "@angular/common";
+import {ActivatedRoute} from "@angular/router";
 import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {ReceiptComponent} from "../../../receipt/receipt.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbModal, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 import {RoleSelectionModalComponent} from "@app/shared/modals/role-selection/role-selection-modal.component";
 
 
 @Component({
-    selector: "views-user",
+    selector: "src-user",
     templateUrl: "./user.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, NgClass, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslateModule, TranslatorPipe, OrderByPipe]
+    imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslateModule, OrderByPipe]
 })
 export class UserComponent {
   protected activatedRoute = inject(ActivatedRoute);
@@ -33,8 +31,7 @@ export class UserComponent {
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
   protected translationService = inject(TranslationService);
-  private router = inject(Router);
-  private modalService = inject(NgbModal);
+  private readonly modalService = inject(NgbModal);
 
   selectedRole = {value: []};
 
@@ -42,10 +39,9 @@ export class UserComponent {
     this.onQueryParameterChangeListener();
   }
 
-  onChangeLanguage() {
-    sessionStorage.setItem("language", this.translationService.language);
-
-    window.location.reload();
+  onChangeLanguage(language: string) {
+    this.translationService.setLanguage(language);
+    this.appConfigService.reload();
   }
   
   canSwitchUser() {
@@ -69,10 +65,10 @@ export class UserComponent {
         sessionStorage.setItem("language", langParam);
 
         // Get current hash
-        let hash = window.location.hash; // e.g., "#!/some/path?lang=en&foo=bar"
+        const hash = window.location.hash; // e.g., "#!/some/path?lang=en&foo=bar"
 
         // Split path and query
-        const [path, query] = hash.split('?');
+        const [path = "", query] = hash.split('?');
 
         // Remove the 'lang' param from the query if present
         const newQuery = query
@@ -93,7 +89,7 @@ export class UserComponent {
   onLogout(event: Event) {
     event.preventDefault();
     const promise = () => {
-      this.appConfigService.reinit(false);
+      this.appConfigService.reinit();
       this.appConfigService.onValidateInitialConfiguration();
     };
 
@@ -116,6 +112,6 @@ export class UserComponent {
             }
           },
         });
-      })
+      }, () => { /* dismissed */ });
   }
 }

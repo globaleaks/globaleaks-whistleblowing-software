@@ -1,25 +1,16 @@
 <div class="reveal">
-  <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active" >
-    @for (tab of tabs; track tab) {
-      <li [ngbNavItem]="tab.title">
-        <button ngbNavLink [attr.data-cy]="tab.id">{{ tab.title | translate }}</button>
-        <ng-template ngbNavContent>
-          <ng-container *ngTemplateOutlet="tab.component"></ng-container>
-        </ng-template>
-      </li>
-    }
-  </ul>
-  <div [ngbNavOutlet]="nav" class="mt-2"></div>
-  <ng-template #tab1>
-    <src-https></src-https>
-  </ng-template>
-  <ng-template #tab2>
-    <src-tor></src-tor>
-  </ng-template>
-  <ng-template #tab3>
-    <src-access-control></src-access-control>
-  </ng-template>
-  <ng-template #tab4>
-    <src-url-redirects></src-url-redirects>
-  </ng-template>
+  <src-tabs>
+    <ng-template srcTab="https" title="HTTPS">
+      <src-https></src-https>
+    </ng-template>
+    <ng-template srcTab="tor" title="Tor">
+      <src-tor></src-tor>
+    </ng-template>
+    <ng-template srcTab="access_control" title="Access control">
+      <src-access-control></src-access-control>
+    </ng-template>
+    <ng-template srcTab="url_redirects" title="URL redirects">
+      <src-url-redirects></src-url-redirects>
+    </ng-template>
+  </src-tabs>
 </div>

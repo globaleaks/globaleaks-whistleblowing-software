@@ -1,7 +1,7 @@
 import {Directive, HostListener} from "@angular/core";
 
 @Directive({
-    selector: "[disableCcp]",
+    selector: "[srcDisableCcp]",
     standalone: true
 })
 export class DisableCcpDirective {

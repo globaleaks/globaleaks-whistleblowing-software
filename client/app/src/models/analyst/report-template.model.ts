@@ -6,8 +6,8 @@ export interface ReportTemplate {
 }
 
 export interface ReportTemplateConfig {
-  selectedMetrics: Array<string | ReportTemplateMetric>;
-  selectedCharts: Array<string | ReportTemplateChart>;
+  selectedMetrics: (string | ReportTemplateMetric)[];
+  selectedCharts: (string | ReportTemplateChart)[];
   filters?: ReportTemplateFilters;
 }
 
@@ -28,9 +28,9 @@ export interface ReportTemplateChart extends ReportTemplateMetric {
 }
 
 export interface ReportTemplateFilters {
-  channel?: Array<string | number>;
-  date_from?: number;
-  date_to?: number;
+  channel?: (string | number)[];
+  date_from?: number | string;
+  date_to?: number | string;
 }
 
 export interface ReportTemplateData {

@@ -1,10 +1,10 @@
 import {Component, Input, inject, OnInit, ChangeDetectorRef} from "@angular/core";
-import {NgbActiveModal, NgbModal, NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {FormsModule} from "@angular/forms";
-import {DatePipe, NgClass} from "@angular/common";
+import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
+import {DatePipe, NgTemplateOutlet} from "@angular/common";
 import {TranslateModule, TranslateService} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dropdown";
+import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
+import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
+import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
 import {HttpService} from "@app/shared/services/http.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -17,17 +17,13 @@ interface AuditLogEntry {
   type: string;
   timestamp: Date;
   data?: any;
+  // What a deletion leaves of the content it took away
+  hash_sha256?: string;
+  hash_sha512?: string;
 }
 
-interface GroupedAuditLogEntry {
-  id: string;
-  user: string;
-  action: string;
-  type: string;
-  timestamp: Date;
-  data?: any;
+interface GroupedAuditLogEntry extends AuditLogEntry {
   isGroup?: boolean;
-  isExpanded?: boolean;
   groupedEntries?: AuditLogEntry[];
   groupCount?: number;
 }
@@ -36,63 +32,68 @@ interface GroupedAuditLogEntry {
   selector: "src-tip-audit-log",
   templateUrl: "./tip-audit-log.component.html",
   standalone: true,
-  imports: [FormsModule, DatePipe, NgClass, TranslateModule, TranslatorPipe, NgMultiSelectDropDownModule, NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule],
+  imports: [DatePipe, NgTemplateOutlet, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule],
   styles: [`
     .table {
       table-layout: fixed;
+    }
+
+    .audit-detail-line {
+      font-size: 0.8125rem;
+    }
+
+    .audit-detail-line + .audit-detail-line {
+      margin-top: 0.5em;
+    }
+
+    .audit-detail-line code {
+      word-break: break-all;
     }
   `]
 })
 
 export class TipAuditLogComponent implements OnInit {
-  private modalService = inject(NgbModal);
-  private activeModal = inject(NgbActiveModal);
-  private translateService = inject(TranslateService);
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
-  private utilsService = inject(UtilsService);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly translateService = inject(TranslateService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  @Input() tipId: string = '';
+  @Input() tipId = '';
   @Input() tipData: any = null; // Will receive the tip data from parent
   @Input() usersData: any[] = []; // Will receive users data from parent
 
-  // Component state
-  searchTerm: string = '';
-  sortField: string = 'timestamp';
-  sortDirection: 'asc' | 'desc' = 'desc';
+  // The entry whose detail is open: one at a time, as on the other tables
+  // that carry an expandable row
+  // the ids of the rows opened, groups and entries alike
+  expanded = new Set<string>();
 
-  // Pagination properties
-  currentPage = 1;
-  pageSize = 10;
+  readonly typeOptions: TableFilterOption[] = [
+    {id: 'Access', label: 'Access'},
+    {id: 'Update', label: 'Update'},
+    {id: 'Delete', label: 'Delete'}
+  ];
 
-  // Type filtering properties
-  dropdownTypeModel: { id: number; label: string; color?: string; }[] = [];
-  dropdownTypeData: { id: number; label: string; color?: string; }[] = [];
-  typeDropdownVisible: boolean = false;
-
-  // Dropdown settings
-  dropdownSettings: IDropdownSettings = {
-    idField: "id",
-    textField: "label",
-    itemsShowLimit: 3,
-    allowSearchFilter: false,
-    selectAllText: this.translateService.instant("Select all"),
-    unSelectAllText: this.translateService.instant("Deselect all"),
-    searchPlaceholderText: this.translateService.instant("Search")
-  };
+  readonly table = new TableState<GroupedAuditLogEntry>({
+    orderBy: 'timestamp',
+    orderDesc: true,
+    filters: {
+      type: {type: 'select'}
+    }
+  });
 
   // Audit log data
   auditLogEntries: AuditLogEntry[] = [];
-  displayedEntries: GroupedAuditLogEntry[] = [];
 
   ngOnInit() {
-    this.initializeTypeFilterData();
     this.loadAuditLogData();
   }
 
   getUserName(userId: string): string {
-    if (!userId) {
+    // The whistleblower acts through the report it holds the session of, so
+    // the report names it as much as an empty author does
+    if (!userId || userId === this.tipId) {
       return this.translateService.instant('Whistleblower');
     }
 
@@ -114,17 +115,9 @@ export class TipAuditLogComponent implements OnInit {
     return this.getUserName(userId);
   }
 
-  initializeTypeFilterData() {
-    this.dropdownTypeData = [
-      { id: 1, label: 'Access', color: 'info' },
-      { id: 2, label: 'Update', color: 'warning' },
-      { id: 3, label: 'Delete', color: 'danger' }
-    ];
-  }
-
   loadAuditLogData() {
     // Determine which API endpoint to use based on user role
-    const userRole = this.authenticationService.session.role;
+    const userRole = this.authenticationService.session?.role;
 
     if (userRole === 'receiver' && this.tipId) {
       // Use recipient audit log API
@@ -162,34 +155,16 @@ export class TipAuditLogComponent implements OnInit {
         action: log.type,
         type: this.categorizeAuditLogType(log.type),
         timestamp: new Date(log.date),
-        data: log.data
+        data: log.data,
+        hash_sha256: log.data?.hash_sha256 || '',
+        hash_sha512: log.data?.hash_sha512 || ''
       };
     });
 
-    this.createDisplayedEntries();
-  }
+    this.table.setItems(this.groupAccessReportEntries(this.auditLogEntries));
 
-  private createDisplayedEntries() {
-    // Apply initial filters to raw data before grouping
-    let preFiltered = this.auditLogEntries;
-
-    // Apply search filter to raw data
-    if (this.searchTerm.trim()) {
-      const searchLower = this.searchTerm.toLowerCase();
-      preFiltered = preFiltered.filter(entry =>
-        entry.user.toLowerCase().includes(searchLower) ||
-        entry.action.toLowerCase().includes(searchLower) ||
-        entry.type.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Apply type filter to raw data
-    if (this.dropdownTypeModel && this.dropdownTypeModel.length > 0) {
-      const selectedCategories = this.dropdownTypeModel.map(item => item.label);
-      preFiltered = preFiltered.filter(entry => selectedCategories.includes(entry.type));
-    }
-
-    this.displayedEntries = this.groupAccessReportEntries(preFiltered);
+    // Zoneless: the entries arrive on an http callback, which notifies nothing on its own
+    this.cdr.detectChanges();
   }
 
   private groupAccessReportEntries(entries: AuditLogEntry[]): GroupedAuditLogEntry[] {
@@ -201,6 +176,9 @@ export class TipAuditLogComponent implements OnInit {
     let i = 0;
     while (i < sortedEntries.length) {
       const currentEntry = sortedEntries[i];
+      if (currentEntry === undefined) {
+        break;
+      }
 
       // Check if this is an access_report entry
       if (currentEntry.action === 'access_report') {
@@ -211,6 +189,9 @@ export class TipAuditLogComponent implements OnInit {
         let j = i + 1;
         while (j < sortedEntries.length) {
           const nextEntry = sortedEntries[j];
+          if (nextEntry === undefined) {
+            break;
+          }
           const nextDayKey = nextEntry.timestamp.toISOString().split('T')[0];
 
           // Check if next entry is access_report, same user, and same day
@@ -229,18 +210,17 @@ export class TipAuditLogComponent implements OnInit {
         if (groupEntries.length === 1) {
           // Single entry - no need to group
           grouped.push({
-            ...groupEntries[0],
+            ...currentEntry,
             isGroup: false
           });
         } else {
           // Multiple consecutive entries - create a group
-          const earliestEntry = groupEntries[0]; // Already sorted oldest first
+          const earliestEntry = currentEntry; // Already sorted oldest first
 
           grouped.push({
             ...earliestEntry,
             id: `group_${currentEntry.user}_${i}`,
             isGroup: true,
-            isExpanded: false,
             groupedEntries: groupEntries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()),
             groupCount: groupEntries.length
           });
@@ -258,8 +238,7 @@ export class TipAuditLogComponent implements OnInit {
       }
     }
 
-    // Sort the final array by timestamp (newest first for display)
-    return grouped.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return grouped;
   }
 
   categorizeAuditLogType(auditLogType: string): string {
@@ -286,6 +265,7 @@ export class TipAuditLogComponent implements OnInit {
       // Deletion actions
       case 'revoke_access':
       case 'delete_attachment':
+      case 'delete_file':
       case 'delete_report':
         return 'Delete';
 
@@ -306,41 +286,27 @@ export class TipAuditLogComponent implements OnInit {
     }
   }
 
-  toggleGroupExpansion(entry: GroupedAuditLogEntry) {
-    if (entry.isGroup) {
-      entry.isExpanded = !entry.isExpanded;
-      this.cdr.detectChanges();
-    }
+  // What a row can open: the entries it groups, or the details of the entry
+  isExpandable(entry: GroupedAuditLogEntry): boolean {
+    return !!entry.isGroup || this.hasDetails(entry);
   }
 
-  onSearchChange() {
-    this.currentPage = 1; // Reset to first page when searching
-    this.createDisplayedEntries();
+  // What an entry holds beyond its row: today the fingerprints of a deletion
+  hasDetails(entry: AuditLogEntry): boolean {
+    return !!entry.hash_sha256 || !!entry.hash_sha512;
   }
 
-  toggleSort(field: string) {
-    if (this.sortField === field) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+  isExpanded(entry: AuditLogEntry): boolean {
+    return this.expanded.has(entry.id);
+  }
+
+  toggle(entry: AuditLogEntry) {
+    if (this.expanded.has(entry.id)) {
+      this.expanded.delete(entry.id);
     } else {
-      this.sortField = field;
-      this.sortDirection = 'asc';
+      this.expanded.add(entry.id);
     }
-    this.currentPage = 1; // Reset to first page when sorting
-    this.createDisplayedEntries();
-  }
-
-  onTypeFilterChange(model: { id: number; label: string; }[]) {
-    this.dropdownTypeModel = model;
-    this.currentPage = 1; // Reset to first page when filtering
-    this.createDisplayedEntries();
-  }
-
-  toggleTypeDropdown() {
-    this.typeDropdownVisible = !this.typeDropdownVisible;
-  }
-
-  checkTypeFilter(model: { id: number; label: string; }[]): boolean {
-    return model && model.length > 0;
+    this.cdr.detectChanges();
   }
 
   getTypeDotColor(actionType: string): string {
@@ -356,117 +322,25 @@ export class TipAuditLogComponent implements OnInit {
     }
   }
 
-  getFilteredData(): GroupedAuditLogEntry[] {
-    return this.getFilteredAndExpandedData();
-  }
-
-  private getFilteredAndExpandedData(): GroupedAuditLogEntry[] {
-    // Get the pre-filtered and grouped data
-    let sortedEntries = [...this.displayedEntries];
-
-    // Apply sorting
-    sortedEntries = sortedEntries.sort((a, b) => {
-      let aValue: any, bValue: any;
-
-      switch (this.sortField) {
-        case 'user':
-          aValue = a.user.toLowerCase();
-          bValue = b.user.toLowerCase();
-          break;
-        case 'action':
-          aValue = a.action.toLowerCase();
-          bValue = b.action.toLowerCase();
-          break;
-        case 'type':
-          aValue = a.type.toLowerCase();
-          bValue = b.type.toLowerCase();
-          break;
-        case 'timestamp':
-          aValue = a.timestamp.getTime();
-          bValue = b.timestamp.getTime();
-          break;
-        default:
-          aValue = a.timestamp.getTime();
-          bValue = b.timestamp.getTime();
-      }
-
-      if (aValue < bValue) {
-        return this.sortDirection === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return this.sortDirection === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-
-    return sortedEntries;
-  }
-
-  getPaginatedData(): GroupedAuditLogEntry[] {
-    const filteredData = this.getFilteredData();
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    return filteredData.slice(startIndex, endIndex);
-  }
-
   exportTipAuditLog() {
-    // Get the filtered data for export
-    const filteredData = this.getFilteredData();
+    // Export what is on screen, filters included
+    const filteredData = this.table.result;
 
-    // Prepare filter metadata
-    const filterInfo = this.getFilterMetadata();
-
-    // Transform data to include all necessary information for export
     const exportData = filteredData.map(item => ({
       Date: new Date(item.timestamp).toLocaleString(),
       Type: item.type,
       Action: item.action,
       User: item.user,
-      'Raw Data': item.data ? JSON.stringify(item.data) : ''
+      Fingerprint: item.hash_sha256 || '',
+      Data: item.data ? JSON.stringify(item.data) : ''
     }));
 
-    // Create filename with filter information
-    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-    let filename = `tip_audit_log_${this.tipId}_${timestamp}`;
-
-    if (filterInfo.hasFilters) {
+    let filename = `tip_audit_log_${this.tipId}`;
+    if (filteredData.length !== this.auditLogEntries.length) {
       filename += '_filtered';
     }
 
-    // Add filter metadata as a comment in the CSV if filters are applied
-    let csvData = exportData;
-    if (filterInfo.hasFilters) {
-      // Add filter information as the first rows
-      const filterRows = [
-        { Date: '# FILTER INFORMATION', Type: '', Action: '', User: '', 'Raw Data': '' },
-        { Date: `# Search Term: ${filterInfo.searchTerm || 'None'}`, Type: '', Action: '', User: '', 'Raw Data': '' },
-        { Date: `# Type Filters: ${filterInfo.typeFilters}`, Type: '', Action: '', User: '', 'Raw Data': '' },
-        { Date: `# Export Date: ${new Date().toLocaleString()}`, Type: '', Action: '', User: '', 'Raw Data': '' },
-        { Date: `# Total Entries: ${filteredData.length}`, Type: '', Action: '', User: '', 'Raw Data': '' },
-        { Date: '', Type: '', Action: '', User: '', 'Raw Data': '' }, // Empty row for separation
-      ];
-      csvData = [...filterRows, ...exportData];
-    }
-
-    this.utilsService.generateCSV(filename, csvData, ["Date", "Type", "Action", "User", "Raw Data"]);
-  }
-
-  private getFilterMetadata() {
-    const hasSearchFilter = this.searchTerm.trim().length > 0;
-    const hasTypeFilter = this.dropdownTypeModel && this.dropdownTypeModel.length > 0;
-
-    let typeFilters = 'All';
-    if (hasTypeFilter) {
-      typeFilters = this.dropdownTypeModel.map(item => item.label).join(', ');
-    }
-
-    return {
-      hasFilters: hasSearchFilter || hasTypeFilter,
-      searchTerm: this.searchTerm.trim(),
-      typeFilters: typeFilters,
-      totalEntries: this.auditLogEntries.length,
-      filteredEntries: this.getFilteredData().length
-    };
+    this.utilsService.generateCSV(filename, exportData, ["Date", "Type", "Action", "User", "Fingerprint", "Data"]);
   }
 
   cancel() {

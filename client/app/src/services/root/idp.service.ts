@@ -7,7 +7,7 @@ import {OAuthService, OAuthStorage} from "angular-oauth2-oidc";
 export type IdpContext = "login" | "signup";
 
 class TenantOAuthStorage implements OAuthStorage {
-  constructor(private prefix: string) {}
+  constructor(private readonly prefix: string) {}
 
   getItem(key: string): string | null {
     return window.sessionStorage.getItem(this.prefix + key);
@@ -26,10 +26,10 @@ class TenantOAuthStorage implements OAuthStorage {
   providedIn: "root"
 })
 export class IdpService {
-  private appDataService = inject(AppDataService);
-  private location = inject(Location);
-  private oauthService = inject(OAuthService);
-  private router = inject(Router);
+  private readonly appDataService = inject(AppDataService);
+  private readonly location = inject(Location);
+  private readonly oauthService = inject(OAuthService);
+  private readonly router = inject(Router);
 
   private configurationKey = "";
   private storagePrefix = "";
@@ -50,9 +50,7 @@ export class IdpService {
     const login = this.getContextConfig("login");
     const signup = this.getContextConfig("signup");
 
-    // The tokens of the signup are kept in a dedicated storage only when the
-    // signup is authenticated by an IdP different from the one of the site;
-    // when the IdP is the same a single session is shared by the two flows
+    // Signup tokens are kept apart only when the signup IdP differs from the one of the site
     if (context === "signup" && (!login.enabled || login.issuer !== signup.issuer || login.clientId !== signup.clientId)) {
       return this.getTenantKeyPrefix() + "signup:";
     }
@@ -105,7 +103,8 @@ export class IdpService {
       clientId: config.clientId,
       responseType: "code",
       scope: "openid profile email",
-      requireHttps: false,
+      // HTTPS required; plain HTTP only towards the loopback, mirroring the backend
+      requireHttps: /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])([:/]|$)/.test(config.issuer) ? false : true,
       postLogoutRedirectUri: window.location.origin + tenantBasePath + "/#/login"
     });
   }
@@ -118,14 +117,14 @@ export class IdpService {
     let route = this.oauthService.state;
     try {
       route = decodeURIComponent(route);
-    } catch (_) {
+    } catch {
       route = "/login";
     }
 
     this.oauthService.state = "";
     route = this.getReturnRoute(route);
     if (route.startsWith("/signup") && this.router.url !== route) {
-      this.router.navigateByUrl(route, {replaceUrl: true}).then();
+      void this.router.navigateByUrl(route, {replaceUrl: true});
     }
   }
 
@@ -167,7 +166,7 @@ export class IdpService {
     if (!this.initialization) {
       this.initialization = this.oauthService.loadDiscoveryDocumentAndTryLogin().then(() => {
         this.loginStarted = false;
-        const authenticated = this.oauthService.hasValidAccessToken();
+        const authenticated = this.oauthService.hasValidIdToken();
         if (authenticated) {
           this.setPendingContext(null);
           this.restoreReturnRoute();
@@ -198,7 +197,7 @@ export class IdpService {
     const returnRoute = this.getReturnRoute(routePath);
     this.setPendingContext(context === "signup" ? "signup" : null);
     return this.initialize(context).then(() => {
-      if (this.oauthService.hasValidAccessToken() || this.loginStarted) {
+      if (this.oauthService.hasValidIdToken() || this.loginStarted) {
         return;
       }
 

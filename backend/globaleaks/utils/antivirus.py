@@ -57,19 +57,29 @@ def get_av_result(state):
     return 'SAFE'
 
 
-def serialize_files_metadata_csv(files):
-    """Render a metadata.csv manifest from a list of file descriptor dicts,
-    each providing 'name', 'type', 'size' and 'av_result'.
+def csv_sanitize_cell(value):
+    """
+    Neutralize spreadsheet formula injection: a cell whose text starts with
+    """
+    value = '' if value is None else str(value)
+    if value and value[0] in ('=', '+', '-', '@', '\t', '\r'):
+        return "'" + value
+    return value
 
-    Used both for the single-file download and the report export so the
-    manifest is identical in both cases."""
+
+def serialize_files_metadata_csv(files):
+    """
+    Render a metadata.csv manifest from a list of file descriptor dicts,
+    """
     buf = StringIO()
     writer = csv.writer(buf)
     writer.writerow(['Filename', 'Type', 'Size', 'Antivirus result'])
 
     for f in files:
-        writer.writerow([f.get('name', ''), f.get('type', ''),
-                         f.get('size', ''), f.get('av_result', '')])
+        writer.writerow([csv_sanitize_cell(f.get('name', '')),
+                         csv_sanitize_cell(f.get('type', '')),
+                         f.get('size', ''),
+                         csv_sanitize_cell(f.get('av_result', ''))])
 
     return buf.getvalue().encode()
 
@@ -99,7 +109,8 @@ def get_configured_clamd_connection():
         if tenant_cache is not None:
             clamd_ip = (getattr(tenant_cache, 'antivirus_clamd_ip', clamd_ip) or clamd_ip).strip()
             clamd_port = getattr(tenant_cache, 'antivirus_clamd_port', clamd_port) or clamd_port
-    except Exception:
+    except (AttributeError, TypeError):
+        # A value of the wrong type in the configuration leaves the defaults
         pass
 
     return clamd_ip, clamd_port

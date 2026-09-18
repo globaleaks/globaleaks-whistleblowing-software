@@ -1,33 +1,34 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, inject, input} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {LanguageUtils} from "@app/pages/admin/settings/helper-methods/language-utils";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
+import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/selection-editor/selection-editor.component";
 import {LanguagesSupported} from "@app/models/app/public-model";
-import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 import {TranslateModule} from "@ngx-translate/core";
-import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: "src-tab3",
     templateUrl: "./tab3.component.html",
     standalone: true,
-    imports: [FormsModule, NgSelectComponent, NgOptionTemplateDirective, NgbTooltipModule, TranslatorPipe, FilterPipe, TranslateModule]
+    imports: [FormsModule, SelectionEditorComponent, TranslateModule]
 })
 export class Tab3Component implements OnInit {
-  private appConfigService = inject(AppConfigService);
-  private appDataService = inject(AppDataService);
-  private utilsService = inject(UtilsService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly utilsService = inject(UtilsService);
   protected nodeResolver = inject(NodeResolver);
 
-  @Input() contentForm: NgForm;
+  readonly contentForm = input.required<NgForm>();
 
-  showLangSelect = false;
-  selected = {value: []};
+  // The languages of a site naming a profile are the ones the profile speaks: they are read here
+  // and changed on the profile
+  get heldByProfile(): boolean {
+    return this.nodeResolver.heldByProfile("languages_enabled");
+  }
+
   languageUtils: LanguageUtils
   languagesNotEnabled: LanguagesSupported[];
 
@@ -41,21 +42,24 @@ export class Tab3Component implements OnInit {
     this.languagesNotEnabled = this.getNotEnabledLanguages();
   }
 
-  toggleLangSelect() {
-    this.showLangSelect = !this.showLangSelect;
-  }
-
   getNotEnabledLanguages() {
     return this.nodeResolver.dataModel.languages_supported.filter(lang => !this.nodeResolver.dataModel.languages_enabled.includes(lang.code));
   }
 
-  enableLanguage(language: LanguagesSupported) {
-    if (language && (this.nodeResolver.dataModel.languages_enabled.indexOf(language.code) === -1)) {
-      this.nodeResolver.dataModel.languages_enabled.push(language.code)
+  get languageOptions(): SelectionEntry[] {
+    return this.languagesNotEnabled.map(lang => ({id: lang.code, label: lang.name + " [" + lang.code + "]"}));
+  }
+
+  get enabledLanguages(): SelectionEntry[] {
+    return this.nodeResolver.dataModel.languages_enabled.map(code => ({id: code, label: (this.languageUtils.languages_supported[code]?.name ?? code) + " [" + code + "]"}));
+  }
+
+  enableLanguage(lang_code: string) {
+    if (lang_code && (this.nodeResolver.dataModel.languages_enabled.indexOf(lang_code) === -1)) {
+      this.nodeResolver.dataModel.languages_enabled.push(lang_code)
       this.nodeResolver.dataModel.languages_enabled.sort();
       this.languagesNotEnabled = this.getNotEnabledLanguages();
     }
-    this.selected.value = [];
   }
 
   removeLang(index: number, lang_code: string) {
@@ -69,7 +73,7 @@ export class Tab3Component implements OnInit {
   updateNode() {
     this.utilsService.update(this.nodeResolver.dataModel).subscribe(res => {
       this.appDataService.public.node.languages_enabled = res["languages_enabled"];
-      this.appConfigService.reinit(false);
+      this.appConfigService.reinit();
       this.utilsService.reloadCurrentRoute();
     });
   }

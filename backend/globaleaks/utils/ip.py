@@ -55,7 +55,9 @@ def check_ip(client_ip, ip_filter):
         for ip_network in ip_networks:
             if client_ip_obj in ip_network:
                 return True
-    except:
+    except Exception:
+        # Security: default-deny on any unexpected error in IP parsing/matching.
+        # Intentionally still broad — but no longer swallows SystemExit/KeyboardInterrupt.
         return False
 
     return False

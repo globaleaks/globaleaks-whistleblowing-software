@@ -1,3 +1,4 @@
+import {CollapsibleCardComponent} from "@app/shared/components/collapsible-card/collapsible-card.component";
 import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -5,6 +6,7 @@ import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {Constants} from "@app/shared/constants/constants";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
+import {PermissionGroup, buildPermissionGroups} from "@app/pages/admin/users/permissions";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -13,21 +15,21 @@ import {UserProfile} from "@app/models/resolvers/user-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {NgClass, CommonModule} from "@angular/common";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
+import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/selection-editor/selection-editor.component";
+import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-profile-editor",
     templateUrl: "./profile-editor.component.html",
     standalone: true,
-    imports: [CommonModule, NgSelectComponent, NgOptionTemplateDirective, FormsModule, NgbTooltipModule, NgClass, TranslatorPipe]
+    imports: [CollapsibleCardComponent, CommonModule, SelectionEditorComponent, FormsModule, NgbTooltipModule, NgClass, TranslateModule]
 })
 export class ProfileEditorComponent implements OnInit {
-  private modalService = inject(NgbModal);
-  private appDataService = inject(AppDataService);
-  private preference = inject(PreferenceResolver);
-  private authenticationService = inject(AuthenticationService);
-  private nodeResolver = inject(NodeResolver);
+  private readonly modalService = inject(NgbModal);
+  private readonly appDataService = inject(AppDataService);
+  private readonly preference = inject(PreferenceResolver);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly nodeResolver = inject(NodeResolver);
   protected utilsService = inject(UtilsService);
 
   @Input() profile: UserProfile;
@@ -35,6 +37,7 @@ export class ProfileEditorComponent implements OnInit {
   @Input() index: number;
   @Input() editProfile: NgForm;
   @Output() dataToParent = new EventEmitter<string>();
+  @Output() deleted = new EventEmitter<string>();
   editing = false;
   nodeData: nodeResolverModel;
   preferenceData: preferenceResolverModel;
@@ -43,11 +46,19 @@ export class ProfileEditorComponent implements OnInit {
   roles = [
        { value: 'admin', role: 'Admin' },
        { value: 'analyst', role: 'Analyst' },
+       { value: 'auditor', role: 'Auditor' },
        { value: 'custodian', role: 'Custodian' },
-       { value: 'receiver', role: 'Recipient' }
+       { value: 'receiver', role: 'Recipient' },
+       { value: 'transmitter', role: 'Transmitter' }
      ];
 
   protected readonly Constants = Constants;
+
+  // The permissions grouped by the role they belong to; the label vocabulary is
+  // shared with the user editor (see permissions.ts)
+  get permissionGroups(): PermissionGroup[] {
+    return buildPermissionGroups(this.profile.roles || [], this.nodeData.tid === 1);
+  }
 
   ngOnInit(): void {
     if (this.nodeResolver.dataModel) {
@@ -63,17 +74,10 @@ export class ProfileEditorComponent implements OnInit {
       this.appServiceData = this.appDataService;
     }
 
-    this.profile.roles.sort();
+    this.profile.roles.sort((a: string, b: string) => a.localeCompare(b));
 
-    if (!this.profile || !this.profile || !Array.isArray(this.profile.roles)) {
-      this.roles;
-    } else {
-       this.roles = this.roles.filter(r => !this.profile.roles.includes(r.value));
-    }
-    if (this.profile.role === 'receiver') {
-      this.roles.push({ value: 'receiver', role: 'Recipient' });
-    } else {
-      this.roles.push({ value: this.profile.role, role: this.profile.role.charAt(0).toUpperCase() + this.profile.role.slice(1) });
+    if (Array.isArray(this.profile.roles)) {
+      this.roles = this.roles.filter(r => !this.profile.roles.includes(r.value));
     }
   }
 
@@ -81,14 +85,12 @@ export class ProfileEditorComponent implements OnInit {
     this.editing = !this.editing;
   }
 
-  saveProfile(userData: UserProfile ) {
-    const user = userData;
+  saveProfile(userData: UserProfile) {
     return this.utilsService.updateAdminUserProfile(userData.id, userData).subscribe({
       next:()=>{
         this.sendDataToParent();
       },
-      error:()=>{
-      }
+      error: () => { /* reported by the interceptor */ }
     });
   }
 
@@ -109,8 +111,8 @@ export class ProfileEditorComponent implements OnInit {
 
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
-        return this.utilsService.deleteAdminUserProfile(arg.id).subscribe(_ => {
-          ; // TODO this.utilsService.deleteResource(this.profiles, arg);
+        return this.utilsService.deleteAdminUserProfile(arg.id).subscribe(() => {
+          this.deleted.emit(arg.id);
         });
       };
     });
@@ -124,18 +126,22 @@ export class ProfileEditorComponent implements OnInit {
     this.utilsService.saveAs(this.authenticationService, profile.name + ".json", "api/admin/profiles/" + profile.id);
   }
 
-  userIsNotAdmin(profile: any): boolean {
-    return !profile.roles.includes('admin');
-  }
-
   hasSpecificRole(profile: any): boolean {
     return profile.roles && profile.roles.some((role: string) => ['analyst', 'custodian', 'receiver'].includes(role));
+  }
+
+  get roleOptions(): SelectionEntry[] {
+    return this.roles.map(r => ({id: r.value, label: r.role}));
+  }
+
+  get heldRoles(): SelectionEntry[] {
+    return this.profile.roles.map(role => ({id: role, label: this.utilsService.getRoleDisplayName(role)}));
   }
 
   assignRole(role: string) {
     if (role && !this.profile.roles.includes(role)) {
       this.profile.roles.push(role);
-      this.profile.roles.sort();
+      this.profile.roles.sort((a: string, b: string) => a.localeCompare(b));
       this.roles = this.roles.filter(r => r.value !== role);
       if (!this.profile.role) {
         this.profile.role = role;
@@ -157,4 +163,5 @@ export class ProfileEditorComponent implements OnInit {
   setDefaultRole(role: string) {
     this.profile.role = role;
   }
+
 }

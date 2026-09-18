@@ -2,19 +2,46 @@ from sqlalchemy import and_, delete, or_, tuple_
 
 from globaleaks import LANGUAGES_SUPPORTED_CODES
 from globaleaks.models import Config, ConfigL10N
-from globaleaks.models.properties import *
 from globaleaks.models.config_desc import ConfigDescriptor, ConfigFilters, ConfigL10NFilters
 from globaleaks.utils.onion import generate_onion_service_v3
 
 
-root_tenant_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
+root_tenant_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "hostname", "tor_onion_key", "onionservice", "https_accreditor", "https_admin", "https_analyst", "https_auditor", "https_cert", "https_custodian", "https_receiver", "https_transmitter", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_support_prv_key", "crypto_support_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_support_requests", "counter_tenants"]
 
-secondary_tenant_keys = ["profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
+secondary_tenant_keys = ["profile", "default_language", "subdomain", "hostname", "tor_onion_key", "onionservice", "https_accreditor", "https_admin", "https_analyst", "https_auditor", "https_cert", "https_custodian", "https_receiver", "https_transmitter", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_support_prv_key", "crypto_support_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_support_requests", "counter_tenants"]
 
-protected_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "tor_onion_key", "onionservice", "https_admin", "https_analyst", "https_cert", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_tenants"]
+protected_keys = ["version", "version_db", "latest_version", "profile", "default_language", "subdomain", "hostname", "tor_onion_key", "onionservice", "https_accreditor", "https_admin", "https_analyst", "https_auditor", "https_cert", "https_custodian", "https_receiver", "https_transmitter", "wizard_done", "uuid", "name", "encryption", "https_whistleblower", "receipt_salt", "crypto_escrow_pub_key", "crypto_support_prv_key", "crypto_support_pub_key", "crypto_stat_pub_key", "counter_profiles", "counter_submissions", "counter_support_requests", "counter_tenants"]
+
+
+# The variables an administrator configures through a form: the ones the filters declare, and no
+# other, so that what a site is said to hold never names the material it keeps for itself
+configurable_keys = {k for keys in ConfigFilters.values() for k in keys} | \
+                    {k for keys in ConfigL10NFilters.values() for k in keys}
+
+
+# The variables a profile is allowed to leave to the sites naming it: the ceiling of what any
+# profile can unlock, and never the keys by which a site is recognized or protected
+unlockable_keys = ["custom_support_url", "description", "footer", "header_title_homepage", "presentation"]
 
 
 DEFAULT_PROFILE_ID = 1000001
+
+
+def db_get_tid_by_uuid(session, uuid):
+    """
+    Resolve the tenant ID of the site or of the profile designated by a UUID
+
+    :param session: An ORM session
+    :param uuid: The UUID of a site or of a profile
+    :return: The tenant ID of the designated tenant or None
+    """
+    if not uuid:
+        return None
+
+    return session.query(Config.tid).filter(
+        Config.var_name == 'uuid',
+        Config.value == uuid
+    ).scalar()
 
 
 def db_get_pid_by_profile(session, profile_value):
@@ -31,10 +58,7 @@ def db_get_pid_by_profile(session, profile_value):
     if profile_value == 'default':
         return DEFAULT_PROFILE_ID
 
-    return session.query(Config.tid).filter(
-        Config.var_name == 'uuid',
-        Config.value == profile_value
-    ).scalar()
+    return db_get_tid_by_uuid(session, profile_value)
 
 
 def db_get_pid(session, tid):
@@ -67,11 +91,6 @@ def db_get_signup_profile(session, tid):
 def db_get_signup_idp_config(session, tid):
     """
     Resolve the IdP configuration inherited by the tenants created via signup
-
-    The signup is authenticated against the IdP configured on the profile
-    assigned to the tenants created via signup, so that every registration
-    is validated with the same identity provider that the created tenant
-    is going to use.
 
     :param session: An ORM session
     :param tid: The tenant ID of the tenant handling the signups
@@ -118,6 +137,92 @@ def db_get_profile_children(session, pid):
         Config.var_name == 'profile',
         Config.value == profile_value
     ).all()]
+
+
+def db_get_writable_keys(session, tid, pid):
+    """
+    Resolve the variables an operator of the given tenant is allowed to write
+
+    A profile is written by its own author, and so is a site naming no profile: both hold what
+    they configure. A site naming a profile holds instead what the profile hands it, and writes
+    only the variables the profile unlocks, among the ones the application allows to be unlocked
+    at all.
+
+    The variables a site owns are writable in any case: a profile never hands them, so there is
+    nothing of the profile to preserve in them, and among them are the ones by which a site is
+    named and set up.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the tenant being written
+    :param pid: The tenant ID of the profile the tenant names
+    :return: The set of the writable variables, or None when every variable is writable
+    """
+    if tid >= DEFAULT_PROFILE_ID or pid is None or pid == DEFAULT_PROFILE_ID:
+        return None
+
+    unlocked = session.query(Config.value).filter(Config.tid == pid,
+                                                  Config.var_name == 'unlocked_keys').scalar()
+
+    if not isinstance(unlocked, list):
+        unlocked = []
+
+    return set(protected_keys) | (set(unlocked) & set(unlockable_keys))
+
+
+def db_get_unlocked_keys(session, tid):
+    """
+    Resolve the variables the profile of a tenant leaves free to the sites naming it
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :return: The list of the variables left free
+    """
+    keys = ConfigFactory(session, tid).get_val('unlocked_keys')
+
+    return sorted(set(keys if isinstance(keys, list) else []) & set(unlockable_keys))
+
+
+def db_get_held_keys(session, tid):
+    """
+    Resolve the variables a tenant holds a value of its own for
+
+    A tenant owns the row of a variable only while its value departs from the one it would
+    inherit: what it owns is therefore what it configured differently from its profile, or from
+    the default of the application when it names none. Left out are the variables every tenant
+    owns in any case, which tell one site from another rather than customize it, and the ones no
+    form configures: the keys and the counters a site keeps for itself are not a configuration.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :return: The sorted list of the variables the tenant holds
+    """
+    keys = {var_name for var_name, in session.query(Config.var_name)
+                                             .filter(Config.tid == tid,
+                                                     Config.var_name.notin_(protected_keys))}
+
+    keys.update(var_name for var_name, in session.query(ConfigL10N.var_name)
+                                                 .filter(ConfigL10N.tid == tid)
+                                                 .distinct())
+
+    return sorted(keys & configurable_keys)
+
+
+def db_reset_key(session, tid, var_name):
+    """
+    Give up the value a tenant holds of its own for a variable
+
+    Dropping the row of the tenant is the whole of it: from there on the variable resolves again
+    on the inheritance chain, and follows what the profile hands from then on.
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param var_name: The name of the variable
+    """
+    session.query(Config).filter(Config.tid == tid,
+                                 Config.var_name == var_name).delete(synchronize_session=False)
+
+    session.query(ConfigL10N).filter(ConfigL10N.tid == tid,
+                                     ConfigL10N.var_name == var_name).delete(synchronize_session=False)
 
 
 def db_get_profile_val(session, pid, var_name):
@@ -167,18 +272,15 @@ def process_items(combined_values, tid, pid):
 
 def db_get_configs(session, filter_name):
     configs = {}
-    _configs = session.query(Config).filter(Config.var_name.in_(ConfigFilters[filter_name]))
 
-    for c in _configs:
-        if c.tid not in configs:
-            configs[c.tid] = {}
-
-        configs[c.tid][c.var_name] = c.value
+    for tid, var_name, value in session.query(Config.tid, Config.var_name, Config.value) \
+                                       .filter(Config.var_name.in_(ConfigFilters[filter_name])):
+        configs.setdefault(tid, {})[var_name] = value
 
     return configs
 
 
-class ConfigFactory(object):
+class ConfigFactory:
     def __init__(self, session, tid):
         self.session = session
         self.tid = tid
@@ -213,26 +315,17 @@ class ConfigFactory(object):
             return config.get(DEFAULT_PROFILE_ID).value
 
     def set_val(self, var_name, value):
-        config = self.get_cfg(var_name)
-        if config:
+        # A protected key belongs to the site alone and is read on its own row:
+        # it is never dropped in favour of the value the profile holds
+        config = {} if var_name in protected_keys else self.get_cfg(var_name)
+
+        # The value the site would inherit: from its profile, or from the default profile
+        inherited = config.get(self.pid) if self.pid in config else config.get(DEFAULT_PROFILE_ID)
+        if inherited is not None and inherited.value == value:
             if self.tid in config:
-                if self.pid in config:
-                    if config[self.pid] == value:
-                        self.session.remove(config[self.tid])
-                        return
+                self.session.delete(config[self.tid])
 
-                elif DEFAULT_PROFILE_ID in config:
-                    if config[DEFAULT_PROFILE_ID] == value:
-                        self.session.remove(config[self.tid])
-                        return
-            else:
-                if self.pid in config:
-                    if config[self.pid] == value:
-                        return
-
-                elif DEFAULT_PROFILE_ID in config:
-                    if config[DEFAULT_PROFILE_ID] == value:
-                        return
+            return
 
         self.session.merge(Config({'tid': self.tid, 'var_name': var_name, 'value': value}))
 
@@ -246,26 +339,69 @@ class ConfigFactory(object):
             if entry.var_name not in protected_keys and entry.var_name in t_result and t_result[entry.var_name] == entry.value or entry.var_name not in t_result and entry.var_name in d_result and d_result[entry.var_name].value == entry.value:
                 self.remove_val(entry.tid, entry.var_name)
 
+    @staticmethod
+    def inherited_value(k, p_result, d_result):
+        """
+        Return the value a site inherits for a variable: from its profile, or from the default
+        profile
+
+        :return: Whether a value is inherited, and the value
+        """
+        if k in p_result:
+            return True, p_result[k].value
+
+        if k in d_result:
+            return True, d_result[k].value
+
+        return False, None
+
+    def update_inherited_var(self, k, v, value, t_result, p_result, d_result):
+        """
+        Only the default profile owns every variable; the other tenants resolve the missing ones
+        from their profile: the row of the site is dropped when its value returns to the inherited
+        one, and written when it departs from it
+        """
+        # An emptied field returns to the inherited value; False and 0 are held against the
+        # profile
+        reset = value is None or value in ('', [])
+
+        inherited, inherited_value = self.inherited_value(k, p_result, d_result)
+        matches = inherited and value == inherited_value
+
+        if k not in t_result:
+            if not reset and not matches:
+                self.session.add(Config({'tid': self.tid, 'var_name': k, 'value': value}))
+
+            return
+
+        if not reset and not matches:
+            v.set_v(value)
+            t_result[k] = value
+            return
+
+        if k not in protected_keys:
+            self.remove_val(self.tid, k)
+            del t_result[k]
+
     def update(self, filter_name, data):
+        # A site naming a profile writes only what the profile unlocks: the rest of the request is
+        # dropped here rather than on the form, so that the profile holds whatever the client sends
+        writable = db_get_writable_keys(self.session, self.tid, self.pid)
+
         result, t_result, p_result, d_result = self.get_all(filter_name)
         for k, v in result.items():
-            if k in data:
-                if self.tid != DEFAULT_PROFILE_ID and self.tid != 1:
-                    if k in t_result:
-                        if not data[k] or (k in p_result and data[k] == p_result[k].value) or (k not in p_result and k in d_result and data[k] == d_result[k].value):
-                            if k not in protected_keys:
-                                self.remove_val(self.tid, k)
-                                del t_result[k]
-                        else:
-                            v.set_v(data[k])
-                            t_result[k] = data[k]
-                    elif data[k] and ((k in p_result and data[k] != p_result[k].value) or (k not in p_result and data[k] != d_result[k].value)):
-                        self.session.add(Config({'tid': self.tid, 'var_name': k, 'value': data[k]}))
-                else:
-                    t_result[k] = data[k]
-                    v.set_v(data[k])
+            if k not in data or (writable is not None and k not in writable):
+                continue
 
-        if self.tid > DEFAULT_PROFILE_ID:
+            if self.tid == DEFAULT_PROFILE_ID:
+                t_result[k] = data[k]
+                v.set_v(data[k])
+                continue
+
+            self.update_inherited_var(k, v, data[k], t_result, p_result, d_result)
+
+        # The default profile has children too: the sites that name no other profile
+        if self.tid >= DEFAULT_PROFILE_ID:
             self.sync_profile(t_result, d_result)
 
     def serialize(self, filter_name):
@@ -273,7 +409,7 @@ class ConfigFactory(object):
         return {k: v.value for k, v in values.items()}
 
 
-class ConfigL10NFactory(object):
+class ConfigL10NFactory:
     def __init__(self, session, tid):
         self.session = session
         self.tid = tid
@@ -309,27 +445,31 @@ class ConfigL10NFactory(object):
         else:
             return config.get(DEFAULT_PROFILE_ID).value
 
+    def inherits_value(self, config, value):
+        """
+        Tell whether the text the tenant inherits is already the given one
+
+        The text is inherited from the profile of the tenant, or from the default
+        profile when the profile of the tenant does not override it.
+
+        :param config: The entries of the variable, keyed by the tenant they belong to
+        :param value: The text being set
+        """
+        if self.pid in config:
+            return config[self.pid].value == value
+
+        return DEFAULT_PROFILE_ID in config and config[DEFAULT_PROFILE_ID].value == value
+
     def set_val(self, lang, var_name, value):
         config = self.get_cfg(lang, var_name)
-        if config:
+
+        # A text equal to the inherited one is not stored as an override of the
+        # tenant, and an override that became equal to it is dropped
+        if config and self.inherits_value(config, value):
             if self.tid in config:
-                if self.pid in config:
-                    if config[self.pid] == value:
-                        self.session.remove(config[self.tid])
-                        return
+                self.session.delete(config[self.tid])
 
-                elif DEFAULT_PROFILE_ID in config:
-                    if config[DEFAULT_PROFILE_ID] == value:
-                        self.session.remove(config[self.tid])
-                        return
-            else:
-                if self.pid in config:
-                    if config[self.pid] == value:
-                        return
-
-                elif DEFAULT_PROFILE_ID in config:
-                    if config[DEFAULT_PROFILE_ID] == value:
-                        return
+            return
 
         self.session.merge(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': var_name, 'value': value}))
 
@@ -337,7 +477,12 @@ class ConfigL10NFactory(object):
         self.session.query(ConfigL10N).filter(ConfigL10N.tid == tid, ConfigL10N.lang == lang, ConfigL10N.var_name == var_name).delete(synchronize_session=False)
 
     def reset(self, filter_name):
-        self.session.query(ConfigL10N).filter(ConfigL10N.tid == self.tid, ConfigL10N.var_name.in_(ConfigFilters[filter_name]))
+        # Dropping the overrides of the tenant restores the inheritance of the
+        # texts from the profile of the tenant
+        self.session.query(ConfigL10N) \
+                    .filter(ConfigL10N.tid == self.tid,
+                            ConfigL10N.var_name.in_(ConfigL10NFilters[filter_name])) \
+                    .delete(synchronize_session=False)
 
     def sync_profile(self, lang, t_result, d_result):
         tid_list = db_get_profile_children(self.session, self.tid)
@@ -346,29 +491,77 @@ class ConfigL10NFactory(object):
             if (entry.var_name not in protected_keys and entry.var_name in t_result and t_result[entry.var_name] == entry.value) or (entry.var_name not in t_result and entry.var_name in d_result and d_result[entry.var_name] == entry.value):
                 self.remove_val(entry.tid, lang, entry.var_name)
 
+    def update_own_value(self, k, data, lang, c_map, t_result):
+        """
+        Store the text of the tenant that inherits none, adding the entry when it is missing
+
+        :param k: The name of the variable
+        :param data: The texts being set, keyed by variable
+        :param lang: The language of the texts
+        :param c_map: The entries in force for the tenant, keyed by variable
+        :param t_result: The texts the tenant overrides, keyed by variable
+        """
+        if k in c_map:
+            c_map[k].set_v(data[k])
+            t_result[k] = data[k]
+        else:
+            self.session.add(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': k, 'value': data[k]}))
+
+    def update_inheriting_value(self, k, data, lang, c_map, results):
+        """
+        Store the text of a tenant that inherits from a profile
+
+        An empty text, or one equal to the inherited one, drops the override of
+        the tenant instead of storing it, so that the tenant keeps inheriting.
+
+        :param k: The name of the variable
+        :param data: The texts being set, keyed by variable
+        :param lang: The language of the texts
+        :param c_map: The entries in force for the tenant, keyed by variable
+        :param results: The texts the tenant overrides, the ones of its profile
+                        and the ones of the default profile, keyed by variable
+        """
+        t_result, p_result, d_result = results
+
+        # A text nobody writes is inherited as the empty text: a variable the profile leaves
+        # empty has no row of its own anywhere, and a site that saves the form without touching
+        # it must not start holding one
+        if k in p_result:
+            inherited = p_result[k].value
+        elif k in d_result:
+            inherited = d_result[k].value
+        else:
+            inherited = ''
+
+        if k in t_result:
+            if not data[k] or data[k] == inherited:
+                self.remove_val(self.tid, lang, k)
+                del t_result[k]
+            else:
+                c_map[k].set_v(data[k])
+                t_result[k] = data[k]
+        elif data[k] and data[k] != inherited:
+            self.session.add(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': k, 'value': data[k]}))
+
     def update(self, filter_name, data, lang):
+        # The texts of a site naming a profile are held by the profile, but for the ones it unlocks
+        writable = db_get_writable_keys(self.session, self.tid, self.pid)
+
         result, t_result, p_result, d_result = self.get_all(filter_name, lang)
         c_map = {c.var_name: c for c in result}
 
-        for k in (x for x in ConfigL10NFilters[filter_name] if x in data):
-            if k in c_map:
-                if self.tid != self.pid:
-                    if k in t_result:
-                        if not data[k] or (k in p_result and data[k] == p_result[k].value) or (k not in p_result and k in d_result and data[k] == d_result[k].value):
-                            self.remove_val(self.tid, lang, k)
-                            del t_result[k]
-                        else:
-                            c_map[k].set_v(data[k])
-                            t_result[k] = data[k]
-                    elif (k in p_result and data[k] != p_result[k].value) or (k not in p_result and data[k] != d_result[k].value):
-                        self.session.add(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': k, 'value': data[k]}))
-                else:
-                    c_map[k].set_v(data[k])
-                    t_result[k] = data[k]
+        for k in (x for x in ConfigL10NFilters[filter_name]
+                  if x in data and (writable is None or x in writable)):
+            # Who inherits nothing writes what it is given; everyone else is compared with what
+            # it inherits, and holds a row only while it departs from it. Having no row of one's
+            # own is the normal state of an inheriting tenant, not a reason to be given one.
+            if self.tid == DEFAULT_PROFILE_ID:
+                self.update_own_value(k, data, lang, c_map, t_result)
             else:
-                self.session.add(ConfigL10N({'tid': self.tid, 'lang': lang, 'var_name': k, 'value': data[k]}))
+                self.update_inheriting_value(k, data, lang, c_map, (t_result, p_result, d_result))
 
-        if self.tid > DEFAULT_PROFILE_ID:
+        # The default profile has children too: the sites that name no other profile
+        if self.tid >= DEFAULT_PROFILE_ID:
             self.sync_profile(lang, t_result, d_result)
 
     def serialize(self, filter_name, lang):
@@ -391,6 +584,46 @@ def db_set_config_variable(session, tid, var, val):
     ConfigFactory(session, tid).set_val(var, val)
 
 
+def db_get_own_config_variable(session, tid, var_name):
+    """
+    Read a configuration variable of a tenant without inheriting it
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param var_name: The configuration variable
+    :return: The value configured on the tenant or the default of the variable
+    """
+    config = session.query(Config) \
+                    .filter(Config.tid == tid,
+                            Config.var_name == var_name) \
+                    .one_or_none()
+
+    if config is None:
+        return get_default(ConfigDescriptor[var_name].default)
+
+    return config.value
+
+def db_get_protected_users(session, tid):
+    """
+    Return the list of ids of the users protected from deletion and password reset.
+    """
+    value = ConfigFactory(session, tid).get_val('protected_users')
+
+    return value if isinstance(value, list) else []
+
+
+def db_set_own_config_variable(session, tid, var_name, value):
+    """
+    Write a configuration variable on the tenant itself
+
+    :param session: An ORM session
+    :param tid: The tenant ID
+    :param var_name: The configuration variable
+    :param value: The value to be stored
+    """
+    session.merge(Config({'tid': tid, 'var_name': var_name, 'value': value}))
+
+
 def initialize_config(session, tid, data):
     variables = {}
 
@@ -405,9 +638,8 @@ def initialize_config(session, tid, data):
         variables['profile'] = data['profile']
         pid = db_get_pid_by_profile(session, data['profile'])
 
-    # The onion service is generated only for the tenants for which it is
-    # enabled by their own profile; the others are reachable as a subdomain
-    # of the onion service of the root tenant.
+    # The onion service is generated only where the profile enables it; the others are subdomains of
+    # the root one
     if db_get_profile_val(session, pid, 'enable_onion'):
         variables['onionservice'], variables['tor_onion_key'] = generate_onion_service_v3()
 
@@ -424,46 +656,98 @@ def initialize_config(session, tid, data):
             session.add(Config({'tid': tid, 'var_name': name, 'value': value}))
 
 
-def load_defaults(session, appdata):
-    session.query(Config).filter(Config.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
-    session.query(ConfigL10N).filter(ConfigL10N.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
-
-    keys = ConfigDescriptor.keys()
-    for key in keys:
-        session.add(Config({'tid': DEFAULT_PROFILE_ID, 'var_name': key, 'value': get_default(ConfigDescriptor[key].default)}))
-
+def _load_default_texts(session, appdata):
+    """
+    Load on the default profile the texts of the node and of the notification templates, in every
+    language supported; a template the translation has not reached holds its source language,
+    served instead of an empty text
+    """
     for lang in LANGUAGES_SUPPORTED_CODES:
         for d in ['node', 'notification']:
-            keys = ConfigL10NFilters[d]
+            data = appdata['templates'] if d == 'notification' else appdata[d]
 
-            if d == 'notification':
-                data = appdata['templates']
-            else:
-                data = appdata[d]
-
-            for k in keys:
-                value = data[k][lang] if k in data else ''
+            for k in ConfigL10NFilters[d]:
+                value = data.get(k, {}).get(lang) or data.get(k, {}).get('en', '')
                 if value:
                     session.add(ConfigL10N({'tid': DEFAULT_PROFILE_ID, 'lang': lang, 'var_name': k, 'value': value}))
 
-    session.flush()
 
-    subquery = session.query(
-        Config.var_name,
-        Config.value
-    ).filter(Config.tid == DEFAULT_PROFILE_ID, Config.var_name.notin_(protected_keys))
+def _held_values(session, tid):
+    """
+    Return the variables a tenant holds and their values, the protected ones excluded
 
-    stmt = delete(Config).where(
-        and_(
-            Config.tid != DEFAULT_PROFILE_ID,
-            or_(
-                tuple_(Config.var_name, Config.value).in_(subquery),
-                Config.value == ''
-            )
-        )
+    :param session: An ORM session
+    :param tid: The tenant ID
+    """
+    return session.query(Config.var_name, Config.value) \
+                  .filter(Config.tid == tid, Config.var_name.notin_(protected_keys))
+
+
+def _drop_inherited_values(session):
+    """
+    Drop from the tenants the values they hold equal to the ones they inherit, or empty
+
+    A tenant that does not hold a variable reads it from the profile it names, or from the default
+    profile: a value equal to the one it would read that way is a copy of it, and is dropped so
+    that the tenant follows what it inherits. The comparison is made against the profile of the
+    tenant and not against the default profile alone: a value equal to the default of the
+    application is an override on a tenant whose profile holds a different one, and is kept.
+    """
+    session.execute(delete(Config)
+                    .where(and_(Config.tid != DEFAULT_PROFILE_ID, Config.value == ''))
+                    .execution_options(synchronize_session=False))
+
+    profiles = {tid: uuid for tid, uuid in session.query(Config.tid, Config.value)
+                                                  .filter(Config.var_name == 'uuid',
+                                                          Config.tid > DEFAULT_PROFILE_ID)}
+
+    # The tenants naming no profile, or naming the default one, inherit from the default profile,
+    # and so do the profiles themselves
+    inheriting_from_default = and_(
+        Config.tid != DEFAULT_PROFILE_ID,
+        Config.tid.notin_(session.query(Config.tid)
+                                 .filter(Config.var_name == 'profile',
+                                         Config.value.in_(list(profiles.values()))))
     )
 
-    session.execute(stmt.execution_options(synchronize_session=False))
+    session.execute(delete(Config)
+                    .where(and_(inheriting_from_default,
+                                tuple_(Config.var_name, Config.value).in_(_held_values(session, DEFAULT_PROFILE_ID))))
+                    .execution_options(synchronize_session=False))
+
+    for pid, uuid in profiles.items():
+        members = Config.tid.in_(session.query(Config.tid)
+                                        .filter(Config.var_name == 'profile', Config.value == uuid))
+
+        held_by_profile = session.query(Config.var_name).filter(Config.tid == pid)
+
+        session.execute(delete(Config)
+                        .where(and_(members,
+                                    or_(tuple_(Config.var_name, Config.value).in_(_held_values(session, pid)),
+                                        and_(Config.var_name.notin_(held_by_profile),
+                                             tuple_(Config.var_name, Config.value).in_(_held_values(session, DEFAULT_PROFILE_ID))))))
+                        .execution_options(synchronize_session=False))
+
+
+def load_defaults(session, appdata):
+    # The variables no longer defined by the application are dropped at every
+    # update, so that the migrations do not need to retire them
+    session.query(Config).filter(Config.var_name.notin_(list(ConfigDescriptor.keys()))).delete(synchronize_session=False)
+
+    l10n_keys = list({key for keys in ConfigL10NFilters.values() for key in keys})
+    session.query(ConfigL10N).filter(ConfigL10N.var_name.notin_(l10n_keys)).delete(synchronize_session=False)
+
+    session.query(Config).filter(Config.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
+    session.query(ConfigL10N).filter(ConfigL10N.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
+
+    for key in ConfigDescriptor:
+        session.add(Config({'tid': DEFAULT_PROFILE_ID, 'var_name': key, 'value': get_default(ConfigDescriptor[key].default)}))
+
+    _load_default_texts(session, appdata)
+
+    session.flush()
+
+    _drop_inherited_values(session)
 
     subquery = session.query(
         ConfigL10N.var_name,

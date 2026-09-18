@@ -5,11 +5,11 @@
   <form name="mail_address" #mail_address="ngForm" novalidate>
     <div class="form-group">
       <div>
-        <span>{{'Email address'|translate}}</span>
+        <label for="toMailAddress">{{'Email address'|translate}}</label>
       </div>
-      <input class="form-control" name="to_mail_address" [(ngModel)]="to_mail_address" type="email" [pattern]="Constants.emailRegexp" />
+      <input id="toMailAddress" class="form-control" name="to_mail_address" [(ngModel)]="to_mail_address" type="email" [pattern]="Constants.emailRegexp" />
       @if (mail_address.form.get('to_mail_address')?.errors?.['pattern']) {
-        <div class="text-danger">Invalid email address</div>
+        <div class="text-danger">{{'Invalid email address'|translate}}</div>
       }
     </div>
   </form>

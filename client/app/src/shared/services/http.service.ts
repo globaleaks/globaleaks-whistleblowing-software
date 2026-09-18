@@ -1,14 +1,17 @@
+import {SearchDashboardState, SearchDashboardTab, SearchQuery, SearchSuggestionsResponse} from "@app/models/search/search-query";
 import {Injectable, inject} from "@angular/core";
 import {HttpClient, HttpHeaders, HttpResponse} from "@angular/common/http";
 import {Observable} from "rxjs";
+import {tap} from "rxjs/operators";
 import {PasswordRecoveryResponseModel} from "@app/models/authentication/password-recovery-response-model";
 import {Router} from "@angular/router";
+import {exchangeConfig, exchangeModel} from "@app/models/admin/exchange";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {networkResolverModel} from "@app/models/resolvers/network-resolver-model";
 import {FileResource} from "@app/models/component-model/file-resources";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
-import {Answers} from "@app/models/receiver/receiver-tip-data";
+import {Answers, RequestableQuestionnaire} from "@app/models/receiver/receiver-tip-data";
 import {NewQuestionare} from "@app/models/admin/new-questionare";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {NewUser, NewUserProfile} from "@app/models/admin/new-user";
@@ -17,39 +20,53 @@ import {NewContext} from "@app/models/admin/new-context";
 import {NewStep} from "@app/models/admin/new-step";
 import {NewField} from "@app/models/admin/new-field";
 import {FieldTemplate} from "@app/models/admin/field-Template";
+import {Backup} from "@app/models/admin/backup";
 import {Field, fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {Root, Status, Substatus} from "@app/models/app/public-model";
 import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
 import {Session, SessionRefresh} from "@app/models/authentication/session";
-import {RFile, Comment} from "@app/models/app/shared-public-model";
+import {Comment} from "@app/models/app/shared-public-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {TokenResponse} from "@app/models/authentication/token-response";
 import {tipsResolverModel} from "@app/models/resolvers/tips-resolver-model";
 import {redirectResolverModel} from "@app/models/resolvers/redirect-resolver-model";
 import {WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-model";
-import {jobResolverModel} from "@app/models/resolvers/job-resolver-model";
+import {Selectables} from "@app/models/app/selectables";
 import {RecipientReportsPage, RecipientReportsRequest, rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {IarData} from "@app/models/receiver/iar-data";
 import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
+import {metricCatalogResolverModel} from "@app/models/resolvers/metric-catalog-resolver-model";
 import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
 import {RedactionData} from "@app/models/component-model/redaction";
-import {SearchDashboardState, SearchDashboardTab, SearchQuery, SearchSuggestionsResponse} from "@app/models/search/search-query";
+import {FlowFile} from "@flowjs/flow.js";
+import {
+  CreatedSupportRequest,
+  NewSupportMessage,
+  NewSupportRequest,
+  SupportMessage,
+  SupportRequest,
+  SupportRequestStatusUpdate
+} from "@app/models/app/support";
 
 
 @Injectable({
   providedIn: "root"
 })
 export class HttpService {
-  private httpClient = inject(HttpClient);
-  private router = inject(Router);
+  private readonly httpClient = inject(HttpClient);
+  private readonly router = inject(Router);
 
 
   getPublicResource(): Observable<HttpResponse<Root>> {
     return this.httpClient.get<Root>("api/public", {observe: "response"});
+  }
+
+  getPublicContextResource(id: string): Observable<{ context: any, questionnaires: any[] }> {
+    return this.httpClient.get<{ context: any, questionnaires: any[] }>("api/public/contexts/" + id);
   }
 
   requestAuthTokenLogin(param: string): Observable<Session> {
@@ -84,8 +101,28 @@ export class HttpService {
     return this.httpClient.get<{open_reports: number; total_reports: number; last_update: string}>(`api/admin/tenants/${tenantId}/stats`);
   }
 
+  requestExchanges(): Observable<exchangeModel[]> {
+    return this.httpClient.get<exchangeModel[]>("api/admin/exchanges");
+  }
+
+  requestCreateExchange(data: Partial<exchangeModel>): Observable<exchangeModel> {
+    return this.httpClient.post<exchangeModel>("api/admin/exchanges", data);
+  }
+
+  requestUpdateExchange(exchangeId: string, data: exchangeConfig): Observable<exchangeModel> {
+    return this.httpClient.put<exchangeModel>(`api/admin/exchanges/${exchangeId}`, data);
+  }
+
+  requestDeleteExchange(exchangeId: string): Observable<void> {
+    return this.httpClient.delete<void>(`api/admin/exchanges/${exchangeId}`);
+  }
+
   requestUpdateTenant(url: string, data: tenantResolverModel): Observable<tenantResolverModel> {
     return this.httpClient.put<tenantResolverModel>(url, data);
+  }
+
+  requestDetachTenant(tid: number): Observable<void> {
+    return this.httpClient.put<void>(`api/admin/tenants/${tid}/detach`, {});
   }
 
   authorizeIdentity(url: string, data: { reply: string, reply_motivation: string }): Observable<{
@@ -93,10 +130,6 @@ export class HttpService {
     reply_motivation: string
   }> {
     return this.httpClient.put<{ reply: string, reply_motivation: string }>(url, data);
-  }
-
-  deleteDBFile(id: string): Observable<RFile> {
-    return this.httpClient.delete<RFile>("api/recipient/rfiles/" + id);
   }
 
   requestOperations(data: { operation: string, args: Record<string, string> }, header?: HttpHeaders): Observable<{
@@ -158,8 +191,40 @@ export class HttpService {
     return this.httpClient.post<{ receipt: string }>("api/whistleblower/submission", param);
   }
 
-  requestSupport(param: string): Observable<void> {
-    return this.httpClient.post<void>("api/support", param);
+  requestSupport(param: NewSupportRequest, header?: HttpHeaders): Observable<CreatedSupportRequest> {
+    return this.httpClient.post<CreatedSupportRequest>("api/support", param, {headers: header});
+  }
+
+  requestAdminSupport(): Observable<SupportRequest[]> {
+    return this.httpClient.get<SupportRequest[]>("api/admin/support");
+  }
+
+  requestUpdateAdminSupport(id: string, param: SupportRequestStatusUpdate): Observable<SupportRequest> {
+    return this.httpClient.put<SupportRequest>(`api/admin/support/${id}`, param);
+  }
+
+  requestReadAdminSupport(id: string): Observable<void> {
+    return this.httpClient.put<void>(`api/admin/support/${id}/read`, {});
+  }
+
+  requestDeleteAdminSupport(id: string): Observable<void> {
+    return this.httpClient.delete<void>(`api/admin/support/${id}`);
+  }
+
+  requestAdminSupportMessage(id: string, param: NewSupportMessage): Observable<SupportMessage> {
+    return this.httpClient.post<SupportMessage>(`api/admin/support/${id}/message`, param);
+  }
+
+  requestUserSupport(): Observable<SupportRequest[]> {
+    return this.httpClient.get<SupportRequest[]>("api/user/support");
+  }
+
+  requestUpdateUserSupport(id: string): Observable<SupportRequest> {
+    return this.httpClient.put<SupportRequest>(`api/user/support/${id}`, {});
+  }
+
+  requestUserSupportMessage(id: string, param: NewSupportMessage): Observable<SupportMessage> {
+    return this.httpClient.post<SupportMessage>(`api/user/support/${id}/message`, param);
   }
 
   requestNewComment(param: string): Observable<Comment> {
@@ -176,6 +241,10 @@ export class HttpService {
 
   updateNodeResource(data: nodeResolverModel): Observable<nodeResolverModel> {
     return this.httpClient.put<nodeResolverModel>("api/admin/node", data);
+  }
+
+  requestBackupsResource(): Observable<Backup[]> {
+    return this.httpClient.get<Backup[]>("api/admin/backup/list");
   }
 
   requestUsersResource(): Observable<User[]> {
@@ -198,8 +267,8 @@ export class HttpService {
     return this.httpClient.get<questionnaireResolverModel[]>("api/admin/questionnaires");
   }
 
-  requestTipResource(): Observable<tipsResolverModel> {
-    return this.httpClient.get<tipsResolverModel>("api/admin/auditlog/tips");
+  requestAuditLogTipsResource(area: string): Observable<tipsResolverModel> {
+    return this.httpClient.get<tipsResolverModel>(`api/${area}/auditlog/tips`);
   }
 
   requestNotificationsResource(): Observable<notificationResolverModel> {
@@ -308,8 +377,16 @@ export class HttpService {
     return this.httpClient.get<Record<string, string>>("/data/l10n/" + lang + ".json");
   }
 
-  requestAdminAuditLogResource(): Observable<auditlogResolverModel> {
-    return this.httpClient.get<auditlogResolverModel>("api/admin/auditlog");
+  requestSelectablesResource(): Observable<Selectables> {
+    return this.httpClient.get<Selectables>("api/admin/selectables");
+  }
+
+  requestAuditLogResource(area: string): Observable<auditlogResolverModel> {
+    return this.httpClient.get<auditlogResolverModel>(`api/${area}/auditlog`);
+  }
+
+  requestRecipientTipQuestionnaires(tipId: string): Observable<RequestableQuestionnaire[]> {
+    return this.httpClient.get<RequestableQuestionnaire[]>(`api/recipient/rtips/${tipId}/questionnaires`);
   }
 
   requestRecipientTipAuditLogResource(tipId: string): Observable<auditlogResolverModel[]> {
@@ -332,19 +409,44 @@ export class HttpService {
     return this.httpClient.put<questionnaireResolverModel>("api/admin/questionnaires/" + id, param);
   }
 
-  requestJobResource(): Observable<jobResolverModel> {
-    return this.httpClient.get<jobResolverModel>("api/admin/auditlog/jobs");
+  receiverTipResource(): Observable<rtipResolverModel[]> {
+    return this.httpClient.get<rtipResolverModel[]>("api/recipient/rtips");
   }
 
-  receiverTipResource(request: RecipientReportsRequest): Observable<RecipientReportsPage> {
+  searchRecipientReports(request: RecipientReportsRequest): Observable<RecipientReportsPage> {
     return this.httpClient.post<RecipientReportsPage>("api/recipient/rtips", request);
   }
 
+  getRecipientDashboard(): Observable<SearchDashboardState> {
+    return this.httpClient.get<SearchDashboardState>("api/recipient/search-dashboard");
+  }
+
+  saveRecipientTabs(tabs: SearchDashboardTab[]): Observable<SearchDashboardState> {
+    return this.httpClient.put<SearchDashboardState>("api/recipient/search-dashboard", {tabs});
+  }
+
+  getSearchSuggestions(recipient: boolean, field: string, operator: string, value: string): Observable<SearchSuggestionsResponse> {
+    const role = recipient ? "recipient" : "admin";
+    return this.httpClient.post<SearchSuggestionsResponse>(`api/${role}/search-dashboard/suggestions`, {
+      field,
+      operator,
+      value
+    });
+  }
+
+  auditSearchExport(query: SearchQuery, resultCount: number): Observable<void> {
+    return this.httpClient.post<void>("api/recipient/search/export-audit", {
+      filter_types: query.filters.map(filter => filter.field),
+      result_count: resultCount
+    });
+  }
+
+
   requestStatisticsResource(filters?: {
     context_id?: string,
-    channel?: Array<string | number>,
-    date_from?: number,
-    date_to?: number
+    channel?: (string | number)[],
+    date_from?: number | string,
+    date_to?: number | string
   }): Observable<statisticsResolverModel> {
     const url = `api/analyst/stats`;
     return this.httpClient.post<statisticsResolverModel>(url, filters || {});
@@ -360,6 +462,14 @@ export class HttpService {
 
   requestCreateStatisticalTemplate(data: { label: string; data: Record<string, unknown> }): Observable<statisticalTemplateResolverModel> {
     return this.httpClient.post<statisticalTemplateResolverModel>("api/analyst/templates", data);
+  }
+
+  requestImportStatisticalTemplate(data: string): Observable<statisticalTemplateResolverModel> {
+    return this.httpClient.post<statisticalTemplateResolverModel>("api/analyst/templates", data);
+  }
+
+  requestMetricCatalog(): Observable<metricCatalogResolverModel> {
+    return this.httpClient.get<metricCatalogResolverModel>("api/analyst/metrics");
   }
 
   requestUpdateStatisticalTemplate(id: string, data: statisticalTemplateResolverModel): Observable<statisticalTemplateResolverModel> {
@@ -511,10 +621,6 @@ export class HttpService {
     return this.httpClient.put<contextResolverModel>("api/admin/contexts/" + id, param);
   }
 
-  requestDeleteAdminContext(id: string): Observable<contextResolverModel> {
-    return this.httpClient.delete<contextResolverModel>("api/admin/contexts/" + id);
-  }
-
   requestDeleteStatus(url: string): Observable<Status> {
     return this.httpClient.delete<Status>(url);
   }
@@ -540,30 +646,6 @@ export class HttpService {
     return this.httpClient.get<{ redirect: string }>(`api/auth/roleauthswitch/${role}`);
   }
 
-  getRecipientDashboard(): Observable<SearchDashboardState> {
-    return this.httpClient.get<SearchDashboardState>("api/recipient/search-dashboard");
-  }
-
-  saveRecipientTabs(tabs: SearchDashboardTab[]): Observable<SearchDashboardState> {
-    return this.httpClient.put<SearchDashboardState>("api/recipient/search-dashboard", {tabs});
-  }
-
-  getSearchSuggestions(recipient: boolean, field: string, operator: string, value: string): Observable<SearchSuggestionsResponse> {
-    const role = recipient ? "recipient" : "admin";
-    return this.httpClient.post<SearchSuggestionsResponse>(`api/${role}/search-dashboard/suggestions`, {
-      field,
-      operator,
-      value
-    });
-  }
-
-  auditSearchExport(query: SearchQuery, resultCount: number): Observable<void> {
-    return this.httpClient.post<void>("api/recipient/search/export-audit", {
-      filter_types: query.filters.map(filter => filter.field),
-      result_count: resultCount
-    });
-  }
-
   runOperation(url: string, operation: string, args: any, refresh: boolean) {
 
     const data = {
@@ -571,16 +653,32 @@ export class HttpService {
       args: args
     };
 
-    if (refresh) {
-      setTimeout(() => {
-        const currentUrl = this.router.url;
-        this.router.navigateByUrl("routing", {skipLocationChange: true, replaceUrl: true}).then(() => {
-          this.router.navigate([currentUrl]).then();
-        });
-      }, 150);
+    const request = this.httpClient.put(url, data);
+
+    if (!refresh) {
+      return request;
     }
 
-    return this.httpClient.put(url, data);
+    // Reload the current route once the operation has succeeded, so the
+    // page shows the state the operation produced.
+    return request.pipe(tap(() => {
+      const currentUrl = this.router.url;
+      void this.router.navigateByUrl("routing", {skipLocationChange: true, replaceUrl: true}).then(() => {
+        void this.router.navigate([currentUrl]);
+      });
+    }));
+  }
+
+  requestCommunicationOptions(tipId: string): Observable<any> {
+    return this.httpClient.get("api/recipient/rtips/" + tipId + "/communication");
+  }
+
+  requestTransmitOptions(): Observable<any> {
+    return this.httpClient.get("api/transmitter/transmissions/options");
+  }
+
+  requestTransmissions(): Observable<any> {
+    return this.httpClient.get("api/transmitter/transmissions");
   }
 
   tipOperation = (operation: string, args: any, tipId: string) => {
@@ -590,5 +688,61 @@ export class HttpService {
     };
     return this.httpClient.put("api/recipient/rtips/" + tipId, req);
   };
+
+  requestDeleteReceiverTip(id: string): Observable<unknown> {
+    return this.httpClient.delete("api/recipient/rtips/" + id);
+  }
+
+  requestIdentityAccess(id: string, request_motivation: string): Observable<unknown> {
+    return this.httpClient.post("api/recipient/rtips/" + id + "/iars", {"request_motivation": request_motivation});
+  }
+
+  requestWhistleblowerOperations(data: { operation: string, args: Record<string, string> }): Observable<unknown> {
+    return this.httpClient.put('api/whistleblower/operations', data);
+  }
+
+  requestRunOperation(api: string, operation: string, args: object, headers?: HttpHeaders): Observable<unknown> {
+    return this.httpClient.put(api, {"operation": operation, "args": args}, {headers});
+  }
+
+  requestBlobResource(url: string, headers: HttpHeaders | Record<string, string>): Observable<Blob> {
+    return this.httpClient.get(url, {headers: headers, responseType: "blob"});
+  }
+
+  requestDeleteResource(url: string, headers?: HttpHeaders, body?: unknown): Observable<void> {
+    return this.httpClient.delete<void>(url, {headers, body});
+  }
+
+  requestAdminFilesResource(): Observable<FlowFile[]> {
+    return this.httpClient.get<FlowFile[]>("api/admin/files");
+  }
+
+  requestImportAdminQuestionnaire(data: string): Observable<unknown> {
+    return this.httpClient.post("api/admin/questionnaires?multilang=1", data);
+  }
+
+  requestImportAdminFieldTemplate(data: string): Observable<unknown> {
+    return this.httpClient.post("api/admin/fieldtemplates?multilang=1", data);
+  }
+
+  requestDuplicateAdminQuestionnaire(param: { questionnaire_id: string, new_name: string }): Observable<unknown> {
+    return this.httpClient.post("api/admin/questionnaires/duplicate", param);
+  }
+
+  requestReorderAdminContexts(param: { operation: string, args: { ids: string[] } }): Observable<unknown> {
+    return this.httpClient.put("api/admin/contexts", param);
+  }
+
+  requestReorderAdminQuestionnaireSteps(param: { operation: string, args: { ids: string[], questionnaire_id: string } }): Observable<unknown> {
+    return this.httpClient.put("api/admin/steps", param);
+  }
+
+  requestAddAdminSubstatus(statusId: string, param: { label: string, order: number, tip_timetolive: number }): Observable<Substatus> {
+    return this.httpClient.post<Substatus>(`api/admin/statuses/${statusId}/substatuses`, param);
+  }
+
+  requestReorderAdminSubstatuses(statusId: string, param: { operation: string, args: { ids: string[] } }): Observable<unknown> {
+    return this.httpClient.put(`api/admin/statuses/${statusId}/substatuses`, param);
+  }
 
 }

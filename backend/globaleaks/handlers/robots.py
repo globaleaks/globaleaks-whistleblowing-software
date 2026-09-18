@@ -14,12 +14,13 @@ class RobotstxtHandler(BaseHandler):
         """
         self.request.setHeader(b'Content-Type', b'text/plain')
 
-        if not self.state.tenants[self.request.tid].cache.allow_indexing:
+        if (self.request.tid != 1 and self.state.tenants[self.request.tid].cache.demo) or \
+           (not self.state.tenants[self.request.tid].cache.allow_indexing):
             return "User-agent: *\nDisallow: *"
 
         data = "User-agent: *\n"
         data += "Allow: /$\n"
         data += "Disallow: *\n"
-        data += "Sitemap: https://%s/sitemap.xml" % self.state.tenants[self.request.tid].cache.hostname
+        data += f"Sitemap: https://{self.state.tenants[self.request.tid].cache.hostname}/sitemap.xml"
 
         return data

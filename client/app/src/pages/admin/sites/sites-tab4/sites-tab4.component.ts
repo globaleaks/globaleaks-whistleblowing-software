@@ -1,48 +1,65 @@
+import {CollapsibleCardComponent} from "@app/shared/components/collapsible-card/collapsible-card.component";
 import { Component, OnInit, inject } from "@angular/core";
-import { FormsModule } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { HttpService } from "@app/shared/services/http.service";
+import { InviteComponent } from "@app/shared/modals/invite/invite.component";
 import { CommonModule } from "@angular/common";
 import { PaginatedInterfaceComponent } from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 @Component({
   selector: 'src-sites-tab4',
   standalone: true,
-  imports: [CommonModule, FormsModule, PaginatedInterfaceComponent, TranslateModule],
+  imports: [CollapsibleCardComponent, CommonModule, PaginatedInterfaceComponent, TranslateModule],
   templateUrl: './sites-tab4.component.html'
 })
 export class SitesTab4Component implements OnInit {
 
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   invites: any[] = [];
-  expandedRegistration: string = '';
-
-  invite = {
-    organization_name: '',
-    email: ''
-  };
+  expandedRegistration = '';
+  // The alert of a registration links to it: the list opens on it, with its
+  // card expanded, so that the mail lands on the registration it announces
+  focusRegistrationId = '';
 
   ngOnInit(): void {
     this.loadInvites();
+
+    this.activatedRoute.queryParams.subscribe(params => {
+      this.focusRegistrationId = params['id'] || '';
+      this.focusRegistration();
+    });
   }
 
   loadInvites() {
     this.httpService.requestAdminInvites()
       .subscribe((res: any) => {
         this.invites = res;
+        this.focusRegistration();
       });
   }
 
-  createInvite() {
-    this.httpService.requestAdminInvite(this.invite).subscribe(() => {
-      this.invite = {
-        organization_name: '',
-        email: ''
-      };
+  private focusRegistration() {
+    if (!this.focusRegistrationId || this.expandedRegistration === this.focusRegistrationId) {
+      return;
+    }
 
-      this.loadInvites();
-    });
+    if (this.invites.some(invite => invite.id === this.focusRegistrationId)) {
+      this.expandedRegistration = this.focusRegistrationId;
+    }
+  }
+
+  openInviteModal() {
+    const modalRef = this.modalService.open(InviteComponent, {backdrop: 'static', keyboard: false, size: 'lg'});
+    modalRef.componentInstance.confirmFunction = (invite: {organization_name: string, email: string, mail_template: string}) => {
+      this.httpService.requestAdminInvite(invite).subscribe(() => {
+        this.loadInvites();
+      });
+    };
   }
 
   deleteInvite(id: string) {

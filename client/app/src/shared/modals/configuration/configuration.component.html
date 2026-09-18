@@ -1,0 +1,32 @@
+<div class="modal-header">
+  <div>
+    <h4 class="modal-title">{{ 'Configuration' | translate }}</h4>
+  </div>
+  <button type="button" class="btn-close" (click)="close()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
+</div>
+<div class="modal-body">
+  <div>
+    @if (isProfile) {
+      {{ 'The variables the sites naming this profile may configure on their own.' | translate }}
+    } @else if (namesProfile) {
+      {{ 'The variables this site configured differently from what its profile hands it.' | translate }}
+    } @else {
+      {{ 'The variables this site configured differently from the default of the application.' | translate }}
+    }
+  </div>
+  <div class="configuration-list">
+    <src-selection-editor
+      label="Configuration"
+      [hideLabel]="true"
+      addButtonClass="add-configuration-btn"
+      adderId="ConfigurationAdder"
+      [options]="options"
+      [selected]="selected"
+      [addable]="isProfile"
+      [givingUp]="!isProfile"
+      [selectableDefault]="false"
+      (entryAdded)="add($event)"
+      (entryRemoved)="remove($event.id)">
+    </src-selection-editor>
+  </div>
+</div>

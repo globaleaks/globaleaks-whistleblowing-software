@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {Signup} from "@app/models/component-model/signup";
 import * as Constants from "@app/shared/constants/constants";
@@ -9,41 +9,80 @@ import {SubdomainValidatorDirective} from "@app/shared/directive/subdomain-valid
 import {DisableCcpDirective} from "@app/shared/directive/disable-ccp.directive";
 import {TosComponent} from "../tos/tos.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-signupdefault",
     templateUrl: "./signupdefault.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, NgClass, SubdomainValidatorDirective, DisableCcpDirective, TosComponent, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, NgClass, SubdomainValidatorDirective, DisableCcpDirective, TosComponent, TranslateModule]
 })
-export class SignupdefaultComponent implements OnInit {
+export class SignupdefaultComponent implements OnInit, OnChanges {
   protected appDataService = inject(AppDataService);
 
 
   @Input() signup: Signup;
   @Input() idpRequired = false;
   @Input() idpAuthenticated = false;
-  @Input() idpFields: { name: boolean, surname: boolean, email: boolean } = {name: false, surname: false, email: false};
+  @Input() idpFields: { name: boolean, surname: boolean } = {name: false, surname: false};
+  @Input() idpEmail = "";
   @Output() complete: EventEmitter<any> = new EventEmitter<any>();
   @Output() authenticate: EventEmitter<any> = new EventEmitter<any>();
 
   emailRegex: string;
   confirmation_email: string;
-  confirmation_organization_email: string;
   validated = false;
   mail: string;
+  subdomainEdited = false;
 
   ngOnInit(): void {
     this.emailRegex = Constants.Constants.emailRegexp;
+
+    // A registration resumed after the round trip towards the identity provider
+    // keeps the address chosen by the user in place of the computed one
+    this.subdomainEdited = !!this.signup.subdomain && this.signup.subdomain !== this.computeSubdomain();
+
+    // Confirmations are not kept across the round trip: the user enters them again
+    this.confirmation_email = this.signup.email;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // The email published by the identity provider only prefills the form
+    if (changes["idpEmail"] && this.idpEmail && !this.signup.email) {
+      this.signup.email = this.idpEmail;
+      this.confirmation_email = this.idpEmail;
+    }
+  }
+
+  // The address of the site is computed from the name of the organization and
+  // stays in sync with it until the user edits it
+  onOrganizationNameChange(): void {
+    if (!this.subdomainEdited) {
+      this.signup.subdomain = this.computeSubdomain();
+    }
+  }
+
+  private computeSubdomain(): string {
+    return (this.signup.organization_name || "").replace(/[^\w]/gi, "").toLowerCase().slice(0, 40);
   }
 
   get invitedSignup(): boolean {
     return !!this.signup.token;
   }
 
-  get organizationRequested(): boolean {
-    return !!this.appDataService.public.node.signup_request_organization;
+  get locationRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_location;
+  }
+
+  get phoneRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_phone;
+  }
+
+  get taxCodeRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_tax_code;
+  }
+
+  get vatCodeRequested(): boolean {
+    return !!this.appDataService.public.node.signup_request_vat_code;
   }
 
   // The site of an invited registration is the one created along the invitation

@@ -1,13 +1,10 @@
-import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, OnInit, inject} from "@angular/core";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
-import {SlicePipe} from "@angular/common";
-import {NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {FilterPipe} from "@app/shared/pipes/filter.pipe";
-import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
+import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule} from "@ngx-translate/core";
+import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {ProfilelistComponent} from "../profilelist/profilelist.component";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpClient} from "@angular/common/http";
@@ -16,15 +13,13 @@ import {HttpClient} from "@angular/common/http";
   selector: 'src-sites-tab2',
   templateUrl: './sites-tab2.component.html',
   standalone: true,
-  imports: [FormsModule, ProfilelistComponent, NgbPagination, NgbPaginationPrevious, NgbPaginationNext, NgbPaginationFirst, NgbPaginationLast, NgbTooltipModule, SlicePipe, TranslatorPipe, FilterPipe, OrderByPipe, TranslateModule]
+  imports: [FormsModule, PaginatedInterfaceComponent, ProfilelistComponent, NgbTooltipModule, TranslateModule]
 })
 export class SitesTab2Component implements OnInit {
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private http = inject(HttpClient);
-  @ViewChild('keyUploadInput') keyUploadInput: ElementRef<HTMLInputElement>;
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly http = inject(HttpClient);
 
-  search: string;
   newTenant: { name: string, active: boolean, profile: string, subdomain: string, is_profile: boolean} = {
     name: "",
     active: true,
@@ -32,11 +27,9 @@ export class SitesTab2Component implements OnInit {
     subdomain: "",
     is_profile: true
   };
-  tenants: tenantResolverModel[];
-  showAddTenant: boolean = false;
-  itemsPerPage: number = 10;
-  currentPage: number = 1;
-  indexNumber: number = 0;
+  tenants: tenantResolverModel[] = [];
+  showAddTenant = false;
+  indexNumber = 0;
 
   ngOnInit(): void {
     this.getResolver();
@@ -48,15 +41,17 @@ export class SitesTab2Component implements OnInit {
 
   addTenant() {
     this.httpService.addTenant(this.newTenant).subscribe(res => {
-      this.tenants.push(res);
+      this.tenants = [...this.tenants, res];
       this.newTenant.name = "";
     });
   }
 
-  importTenant(files: FileList | null) {
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
-        let jsonTxt = JSON.parse(txt);
+  importTenant(input: HTMLInputElement) {
+    const files = input.files;
+    const file = files?.[0];
+    if (file) {
+      this.utilsService.readFileAsText(file).subscribe((txt) => {
+        const jsonTxt = JSON.parse(txt);
         jsonTxt.tenant.profile = "default";
 
         return this.http.post("api/admin/tenants", jsonTxt).subscribe({
@@ -64,13 +59,17 @@ export class SitesTab2Component implements OnInit {
             this.getResolver();
           },
           error: () => {
-            if (this.keyUploadInput) {
-              this.keyUploadInput.nativeElement.value = "";
-            }
+            // The file is released, so that a second attempt on the same one
+            // is offered again to the reader
+            input.value = "";
           }
         });
       });
     }
+  }
+
+  onDelete(id: number) {
+    this.tenants = this.tenants.filter(t => t.id !== id);
   }
 
   getResolver(){

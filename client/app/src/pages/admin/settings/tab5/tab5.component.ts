@@ -1,100 +1,113 @@
 import {Component, Input, OnInit, inject} from "@angular/core";
-import {NgForm, FormsModule} from "@angular/forms";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {Constants} from "@app/shared/constants/constants";
-import {EnableEncryptionComponent} from "@app/shared/modals/enable-encryption/enable-encryption.component";
+import {FormsModule, NgForm} from "@angular/forms";
+import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
-import {UtilsService} from "@app/shared/services/utils.service";
-import {AppConfigService} from "@app/services/root/app-config.service";
-import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {User, UserProfile} from "@app/models/resolvers/user-resolver-model";
-import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
-import {HttpService} from "@app/shared/services/http.service";
-import {NgClass} from "@angular/common";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
+import {UtilsService} from "@app/shared/services/utils.service";
+import {AuthenticationService} from "@app/services/helper/authentication.service";
+import {AppConfigService} from "@app/services/root/app-config.service";
+import {AppDataService} from "@app/app-data.service";
 
 @Component({
     selector: "src-tab5",
     templateUrl: "./tab5.component.html",
     standalone: true,
-    imports: [FormsModule, NgClass, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, TranslateModule]
 })
 export class Tab5Component implements OnInit {
-  private authenticationService = inject(AuthenticationService);
-  private modalService = inject(NgbModal);
-  private appConfigService = inject(AppConfigService);
-  private utilsService = inject(UtilsService);
-  protected nodeResolver = inject(NodeResolver);
-  protected preferenceResolver = inject(PreferenceResolver);
-  private usersResolver = inject(UsersResolver);
-  private questionnairesResolver = inject(QuestionnairesResolver);
-  private httpService = inject(HttpService);
-
   @Input() contentForm: NgForm;
-  userData: User[] = [];
-  userProfiles: UserProfile[] = [];
-  questionnaireData: questionnaireResolverModel[];
-  routeReload = false;
+  nodeData: nodeResolverModel;
+  idpEnabled = false;
+  idpIssuer = "";
+  idpClientId = "";
+  idpProvisioning = false;
 
-  protected readonly Constants = Constants;
+  protected utilsService = inject(UtilsService);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly nodeResolver = inject(NodeResolver);
 
   ngOnInit(): void {
-    this.userData = this.usersResolver.dataModel;
-    this.filterUserData();
-
-    this.questionnaireData = this.questionnairesResolver.dataModel;
-
-    this.httpService.requestUserProfilesResource().subscribe((profiles: UserProfile[]) => {
-      this.userProfiles = profiles.filter(profile => profile.name !== "");
-    });
+    this.nodeData = this.nodeResolver.dataModel;
+    this.loadIdpConfiguration();
   }
 
-  filterUserData(): void {
-    this.userData = this.userData.filter((user: { escrow: boolean }) => user.escrow);
+  loadIdpConfiguration() {
+    this.idpEnabled = this.nodeData.idp;
+    this.idpIssuer = this.nodeData.idp_issuer;
+    this.idpClientId = this.nodeData.idp_client_id;
+    this.idpProvisioning = this.nodeData.idp_provisioning;
   }
 
-  enableEncryption() {
-    const node = this.nodeResolver.dataModel;
-    node.encryption = false;
-    const modalRef = this.modalService.open(EnableEncryptionComponent, { backdrop: 'static', keyboard: false });
-    modalRef.result.then(() => {
-      this.utilsService.runAdminOperation("enable_encryption", {}, false).subscribe(() => {
-        this.authenticationService.logout();
-      });
-    });
+  isInheritedTenantContext() {
+    // The default profile seeds the initialization and carries the defaults: a tenant on it inherits
+    // no managed configuration
+    return !!this.nodeData.tid && this.nodeData.tid !== 1 && !this.nodeData.is_profile &&
+           this.nodeData.profile !== "default";
   }
 
-  toggleEscrow(escrow: { checked: boolean }) {
-    escrow.checked = this.nodeResolver.dataModel.escrow = !this.nodeResolver.dataModel.escrow;
-    this.utilsService.runAdminOperation("toggle_escrow", {}, false).subscribe(() => {
-      this.nodeResolver.dataModel.escrow = !this.nodeResolver.dataModel.escrow;
-      this.usersResolver.refresh().subscribe(() => {
-        this.filterUserData();
-      });
-    });
+  isConfigurationValid() {
+    return !!this.idpIssuer && !!this.idpClientId;
   }
 
-  updateNode() {
-    this.utilsService.update(this.nodeResolver.dataModel).subscribe(_ => {
-      this.appConfigService.reinit();
-      if (this.routeReload) {
-        this.utilsService.reloadCurrentRoute();
-      } else {
-        this.utilsService.reloadComponent();
+  isLocked() {
+    // The configuration can be modified only while in the Disabled state
+    return this.isInheritedTenantContext() || this.nodeData.idp;
+  }
+
+  save(): void {
+    this.nodeData.idp = this.idpEnabled;
+    this.nodeData.idp_issuer = this.idpIssuer;
+    this.nodeData.idp_client_id = this.idpClientId;
+    this.nodeData.idp_provisioning = this.idpProvisioning;
+
+    this.utilsService.update(this.nodeData).subscribe({
+      next: () => {
+        if (this.appDataService.public?.node) {
+          this.appDataService.updatePublic({
+            ...this.appDataService.public,
+            node: {
+              ...this.appDataService.public.node,
+              idp: this.nodeData.idp,
+              idp_issuer: this.nodeData.idp_issuer,
+              idp_client_id: this.nodeData.idp_client_id
+            }
+          });
+        }
+        this.appConfigService.reinit();
       }
     });
   }
 
-  resetSubmissions() {
-    this.utilsService.deleteDialog();
+  enableIdp(): void {
+    // Validated only for the platform the administrator operates as its own
+    if (this.nodeData.is_profile || this.authenticationService.session?.properties?.management_session) {
+      this.idpEnabled = true;
+      this.save();
+      return;
+    }
+
+    // Enabled only if the issuer exists, is reachable and recognizes the client: the backend
+    // validates it
+    this.utilsService.runAdminOperation("validate_idp", {"issuer": this.idpIssuer, "client_id": this.idpClientId}, false).subscribe({
+      next: () => {
+        this.idpEnabled = true;
+        this.save();
+      }
+    });
   }
 
-  enableRouteReload() {
-    this.routeReload = true;
+  disableIdp(): void {
+    this.idpEnabled = false;
+    this.save();
+  }
+
+  resetIdp(): void {
+    this.idpEnabled = false;
+    this.idpIssuer = "";
+    this.idpClientId = "";
+    this.idpProvisioning = false;
+    this.save();
   }
 }
-

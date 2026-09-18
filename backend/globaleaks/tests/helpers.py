@@ -1,13 +1,17 @@
 """
 Utilities and basic TestCases.
 """
+import atexit
 import base64
 import copy
+import contextlib
+import glob
 import json
 import mimetypes
 import os
 import secrets
 import shutil
+import tempfile
 
 from datetime import timedelta
 
@@ -17,7 +21,7 @@ from urllib.parse import urlsplit  # pylint: disable=import-error
 
 
 from twisted.internet.address import IPv4Address
-from twisted.internet.defer import inlineCallbacks, returnValue, Deferred
+from twisted.internet.defer import inlineCallbacks, Deferred
 from twisted.internet.task import Clock
 from twisted.python.failure import Failure
 from twisted.trial import unittest
@@ -31,7 +35,7 @@ from globaleaks.orm import transact, tw
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.admin.context import create_context, get_context
 from globaleaks.handlers.admin.field import create_field, db_create_field
-from globaleaks.handlers.admin.questionnaire import db_get_questionnaire, create_questionnaire
+from globaleaks.handlers.admin.questionnaire import db_get_questionnaire, create_questionnaire, duplicate_questionnaire
 from globaleaks.handlers.admin.step import db_create_step
 from globaleaks.handlers.admin.tenant import create as create_tenant, db_wizard
 from globaleaks.handlers.admin.user import create_user
@@ -46,11 +50,17 @@ from globaleaks.rest.api import JSONEncoder
 from globaleaks.sessions import initialize_submission_session, Sessions
 from globaleaks.settings import Settings
 from globaleaks.state import State, TenantState
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
+
+from globaleaks.utils import dpop as dpop_utils
 from globaleaks.utils import tempdict
 from globaleaks.utils.crypto import GCE, generateRandomKey, sha256, sha512
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.utility import datetime_now, uuid4
 from globaleaks.utils.log import log
+from globaleaks.rest import api
 
 GCE.options['OPSLIMIT'] = 1
 
@@ -60,6 +70,8 @@ VALID_PASSWORD = 'ACollectionOfDiplomaticHistorySince_1966_ToThe_Pr esentDay#'
 VALID_SALT = GCE.generate_salt()
 VALID_KEY = GCE.derive_key(VALID_PASSWORD, VALID_SALT)
 VALID_HASH = sha256(Base64Encoder.decode(VALID_KEY.encode()))
+# Step-up confirmation payload: the valid key as the client encodes it (UTF-16-LE, base64)
+VALID_CONFIRMATION = base64.b64encode(VALID_KEY.encode('utf-16-le')).decode()
 VALID_BASE64_IMG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII='
 INVALID_PASSWORD = 'antani'
 
@@ -87,16 +99,16 @@ def mock_nullfunction(*args, **kwargs):
     return
 
 
-def mock_GCE_generate_key():
+def mock_gce_generate_key():
     return KEY
 
 
-def mock_GCE_generate_keypair():
+def mock_gce_generate_keypair():
     return USER_PRV_KEY, USER_PUB_KEY
 
 
-setattr(GCE, 'generate_key', mock_GCE_generate_key)
-setattr(GCE, 'generate_keypair', mock_GCE_generate_keypair)
+GCE.generate_key = mock_gce_generate_key
+GCE.generate_keypair = mock_gce_generate_keypair
 # END MOCKS NECESSARY FOR DETERMINISTIC ENCRYPTION
 ################################################################################
 
@@ -121,11 +133,11 @@ HTTPS_DATA = {
 
 HTTPS_DATA_DIR = os.path.join(DATA_DIR, 'https')
 for k, fname in HTTPS_DATA.items():
-    with open(os.path.join(HTTPS_DATA_DIR, 'valid', fname), 'r') as fd:
+    with open(os.path.join(HTTPS_DATA_DIR, 'valid', fname)) as fd:
         HTTPS_DATA[k] = fd.read()
 
 
-class FakeThreadPool(object):
+class FakeThreadPool:
     """
     A fake L{twisted.python.threadpool.ThreadPool}, running functions inside
     the main thread instead for easing tests.
@@ -135,7 +147,7 @@ class FakeThreadPool(object):
         success = True
         try:
             result = func(*args, **kw)
-        except:
+        except Exception:
             result = Failure()
             success = False
 
@@ -145,7 +157,6 @@ class FakeThreadPool(object):
 def init_state():
     Settings.set_devel_mode()
     Settings.disable_notifications = True
-    Settings.failed_login_attempts.clear()
     Settings.working_path = os.path.abspath('./working_path')
 
     Settings.eval_paths()
@@ -156,10 +167,10 @@ def init_state():
     orm.set_thread_pool(FakeThreadPool())
 
     State.settings.enable_api_cache = False
-    State.settings.enable_rate_limiting = False
+    State.RateLimit.enabled = False
 
     State.tenants[1] = TenantState()
-    State.tenants[1].cache.hostname = 'www.globaleaks.org'
+    State.tenants[1].cache.hostname = 'globaleaks.org'
     State.tenants[1].cache.encryption = True
 
     State.init_environment()
@@ -174,6 +185,78 @@ def get_token():
     token.salt = TOKEN_SALT
     State.tokens[token.id] = token
     return TOKEN_ANSWER
+
+
+# A fixed ECDSA P-256 key pair used to produce valid DPoP proofs (RFC 9449) for
+# the test suite; sessions forged by request() are bound to its thumbprint.
+DPOP_PRV_KEY = ec.generate_private_key(ec.SECP256R1())
+_dpop_pub = DPOP_PRV_KEY.public_key().public_numbers()
+DPOP_JWK = {
+    "kty": "EC",
+    "crv": "P-256",
+    "x": dpop_utils.b64url_encode(_dpop_pub.x.to_bytes(32, 'big')),
+    "y": dpop_utils.b64url_encode(_dpop_pub.y.to_bytes(32, 'big'))
+}
+DPOP_JKT = dpop_utils.jwk_thumbprint(DPOP_JWK)
+
+
+def make_dpop_proof(method, path, session_id=None):
+    """Build a valid DPoP proof signed with the test key for the given request."""
+    header = {"typ": "dpop+jwt", "alg": "ES256", "jwk": DPOP_JWK}
+    payload = {
+        "htm": method,
+        "htu": path,
+        "iat": dpop_utils.now_epoch(),
+        "jti": secrets.token_hex(16)
+    }
+
+    if session_id is not None:
+        payload["ath"] = dpop_utils.compute_ath(session_id)
+
+    signing_input = dpop_utils.b64url_encode(json.dumps(header).encode()) + "." + \
+                    dpop_utils.b64url_encode(json.dumps(payload).encode())
+
+    der = DPOP_PRV_KEY.sign(signing_input.encode(), ec.ECDSA(hashes.SHA256()))
+    r, s = decode_dss_signature(der)
+    sig = dpop_utils.b64url_encode(r.to_bytes(32, 'big') + s.to_bytes(32, 'big'))
+
+    return (signing_input + "." + sig).encode()
+
+
+def dpop_htu(request):
+    """Reconstruct the htu (request path only) the backend computes for a request."""
+    return request.path.decode()
+
+
+# Bind every session created during the tests to the test DPoP key, so that the
+# strict per-request enforcement is satisfied even for sessions created directly
+# via Sessions.new (i.e. bypassing request()).
+_orig_sessions_new = Sessions.new
+
+
+def _test_sessions_new(tid, user_id, user_tid, user_username, user_role, cc='', ek='',
+                       roles=None, permissions=None, sk='', dpop_jkt=''):
+    return _orig_sessions_new(tid, user_id, user_tid, user_username, user_role, cc, ek,
+                              roles, permissions, sk, dpop_jkt or DPOP_JKT)
+
+
+Sessions.new = _test_sessions_new
+
+
+def forge_nested_answers(field_id, depth=3000):
+    """
+    Build an answers payload where field_id is recursively nested `depth`
+    times: the denial-of-service shape that, once persisted, exhausts the
+    recursion limit when a recipient opens, exports or redacts the report.
+    """
+    answers = {}
+    cur = answers
+    for _ in range(depth):
+        child = {}
+        cur[field_id] = [child]
+        cur = child
+
+    return answers
 
 
 def get_dummy_step():
@@ -251,7 +334,7 @@ class MockDict:
     """
 
     def __init__(self):
-        self.dummyUser = {
+        self.dummy_user = {
             'id': '',
             'username': 'maker@iz.cool.yeah',
             'password': VALID_KEY,
@@ -272,8 +355,9 @@ class MockDict:
             'pgp_key_remove': False,
             'profile_id': 'none',
             'contexts': [],
+            'forcefully_selected': True,
             'send_activation_link': False,
-            'can_edit_general_settings': False,
+            'can_manage_settings': False,
             'can_grant_access_to_reports': True,
             'can_transfer_access_to_reports': True,
             'can_delete_submission': True,
@@ -282,12 +366,12 @@ class MockDict:
             'can_redact_information': True
         }
 
-        self.dummyQuestionnaire = {
+        self.dummy_questionnaire = {
             'id': 'test',
             'name': 'test'
         }
 
-        self.dummyContext = {
+        self.dummy_context = {
             'id': '',
             'name': 'Already localized name',
             'description': 'Already localized desc',
@@ -302,16 +386,18 @@ class MockDict:
             'show_context': True,
             'allow_recipients_selection': False,
             'show_receivers_in_alphabetical_order': False,
+            'internally_available': True,
+            'provide_access_code': True,
         }
 
-        self.dummySubmission = {
+        self.dummy_submission = {
             'context_id': '',
             'answers': {},
             'receivers': [],
             'mobile': False
         }
 
-        self.dummyNode = {
+        self.dummy_node = {
             'name': 'Please, set me: name/title',
             'description': 'Platform description',
             'presentation': 'This is whæt æpp€ærs on top',
@@ -322,8 +408,9 @@ class MockDict:
             'disclaimer_text': '',
             'whistleblowing_question': '',
             'whistleblowing_button': '',
+            'whistleblowing_destination': '/submission',
             'homepage': '/',
-            'hostname': 'www.globaleaks.org',
+            'hostname': 'globaleaks.org',
             'rootdomain': 'antani.gov',
             'email': 'email@dummy.net',
             'languages_supported': [],  # ignored
@@ -376,6 +463,7 @@ class MockDict:
             'basic_auth_username': '',
             'basic_auth_password': '',
             'custom_support_url': '',
+            'support_escalation': 'all',
             'pgp': False,
             'antivirus_enabled': False,
             'antivirus_clamd_ip': 'localhost',
@@ -389,15 +477,25 @@ class MockDict:
             'idp': False,
             'idp_issuer': '',
             'idp_client_id': '',
+            'idp_provisioning': False,
+            'enable_onion': True,
+            'default_tip_timetolive': 90,
+            'demo': False,
+            'signup_request_location': True,
+            'signup_request_phone': True,
+            'signup_request_tax_code': True,
+            'signup_request_vat_code': True,
+            'signup_request_subdomain': True,
         }
 
-        self.dummyNetwork = {
+        self.dummy_network = {
             'anonymize_outgoing_connections': True,
-            'hostname': 'www.globaleaks.org',
+            'hostname': 'globaleaks.org',
             'https_admin': True,
             'https_analyst': True,
             'https_custodian': True,
             'https_receiver': True,
+            'https_transmitter': True,
             'https_whistleblower': True,
             'ip_filter_admin': '',
             'ip_filter_admin_enable': False,
@@ -407,10 +505,12 @@ class MockDict:
             'ip_filter_custodian_enable': False,
             'ip_filter_receiver': '',
             'ip_filter_receiver_enable': False,
+            'ip_filter_transmitter': '',
+            'ip_filter_transmitter_enable': False,
             'reachable_via_web': True
         }
 
-        self.dummyWizard = {
+        self.dummy_wizard = {
             'node_language': 'en',
             'node_name': 'test',
             'admin_username': 'admin',
@@ -428,18 +528,18 @@ class MockDict:
             'enable_developers_exception_notification': True
         }
 
-        self.dummySignup = {
+        self.dummy_signup = {
             'name': 'Responsabile',
             'surname': 'Anticorruzione',
             'role': '',
             'email': 'rpct@anticorruzione.it',
-            'phone': '',
+            'phone': '+390612345678',
             'subdomain': 'anac',
             'organization_name': 'Autorità Nazionale Anticorruzione',
             'organization_email': 'protocollo@anticorruzione.it',
-            'organization_tax_code': '',
-            'organization_vat_code': '',
-            'organization_location': '',
+            'organization_tax_code': '97584460584',
+            'organization_vat_code': '97584460584',
+            'organization_location': 'Via Marco Minghetti 10, 00187, Roma',
             'tos1': True,
             'tos2': True
         }
@@ -482,10 +582,14 @@ def check_confirmation(self):
     return
 
 
+# Most handler tests do not exercise the confirmation of sensitive operations;
+# the check is replaced with a no-op and restored via self.patch() by the
+# tests that verify it.
+BaseHandler.real_check_confirmation = BaseHandler.check_confirmation
 BaseHandler.check_confirmation = check_confirmation
 
 
-def forge_request(uri=b'https://www.globaleaks.org/', tid=1,
+def forge_request(uri=b'https://globaleaks.org/', tid=1,
                   headers=None, body='', args=None, client_addr=b'127.0.0.1', method=b'GET'):
     """
     Creates a twisted.web.Request compliant request that is from an external
@@ -497,11 +601,10 @@ def forge_request(uri=b'https://www.globaleaks.org/', tid=1,
     if len(x) > 1:
         host = x[0]
         port = int(x[1])
+    elif uri.startswith(b'http://'):
+        port = 8080
     else:
-        if uri.startswith(b'http://'):
-            port = 8080
-        else:
-            port = 8443
+        port = 8443
 
     headers = headers if headers is not None else {}
     args = args if args is not None else {}
@@ -556,7 +659,7 @@ def forge_request(uri=b'https://www.globaleaks.org/', tid=1,
 
     request.headers = request.getAllHeaders()
 
-    class fakeBody(object):
+    class FakeBody:
         def read(self):
             ret = body
             if isinstance(ret, dict):
@@ -567,13 +670,32 @@ def forge_request(uri=b'https://www.globaleaks.org/', tid=1,
 
             return ret
 
-    request.content = fakeBody()
+    request.content = FakeBody()
 
     return request
 
 
+# The database a test starts from is the same for every test, and the population
+# a test is given is the same for every test of its shape: both are built once
+# and copied from there on, instead of being rebuilt hundreds of times over a
+# run. They are kept out of the working path, which is wiped before each test,
+# and named after the process, so that the workers of a parallel run do not
+# read a copy another one is still writing.
+DATABASE_TEMPLATES = os.path.join(tempfile.gettempdir(), f'globaleaks-tests-{os.getpid()}')
+EMPTY_DATABASE_TEMPLATE = DATABASE_TEMPLATES + '-empty.db'
+POPULATED_DATABASE_TEMPLATE = DATABASE_TEMPLATES + '-populated.db'
+POPULATED_DATABASES = {}
+
+
+@atexit.register
+def drop_database_templates():
+    for template in glob.glob(DATABASE_TEMPLATES + '*'):
+        with contextlib.suppress(OSError):
+            os.remove(template)
+
+
 class TestGL(unittest.TestCase):
-    initialize_test_database_using_archived_db = True
+    initialize_test_database_using_archived_db = False
     pgp_configuration = 'ALL'
     clientside_hashing = True
 
@@ -588,16 +710,23 @@ class TestGL(unittest.TestCase):
 
         init_state()
 
-        self.setUp_dummy()
+        self.setup_dummies()
 
         if self.initialize_test_database_using_archived_db:
             shutil.copy(
-                os.path.join(TEST_DIR, 'db', 'empty', 'globaleaks-%d.db' % DATABASE_VERSION),
+                os.path.join(TEST_DIR, 'db', 'empty', f'globaleaks-{DATABASE_VERSION}.db'),
                 os.path.join(Settings.db_file_path)
             )
+        elif os.path.exists(EMPTY_DATABASE_TEMPLATE):
+            # The database a test starts from is the same for every test: it is
+            # built once and copied from there on, so that the schema and the
+            # defaults are not rebuilt hundreds of times over a run
+            shutil.copy(EMPTY_DATABASE_TEMPLATE, Settings.db_file_path)
         else:
             yield db.create_db()
             yield db.initialize_db()
+
+            shutil.copy(Settings.db_file_path, EMPTY_DATABASE_TEMPLATE)
 
         yield self.set_hostnames(1)
 
@@ -617,38 +746,38 @@ class TestGL(unittest.TestCase):
         db_set_config_variable(session, i, 'hostname', hostname)
         db_set_config_variable(session, i, 'onionservice', onionservice)
 
-    def setUp_dummy(self):
-        dummyStuff = MockDict()
+    def setup_dummies(self):
+        dummy_stuff = MockDict()
 
-        self.dummyWizard = dummyStuff.dummyWizard
-        self.dummySignup = dummyStuff.dummySignup
-        self.dummyNetwork = dummyStuff.dummyNetwork
-        self.dummyQuestionnaire = dummyStuff.dummyQuestionnaire
-        self.dummyContext = dummyStuff.dummyContext
-        self.dummySubmission = dummyStuff.dummySubmission
-        self.dummyAdmin = self.get_dummy_user('admin', 'admin')
-        self.dummyAnalyst = self.get_dummy_user('analyst', 'analyst')
-        self.dummyCustodian = self.get_dummy_user('custodian', 'custodian')
-        self.dummyReceiver_1 = self.get_dummy_receiver('receiver1')
-        self.dummyReceiver_2 = self.get_dummy_receiver('receiver2')
+        self.dummy_wizard = dummy_stuff.dummy_wizard
+        self.dummy_signup = dummy_stuff.dummy_signup
+        self.dummy_network = dummy_stuff.dummy_network
+        self.dummy_questionnaire = dummy_stuff.dummy_questionnaire
+        self.dummy_context = dummy_stuff.dummy_context
+        self.dummy_submission = dummy_stuff.dummy_submission
+        self.dummy_admin = self.get_dummy_user('admin', 'admin')
+        self.dummy_analyst = self.get_dummy_user('analyst', 'analyst')
+        self.dummy_custodian = self.get_dummy_user('custodian', 'custodian')
+        self.dummy_receiver_1 = self.get_dummy_receiver('receiver1')
+        self.dummy_receiver_2 = self.get_dummy_receiver('receiver2')
 
         if self.pgp_configuration == 'ALL':
-            self.dummyReceiver_1['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY1_PUB']
-            self.dummyReceiver_2['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY2_PUB']
+            self.dummy_receiver_1['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY1_PUB']
+            self.dummy_receiver_2['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY2_PUB']
         elif self.pgp_configuration == 'ONE_VALID_ONE_EXPIRED':
-            self.dummyReceiver_1['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY1_PUB']
-            self.dummyReceiver_2['pgp_key_public'] = PGPKEYS['EXPIRED_PGP_KEY_PUB']
+            self.dummy_receiver_1['pgp_key_public'] = PGPKEYS['VALID_PGP_KEY1_PUB']
+            self.dummy_receiver_2['pgp_key_public'] = PGPKEYS['EXPIRED_PGP_KEY_PUB']
         elif self.pgp_configuration == 'NONE':
-            self.dummyReceiver_1['pgp_key_public'] = ''
-            self.dummyReceiver_2['pgp_key_public'] = ''
+            self.dummy_receiver_1['pgp_key_public'] = ''
+            self.dummy_receiver_2['pgp_key_public'] = ''
 
-        self.dummyNode = dummyStuff.dummyNode
+        self.dummy_node = dummy_stuff.dummy_node
 
         self.assertEqual(os.listdir(Settings.attachments_path), [])
         self.assertEqual(os.listdir(Settings.tmp_path), [])
 
     def get_dummy_user(self, role, username):
-        new_u = dict(MockDict().dummyUser)
+        new_u = dict(MockDict().dummy_user)
         new_u['id'] = username
         new_u['role'] = role
 
@@ -658,7 +787,7 @@ class TestGL(unittest.TestCase):
             new_u['roles'] = [role]
 
         new_u['username'] = username
-        new_u['name'] = new_u['public_name'] = new_u['mail_address'] = "%s@%s.xxx" % (username, username)
+        new_u['name'] = new_u['public_name'] = new_u['mail_address'] = f"{username}@{username}.xxx"
         new_u['description'] = ''
         new_u['password'] = VALID_KEY
         new_u['enabled'] = True
@@ -668,34 +797,48 @@ class TestGL(unittest.TestCase):
 
     def get_dummy_receiver(self, username):
         new_u = self.get_dummy_user('receiver', username)
-        new_r = dict(MockDict().dummyUser)
+        new_r = dict(MockDict().dummy_user)
 
         return {**new_r, **new_u}
 
-    def fill_random_field_recursively(self, answers, field):
-        value = {'value': ''}
+    @staticmethod
+    def random_text_answer(field):
+        """
+        Return a text answer, as long as the field admits
 
+        :param field: The field being answered
+        """
+        text = ''.join(chr(x) for x in range(0x400, 0x4FF))
+
+        try:
+            max_len = int(field.get('attrs', {}).get('max_len', {}).get('value'))
+        except (TypeError, ValueError):
+            max_len = -1
+
+        return {'value': text[:max_len] if 0 <= max_len < len(text) else text}
+
+    def fill_random_field_recursively(self, answers, field):
         field_type = field['type']
+
         if field_type == 'checkbox':
-            value = {}
-            for option in field['options']:
-                value[option['id']] = 'True'
-        elif field_type == 'selectbox' or field_type == 'multichoice':
+            value = {option['id']: True for option in field['options']}
+        elif field_type in {'selectbox', 'multichoice'}:
             value = {'value': field['options'][0]['id']}
         elif field_type == 'date':
-            value = {'value': datetime_now()}
+            value = {'value': datetime_now().isoformat()}
         elif field_type == 'daterange':
             value = {'value': '1741734000000:1742425200000'}
         elif field_type == 'tos':
-            value = {'value': 'True'}
-        elif field_type == 'fileupload' or field_type == 'voice':
-            pass
+            value = {'value': True}
+        elif field_type in {'fileupload', 'voice'}:
+            # A file and a recording are attached apart from the answers: nothing to fill in here
+            value = {'value': ''}
         elif field_type == 'fieldgroup':
             value = {}
             for child in field['children']:
                 self.fill_random_field_recursively(value, child)
         else:
-            value = {'value': ''.join(chr(x) for x in range(0x400, 0x4FF))}
+            value = self.random_text_answer(field)
 
         answers[field['id']] = [value]
 
@@ -714,6 +857,22 @@ class TestGL(unittest.TestCase):
 
         return answers
 
+    @transact
+    def questionnaire_named(self, session, name):
+        questionnaire = session.query(models.Questionnaire) \
+                               .filter(models.Questionnaire.name == name).one()
+
+        return {'id': questionnaire.id, 'name': questionnaire.name}
+
+    @inlineCallbacks
+    def copy_questionnaire(self, questionnaire_id, name):
+        """
+        Copy a questionnaire and return the copy
+        """
+        yield duplicate_questionnaire(1, None, questionnaire_id, name)
+
+        return (yield self.questionnaire_named(name))
+
     @inlineCallbacks
     def get_dummy_submission(self, context_id):
         """
@@ -731,14 +890,13 @@ class TestGL(unittest.TestCase):
         else:
             receipt = GCE.generate_receipt()
 
-        returnValue({
+        return {
             'context_id': context_id,
             'receivers': context['receivers'],
             'identity_provided': False,
-            'score': 0,
             'answers': answers,
             'receipt': receipt
-        })
+        }
 
     def get_dummy_attachment(self, name=None, content=None):
         return get_dummy_attachment(name=name, content=content)
@@ -761,11 +919,38 @@ class TestGL(unittest.TestCase):
         ret = []
         for i, r in session.query(models.InternalTip, models.ReceiverTip) \
                          .filter(models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                 models.ReceiverTip.receiver_id == self.dummyReceiver_1['id'],
+                                 models.ReceiverTip.receiver_id == self.dummy_receiver_1['id'],
                                  models.InternalTip.tid == 1):
             ret.append(serializers.serialize_rtip(session, i, r, 'en'))
 
         return ret
+
+    @transact
+    def add_redaction(self, session, itip_id, reference_id, temporary_redaction, entry='0'):
+        redaction = models.Redaction()
+        redaction.internaltip_id = itip_id
+        redaction.reference_id = reference_id
+        redaction.entry = entry
+        redaction.temporary_redaction = temporary_redaction
+        redaction.permanent_redaction = []
+        session.add(redaction)
+
+    @transact
+    def set_redaction_privileges(self, session, user_id, value):
+        user = session.get(models.User, user_id)
+        user.can_mask_information = value
+        user.can_redact_information = value
+
+        # The permissions are read from the profile of the user
+        for permission in ('can_mask_information', 'can_redact_information'):
+            row = session.query(models.UserProfilePermission) \
+                         .filter(models.UserProfilePermission.profile_id == user.profile_id,
+                                 models.UserProfilePermission.permission == permission).one_or_none()
+            if value and row is None:
+                session.add(models.UserProfilePermission({'profile_id': user.profile_id,
+                                                          'permission': permission}))
+            elif not value and row is not None:
+                session.delete(row)
 
     @transact
     def get_wbfiles(self, session, rtip_id):
@@ -784,7 +969,7 @@ class TestGL(unittest.TestCase):
                         .filter(models.InternalTip.tid == 1):
             x = serializers.serialize_wbtip(session, i, 'en')
             x['receivers_ids'] = list(zip(*session.query(models.ReceiverTip.receiver_id)
-                                           .filter(models.ReceiverTip.internaltip_id == i.id)))[0]
+                                           .filter(models.ReceiverTip.internaltip_id == i.id), strict=True))[0]
             ret.append(x)
 
         return ret
@@ -793,6 +978,10 @@ class TestGL(unittest.TestCase):
     def get_rfiles(self, session, wbtip_id):
         return [{'id': rfile.id} for rfile in session.query(models.ReceiverFile)
                                                        .filter(models.ReceiverFile.internaltip_id == wbtip_id)]
+
+    @transact
+    def set_user_enabled(self, session, user_id, enabled):
+        session.query(models.User).filter(models.User.id == user_id).one().enabled = enabled
 
     def db_test_model_count(self, session, model, n):
         self.assertEqual(session.query(model).count(), n)
@@ -804,6 +993,12 @@ class TestGL(unittest.TestCase):
     @transact
     def get_model_count(self, session, model):
         return session.query(model).count()
+
+    def write_reset_token(self, token, user_id):
+        """Seed a password-reset token on the ramdisk as the backend expects it."""
+        token_path = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
+        with open(token_path, "w") as f:
+            f.write(user_id)
 
     def verify_questionnaire_hashes(self, tip_desc):
         self.assertTrue('questionnaires' in tip_desc)
@@ -826,10 +1021,45 @@ class TestGLWithPopulatedDB(TestGL):
     population_of_attachments = 2
     population_of_tenants = 3
 
+    # Seed a legacy report so the tenant starts in server-side hashing mode.
+    wb_legacy_receipt_seed = False
+
+    def population_signature(self):
+        """
+        What makes the population of a test differ from the population of another
+        """
+        return '-'.join(str(x) for x in (self.population_of_tenants,
+                                         self.wb_legacy_receipt_seed,
+                                         self.pgp_configuration,
+                                         self.clientside_hashing,
+                                         # a population whose keys are all the same
+                                         # is not the population of one whose keys differ
+                                         GCE.generate_keypair is mock_gce_generate_keypair))
+
     @inlineCallbacks
     def setUp(self):
         yield TestGL.setUp(self)
-        yield self.fill_data()
+
+        # A population of the same shape is built once and copied from there on:
+        # the database it produced, and the descriptors the test reads it by
+        signature = self.population_signature()
+        built = POPULATED_DATABASES.get(signature)
+
+        if built is not None:
+            shutil.copy(built['database'], Settings.db_file_path)
+            self.__dict__.update(copy.deepcopy(built['descriptors']))
+        else:
+            before = set(self.__dict__)
+            yield self.fill_data()
+
+            database = f'{POPULATED_DATABASE_TEMPLATE}.{signature}'
+            shutil.copy(Settings.db_file_path, database)
+
+            POPULATED_DATABASES[signature] = {
+                'database': database,
+                'descriptors': copy.deepcopy({k: v for k, v in self.__dict__.items()
+                                              if k.startswith('dummy') or k not in before})
+            }
         yield db.refresh_tenant_cache()
 
     @transact
@@ -842,7 +1072,7 @@ class TestGLWithPopulatedDB(TestGL):
         db_set_config_variable(session, 1, 'crypto_stat_pub_key', STAT_PUB_KEY)
 
         for user in session.query(models.User):
-            if user.id == self.dummyAdmin['id']:
+            if user.id == self.dummy_admin['id']:
                 user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, ESCROW_PRV_KEY))
                 user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, STAT_PRV_KEY))
 
@@ -864,26 +1094,26 @@ class TestGLWithPopulatedDB(TestGL):
     @inlineCallbacks
     def fill_data(self):
         # fill_data/create_admin
-        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
+        self.dummy_admin = yield create_user(1, None, self.dummy_admin, 'en')
 
         # fill_data/create_analyst
-        self.dummyAnalyst = yield create_user(1, None, self.dummyAnalyst, 'en')
+        self.dummy_analyst = yield create_user(1, None, self.dummy_analyst, 'en')
 
         # fill_data/create_custodian
-        self.dummyCustodian = yield create_user(1, None, self.dummyCustodian, 'en')
+        self.dummy_custodian = yield create_user(1, None, self.dummy_custodian, 'en')
 
         # fill_data/create_receiver
-        self.dummyReceiver_1 = yield create_user(1, None, self.dummyReceiver_1, 'en')
-        self.dummyReceiver_2 = yield create_user(1, None, self.dummyReceiver_2, 'en')
+        self.dummy_receiver_1 = yield create_user(1, None, self.dummy_receiver_1, 'en')
+        self.dummy_receiver_2 = yield create_user(1, None, self.dummy_receiver_2, 'en')
 
         yield self.mock_users_keys()
 
         # fill_data/create 'test' questionnaire'
-        self.dummyQuestionnaire = yield create_questionnaire(1, None, self.dummyQuestionnaire, 'en')
+        self.dummy_questionnaire = yield create_questionnaire(1, None, self.dummy_questionnaire, 'en')
 
         # create a first step including every type of question
         step = get_dummy_step()
-        step['questionnaire_id'] = self.dummyQuestionnaire['id']
+        step['questionnaire_id'] = self.dummy_questionnaire['id']
         step = yield tw(db_create_step, 1, step, 'en')
         fieldgroup_id = ''
         for t in models.field_types:
@@ -901,20 +1131,37 @@ class TestGLWithPopulatedDB(TestGL):
 
         # create a second step including the whistleblower identity question
         step = get_dummy_step()
-        step['questionnaire_id'] = self.dummyQuestionnaire['id']
+        step['questionnaire_id'] = self.dummy_questionnaire['id']
         step = yield tw(db_create_step, 1, step, 'en')
         yield self.add_whistleblower_identity_field_to_step(step['id'])
 
         # fill_data/create_context
-        self.dummyContext['receivers'] = [self.dummyReceiver_1['id'], self.dummyReceiver_2['id']]
-        self.dummyContext = yield create_context(1, None, self.dummyContext, 'en')
+        self.dummy_context['receivers'] = [self.dummy_receiver_1['id'], self.dummy_receiver_2['id']]
+        self.dummy_context = yield create_context(1, None, self.dummy_context, 'en')
 
         # fill_data create_tenant
         for i in range(1, self.population_of_tenants):
             name = 'tenant-' + str(i+1)
             t = yield create_tenant({'name': name, 'active': True, 'subdomain': name, 'profile': 'default'})
-            yield tw(db_wizard, t['id'], '127.0.0.1', self.dummyWizard)
+            yield tw(db_wizard, t['id'], '127.0.0.1', self.dummy_wizard)
             yield self.set_hostnames(i)
+
+        if self.wb_legacy_receipt_seed:
+            yield self.mock_whistleblower_legacy_receipt_mode()
+
+    @transact
+    def mock_whistleblower_legacy_receipt_mode(self, session):
+        itip = models.InternalTip()
+        itip.tid = 1
+        itip.context_id = self.dummy_context['id']
+        itip.progressive = -1
+        _, itip.receipt_hash = GCE.calculate_key_and_hash(GCE.generate_receipt(), VALID_SALT)
+        session.add(itip)
+
+    @transact
+    def clear_whistleblower_legacy_receipt_seed(self, session):
+        # Drop the seed once real server-hashed reports keep the tenant in mode.
+        session.query(models.InternalTip).filter(models.InternalTip.progressive == -1).delete()
 
     @transact
     def add_whistleblower_identity_field_to_step(self, session, step_id):
@@ -941,28 +1188,27 @@ class TestGLWithPopulatedDB(TestGL):
 
         session = Sessions.get(session_id)
 
-        self.dummySubmission['context_id'] = self.dummyContext['id']
-        self.dummySubmission['receivers'] = self.dummyContext['receivers']
-        self.dummySubmission['identity_provided'] = False
-        self.dummySubmission['answers'] = yield self.fill_random_answers(self.dummyContext['questionnaire_id'])
-        self.dummySubmission['score'] = 0
-        self.dummySubmission['receipt'] = receipt
+        self.dummy_submission['context_id'] = self.dummy_context['id']
+        self.dummy_submission['receivers'] = self.dummy_context['receivers']
+        self.dummy_submission['identity_provided'] = False
+        self.dummy_submission['answers'] = yield self.fill_random_answers(self.dummy_context['questionnaire_id'])
+        self.dummy_submission['receipt'] = receipt
 
-        yield create_submission(1, self.dummySubmission, session, True, False)
+        yield create_submission(1, self.dummy_submission, session, True, False)
 
     @inlineCallbacks
     def perform_post_submission_actions(self):
-        self.dummyRTips = yield self.get_rtips()
+        self.dummy_rtips = yield self.get_rtips()
 
-        for rtip_desc in self.dummyRTips:
+        for rtip_desc in self.dummy_rtips:
             yield rtip.create_comment(1,
                                       rtip_desc['receiver_id'],
                                       rtip_desc['id'],
                                       'comment')
 
-        self.dummyWBTips = yield self.get_wbtips()
+        self.dummy_wbtips = yield self.get_wbtips()
 
-        for wbtip_desc in self.dummyWBTips:
+        for wbtip_desc in self.dummy_wbtips:
             yield wbtip.create_comment(1,
                                        wbtip_desc['id'],
                                        'comment')
@@ -973,13 +1219,19 @@ class TestGLWithPopulatedDB(TestGL):
         self.perform_submission_uploads(session.id)
         yield self.perform_submission_actions(session.id)
 
+        if self.wb_legacy_receipt_seed:
+            yield self.clear_whistleblower_legacy_receipt_seed()
+
     @inlineCallbacks
     def perform_full_submission_actions(self):
         """Populates the DB with tips, comments, and files"""
-        for x in range(self.population_of_submissions):
+        for _ in range(self.population_of_submissions):
             session = self.perform_submission_start()
             self.perform_submission_uploads(session.id)
             yield self.perform_submission_actions(session.id)
+
+        if self.wb_legacy_receipt_seed:
+            yield self.clear_whistleblower_legacy_receipt_seed()
 
         yield self.perform_post_submission_actions()
 
@@ -1017,7 +1269,91 @@ class TestHandler(TestGLWithPopulatedDB):
     def setUp(self):
         return TestGL.setUp(self)
 
-    def request(self, body='', uri=b'https://www.globaleaks.org/', tid=1,
+    def _dummy_user_id(self, role):
+        """
+        Return the identifier of the dummy user that impersonates a role
+        """
+        return {'admin': lambda: self.dummy_admin['id'],
+                'analyst': lambda: self.dummy_analyst['id'],
+                'receiver': lambda: self.dummy_receiver_1['id'],
+                'custodian': lambda: self.dummy_custodian['id']}.get(role, lambda: None)()
+
+    def _new_session(self, tid, user_id, role, permissions, properties):
+        """
+        Open the session a mock request is performed with
+        """
+        if role == 'whistleblower' and user_id is None:
+            session = initialize_submission_session(1, dpop_jkt=DPOP_JKT)
+        else:
+            escrow_prv_key = USER_ESCROW_PRV_KEY if role == 'admin' else ''
+            session = Sessions.new(tid, user_id, 1, user_id, role, USER_PRV_KEY, escrow_prv_key, [role], permissions, dpop_jkt=DPOP_JKT)
+
+        session.permissions = self._session_permissions(role, permissions)
+
+        if properties:
+            session.properties.update(properties)
+
+        return session
+
+    @staticmethod
+    def _session_permissions(role, permissions):
+        """
+        Return the permissions the session of a mock request is opened with
+
+        :param role: The role the request is performed with
+        :param permissions: The permissions a test scopes the session to
+        """
+        if permissions:
+            for p in user_permissions:
+                if p not in permissions:
+                    permissions[p] = user_permissions[p]
+
+        ret = copy.deepcopy(user_permissions)
+
+        # An administrator is provisioned with the whole set of
+        # administrative permissions, exactly as the wizard does for the
+        # first administrator of a tenant; a test that needs a scoped
+        # administrator overrides them through the permissions argument.
+        if role == 'admin':
+            for p in models.admin_permissions:
+                ret[p] = True
+
+        if permissions:
+            ret.update(permissions)
+
+        return ret
+
+    @staticmethod
+    def _dpop_session_id(session, headers):
+        """
+        Return the session the DPoP proof of a mock request is bound to
+        """
+        if session is not None:
+            return session.id
+
+        raw_sid = headers.get(b'x-session', headers.get('x-session'))
+        if raw_sid is None:
+            return None
+
+        return raw_sid.decode() if isinstance(raw_sid, bytes) else raw_sid
+
+    @staticmethod
+    def _decorate_once(handler_cls):
+        """
+        Decorate a handler class with the same guard attribute as the production
+        decoration path (APIResourceWrapper) so that registry handlers are not
+        decorated twice; double decoration would run check_dpop twice and reject
+        the second pass as a jti replay.
+        """
+        if getattr(handler_cls, '_decorated', False):
+            return
+
+        handler_cls._decorated = True
+        for method in ['get', 'post', 'put', 'delete']:
+            if getattr(handler_cls, method, None) is not None:
+                decorators.decorate_method(handler_cls, method)
+
+    def request(self, body='', uri=b'https://globaleaks.org/', tid=1,
                 user_id=None, role=None, multilang=False, headers=None, token=False, permissions=None, properties=None,
                 client_addr=b'127.0.0.1',
                 handler_cls=None, attachment=None,
@@ -1025,7 +1361,6 @@ class TestHandler(TestGLWithPopulatedDB):
         """
         Constructs a handler for preforming mock requests using the bag of params described below.
         """
-        from globaleaks.rest import api
         if headers is None:
             headers = {}
 
@@ -1035,39 +1370,23 @@ class TestHandler(TestGLWithPopulatedDB):
         if kwargs is None:
             kwargs = {}
 
-        if user_id is None and role is not None:
-            if role == 'admin':
-                user_id = self.dummyAdmin['id']
-            elif role == 'analyst':
-                user_id = self.dummyAnalyst['id']
-            elif role == 'receiver':
-                user_id = self.dummyReceiver_1['id']
-            elif role == 'custodian':
-                user_id = self.dummyCustodian['id']
+        if user_id is None:
+            user_id = self._dummy_user_id(role)
 
+        session = None
         if role is not None:
-            if role == 'whistleblower' and user_id == None:
-                session = initialize_submission_session(1)
-            else:
-                session = Sessions.new(tid, user_id, 1, user_id, role, USER_PRV_KEY, USER_ESCROW_PRV_KEY if role == 'admin' else '', [role], permissions)
-
-            if permissions:
-                for p in user_permissions:
-                    if p not in permissions:
-                        permissions[p] = user_permissions[p]
-
-            session.permissions = copy.deepcopy(user_permissions)
-            if permissions:
-                for p in permissions:
-                    session.permissions[p] = permissions[p]
-
-            if properties:
-                session.properties.update(properties)
-
+            session = self._new_session(tid, user_id, role, permissions, properties)
             headers[b'x-session'] = session.id
 
         # during unit tests a token is always provided to any handler
         headers[b'x-token'] = get_token()
+
+        # Attach a valid DPoP proof (RFC 9449) bound to the session the request
+        # carries (created above for a role, or referenced via a manually passed
+        # X-Session header) so that the strict per-request enforcement is
+        # satisfied. Session-binding handlers (login, submission) consume a proof
+        # without a session.
+        dpop_session_id = self._dpop_session_id(session, headers)
 
         if handler_cls is None:
             handler_cls = self._handler
@@ -1080,13 +1399,13 @@ class TestHandler(TestGLWithPopulatedDB):
                                 method=b'GET',
                                 tid=tid)
 
-        x = api.APIResourceWrapper()
+        # Attach the proof after forging the request so the htu is derived from
+        # the same request path the backend reconstructs.
+        request.headers[b'dpop'] = make_dpop_proof('GET', dpop_htu(request), session_id=dpop_session_id)
 
-        if not getattr(handler_cls, 'decorated', False):
-            for method in ['get', 'post', 'put', 'delete']:
-                if getattr(handler_cls, method, None) is not None:
-                    decorators.decorate_method(handler_cls, method)
-                    handler_cls.decorated = True
+        api.APIResourceWrapper()
+
+        self._decorate_once(handler_cls)
 
         handler = handler_cls(self.state, request, **kwargs)
 
@@ -1099,13 +1418,14 @@ class TestHandler(TestGLWithPopulatedDB):
         return handler
 
     def get_dummy_request(self):
-        request = self._test_desc['model']().dict(u'en')
+        request = self._test_desc['model']().dict('en')
         if isinstance(self._test_desc['model'](), models.User):
             request['roles'] = [request['role']]
             request['profile'] = {}
         elif isinstance(self._test_desc['model'](), models.UserProfile):
             request['role'] = 'admin'
             request['roles'] = ['admin', 'recipient']
+            request['contexts'] = []
             request['permissions'] = {}
             for p in user_permissions:
                 request['permissions'][p] = False
@@ -1123,7 +1443,7 @@ class TestCollectionHandler(TestHandler):
     @inlineCallbacks
     def fill_data(self):
         # fill_data/create_admin
-        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
+        self.dummy_admin = yield create_user(1, None, self.dummy_admin, 'en')
 
     @inlineCallbacks
     def test_get(self):
@@ -1165,7 +1485,7 @@ class TestInstanceHandler(TestHandler):
     @inlineCallbacks
     def fill_data(self):
         # fill_data/create_admin
-        self.dummyAdmin = yield create_user(1, None, self.dummyAdmin, 'en')
+        self.dummy_admin = yield create_user(1, None, self.dummy_admin, 'en')
 
     @inlineCallbacks
     def test_get(self):

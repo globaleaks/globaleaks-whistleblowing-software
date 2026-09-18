@@ -1,4 +1,5 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
+import {Component, OnInit, inject, viewChild, viewChildren} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {NgForm, FormsModule} from "@angular/forms";
@@ -8,31 +9,30 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {Answers, Questionnaire} from "@app/models/receiver/receiver-tip-data";
 import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistleblower-submission.service";
-import {NgClass} from "@angular/common";
 import {NgFormChangeDirective} from "../../directive/ng-form-change.directive";
 import {FormComponent} from "@app/pages/whistleblower/form/form.component";
 import {RFilesUploadStatusComponent} from "../../partials/rfiles-upload-status/r-files-upload-status.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-tip-additional-questionnaire-form",
     templateUrl: "./tip-additional-questionnaire-form.component.html",
     standalone: true,
-    imports: [FormsModule, NgClass, NgFormChangeDirective, FormComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe, OrderByPipe]
+    imports: [FormsModule, NgFormChangeDirective, FormComponent, RFilesUploadStatusComponent, TranslateModule, OrderByPipe]
 })
 export class TipAdditionalQuestionnaireFormComponent implements OnInit {
+  private readonly renderScheduler = inject(RenderSchedulerService);
   protected whistleblowerSubmissionService = inject(WhistleblowerSubmissionService);
-  private wbTipResolver = inject(WbTipResolver);
-  private httpService = inject(HttpService);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
-  private utilsService = inject(UtilsService);
+  private readonly wbTipResolver = inject(WbTipResolver);
+  private readonly httpService = inject(HttpService);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly utilsService = inject(UtilsService);
   protected wbTipService = inject(WbtipService);
   protected activeModal = inject(NgbActiveModal);
 
-  @ViewChild("submissionForm") public submissionForm: NgForm;
-  @ViewChildren("stepForm") stepForms: QueryList<NgForm>;
+  public readonly submissionForm = viewChild<NgForm>("submissionForm");
+  readonly stepForms = viewChildren<NgForm>("stepForm");
 
   _navigation = 0;
   validate: boolean[] = [];
@@ -81,26 +81,20 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   lastStepIndex() {
     let last_enabled = 0;
 
-    for (let i = 0; i < this.questionnaire.steps.length; i++) {
-      if (this.questionnaire.steps[i].enabled) {
+    this.questionnaire.steps.forEach((step, i) => {
+
+      if (step.enabled) {
         last_enabled = i;
+
       }
-    }
+
+    });
 
     return last_enabled;
   };
 
   uploading() {
-    let uploading = false;
-    if (this.uploads && this.done) {
-      for (const key in this.uploads) {
-        if (this.uploads[key].flowJs && this.uploads[key].flowJs.isUploading()) {
-          uploading = true;
-        }
-      }
-    }
-
-    return uploading;
+    return this.done && this.utilsService.isUploading(this.uploads);
   }
 
   calculateEstimatedTime() {
@@ -172,14 +166,9 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
     this.utilsService.resumeFileUploads(this.uploads);
 
     const intervalId = setInterval(() => {
-      if (this.uploads) {
-        for (const key in this.uploads) {
-          if (this.uploads[key].flowFile && this.uploads[key].flowFile.isUploading()) {
-            return;
-          }
-        }
-      }
       this.fieldUtilitiesService.onAnswersUpdate(this);
+      // Upload progress is polled outside change detection: render it.
+      this.renderScheduler.schedule();
 
       if (this.uploading()) {
         return;
@@ -188,10 +177,8 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
       this.httpService.whistleBlowerTipUpdate({
         "cmd": "additional_questionnaire",
         "answers": this.answers
-      }).subscribe
-      (
-        {
-          next: _ => {
+      }).subscribe({
+          next: () => {
             this.wbTipResolver.reload(() => {
               this.utilsService.reloadCurrentRoute();
             });
@@ -205,8 +192,9 @@ export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   }
 
   stepForm(index: number): any {
-    if (this.stepForms && index !== -1) {
-      return this.stepForms.get(index);
+    const stepForms = this.stepForms();
+    if (stepForms && index !== -1) {
+      return stepForms.at(index);
     }
   };
 

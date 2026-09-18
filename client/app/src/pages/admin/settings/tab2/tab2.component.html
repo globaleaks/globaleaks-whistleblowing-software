@@ -2,12 +2,13 @@
   <div class="row mt-4">
     <div class="col-md-12">
       <div class="form-check form-switch float-end">
-        <app-switch name="authenticationData.session.permissions.can_upload_files_switch" [isChecked]="permissionStatus" [can_upload_files]="authenticationData.session.permissions.can_upload_files" [label]="authenticationData.session.permissions.can_upload_files ? 'Enabled' : 'Disabled'" (click)="togglePermissionUploadFiles()"></app-switch>
+        <input class="form-check-input" type="checkbox" role="switch" id="toggle-upload-files" [attr.aria-label]="'Enable file upload' | translate" [checked]="permissionStatus" (click)="$event.preventDefault(); togglePermissionUploadFiles()" />
+        <label class="form-check-label" for="toggle-upload-files">{{ (permissionStatus ? 'Enabled' : 'Disabled') | translate }}</label>
       </div>
     </div>
   </div>
   <div class="row">
-    <div class="col-md-12" [ngClass]="{'container-disabled': !canUploadFiles()}">
+    <div class="col-md-12" [class.container-disabled]="!canUploadFiles()">
       <div class="form-group">
         <div>
           @for (admin_file of admin_files; track admin_file) {
@@ -17,8 +18,8 @@
         <div class="mb-2">
           <div>{{ 'Files' | translate }}</div>
           <div class="uploadfile file-custom">
-            <span class="custom-file">
-              <input #uploader id="customFile" type="file" [style.display]="'none'" class="custom-file-input" (change)="onFileSelected(uploader.files)" />
+            <span>
+              <input #uploader id="customFile" type="file" [style.display]="'none'" (change)="onFileSelected(uploader.files)" />
               <label class="btn btn-sm btn-primary" for="customFile">
                 <i class="fas fa-upload"></i>
                 <span>{{ 'Upload' | translate }}</span>
@@ -27,7 +28,13 @@
           </div>
         </div>
         <div class="table-responsive">
-          <table class="table table-striped" id="fileList">
+          <table class="table" id="fileList">
+            <thead>
+              <tr>
+                <th scope="col">{{ 'Filename' | translate }}</th>
+                <th scope="col">{{ 'Actions' | translate }}</th>
+              </tr>
+            </thead>
             <tbody id="fileListBody">
               @for (file of files | orderBy:'name'; track file) {
                 @if (special_files_names.indexOf(file.name) === -1) {
@@ -38,7 +45,7 @@
                       <i class="fas fa-download"></i>
                       <span>{{ 'Download' | translate }}</span>
                     </a>
-                    <button class="btn btn-sm btn-danger" (click)="deleteFile('api/admin/files/' + file.id)">
+                    <button type="button" class="btn btn-sm btn-danger" (click)="deleteFile('api/admin/files/' + file.id)">
                       <i class="fas fa-trash"></i>
                       <span>{{ 'Delete' | translate }}</span>
                     </button>

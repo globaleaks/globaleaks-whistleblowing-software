@@ -10,4 +10,6 @@ export class tenantResolverModel {
   subdomain: string;
   signup: any;
   profile: string;
+  contexts: any[];
+  questionnaires: any[];
 }

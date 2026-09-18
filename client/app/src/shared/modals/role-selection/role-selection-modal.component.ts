@@ -1,9 +1,8 @@
 import { Component, Input, inject, OnInit } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
-import { NgSelectComponent } from "@ng-select/ng-select";
+import { NgSelectComponent, NgLabelTemplateDirective, NgOptionTemplateDirective } from "@ng-select/ng-select";
 import { FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
-import { TranslatorPipe } from "@app/shared/pipes/translate";
 import { AuthenticationService } from "@app/services/helper/authentication.service";
 
 @Component({
@@ -12,13 +11,14 @@ import { AuthenticationService } from "@app/services/helper/authentication.servi
   standalone: true,
   imports: [
     NgSelectComponent,
+    NgLabelTemplateDirective,
+    NgOptionTemplateDirective,
     FormsModule,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
   ]
 })
 export class RoleSelectionModalComponent implements OnInit {
-  private activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
   protected authenticationService = inject(AuthenticationService);
 
   @Input() roles: { value: string; role: string }[] = [];
@@ -28,10 +28,10 @@ export class RoleSelectionModalComponent implements OnInit {
   selectableRoles: { value: string; role: string }[] = [];
 
   ngOnInit(): void {
-    this.selectedRole.value = this.authenticationService.session.role;
+    this.selectedRole.value = this.authenticationService.session?.role ?? "";
 
     this.selectableRoles = this.roles.filter(
-      r => r.value !== this.authenticationService.session.role
+      r => r.value !== this.authenticationService.session?.role
     );
   }
 

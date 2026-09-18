@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, input, output} from "@angular/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NewField} from "@app/models/admin/new-field";
@@ -6,30 +6,30 @@ import {Step} from "@app/models/resolvers/questionnaire-model";
 import {Field, fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {FormsModule} from "@angular/forms";
 
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-add-field-from-template",
     templateUrl: "./add-field-from-template.component.html",
     standalone: true,
-    imports: [FormsModule, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, TranslateModule]
 })
 export class AddFieldFromTemplateComponent implements OnInit {
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
 
-  @Input() fieldTemplatesData: fieldtemplatesResolverModel[];
-  @Input() step: Step;
-  @Input() type: string;
-  @Output() added = new EventEmitter<void>();
+  readonly fieldTemplatesData = input<fieldtemplatesResolverModel[]>();
+  readonly step = input.required<Step>();
+  readonly type = input<string>();
+  readonly added = output<void>();
 
   fields: Step[] | Field[];
   new_field: { template_id: string } = {template_id: ""};
 
   ngOnInit(): void {
-    if (this.step) {
-      this.fields = this.step.children;
+    const step = this.step();
+    if (step) {
+      this.fields = step.children;
     }
   }
 
@@ -37,13 +37,14 @@ export class AddFieldFromTemplateComponent implements OnInit {
     const templateId = this.new_field.template_id;
     if (!templateId) return;
 
-    const isStep = this.type === "step";
-    const isField = this.type === "field";
+    const isStep = this.type() === "step";
+    const isField = this.type() === "field";
     if (!isStep && !isField) return;
 
-    const parentId = this.step?.id;
-    const list = isStep ? (this.fields as any[]) : (this.step.children as any[]);
-    const ySource = isStep ? (this.fields as any[]) : (this.step.children as any[]);
+    const step = this.step();
+    const parentId = step?.id;
+    const list = isStep ? (this.fields as any[]) : (step.children as any[]);
+    const ySource = isStep ? (this.fields as any[]) : (step.children as any[]);
 
     if (isField && templateId === parentId) return;
 
@@ -52,12 +53,14 @@ export class AddFieldFromTemplateComponent implements OnInit {
     field.instance = "reference";
     field.y = this.utilsService.newItemOrder(ySource, "y");
 
-    this.fieldTemplatesData.forEach(fieldTemplate => {
-      if (fieldTemplate.id === templateId) {
-        field.type = fieldTemplate.type;
-        field.statistical = fieldTemplate.statistical;
-      }
-    });
+    // The question references its template: it has to carry its type too, or
+    // the editor presents it as a question of the default type until the
+    // questionnaire is reloaded
+    const template = this.fieldTemplatesData()?.find(fieldTemplate => fieldTemplate.id === templateId);
+    if (template) {
+      field.type = template.type;
+      field.statistical = template.statistical;
+    }
 
     if (isStep) {
       field.step_id = parentId;

@@ -4,10 +4,10 @@
 
 .reveal {
   opacity: 0.3;
-  animation: fadeIn 0.3s forwards;
+  animation: fade-in 0.3s forwards;
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   to {
     opacity: 1;
   }
@@ -49,13 +49,6 @@ textarea:focus {
   text-align: center;
 }
 
-#FooterBox a,
-#FooterBox a:hover,
-#FooterBox a:active,
-#FooterBox a:focus {
-  font-weight: bold;
-}
-
 
 .disclaimer-text, .tos-text {
   display: block;
@@ -64,7 +57,7 @@ textarea:focus {
   font-size: 0.8rem;
   max-height: 40em;
   max-width: 100%;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 #browser-not-supported {
@@ -157,6 +150,22 @@ table tr td {
   vertical-align: middle;
 }
 
+/* A cell of free text is held within a width of its own and cut with an
+   ellipsis where it exceeds it, so that a long name does not take the room of
+   the columns beside it. The constraint is carried by the element inside the
+   cell because a table laid out automatically does not honour it on the cell
+   itself. The text is read in full in the tooltip. */
+.cell-truncated {
+  display: block;
+  max-width: 12rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filter-selected {
+  color: #3679BB;
+}
 
 .full button {
   background: #dde3ed;
@@ -177,6 +186,20 @@ table tr td {
 
 .form-control:hover {
   background-color: #fff;
+}
+
+/* A control one cannot write says so. The grey of a spent control is the same grey these panels
+   give every control, and on hover it even turned white: a field nobody may write looked more
+   writable than one they may. The dashed border is the one the application already uses where
+   there is nothing to touch. */
+.form-control:disabled,
+.form-control:disabled:hover,
+.form-select-custom:disabled,
+.form-select-custom:disabled:hover {
+  background-color: #eef1f6;
+  color: #737373;
+  border-style: dashed;
+  cursor: not-allowed;
 }
 
 .h1,
@@ -225,6 +248,10 @@ h6 {
   color: #3679BB;
 }
 
+th:not(:first-child, :nth-last-child(-n+4)) {
+  cursor: pointer;
+}
+
 .table thead th {
   border-top: 0;
 }
@@ -254,19 +281,6 @@ h6 {
 
 .mb-auto {
   margin-bottom: auto;
-}
-
-#sidebar a.active,
-#sidebar a:active.active,
-#sidebar a:hover.active,
-#sidebar a:focus.active {
-  border-bottom: 1px solid #c8d1e0;
-  width: max-content;
-}
-
-#sidebar a {
-  display: block;
-  margin-bottom: 0.5em;
 }
 
 #ContentBox {
@@ -308,8 +322,12 @@ h6 {
 
 .context-image,
 .receiver-image {
-  height: 10rem;
-  max-width: 20rem;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(100%, 28rem);
+  max-height: 10rem;
+  object-fit: contain;
 }
 
 .title {
@@ -336,20 +354,22 @@ h6 {
 }
 
 .wb-image-upload{
-  height: 10.4rem;
+  width: auto;
+  height: auto;
   max-width: 20.4rem;
   max-height: 9.5rem;
-  min-width: 10.4rem;
   padding: 10px 10px 20px;
   object-fit: contain;
 }
 
 .logo-image {
+  display: block;
   border: 1px dashed #c8d1e0;
-  height: 10.4rem;
+  box-sizing: border-box;
+  width: auto;
+  height: auto;
   max-width: 20.4rem;
   max-height: 10rem;
-  min-width: 10.4rem;
   padding: 10px 10px 20px;
   object-fit: contain;
   border-radius: 5px;
@@ -492,12 +512,30 @@ h6 {
   font-size: 1.4rem;
 }
 
-#TipList table {
-  table-layout: auto;
+/* The whole row of an expandable table opens the detail it carries */
+tr.expandable-row {
+  cursor: pointer;
 }
 
-th:not(:first-child, :nth-last-child(-n+4)) {
-  cursor: pointer;
+/* The detail expanded under a row sits in a framed box, and the row it
+   belongs to loses the border towards it, so that the two read as one */
+tr.expandable-row-open > td {
+  border-bottom-width: 0;
+}
+
+tr.expandable-detail > td {
+  padding: 0 1em 1.25em 1.5em;
+}
+
+/* The detail is read, not opened: the highlight the table gives to the rows
+   that answer to the pointer stops at the row that carries it */
+.table-hover > tbody > tr.expandable-detail:hover > * {
+  --bs-table-color-state: initial;
+  --bs-table-bg-state: initial;
+}
+
+#TipList table {
+  table-layout: auto;
 }
 
 #TipList th,
@@ -587,10 +625,6 @@ textarea.form-control {
   border-style: dashed;
 }
 
-.custom-file {
-  width: auto;
-}
-
 label,
 p:last-child {
   margin: 0;
@@ -611,6 +645,7 @@ p:last-child {
 
 #WhistleblowerSubmitBox {
   margin-bottom: 2em;
+  text-align: center;
 }
 
 .question legend {
@@ -624,6 +659,11 @@ p:last-child {
 
 #WhistleblowerLoginBox {
   width: fit-content;
+  padding: 1em;
+  text-align: center;
+  color: #1d1f2a;
+  background-color: #fff;
+  border-radius: 5px;
 }
 
 #HeaderBox #WhistleblowerLoginBox {
@@ -633,11 +673,6 @@ p:last-child {
 #ContentBox #WhistleblowerLoginBox {
   display: flex !important;
   margin: 0 auto;
-}
-
-#WhistleblowerSubmitBox,
-#WhistleblowerLoginBox {
-  text-align: center;
 }
 
 .description {
@@ -763,7 +798,6 @@ p:last-child {
   opacity: 0;
 }
 
-
 #TitleBox {
   font-size: 1.6rem;
   font-weight: bold;
@@ -772,14 +806,21 @@ p:last-child {
 
 #LoginStatusBox {
   font-weight: 700;
+  color: #1d1f2a;
+  background-color: #fff;
+  border-radius: 5px;
 }
 
 .col-auto {
   min-width: 20vw;
 }
 
+/* A field is set apart from the next by a whole step of the Bootstrap scale ($spacer, the one of
+   `mb-3`): with half a step the label of a field is read against the control of the one above it.
+   `form-group` is not a Bootstrap 5 class — the 5 dropped it — and here it lives off this rule
+   alone; it is kept as a name to select on, because print.css hides the form chrome by it. */
 .form-group {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 #LanguagePickerBox .form-control {
@@ -792,17 +833,6 @@ p:last-child {
   line-height: 2.2rem;
   padding: 0 1em;
   width: max-content;
-}
-
-#LoginStatusBox,
-#WhistleblowerLoginBox {
-  color: #1d1f2a;
-  background-color: #fff;
-  border-radius: 5px;
-}
-
-#WhistleblowerLoginBox {
-  padding: 1em;
 }
 
 #MessagesConsoleBox {
@@ -837,6 +867,42 @@ p:last-child {
   margin-bottom: 0.5em;
 }
 
+/* Who decides the value of a field is said at the end of the line of its label, at the opposite
+   edge: the commands never fall over the control, and an area of text finds them in the same
+   place as a line of one. Where no group wraps the field they stay beside the control. */
+.config-label {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.config-label > .field-actions {
+  margin-left: auto;
+}
+
+.field-actions {
+  display: inline-flex;
+  gap: 0.6em;
+  margin-left: 0.6em;
+  line-height: 1.5;
+}
+
+/* The giving up of a value shows itself only when there is a value to give up, and so it is
+   never there to be pressed in vain. */
+.field-action {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: #1a1a1a;
+}
+
+/* The list of what a site holds is read whole: it is given more room than the lists that pick
+   a handful of entries */
+.configuration-list .selection-list {
+  max-height: 20rem;
+}
+
 .selection-list {
   background-color: #f5f7fa;
   padding-top: 1em;
@@ -845,6 +911,28 @@ p:last-child {
   list-style-type: none;
   overflow: auto;
   max-height: 8rem;
+}
+
+/* The permissions of a profile grouped by role: the whole set sits in an
+   indented grey area, each role names an indented subsection and its checkboxes
+   are indented once more below it */
+.permission-groups {
+  margin-left: 1.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+  max-height: none;
+}
+
+.permission-group + .permission-group {
+  margin-top: 0.75em;
+}
+
+.permission-group-role {
+  margin-bottom: 0.25em;
+}
+
+.permission-group-items {
+  margin-left: 1.5em;
 }
 
 text.axis-workweek,
@@ -866,21 +954,52 @@ text.axis-worktime {
   white-space: pre-wrap;
 }
 
-.non-default-language,
+.expandable-box {
+  border: 1px solid #c8d1e0;
+  padding: 1.25em 1.5em;
+}
+
+.selection-editor-content {
+  margin: 0.75em 0 0 1.5em;
+}
+
+/* The Add button sits on its own line, indented under the label within the
+   content, and is smaller than a regular small button */
+.selection-editor-add {
+  display: inline-block;
+  margin-bottom: 0.5em;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+/* Without a visible label there is nothing to indent under */
+.selection-editor-flush {
+  margin-left: 0;
+}
+
+.selection-editor-adder {
+  margin-bottom: 0.75em;
+}
+
+/* Icon-only controls of the selection lists are buttons, so that they are
+   reached and activated with the keyboard, but keep the plain look of the
+   icons they wrap */
+.icon-action {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.non-default-entry,
 .disabled-icon {
   opacity: 0.2;
 }
 
-.non-default-language:hover {
-  opacity: 1;
-}
-
-.non-default-role,
-.disabled-icon {
-  opacity: 0.2;
-}
-
-.non-default-role:hover {
+.non-default-entry:hover,
+.non-default-entry:focus-visible {
   opacity: 1;
 }
 
@@ -915,13 +1034,7 @@ input[type="email"] {
   transform: scaleX(-1);
 }
 
-.input-group-append span {
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-color: #C8D1E0;
-}
-
-.filter-active {
+.calendar-active {
   color: #3679BB;
 }
 
@@ -990,12 +1103,18 @@ input[type="email"] {
   width: max-content;
 }
 
-.was-validated .tos-agreement-input:valid~.form-check-label {
-  color: #2866a2;
-}
-
 .editorHeader {
   cursor: pointer;
+}
+
+/* The title of a collapsible card is a button, so that it is reached with the
+   keyboard, but it keeps the plain look of the text it wraps */
+.editorTitle {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
 }
 
 .input-group-text {
@@ -1040,15 +1159,41 @@ i.fa-solid.fa-chevron-right {
   animation: blink 1s infinite;
 }
 
-.was-validated .form-check-input:valid ~ .form-check-label, .form-check-input.is-valid ~ .form-check-label {
+.form-check-input {
+  appearance: auto;
+}
+
+/* A switch is drawn by Bootstrap as a track with a sliding knob through a
+   background image, which requires the native rendering to be suppressed: the
+   rule above restores it for ordinary checkboxes and would flatten the switch
+   back into a checkbox. On/off is shown in the colors of the brand, blue when
+   on and red when off; the state is also carried by the adjacent text label,
+   so it is never conveyed by color alone */
+.form-switch .form-check-input {
+  appearance: none;
+  background-color: #DE1B1B;
+  border-color: #DE1B1B;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:checked {
+  background-color: #205782;
+  border-color: #205782;
+}
+
+.form-check-input.is-valid ~ .form-check-label, .was-validated .form-check-input:valid ~ .form-check-label {
   color: #2866a2;
 }
 
-.was-validated .form-check-input:valid, .form-check-input.is-valid {
+.was-validated .tos-agreement-input:valid ~ .form-check-label {
+  color: #2866a2;
+}
+
+.form-check-input.is-valid, .was-validated .form-check-input:valid {
   border-color: #0d6efd;
 }
 
-.was-validated .form-check-input:valid:checked, .form-check-input.is-valid:checked {
+.form-check-input.is-valid:checked, .was-validated .form-check-input:valid:checked {
   background-color: #0d6efd;
 }
 
@@ -1083,6 +1228,10 @@ i.fa-solid.fa-chevron-right {
   top: auto;
   height: 1px;
   overflow: hidden;
+}
+
+#FooterBox a {
+  font-weight: bold;
 }
 
 #Skip a:focus {
@@ -1131,7 +1280,7 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   position: relative;
 }
 
-.statistics-filter-bar ngbd-datepicker-range.position-absolute {
+.statistics-filter-bar src-date-selector.position-absolute {
   left: 0;
   top: calc(100% + 0.25rem);
   z-index: 1200;
@@ -1155,10 +1304,6 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
 
 .tooltip {
   position: absolute;
-}
-
-.form-check-input {
-  appearance: auto;
 }
 
 .visually-hidden:not(:focus, :active) {
@@ -1198,11 +1343,6 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   padding: 0.3em !important;
 }
 
-.text-gray {
-  color: #6c757d;
-  opacity: 0.7;
-}
-
 .btn-close {
   all: unset;
   margin-left: auto;
@@ -1219,4 +1359,10 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
 
 .receiver-tooltip {
   white-space: pre-line;
+}
+
+/* The height of a chart is declared here and not on the element: the
+   Content-Security-Policy of the platform forbids the inline styles */
+.chart-container {
+  height: 300px;
 }

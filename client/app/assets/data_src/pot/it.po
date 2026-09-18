@@ -28,9 +28,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GlobaLeaks\n"
-"PO-Revision-Date: 2026-03-19 11:46+0000\n"
-"Last-Translator: Anonymous "
-"<anonymous@users.noreply.localizationlab.weblate.cloud>\n"
+"PO-Revision-Date: 2026-09-12 21:03+0000\n"
+"Last-Translator: Giovanni Pellerano "
+"<evilaliv3@users.noreply.localizationlab.weblate.cloud>\n"
 "Language-Team: Italian <https://localizationlab.weblate.cloud/projects/"
 "globaleaks/stable/it/>\n"
 "Language: it\n"
@@ -38,7 +38,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
 "0) ? 1 : 2);\n"
-"X-Generator: Weblate 5.16.2\n"
+"X-Generator: Weblate 2026.9.1\n"
 "mime-version: 1.0\n"
 
 msgid "0 = auto"
@@ -173,7 +173,7 @@ msgid "Audio"
 msgstr "Audio"
 
 msgid "Audit log"
-msgstr "Audit log"
+msgstr "Log di audit"
 
 msgid "Authentication failed"
 msgstr "Autenticazione fallita"
@@ -285,6 +285,9 @@ msgstr "Configura"
 msgid "Confirm"
 msgstr "Conferma"
 
+msgid "Confirmation"
+msgstr "Conferma"
+
 msgid "Congratulations!"
 msgstr "Congratulazioni!"
 
@@ -393,7 +396,7 @@ msgid "Disabled"
 msgstr "Disabilitato"
 
 msgid "Disclaimer"
-msgstr "Disclaimer"
+msgstr "Avvertenza"
 
 msgid "Display options alphabetically"
 msgstr "Mostra opzioni in ordine alfabetico"
@@ -471,7 +474,7 @@ msgid "Enter a name for the copy"
 msgstr "Inserisci un nome per la copia"
 
 msgid "Enter a report"
-msgstr "Agisci per conto di un segnalante"
+msgstr "Inserisci una segnalazione"
 
 msgid "Enter the two factor authentication code"
 msgstr "Inserisci il codice di autenticazione a due fattori"
@@ -528,7 +531,7 @@ msgid "Fill the additional questionnaire"
 msgstr "Compila il questionario aggiuntivo"
 
 msgid "Fingerprint"
-msgstr "Fingerprint"
+msgstr "Impronta"
 
 msgid "First"
 msgstr "Primo"
@@ -609,7 +612,6 @@ msgstr "Alto"
 msgid "Hint"
 msgstr "Suggerimento"
 
-#, fuzzy
 msgid "Home"
 msgstr "Pagina iniziale"
 
@@ -680,6 +682,9 @@ msgstr "Indirizzo email non valido"
 msgid "Invalid phone number"
 msgstr "Numero di telefono non valido"
 
+msgid "Invitation"
+msgstr "Invito"
+
 msgid "Issuer:"
 msgstr "Rilasciato da:"
 
@@ -722,6 +727,9 @@ msgstr "Rende la piattaforma raggiungibile senza Tor"
 msgid "License"
 msgstr "Licenza"
 
+msgid "Link expire on:"
+msgstr "Il link scade il:"
+
 msgid "Listen"
 msgstr "Ascolta"
 
@@ -754,6 +762,9 @@ msgstr "Dai a questo amministratore il permesso di reimpostare le password degli
 msgid "Mandatory"
 msgstr "Obbligatorio"
 
+msgid "Manual"
+msgstr "Manuale"
+
 msgid "Manual configuration"
 msgstr "Configurazione manuale"
 
@@ -780,6 +791,9 @@ msgstr "Solo io"
 
 msgid "Medium"
 msgstr "Medio"
+
+msgid "Message"
+msgstr "Messaggio"
 
 msgid "Min"
 msgstr "Min"
@@ -991,7 +1005,7 @@ msgid "Questions"
 msgstr "Domande"
 
 msgid "Read receipt"
-msgstr "Codice di accesso"
+msgstr "Ricevuta di lettura"
 
 msgid "Receivers"
 msgstr "Destinatari"
@@ -1358,13 +1372,12 @@ msgid ""
 "deselected:"
 msgstr "I seguenti destinatari riceveranno la segnalazione e non possono essere deselezionati:"
 
-#, fuzzy
 msgid ""
 "The following step-by-step procedure will guide you through creating your "
 "whistleblowing platform."
 msgstr ""
 "Completa la seguente procedura guidata per creare la tua piattaforma di "
-"sengnalazione."
+"segnalazione."
 
 msgid "The link will expire in 7 days."
 msgstr "Il link ha una validità di 7 giorni."
@@ -1495,8 +1508,14 @@ msgstr "Redirezioni URL"
 msgid "Unhide"
 msgstr "Scopri"
 
+msgid "Unread"
+msgstr "Non letto"
+
 msgid "Unselect"
 msgstr "Deseleziona"
+
+msgid "Updated"
+msgstr "Aggiornata"
 
 msgid "Upload"
 msgstr "Carica"
@@ -1563,7 +1582,6 @@ msgstr "In attesa che i file finiscano di essere caricati."
 msgid "Warning"
 msgstr "Attenzione"
 
-#, fuzzy
 msgid ""
 "We advise selecting this option if you would like to protect data from being"
 " lost in the situation where recipients lose their passwords. On the other "
@@ -1598,7 +1616,7 @@ msgid "Reporting person's last access"
 msgstr "Ultimo accesso della persona segnalante"
 
 msgid "Whistleblowing Policy"
-msgstr "Whistleblowing Policy"
+msgstr "Informativa sul whistleblowing"
 
 msgid "Whistleblowing button"
 msgstr "Bottone di sollecitazione alla segnalazione"
@@ -1642,9 +1660,8 @@ msgstr "Il tuo nuovo indirizzo email è stato validato."
 msgid "Your report was successful."
 msgstr "La tua segnalazione è andata a buon fine."
 
-#, fuzzy
 msgid "Your whistleblowing platform is almost ready!"
-msgstr "La tua piattaforma di whistleblowing è quasi pronta!"
+msgstr "La tua piattaforma di segnalazione è quasi pronta!"
 
 msgid "days"
 msgstr "giorni"
@@ -1653,7 +1670,7 @@ msgid "file unavailable"
 msgstr "file non disponibile"
 
 msgid "megabytes"
-msgstr "megabytes"
+msgstr "megabyte"
 
 msgid "percentage"
 msgstr "percentuale"
@@ -1761,7 +1778,7 @@ msgid ""
 msgstr "Ricevi questa email perchè un account utente è stato creato per te sul sistema: {Site}"
 
 msgid "Username: {Username}"
-msgstr "Username: {Username}"
+msgstr "Nome utente: {Username}"
 
 msgid "Activation link: {Url}"
 msgstr "Link di attivazione: {Url}"
@@ -1782,9 +1799,8 @@ msgstr "Distinti saluti,"
 msgid "Account activation"
 msgstr "Attivazione account"
 
-#, fuzzy
 msgid "Your whistleblowing platform is now accessible at:"
-msgstr "La tua piattaforma di whistleblowing è ora accessibile all'indirizzo:"
+msgstr "La tua piattaforma di segnalazione è ora accessibile all'indirizzo:"
 
 msgid "To log in, visit:"
 msgstr "Per accedere visita:"
@@ -1829,9 +1845,8 @@ msgstr "Senza una chiave PGP valida, il sistema non sarà in grado di inviare lo
 msgid "PGP key expiration alert"
 msgstr "Notifica di scadenza chiave PGP"
 
-#, fuzzy
 msgid "A new whistleblowing site has been registered."
-msgstr "Un nuovo sito di whistleblowing è stato registrato."
+msgstr "Un nuovo sito di segnalazione è stata registrata."
 
 msgid "Registration data:"
 msgstr "Dati di registrazione"
@@ -1845,9 +1860,8 @@ msgstr "Nome: {Name}"
 msgid "Email: {Email}"
 msgstr "Email: {Email}"
 
-#, fuzzy
 msgid "New whistleblowing site registered"
-msgstr "Nuovo sito di whistleblowing registrato"
+msgstr "Nuovo sito di segnalazione registrato"
 
 msgid ""
 "This is a test email sent out from the platform's administrative interface."
@@ -1885,7 +1899,6 @@ msgstr "Da: {Author}"
 msgid "Date: {EventTime}"
 msgstr "Data: {EventTime}"
 
-#, fuzzy
 msgid "From: Whistleblower"
 msgstr "Da: Persona segnalante"
 
@@ -1927,7 +1940,6 @@ msgstr "Il sistema effetturerà automaticamente nuovi tentativi."
 msgid "Failed HTTPS certificate renewal"
 msgstr "Fallimento nel rinnovo del certificato HTTPS"
 
-#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has authorized you to access"
 " to the whistleblowing identity for the report {TipNum}."
@@ -1941,7 +1953,6 @@ msgstr "La segnalazione può essere consultata accedendo all'indirizzo:"
 msgid "Access to reporting person's identity authorized"
 msgstr "Accesso all'identità della persona segnalante autorizzato"
 
-#, fuzzy
 msgid ""
 "This is an email to notify you that a custodian has denied you access to the"
 " whistleblowing identity for the report {TipNum}."
@@ -2072,3 +2083,617 @@ msgstr "Ruolo: {Role}"
 
 msgid "Password: {Password}"
 msgstr "Password: {Password}"
+
+msgid "Reset password"
+msgstr "Imposta password"
+
+msgid "hours"
+msgstr "ore"
+
+msgid "minutes"
+msgstr "minuti"
+
+msgid "A user with this username already exists"
+msgstr "Esiste già un utente con questo nome utente"
+
+msgid "Accept"
+msgstr "Accetta"
+
+msgid "Access code"
+msgstr "Codice di accesso"
+
+msgid "Access to the reporting person's identity has been requested to the custodian."
+msgstr "L'accesso all'identità del segnalante è stato richiesto al custode."
+
+msgid "Account"
+msgstr "Account"
+
+msgid "Actions"
+msgstr "Azioni"
+
+msgid "All the requests"
+msgstr "Tutte le richieste"
+
+msgid "Allowed IP address"
+msgstr "Indirizzo IP consentito"
+
+msgid "Apply"
+msgstr "Applica"
+
+msgid "Authenticate with IDP"
+msgstr "Autenticati con il fornitore di identità"
+
+msgid "Authorize the report"
+msgstr "Autorizza la segnalazione"
+
+msgid "Auto - renewal"
+msgstr "Rinnovo automatico"
+
+msgid "Automatically authorize newly registered sites"
+msgstr "Autorizza automaticamente i siti appena registrati"
+
+msgid "Back"
+msgstr "Indietro"
+
+msgid "Backup Job Status"
+msgstr "Stato del backup"
+
+msgid "Bar Chart"
+msgstr "Grafico a barre"
+
+msgid "Button"
+msgstr "Pulsante"
+
+msgid "Change default role"
+msgstr "Cambia il ruolo predefinito"
+
+msgid "Check your inbox."
+msgstr "Controlla la tua casella di posta."
+
+msgid "Clear"
+msgstr "Pulisci"
+
+msgid "Comment"
+msgstr "Commento"
+
+msgid "Communicate with other organization"
+msgstr "Comunica con un'altra organizzazione"
+
+msgid "Communications with other organizations"
+msgstr "Comunicazioni con altre organizzazioni"
+
+msgid "Content"
+msgstr "Contenuto"
+
+msgid "Create"
+msgstr "Crea"
+
+msgid "Create the accounts upon the first authentication of their users"
+msgstr "Crea gli account al primo accesso dei loro utenti"
+
+msgid "Current"
+msgstr "Attuale"
+
+msgid "Custom privacy panel text"
+msgstr "Testo personalizzato del pannello sulla privacy"
+
+msgid "Data owner"
+msgstr "Titolare dei dati"
+
+msgid "Data retention policy"
+msgstr "Politica di conservazione dei dati"
+
+msgid "Default Role"
+msgstr "Ruolo predefinito"
+
+msgid "Default statistical template"
+msgstr "Modello statistico predefinito"
+
+msgid "Deletion prevented due to a status change during operation."
+msgstr "Cancellazione impedita da una variazione di stato durante l'operazione."
+
+msgid "Deny the report"
+msgstr "Nega la segnalazione"
+
+msgid "Destination"
+msgstr "Destinazione"
+
+msgid "Enable a dedicated Tor onion service"
+msgstr "Abilita un servizio onion Tor dedicato"
+
+msgid "Enable demo mode"
+msgstr "Abilita la modalità dimostrativa"
+
+msgid "Enable file upload"
+msgstr "Abilita il caricamento dei file"
+
+msgid "Error loading custom files"
+msgstr "Errore nel caricamento dei file personalizzati"
+
+msgid "Estimated upload time:"
+msgstr "Tempo stimato di caricamento:"
+
+msgid "Example"
+msgstr "Esempio"
+
+msgid "Exchange channel"
+msgstr "Canale dello scambio"
+
+msgid "Get access code"
+msgstr "Ottieni il codice di accesso"
+
+msgid "High threshold (megabytes)"
+msgstr "Soglia alta (megabyte)"
+
+msgid "High threshold (percentage)"
+msgstr "Soglia alta (percentuale)"
+
+msgid "Host"
+msgstr "Host"
+
+msgid "Important"
+msgstr "Importante"
+
+msgid "Include in statistical reports"
+msgstr "Includi nei report statistici"
+
+msgid "Internally available"
+msgstr "Disponibile internamente"
+
+msgid "Invite"
+msgstr "Invita"
+
+msgid "Invite only"
+msgstr "Solo su invito"
+
+msgid "It is requested to fill an additional questionnaire"
+msgstr "È richiesta la compilazione di un questionario aggiuntivo"
+
+msgid "Logs"
+msgstr "Log"
+
+msgid "Low threshold (megabytes)"
+msgstr "Soglia bassa (megabyte)"
+
+msgid "Low threshold (percentage)"
+msgstr "Soglia bassa (percentuale)"
+
+msgid "Manage"
+msgstr "Gestisci"
+
+msgid "Maximum date"
+msgstr "Data massima"
+
+msgid "Messages"
+msgstr "Messaggi"
+
+msgid "Metric"
+msgstr "Metrica"
+
+msgid "Minimum date"
+msgstr "Data minima"
+
+msgid "Mode"
+msgstr "Modalità"
+
+msgid "No results found"
+msgstr "Nessun risultato trovato"
+
+msgid "Number of backups to keep"
+msgstr "Numero di backup da conservare"
+
+msgid "Number of days before sending a report expiration alert"
+msgstr "Giorni di anticipo dell'avviso di scadenza di una segnalazione"
+
+msgid "Only the requests of the administrators"
+msgstr "Solo le richieste degli amministratori"
+
+msgid "Option label"
+msgstr "Etichetta dell'opzione"
+
+msgid "Organization name"
+msgstr "Nome dell'organizzazione"
+
+msgid "Percentage"
+msgstr "Percentuale"
+
+msgid "Period (hours)"
+msgstr "Periodo (ore)"
+
+msgid "Permissions"
+msgstr "Permessi"
+
+msgid "Pie Chart"
+msgstr "Grafico a torta"
+
+msgid "Port"
+msgstr "Porta"
+
+msgid "Profile:"
+msgstr "Profilo:"
+
+msgid "Provide the access code to the user that enters the report"
+msgstr "Fornisci il codice di accesso a chi inserisce la segnalazione"
+
+msgid "Recovery key"
+msgstr "Chiave di recupero"
+
+msgid "Request to fill an additional questionnaire"
+msgstr "Richiedi la compilazione di un questionario aggiuntivo"
+
+msgid "Request's questionnaire"
+msgstr "Questionario della richiesta"
+
+msgid "Require a request before a report is entered"
+msgstr "Richiedi un'autorizzazione prima dell'inserimento di una segnalazione"
+
+msgid "Reset the identity bound to this user"
+msgstr "Reimposta l'identità associata a questo utente"
+
+msgid "SMTP"
+msgstr "SMTP"
+
+msgid "Seen"
+msgstr "Visto"
+
+msgid "Show only unread"
+msgstr "Mostra solo non lette"
+
+msgid "Sign up completed."
+msgstr "Registrazione completata."
+
+msgid "Skip to content"
+msgstr "Vai al contenuto"
+
+msgid "Slug"
+msgstr "Identificativo"
+
+msgid "Support requests handled by the first site"
+msgstr "Richieste di supporto gestite dal sito principale"
+
+msgid "Switch role"
+msgstr "Cambia ruolo"
+
+msgid "Template content"
+msgstr "Contenuto del modello"
+
+msgid "Test"
+msgstr "Prova"
+
+msgid "The current password is incorrect."
+msgstr "La password attuale non è corretta."
+
+msgid "The other party has already read the last update"
+msgstr "L'altra parte ha già letto l'ultimo aggiornamento"
+
+msgid "The other party has not read the last update yet"
+msgstr "L'altra parte non ha ancora letto l'ultimo aggiornamento"
+
+msgid "The report has been entered."
+msgstr "La segnalazione è stata inserita."
+
+msgid "The requests left out are handled by the administrators of this site and are not notified to the first site."
+msgstr "Le richieste escluse sono gestite dagli amministratori di questo sito e non sono notificate al sito principale."
+
+msgid "The sites created with this setting enabled are automatically deleted 90 days after their creation."
+msgstr "I siti creati con questa impostazione attiva sono cancellati automaticamente 90 giorni dopo la creazione."
+
+msgid "The value is applied on the creation of a new site; the sites for which it is disabled are published as a subdomain of the onion service of the first site."
+msgstr "Il valore si applica alla creazione di un nuovo sito; i siti per cui è disabilitato sono pubblicati come sottodominio del servizio onion del sito principale."
+
+msgid "Threshold type"
+msgstr "Tipo di soglia"
+
+msgid "Time (hh:mm)"
+msgstr "Orario (hh:mm)"
+
+msgid "Toggle visibility"
+msgstr "Mostra o nascondi"
+
+msgid "Tor Onion Service address"
+msgstr "Indirizzo del servizio onion Tor"
+
+msgid "Transmissions"
+msgstr "Trasmissioni"
+
+msgid "Transmit report"
+msgstr "Trasmetti una segnalazione"
+
+msgid "Transmitter"
+msgstr "Trasmittente"
+
+msgid "Trigger field"
+msgstr "Campo di attivazione"
+
+msgid "Trigger option"
+msgstr "Opzione di attivazione"
+
+msgid "Two factor authentication code"
+msgstr "Codice dell'autenticazione a due fattori"
+
+msgid "URL"
+msgstr "URL"
+
+msgid "Upload completed successfully!"
+msgstr "Caricamento completato."
+
+msgid "Uploading files…"
+msgstr "Caricamento dei file in corso…"
+
+msgid "Use the 16 digit access code to log in. It will allow you to view any messages we sent you, and also to add extra info."
+msgstr "Usa il codice di accesso a 16 cifre per accedere: potrai leggere i messaggi che ti abbiamo inviato e aggiungere altre informazioni."
+
+msgid "User profile"
+msgstr "Profilo utente"
+
+msgid "When disabled the report is readable by its recipients alone and nothing opens it afterwards."
+msgstr "Se disabilitato, la segnalazione è leggibile dai soli riceventi e nessuno può aprirla in seguito."
+
+msgid "You must authenticate to proceed."
+msgstr "Devi autenticarti per procedere."
+
+msgid "All"
+msgstr "Tutti"
+
+msgid "All tenants"
+msgstr "Tutte le istanze"
+
+msgid "Answered"
+msgstr "Risposta"
+
+msgid "Auditor"
+msgstr "Auditor"
+
+msgid "Deliver the following notifications through the secondary SMTP server"
+msgstr "Invia le seguenti notifiche attraverso il server SMTP secondario"
+
+msgid "Enter your account recovery key to complete the password reset procedure"
+msgstr "Inserisci la chiave di recupero del tuo account per completare la reimpostazione della password"
+
+msgid "For security reasons, password changes are required at regular intervals."
+msgstr "Per motivi di sicurezza, il cambio della password è richiesto a intervalli regolari."
+
+msgid "If not activated within 24 hours the platform will be automatically deleted."
+msgstr "Se non attivata entro 24 ore, la piattaforma sarà cancellata automaticamente."
+
+msgid "Open reports"
+msgstr "Segnalazioni aperte"
+
+msgid "Profiles"
+msgstr "Profili"
+
+msgid "Read"
+msgstr "Letta"
+
+msgid "Replies to not authenticated users' requests are sent directly via email."
+msgstr "Le risposte alle richieste degli utenti non autenticati sono inviate direttamente per posta elettronica."
+
+msgid "Reply"
+msgstr "Rispondi"
+
+msgid "Reports with exclusive access"
+msgstr "Segnalazioni ad accesso esclusivo"
+
+msgid "Support"
+msgstr "Supporto"
+
+msgid "Support requests"
+msgstr "Richieste di supporto"
+
+msgid "Support requests are currently unavailable."
+msgstr "Le richieste di supporto non sono al momento disponibili."
+
+msgid "Tenant"
+msgstr "Istanza"
+
+msgid "The platform supports the configuration of HTTPS through this interface."
+msgstr "La piattaforma consente la configurazione di HTTPS da questa interfaccia."
+
+msgid "The situation has changed. Please review before proceeding."
+msgstr "La situazione è cambiata. Verifica prima di procedere."
+
+msgid "Total reports"
+msgstr "Segnalazioni totali"
+
+msgid "Unread reply"
+msgstr "Risposta non letta"
+
+msgid "Update date"
+msgstr "Data di aggiornamento"
+
+msgid "You"
+msgstr "Tu"
+
+msgid "You do not have access to decrypt this support request."
+msgstr "Non hai accesso alla decifratura di questa richiesta di supporto."
+
+msgid "A new whistleblowing site has been registered and is awaiting authorization."
+msgstr "Un nuovo sito di whistleblowing è stato registrato ed è in attesa di autorizzazione."
+
+msgid "To authorize the site, click the following link:"
+msgstr "Per autorizzare il sito, apri il collegamento seguente:"
+
+msgid "This is a test email sent out from the platform's administrative interface."
+msgstr "Questo è un messaggio di prova inviato dall'interfaccia di amministrazione della piattaforma."
+
+msgid "New forward"
+msgstr "Nuova trasmissione"
+
+msgid "The automatic HTTPS certificate renewal scheduled for today just failed."
+msgstr "Il rinnovo automatico del certificato HTTPS previsto per oggi non è riuscito."
+
+msgid "Dear {OrganizationName},"
+msgstr "Gentile {OrganizationName},"
+
+msgid "You have been invited to create your whistleblowing platform."
+msgstr "Sei stato invitato a creare la tua piattaforma di whistleblowing."
+
+msgid "Click the link below to complete your registration:"
+msgstr "Apri il collegamento seguente per completare la registrazione:"
+
+msgid "This invitation expires on:"
+msgstr "L'invito scade il:"
+
+msgid "Platform Invitation"
+msgstr "Invito alla piattaforma"
+
+msgid "You will be notified once the platform has been activated."
+msgstr "Riceverai una notifica quando la piattaforma sarà attivata."
+
+msgid "Registration confirmation"
+msgstr "Conferma della registrazione"
+
+msgid "Additional questionnaires"
+msgstr "Questionari aggiuntivi"
+
+msgid "Administrators authorized to change user passwords"
+msgstr "Amministratori autorizzati a cambiare le password degli utenti"
+
+msgid "Antivirus"
+msgstr "Antivirus"
+
+msgid "Audit Log"
+msgstr "Log di audit"
+
+msgid "Authentication"
+msgstr "Autenticazione"
+
+msgid "Backup"
+msgstr "Backup"
+
+msgid "Delete Recording"
+msgstr "Elimina la registrazione"
+
+msgid "Exchanges"
+msgstr "Scambi"
+
+msgid "GlobaLeaks - Secure Whistleblowing Software"
+msgstr "GlobaLeaks - Software sicuro per il whistleblowing"
+
+msgid "HTTPS"
+msgstr "HTTPS"
+
+msgid "Main navigation"
+msgstr "Navigazione principale"
+
+msgid "Personal notes"
+msgstr "Note personali"
+
+msgid "Record a voice message"
+msgstr "Registra un messaggio vocale"
+
+msgid "Recording Indicator"
+msgstr "Indicatore di registrazione"
+
+msgid "Registrations"
+msgstr "Registrazioni"
+
+msgid "Roles"
+msgstr "Ruoli"
+
+msgid "Statistical reports"
+msgstr "Report statistici"
+
+msgid "Stop Recording"
+msgstr "Ferma la registrazione"
+
+msgid "Toggle navigation"
+msgstr "Apri o chiudi la navigazione"
+
+msgid "Automatic"
+msgstr "Automatica"
+
+msgid "Ask automatically"
+msgstr "Chiedi automaticamente"
+
+msgid "Allow whistleblowers to select their recipients"
+msgstr "Consenti ai segnalanti di scegliere i propri riceventi"
+
+msgid "Transmission"
+msgstr "Trasmissione"
+
+msgid "Communication"
+msgstr "Comunicazione"
+
+msgid "Communications"
+msgstr "Comunicazioni"
+
+msgid "Transmission request"
+msgstr "Richiesta di trasmissione"
+
+msgid "Transmit"
+msgstr "Trasmetti"
+
+msgid "Whistleblower"
+msgstr "Segnalante"
+
+msgid "Average time to opening"
+msgstr "Tempo medio di apertura"
+
+msgid "Average time to first reply"
+msgstr "Tempo medio alla prima risposta"
+
+msgid "Average time to closure"
+msgstr "Tempo medio di chiusura"
+
+msgid "Mask information"
+msgstr "Maschera informazioni"
+
+msgid "Redact information"
+msgstr "Oscura informazioni"
+
+msgid "Delete reports"
+msgstr "Elimina segnalazioni"
+
+msgid "Change report status"
+msgstr "Cambia lo stato delle segnalazioni"
+
+msgid "Change report labels"
+msgstr "Cambia le etichette delle segnalazioni"
+
+msgid "Postpone expiration date"
+msgstr "Posticipa la data di scadenza"
+
+msgid "Grant access to reports"
+msgstr "Concedi l'accesso alle segnalazioni"
+
+msgid "Transfer access to reports"
+msgstr "Trasferisci l'accesso alle segnalazioni"
+
+msgid "Send communication to other organizations"
+msgstr "Invia comunicazioni ad altre organizzazioni"
+
+msgid "Users' profiles"
+msgstr "Profili degli utenti"
+
+msgid "accepted"
+msgstr "accettata"
+
+msgid "denied"
+msgstr "negata"
+
+msgid "invited"
+msgstr "invitata"
+
+msgid "pending"
+msgstr "in attesa"
+
+msgid ""
+"This is an email to notify you that a report has been forwarded to: "
+"{ForwardTenantName}"
+msgstr ""
+"Con la presente email ti notifichiamo che una segnalazione è stata inoltrata "
+"a: {ForwardTenantName}"
+
+msgid ""
+"This is a confirmation that your whistleblowing platform has been "
+"registered."
+msgstr ""
+"Con la presente ti confermiamo che la tua piattaforma di segnalazione è "
+"stata registrata."
+
+msgid "Configuration"
+msgstr "Configurazione"
+
+msgid "Detach"
+msgstr "Distacca"

@@ -1,17 +1,17 @@
-import {AfterViewChecked, Component, inject} from "@angular/core";
+import {AfterViewChecked, ChangeDetectorRef, Component, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {ErrorCodes} from "@app/models/app/error-code";
 
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
-    selector: "messageconsole",
+    selector: "src-message-console",
     templateUrl: "./message-console.component.html",
     standalone: true,
-    imports: [TranslateModule, TranslatorPipe]
+    imports: [TranslateModule]
 })
 export class MessageConsoleComponent implements AfterViewChecked {
+  private readonly cdr = inject(ChangeDetectorRef);
   appDataService = inject(AppDataService);
 
   private timeoutId: any;
@@ -28,6 +28,7 @@ export class MessageConsoleComponent implements AfterViewChecked {
       this.timeoutRunning = true;
       this.timeoutId = setTimeout(() => {
         this.dismissError();
+        this.cdr.markForCheck();
       }, 3000);
     }
   }

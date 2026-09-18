@@ -46,7 +46,8 @@
     "{UseCase}",
     "{Language}",
     "{AdminCredentials}",
-    "{RecipientCredentials}"
+    "{RecipientCredentials}",
+    "{Credentials}"
   ],
   "activation_mail_title":[
     "{NodeName}",
@@ -67,7 +68,8 @@
     "{UseCase}",
     "{Language}",
     "{AdminCredentials}",
-    "{RecipientCredentials}"
+    "{RecipientCredentials}",
+    "{Credentials}"
   ],
   "admin_anomaly_mail_template":[
     "{NodeName}",
@@ -665,25 +667,5 @@
     "{LoginUrl}",
     "{RecipientName}",
     "{Username}"
-  ],
-  "signup_invite_mail_template":[
-    "{NodeName}",
-    "{TorSite}",
-    "{HTTPSSite}",
-    "{TorUrl}",
-    "{HTTPSUrl}",
-    "{Site}",
-    "{Url}",
-    "{DocumentationUrl}",
-    "{LoginUrl}",
-    "{RecipientName}",
-    "{OrganizationName}",
-    "{InviteUrl}",
-    "{ExpirationDate}"
-  ],
-  "signup_invite_mail_title":[
-    "{NodeName}",
-    "{OrganizationName}",
-    "{InviteUrl}"
   ]
 }

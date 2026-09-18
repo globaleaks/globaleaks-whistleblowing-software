@@ -11,15 +11,14 @@ import {emptySearchQuery} from "@app/models/search/search-query";
   providedIn: "root"
 })
 export class RTipsResolver {
-  private utilsService = inject(UtilsService);
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: rtipResolverModel[] = [];
   total = 0;
   request: RecipientReportsRequest = {
     page: 1,
-    page_size: 20,
     search: "",
     unread: false,
     sort: "creation_date",
@@ -37,21 +36,20 @@ export class RTipsResolver {
 
   load(request: RecipientReportsRequest): Observable<RecipientReportsPage> {
     this.request = request;
-    return this.httpService.receiverTipResource(request).pipe(
+    return this.httpService.searchRecipientReports(request).pipe(
       map(response => {
         this.dataModel = response.reports;
         this.total = response.total;
-        this.request = {...request, page: response.page, page_size: response.page_size};
+        this.request = {...request, page: response.page};
         return response;
       })
     );
   }
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "receiver") {
+    if (this.authenticationService.session?.role === "receiver") {
       return this.load({
         page: 1,
-        page_size: 20,
         search: "",
         unread: false,
         sort: "creation_date",

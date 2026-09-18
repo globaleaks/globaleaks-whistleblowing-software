@@ -1,45 +1,24 @@
-import {AfterViewInit, ChangeDetectorRef, Component, TemplateRef, ViewChild, inject} from "@angular/core";
-import {Router} from "@angular/router";
-import {Tab} from "@app/models/component-model/tab";
-import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {Tab1Component} from "@app/pages/admin/settings/tab1/tab1.component";
+import {Component, inject} from "@angular/core";
+import {TabsComponent} from "@app/shared/components/tabs/tabs.component";
+import {TabDirective} from "@app/shared/components/tabs/tab.directive";
 import {FormsModule} from "@angular/forms";
-import {NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgbNavOutlet} from "@ng-bootstrap/ng-bootstrap";
-import {NgTemplateOutlet} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {Tab1Component} from "@app/pages/admin/settings/tab1/tab1.component";
+import {Router} from "@angular/router";
+import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 
 @Component({
     selector: "src-recipient-settings",
     templateUrl: "./settings.component.html",
     standalone: true,
-    imports: [FormsModule, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLinkButton, NgbNavLinkBase, NgbNavContent, NgTemplateOutlet, NgbNavOutlet, Tab1Component, TranslateModule, TranslatorPipe]
+    imports: [TabsComponent, TabDirective, FormsModule, Tab1Component]
 })
-export class RecipientSettingsComponent implements AfterViewInit {
-  private cdr = inject(ChangeDetectorRef);
-  private preferenceResolver = inject(PreferenceResolver);
-  private router = inject(Router);
-
-  @ViewChild("tab1") tab1!: TemplateRef<Tab1Component>;
-  tabs: Tab[];
-  active: string;
+export class RecipientSettingsComponent {
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly router = inject(Router);
 
   constructor() {
-    if (!this.preferenceResolver.dataModel.profile.permissions.can_edit_general_settings) {
-      this.router.navigate(['recipient/home']).then();
+    if (!this.preferenceResolver.dataModel.profile.permissions.can_manage_settings) {
+      void this.router.navigate(['recipient/home']);
     }
   }
-
-  ngAfterViewInit(): void {
-    this.active = "Settings";
-
-    this.tabs = [
-      {
-        title: "Settings",
-        component: this.tab1
-      },
-    ];
-    this.cdr.detectChanges();
-  }
 }
-

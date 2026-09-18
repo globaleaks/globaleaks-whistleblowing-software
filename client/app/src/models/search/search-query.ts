@@ -4,7 +4,7 @@ export interface SearchFilter {
   id: string;
   field: string;
   operator: SearchFilterOperator;
-  value: string | Array<string | number> | [number, number];
+  value: string | (string | number)[] | [number, number];
   label: string;
   negated: boolean;
 }

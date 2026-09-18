@@ -2,11 +2,11 @@
 
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Column, DateTime, Integer, UnicodeText
 from globaleaks.utils.utility import datetime_now
 
 
-class Subscriber_v_62(Model):
+class SubscriberV62(Model):
     __tablename__ = 'subscriber'
     tid = Column(Integer, primary_key=True)
     subdomain = Column(UnicodeText, unique=True, nullable=False)
@@ -30,15 +30,14 @@ class Subscriber_v_62(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_Subscriber(self):
-        for old_obj in self.session_old.query(self.model_from['Subscriber']):
-            new_obj = self.model_to['Subscriber']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if key == 'activation_token':
-                    new_obj.activation_token = old_obj.activation_token if old_obj.activation_token else None
-                elif key == 'organization_location':
-                    setattr(new_obj, 'organization_location', getattr(old_obj, 'organization_location4'))
-                else:
-                    setattr(new_obj, key, getattr(old_obj, key))
+    converted_config = {
+        'mode': lambda v: 'wbpa' if v == 'whistleblowing.it' else v
+    }
 
-            self.session_new.add(new_obj)
+    renamed_attrs = {
+        'Subscriber': {'organization_location': 'organization_location4'}
+    }
+
+    converted_attrs = {
+        'Subscriber': {'activation_token': lambda o: o.activation_token if o.activation_token else None}
+    }

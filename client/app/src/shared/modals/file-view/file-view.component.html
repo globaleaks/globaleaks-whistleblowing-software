@@ -7,9 +7,9 @@
     <div class="Loader"></div>
   }
   @if (args.loaded) {
-    <iframe #viewer id="viewer" class="w-100" [src]="iframeUrl" ngbTooltip="fileviewer" height="{{args.iframeHeight}}" sandbox="allow-downloads allow-scripts"></iframe>
+    <iframe #viewer id="viewer" class="w-100" [title]="'Preview' | translate" [src]="iframeUrl" ngbTooltip="fileviewer" height="{{args.iframeHeight}}" sandbox="allow-downloads allow-scripts"></iframe>
   }
 </div>
 <div class="modal-footer">
-  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">{{'Close'|translate}}</a>
+  <a id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()" (keydown.enter)="cancel()" tabindex="0" role="button">{{'Close'|translate}}</a>
 </div>

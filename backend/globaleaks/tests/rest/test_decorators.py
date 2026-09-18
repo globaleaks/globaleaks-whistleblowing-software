@@ -5,15 +5,17 @@ from globaleaks.rest import errors
 from globaleaks.state import State
 from globaleaks.rest.cache import Cache
 from globaleaks.rest.decorators import (decorator_rate_limit, decorator_require_session_or_token,
-                                        decorator_authentication, decorator_cache_get, decorator_cache_invalidate)
+                                        decorator_authentication, decorator_cache_get, decorator_cache_invalidate,
+                                        decorator_require_permission)
 from globaleaks.utils.utility import uuid4
 
 
 class FakeRequest:
-    def __init__(self, tid=1, path=b"/test", client_ip="127.0.0.1", language="en"):
+    def __init__(self, tid=1, path=b"/test", language="en", client_ip="127.0.0.1", client_using_tor=True):
         self.tid = tid
         self.path = path
         self.client_ip = client_ip
+        self.client_using_tor = client_using_tor
         self.language = language  # Add this line
         self.responseHeaders = MagicMock()
 
@@ -22,9 +24,10 @@ class FakeRequest:
 
 
 class FakeSession:
-    def __init__(self, role="user", tid=1):
+    def __init__(self, role="user", tid=1, properties=None):
         self.role = role
         self.tid = tid
+        self.properties = properties if properties is not None else {}
 
 
 class FakeHandler:
@@ -36,7 +39,7 @@ class FakeHandler:
 
 class TestDecorators(unittest.TestCase):
     def setUp(self):
-        State.settings.enable_rate_limiting = True
+        State.RateLimit.enabled = True
 
         # Patch deferred_sleep to immediately succeed (fake no wait)
         self.sleep_patch = patch(
@@ -46,6 +49,9 @@ class TestDecorators(unittest.TestCase):
         self.sleep_patch.start()
 
         root_tenant = MagicMock()
+        # connection_check (run by decorator_authentication) reads connection
+        # policy via cache.get; default to a permissive policy for these tests
+        root_tenant.cache.get.return_value = False
         root_tenant.cache.threshold_reports_per_hour_per_system = 50
         root_tenant.cache.threshold_reports_per_hour_per_tenant = 10
         root_tenant.cache.threshold_reports_per_hour_per_ip = 10
@@ -93,6 +99,95 @@ class TestDecorators(unittest.TestCase):
             decorated_func(self.handler)
 
         self.handler.session.role = "admin"
+        self.assertEqual(decorated_func(self.handler), "Authorized")
+
+    def test_decorator_authentication_confined_sessions(self):
+        # A session held in a constrained state (pending reset-token use, forced
+        # password change or mandatory 2fa enrollment) may reach only the
+        # endpoints needed to complete that step; every other endpoint is
+        # forbidden until the constraining property is cleared.
+        for confining_property in ({"reset_token": "x"},
+                                   {"password_change_needed": True},
+                                   {"require_two_factor": True}):
+            with self.subTest(properties=confining_property):
+                self.handler = FakeHandler()
+                self.handler.session = FakeSession(role="receiver",
+                                                   properties=confining_property)
+                self.handler.token = None
+                self.handler.request = FakeRequest()
+
+                def test_func(self):
+                    return "Authorized"
+
+                decorated_func = decorator_authentication(test_func, ["receiver"])
+
+                # While the session is confined every other endpoint is forbidden
+                self.handler.request.path = b"/api/recipient/rtips"
+                with self.assertRaises(errors.ForbiddenOperation):
+                    decorated_func(self.handler)
+
+                # The endpoints needed to complete the step stay reachable
+                for path in (b"/api/user/preferences",
+                             b"/api/user/operations",
+                             b"/api/auth/session"):
+                    self.handler.request.path = path
+                    self.assertEqual(decorated_func(self.handler), "Authorized")
+
+                # Once the constraint is cleared the session regains full access
+                self.handler.session.properties = {}
+                self.handler.request.path = b"/api/recipient/rtips"
+                self.assertEqual(decorated_func(self.handler), "Authorized")
+
+    def test_decorator_authentication_enforces_tor_policy(self):
+        # A session whose role is restricted to Tor must be rejected per-request
+        # when presented over a non-Tor connection, even though the session was
+        # authorized once at login.
+        self.handler = FakeHandler()
+        self.handler.session = FakeSession(role="receiver")
+        self.handler.token = None
+        self.handler.request = FakeRequest()
+
+        State.tenants[1].cache.get.side_effect = \
+            lambda key, default=None: {'https_receiver': False}.get(key, False)
+
+        def test_func(self):
+            return "Authorized"
+
+        decorated_func = decorator_authentication(test_func, ["receiver"])
+
+        self.handler.request.client_using_tor = False
+        with self.assertRaises(errors.InvalidAuthentication):
+            decorated_func(self.handler)
+
+        # Over Tor the same session is authorized
+        self.handler.request.client_using_tor = True
+        self.assertEqual(decorated_func(self.handler), "Authorized")
+
+    def test_decorator_authentication_enforces_ip_filter(self):
+        # A session whose role is IP-filtered must be rejected per-request when
+        # presented from an address outside the configured range.
+        self.handler = FakeHandler()
+        self.handler.session = FakeSession(role="receiver")
+        self.handler.token = None
+        self.handler.request = FakeRequest()
+
+        policy = {'ip_filter_receiver_enable': True,
+                  'ip_filter_receiver': '192.0.2.0/24',
+                  'https_receiver': True}
+        State.tenants[1].cache.get.side_effect = \
+            lambda key, default=None: policy.get(key, False)
+
+        def test_func(self):
+            return "Authorized"
+
+        decorated_func = decorator_authentication(test_func, ["receiver"])
+
+        self.handler.request.client_ip = "198.51.100.5"
+        with self.assertRaises(errors.InvalidAuthentication):
+            decorated_func(self.handler)
+
+        # From an allowed address the same session is authorized
+        self.handler.request.client_ip = "192.0.2.10"
         self.assertEqual(decorated_func(self.handler), "Authorized")
 
     @defer.inlineCallbacks
@@ -144,24 +239,196 @@ class TestDecorators(unittest.TestCase):
         result = yield test_func(self.handler)
         self.assertEqual(result, "Passed")
 
-    def test_decorator_rate_limit_whistleblower_blocked(self):
+    def test_decorator_rate_limit_login_throttled_with_session(self):
         self.handler = FakeHandler()
-        self.handler.session = FakeSession()
-        self.handler.token = None
-        self.handler.request = FakeRequest()
-
-        self.handler.session.role = "whistleblower"
+        self.handler.session = FakeSession(role="whistleblower")
         self.handler.session.user_id = uuid4()
-        self.handler.request.tid = 1
-        self.handler.request.path = b"/api/whistleblower/submission"
+        self.handler.token = None
+        self.handler.request = FakeRequest(path=b"/api/auth/receiptauth")
 
-        # Patch RateLimit to simulate rate limit block
         rate_limit_mock = MagicMock()
-        rate_limit_mock.check.side_effect = [True]
+        rate_limit_mock.check.return_value = 0
         State.RateLimit = rate_limit_mock
 
         @decorator_rate_limit
-        def test_func(self): return "Should not run"
+        def test_func(self): return "Passed"
 
-        with self.assertRaises(errors.ForbiddenOperation):
-            test_func(self.handler)
+        self.assertEqual(test_func(self.handler), "Passed")
+
+        # Holding a session must not exempt login endpoints from login throttling
+        checked_keys = [call.args[0] for call in rate_limit_mock.check.call_args_list]
+        self.assertTrue(any(key.startswith(b"logins_per_minute") for key in checked_keys))
+
+    # Contract for every endpoint throttled by decorator_rate_limit: the buckets
+    # it must consult, whether each is skipped on Tor (per-IP buckets, where the
+    # client IP is shared and not meaningful), and the effect of tripping a
+    # bucket ('block' -> ForbiddenOperation, 'delay' -> deferred execution).
+    RATE_LIMIT_CONTRACT = [
+        {"paths": [b"/api/auth/authentication",
+                   b"/api/auth/tokenauth",
+                   b"/api/auth/receiptauth"],
+         "role": None, "action": "delay",
+         "buckets": [(b"logins_per_minute_per_tenant_per_ip", True),
+                     (b"logins_per_minute_per_ip", True),
+                     (b"logins_per_minute_per_tenant", False),
+                     (b"logins_per_minute_per_system", False)]},
+        {"paths": [b"/api/support"],
+         "role": None, "action": "block",
+         "buckets": [(b"support_per_hour_per_tenant_per_ip", True),
+                     (b"support_per_hour_per_ip", True),
+                     (b"support_per_hour_per_tenant", False),
+                     (b"support_per_hour_per_system", False)]},
+        {"paths": [b"/api/signup"],
+         "role": None, "action": "block",
+         "buckets": [(b"signups_per_minute_per_ip", True),
+                     (b"signups_per_hour_per_ip", True),
+                     (b"signups_per_hour_per_system", False)]},
+        {"paths": [b"/api/whistleblower/submission"],
+         "role": "whistleblower", "action": "block",
+         "buckets": [(b"reports_per_hour_per_tenant_per_ip", True),
+                     (b"reports_per_hour_per_ip", True),
+                     (b"reports_per_hour_per_tenant", False),
+                     (b"reports_per_hour_per_system", False)]},
+        {"paths": [b"/api/whistleblower/operations"],
+         "role": "whistleblower", "action": "delay",
+         "buckets": [(b"operations_per_second_per_report", False),
+                     (b"operations_per_minute_per_report", False),
+                     (b"operations_per_hour_per_report", False)]},
+    ]
+
+    def test_decorator_rate_limit_contract(self):
+        # Each bucket is tripped in isolation, on and off Tor, so the test fails
+        # if an endpoint loses its limiting, swaps block for delay, or stops
+        # honouring the Tor skip on its per-IP buckets.
+        for endpoint in self.RATE_LIMIT_CONTRACT:
+            for path in endpoint["paths"]:
+                for bucket, skipped_on_tor in endpoint["buckets"]:
+                    for tor in (False, True):
+                        with self.subTest(path=path, bucket=bucket, tor=tor):
+                            self.handler = FakeHandler()
+                            self.handler.token = "x"
+                            self.handler.request = FakeRequest(path=path, client_using_tor=tor)
+                            if endpoint["role"]:
+                                self.handler.session = FakeSession(role=endpoint["role"])
+                                self.handler.session.user_id = uuid4()
+                            else:
+                                self.handler.session = None
+
+                            rate_limit_mock = MagicMock()
+                            rate_limit_mock.check.side_effect = \
+                                lambda key, *_, b=bucket: 1 if key.startswith(b) else 0
+                            State.RateLimit = rate_limit_mock
+
+                            @decorator_rate_limit
+                            def test_func(self): return "Passed"
+
+                            def checked(m=rate_limit_mock):
+                                return [c.args[0] for c in m.check.call_args_list]
+
+                            if tor and skipped_on_tor:
+                                # the per-IP bucket must not be consulted over Tor
+                                self.assertEqual(test_func(self.handler), "Passed")
+                                self.assertFalse(any(k.startswith(bucket) for k in checked()))
+                                continue
+
+                            if endpoint["action"] == "block":
+                                with self.assertRaises(errors.ForbiddenOperation):
+                                    test_func(self.handler)
+                            else:
+                                self.assertEqual(self.successResultOf(test_func(self.handler)), "Passed")
+
+                            # the tripped bucket must have been consulted
+                            self.assertTrue(any(k.startswith(bucket) for k in checked()))
+
+
+class FakePermissionSession(FakeSession):
+    def __init__(self, permissions=None, **kwargs):
+        FakeSession.__init__(self, **kwargs)
+        self.permissions = permissions or {}
+
+    def has_permission(self, permission):
+        return self.permissions.get(permission, False)
+
+
+class TestAuthorizationContract(unittest.TestCase):
+    """
+    The decision that lets a request through is taken in two places alone: the
+    role check the handler declares and the permission it requires. Every
+    outcome of both is stated here, so that a change of the decision shows up
+    as a failing case rather than as an endpoint that silently opens.
+    """
+
+    def setUp(self):
+        root_tenant = MagicMock()
+        root_tenant.cache.get.return_value = False
+        State.tenants[1] = root_tenant
+
+    def handler(self, session):
+        h = FakeHandler()
+        h.session = session
+        h.token = None
+        h.request = FakeRequest()
+        return h
+
+    def test_the_role_a_handler_declares_says_who_passes(self):
+        # (declared roles, session, allowed)
+        cases = [
+            ("an anonymous caller is refused where a role is asked",
+             ['admin'], None, False),
+            ("the declared role passes",
+             ['admin'], FakeSession(role='admin'), True),
+            ("another role does not",
+             ['admin'], FakeSession(role='receiver'), False),
+            ("one of the declared roles passes",
+             ['receiver', 'transmitter'], FakeSession(role='transmitter'), True),
+            ("'any' opens the endpoint to the anonymous caller",
+             ['any'], None, True),
+            ("'user' stands for every role of an account",
+             ['user'], FakeSession(role='custodian'), True),
+            ("'user' does not stand for the whistleblower",
+             ['user'], FakeSession(role='whistleblower'), False),
+            ("a session of another site does not pass",
+             ['admin'], FakeSession(role='admin', tid=2), False),
+        ]
+
+        for reason, roles, session, allowed in cases:
+            with self.subTest(reason=reason):
+                decorated = decorator_authentication(lambda self: "Authorized", roles)
+                asked = self.handler(session)
+
+                if allowed:
+                    self.assertEqual(decorated(asked), "Authorized")
+                else:
+                    with self.assertRaises(errors.NotAuthenticated):
+                        decorated(asked)
+
+    def test_the_permission_a_handler_requires_says_who_acts(self):
+        held = {'can_manage_users': True, 'can_manage_settings': False}
+
+        cases = [
+            ("no permission declared leaves the endpoint to the role alone",
+             None, FakePermissionSession(held), True),
+            ("the required permission is held",
+             'can_manage_users', FakePermissionSession(held), True),
+            ("the required permission is not held",
+             'can_manage_settings', FakePermissionSession(held), False),
+            ("a permission never granted is not held",
+             'can_manage_sites', FakePermissionSession(held), False),
+            ("one of the alternatives is enough",
+             ('can_manage_settings', 'can_manage_users'), FakePermissionSession(held), True),
+            ("none of the alternatives is held",
+             ('can_manage_sites', 'can_manage_settings'), FakePermissionSession(held), False),
+            ("a required permission fails closed without a session",
+             'can_manage_users', None, False),
+        ]
+
+        for reason, permission, session, allowed in cases:
+            with self.subTest(reason=reason):
+                decorated = decorator_require_permission(lambda self: "Acted", permission)
+                asked = self.handler(session)
+
+                if allowed:
+                    self.assertEqual(decorated(asked), "Acted")
+                else:
+                    with self.assertRaises(errors.ForbiddenOperation):
+                        decorated(asked)

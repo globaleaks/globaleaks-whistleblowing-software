@@ -5,7 +5,7 @@
 import re
 import uuid
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
@@ -13,12 +13,15 @@ from twisted.internet.defer import Deferred
 
 def get_distribution_codename():
     try:
-        with open("/etc/os-release", "r") as fd:
+        with open("/etc/os-release", encoding="utf-8") as fd:
             for line in fd:
                 key, value = line.split("=")
                 if key == "VERSION_CODENAME":
                     return value.strip().strip("\"")
-    except:
+    except (OSError, ValueError):
+        # OSError: file missing or unreadable
+        # ValueError: a malformed (e.g. empty / comment-only) line unpacks to !=2 items;
+        # the os-release(5) spec permits such lines.
         pass
 
     return ""
@@ -72,7 +75,7 @@ def datetime_now():
     """
     :return: a utc datetime object representing a null date
     """
-    return datetime.utcnow()
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def datetime_never():
@@ -86,7 +89,7 @@ def get_expiration(days):
     """
     :return: a utc datetime object representing an expiration time calculated as the current date + N days
     """
-    date = datetime.utcnow()
+    date = datetime.now(timezone.utc).replace(tzinfo=None)
     return datetime(year=date.year, month=date.month, day=date.day, hour=23, minute=59, second=59) + timedelta(days)
 
 
@@ -99,7 +102,18 @@ def is_expired(check_date, seconds=0, minutes=0, hours=0, days=0):
     return datetime_now() > check
 
 
-def datetime_to_ISO8601(date):
+def snake_case(name):
+    """
+    Return a name written in camel case as the same name written in snake case
+
+    :param name: The name in camel case
+    """
+    name = re.sub(r'(.)([A-Z][a-z]+)', r'\1_\2', name)
+
+    return re.sub(r'([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+
+
+def datetime_to_iso8601(date):
     """
     Convert a datetime into ISO8601 date
     """
@@ -137,19 +151,26 @@ def datetime_to_day_str(date, tz=0):
     return date.strftime("%d/%m/%Y")
 
 
-def ISO8601_to_pretty_str(isodate, tz=0):
+def parse_iso8601(isodate):
+    """
+    Parse the date/time portion of an ISO 8601 string into a datetime.
+    """
+    return datetime(year=int(isodate[0:4]),
+                    month=int(isodate[5:7]),
+                    day=int(isodate[8:10]),
+                    hour=int(isodate[11:13]),
+                    minute=int(isodate[14:16]),
+                    second=int(isodate[17:19]))
+
+
+def iso8601_to_pretty_str(isodate, tz=0):
     """
     convert a ISO8601 in pretty formatted str format
     """
     if isodate is None:
         isodate = datetime_null().isoformat()
 
-    date = datetime(year=int(isodate[0:4]),
-                    month=int(isodate[5:7]),
-                    day=int(isodate[8:10]),
-                    hour=int(isodate[11:13]),
-                    minute=int(isodate[14:16]),
-                    second=int(isodate[17:19]))
+    date = parse_iso8601(isodate)
 
     if tz != 0:
         tz_i, tz_d = divmod(tz, 1)
@@ -160,25 +181,20 @@ def ISO8601_to_pretty_str(isodate, tz=0):
     return datetime_to_pretty_str(date)
 
 
-def ISO8601_to_day_str(isodate, tz=0):
+def iso8601_to_day_str(isodate, tz=0):
     """
     convert a ISO8601 in DD/MM/YYYY formatted str
     """
     if isodate is None:
         isodate = datetime_null().isoformat()
 
-    date = datetime(year=int(isodate[0:4]),
-                    month=int(isodate[5:7]),
-                    day=int(isodate[8:10]),
-                    hour=int(isodate[11:13]),
-                    minute=int(isodate[14:16]),
-                    second=int(isodate[17:19]))
+    date = parse_iso8601(isodate)
 
     return datetime_to_day_str(date, tz)
 
 def iso_year_start(iso_year):
     """Returns the gregorian calendar date of the first day of the given ISO year"""
-    fourth_jan = datetime.strptime('{0}-01-04'.format(iso_year), '%Y-%m-%d')
+    fourth_jan = datetime.strptime(f'{iso_year}-01-04', '%Y-%m-%d')
     delta = timedelta(fourth_jan.isoweekday() - 1)
     return fourth_jan - delta
 
@@ -194,9 +210,9 @@ def bytes_to_pretty_str(b):
         b = int(b)
 
     if b >= 1000000000:
-        return "%dGB" % int(b / 1000000000)
+        return f"{int(b / 1000000000)}GB"
 
     if b >= 1000000:
-        return "%dMB" % int(b / 1000000)
+        return f"{int(b / 1000000)}MB"
 
-    return "%dKB" % int(b / 1000)
+    return f"{int(b / 1000)}KB"

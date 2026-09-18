@@ -1,13 +1,13 @@
-import {HttpClient} from "@angular/common/http";
-import {AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, inject} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, inject, viewChild} from "@angular/core";
 import {FlowConfig, NgxFlowModule} from "@flowjs/ngx-flow";
+import {HttpService} from "@app/shared/services/http.service";
 import {Subscription} from "rxjs";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {FlowOptions} from "@flowjs/flow.js";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 
 
@@ -15,64 +15,66 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
     selector: "src-image-upload",
     templateUrl: "./image-upload.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, NgxFlowModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, NgxFlowModule, TranslateModule]
 })
 export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
-  private http = inject(HttpClient);
+  private readonly renderScheduler = inject(RenderSchedulerService);
   protected authenticationService = inject(AuthenticationService);
-  private utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
 
-  @ViewChild("flowAdvanced")
-  flow: FlowConfig;
-  @ViewChild("uploader") uploaderElementRef!: ElementRef<HTMLInputElement>;
+  readonly flow = viewChild.required<FlowConfig>("flowAdvanced");
 
-  @Input() imageUploadModel: Record<string, any>;
-  @Input() imageUploadModelAttr: string;
-  @Input() imageUploadId: string;
+  imageUploadModel: Record<string, any>;
+  imageUploadModelAttr: string;
+  imageUploadId: string;
   imageUploadObj: { files: [] } = {files: []};
   autoUploadSubscription: Subscription;
   filemodel: any;
   currentTimestamp = new Date().getTime();
   flowConfig: FlowOptions;
-  @ViewChild('uploader') uploaderInput: ElementRef<HTMLInputElement>;
+  readonly uploaderInput = viewChild.required<ElementRef<HTMLInputElement>>("uploader");
 
   ngOnInit() {
     this.filemodel = this.imageUploadModel[this.imageUploadModelAttr];
-    this.flowConfig = this.utilsService.getFlowOptions();
-    this.flowConfig.target = "api/admin/files/"+this.imageUploadId;
-    this.flowConfig.singleFile = true;
+    this.flowConfig = this.utilsService.getFlowOptions({
+      target: "api/admin/files/" + this.imageUploadId,
+      singleFile: true
+    });
   }
 
   ngAfterViewInit() {
-    this.autoUploadSubscription = this.flow.events$.subscribe(event => {
+    this.autoUploadSubscription = this.flow().events$.subscribe(event => {
       if (event.type === "filesSubmitted") {
         this.imageUploadModel[this.imageUploadModelAttr] = true;
+        this.renderScheduler.schedule();
       }
     });
   }
 
   onFileSelected(files: FileList | null) {
-    if (files && files.length > 0) {
-      const file = files[0];
+    const file = files?.[0];
+    if (file) {
       const fileNameParts = file.name.split(".");
       const fileExtension = fileNameParts.pop();
       const fileNameWithoutExtension = fileNameParts.join(".");
       const timestamp = new Date().getTime();
       const fileNameWithTimestamp = `${fileNameWithoutExtension}_${timestamp}.${fileExtension}`;
       const modifiedFile = new File([file], fileNameWithTimestamp, {type: file.type});
-      const flowJsInstance = this.flow.flowJs;
+      const flowJsInstance = this.flow().flowJs;
 
       flowJsInstance.addFile(modifiedFile);
       flowJsInstance.upload();
       this.filemodel = modifiedFile;
       flowJsInstance.on('complete', () => {
         this.currentTimestamp = new Date().getTime();
+        this.renderScheduler.schedule();
       });
     }
   }
 
   triggerFileInputClick() {
-    this.uploaderElementRef.nativeElement.click();
+    this.uploaderInput().nativeElement.click();
   }
 
   ngOnDestroy() {
@@ -80,17 +82,14 @@ export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   }
 
   deletePicture() {
-    this.http
-      .delete("api/admin/files/" + this.imageUploadId)
+    this.httpService.requestDeleteResource("api/admin/files/" + this.imageUploadId)
       .subscribe(() => {
         if (this.imageUploadModel) {
           this.imageUploadModel[this.imageUploadModelAttr] = "";
         }
         this.imageUploadObj.files = [];
         this.filemodel = ""
-        if (this.uploaderInput) {
-          this.uploaderInput.nativeElement.value = "";
-        }
+        this.uploaderInput().nativeElement.value = "";
       });
   }
 

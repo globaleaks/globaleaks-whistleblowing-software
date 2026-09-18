@@ -8,14 +8,11 @@ import {AppDataService} from "@app/app-data.service";
 import {TranslationService} from "@app/services/helper/translation.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {TitleService} from "@app/shared/services/title.service";
-import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
-import {NgClass} from "@angular/common";
 import {ProfileComponent} from "./template/profile/profile.component";
 import {PasswordStrengthValidatorDirective} from "@app/shared/directive/password-strength-validator.directive";
 import {PasswordMeterComponent} from "@app/shared/components/password-meter/password-meter.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {CryptoService} from "@app/shared/services/crypto.service";
 
@@ -23,19 +20,18 @@ import {CryptoService} from "@app/shared/services/crypto.service";
     selector: "src-wizard",
     templateUrl: "./wizard.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, NgClass, ProfileComponent, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, ProfileComponent, PasswordStrengthValidatorDirective, PasswordMeterComponent, TranslateModule]
 })
 export class WizardComponent implements OnInit {
-  private titleService = inject(TitleService);
-  private translationService = inject(TranslationService);
-  private router = inject(Router);
-  private http = inject(HttpClient);
-  private authenticationService = inject(AuthenticationService);
-  private httpService = inject(HttpService);
+  private readonly titleService = inject(TitleService);
+  private readonly translationService = inject(TranslationService);
+  private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
   protected appDataService = inject(AppDataService);
   protected appConfigService = inject(AppConfigService);
-  private utilsService = inject(UtilsService);
-  private cryptoService = inject(CryptoService);
+  private readonly cryptoService = inject(CryptoService);
 
   step = 1;
   emailRegexp = Constants.emailRegexp;
@@ -75,8 +71,7 @@ export class WizardComponent implements OnInit {
 
   ngOnInit() {
     if (this.appDataService.public.node.wizard_done) {
-      this.router.navigate(["/"]).then(_ => {
-      });
+      void this.router.navigate(["/"]);
       return;
     }
     this.loadLicense();
@@ -101,10 +96,8 @@ export class WizardComponent implements OnInit {
     this.appDataService.updateShowLoadingPanel(false);
 
     const param = JSON.stringify(this.wizard);
-    this.httpService.requestWizard(param).subscribe
-    (
-      {
-        next: _ => {
+    this.httpService.requestWizard(param).subscribe({
+        next: () => {
           this.step += 1;
         }
       }
@@ -114,10 +107,10 @@ export class WizardComponent implements OnInit {
   goToAdminInterface() {
     const promise = () => {
       this.translationService.setLanguage(this.translationService.language);
-      this.appConfigService.reinit(false);
+      this.appConfigService.reinit();
       this.appConfigService.loadAdminRoute("/admin/home");
     };
-    this.authenticationService.login(0, this.wizard.admin_username, this.admin_password, "", "", promise);
+    void this.authenticationService.login(0, this.wizard.admin_username, this.admin_password, "", "", promise);
   }
 
   loadLicense() {

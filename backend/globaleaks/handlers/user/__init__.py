@@ -1,17 +1,20 @@
 # Handlers dealing with user preferences
 from nacl.encoding import Base64Encoder
+from nacl.exceptions import CryptoError
 
+import globaleaks.handlers.user.validate_email  # noqa: F401
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import get_localized_values
 from globaleaks.orm import db_get, transact
-from globaleaks.rest import requests
+from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
-from globaleaks.utils.crypto import GCE, generateRandomKey
+from globaleaks.utils.crypto import GCE, generateRandomKey, sha256
 from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.pgp import PGPContext
 from globaleaks.utils.utility import datetime_now, datetime_null
+from globaleaks.handlers.admin.notification import db_get_notification
 
 
 # Roles that are always granted access to the statistical key
@@ -21,13 +24,6 @@ STATISTICAL_KEY_ROLES = ('admin', 'analyst')
 def db_grant_statistical_key(session, tid, stat_prv_key):
     """
     Distribute the (already decrypted) statistical private key to every
-    admin/analyst of the tenant that already owns an encryption keypair but
-    does not hold the statistical key yet.
-
-    The statistical key is a push-only shared secret: it can only be granted
-    by someone who already holds it, encrypting it to the recipient's public
-    key. It is intentionally kept separate from the escrow key so that holding
-    it grants access to aggregated statistical data only, never to reports.
     """
     users = session.query(models.User) \
                    .filter(models.User.tid == tid,
@@ -43,30 +39,40 @@ def db_grant_statistical_key(session, tid, stat_prv_key):
 def db_reconcile_statistical_key(session, tid, user, cc):
     """
     If the given user holds the statistical key, distribute it to any
-    admin/analyst still missing it. Invoked on login of a key holder so that
-    users provisioned via activation link (whose keypair is created only at
-    first login) and legacy accounts get the key automatically.
     """
     if not cc or not user.crypto_global_stat_prv_key:
         return
 
     try:
         stat_prv_key = GCE.asymmetric_decrypt(cc, Base64Encoder.decode(user.crypto_global_stat_prv_key))
-    except Exception:
+    except (ValueError, CryptoError):
         return
 
     db_grant_statistical_key(session, tid, stat_prv_key)
 
-import globaleaks.handlers.user.validate_email
 
 user_permissions = ObjectDict({
-    'can_edit_general_settings': False,
+    'can_manage_settings': False,
+    'can_manage_users': False,
+    'can_manage_user_profiles': False,
+    'can_manage_channels': False,
+    'can_manage_questionnaires': False,
+    'can_manage_case_management': False,
+    'can_manage_notifications': False,
+    'can_manage_network': False,
+    'can_manage_sites': False,
+    'can_manage_auditlog': False,
+    'can_manage_support': False,
     'can_delete_submission': False,
     'can_postpone_expiration': True,
     'can_grant_access_to_reports': False,
     'can_mask_information': True,
     'can_redact_information': False,
-    'can_transfer_access_to_reports': False
+    'can_transfer_access_to_reports': False,
+    'can_send_communications': False,
+    'can_change_status': True,
+    'can_change_label': True,
+    'can_configure_statistical_report_templates': False
 })
 
 
@@ -74,7 +80,7 @@ def serialize_user_profile(session, profile):
     """
     Serialize a user profile object into a dictionary format.
 
-    :param user: The user profile object to serialize.
+    :param profile: The user profile object to serialize.
     :return: A dictionary containing user profile data.
     """
     user_profile = {
@@ -83,6 +89,7 @@ def serialize_user_profile(session, profile):
         'name': profile.name,
         'role': profile.role,
         'roles': sorted(profile.roles_list),
+        'contexts': sorted(profile.contexts_list),
         'permissions': {}
     }
 
@@ -134,7 +141,7 @@ def serialize_user(session, user, language):
         'encryption': user.crypto_pub_key != '',
         'salt': user.salt,
         'escrow': user.crypto_escrow_prv_key != '',
-        'two_factor': user.two_factor_secret != '',
+        'two_factor': bool(user.two_factor_secret),
         'idp_binding': user.idp_id != '',
         'clicked_recovery_key': user.clicked_recovery_key,
         'accepted_privacy_policy': user.accepted_privacy_policy,
@@ -145,8 +152,7 @@ def serialize_user(session, user, language):
         'profile': serialize_user_profile(session, profile)
     }
 
-    if State.tenants[user.tid].cache.two_factor and \
-      user.two_factor_secret == '':
+    if State.tenants[user.tid].cache.two_factor and not user.two_factor_secret:
         ret['require_two_factor'] = True
 
     return get_localized_values(ret, user, user.localized_keys, language)
@@ -174,6 +180,11 @@ def parse_pgp_options(user, request):
         user.pgp_key_expiration = datetime_null()
 
 
+
+# Compatibility alias: the codebase reaches the user serializer under both
+# names; they are the same function.
+user_serialize_user = serialize_user
+
 @transact
 def get_user(session, tid, user_id, language):
     """
@@ -190,6 +201,12 @@ def get_user(session, tid, user_id, language):
     return serialize_user(session, user, language)
 
 
+def db_set_email_validation_token(user, email, validation_token):
+    user.change_email_date = datetime_now()
+    user.change_email_token = sha256(validation_token).decode()
+    user.change_email_address = email
+
+
 def db_user_update_user(session, tid, user_session, request):
     """
     Transaction for updating an existing user
@@ -200,39 +217,46 @@ def db_user_update_user(session, tid, user_session, request):
     :param request: A user request data
     :return: A user model
     """
-    from globaleaks.handlers.admin.notification import db_get_notification
-    from globaleaks.handlers.admin.node import db_admin_serialize_node
+    from globaleaks.handlers.admin.node import db_admin_serialize_node  # noqa: PLC0415
 
     user = db_get(session,
                   models.User,
                   models.User.id == user_session.user_id)
 
     user.language = request.get('language', State.tenants[tid].cache.default_language)
-    user.name = request['name']
-    user.role = request['role']
-    user.public_name = request['public_name'] or request['name']
     user.notification = request['notification']
 
-    # If the email address changed, send a validation email
-    if request['mail_address'] != user.mail_address:
-        user.change_email_address = request['mail_address']
-        user.change_email_date = datetime_now()
-        user.change_email_token = generateRandomKey()
+    # Identity fields are changed by an administrator or with the settings permission: no self-
+    # service rename
+    if user_session.role == 'admin' or user_session.has_permission('can_manage_settings'):
+        user.name = request['name']
+        user.public_name = request['public_name'] or request['name']
 
-        user_desc = serialize_user(session, user, user.language)
+        # If the email address changes, send a validation email
+        if request['mail_address'] != user.mail_address:
+            # Allow up to 3 changes within an hour
+            if State.RateLimit.check(b"email_validations_per_hour_per_user:" + user.id.encode(), 3, 3600) > 0:
+                raise errors.ForbiddenOperation
 
-        user_desc['mail_address'] = request['mail_address']
+            token = generateRandomKey()
+            user.change_email_address = request['mail_address']
+            user.change_email_date = datetime_now()
+            user.change_email_token = sha256(token).decode()
 
-        template_vars = {
-            'type': 'email_validation',
-            'user': user_desc,
-            'new_email_address': request['mail_address'],
-            'validation_token': user.change_email_token,
-            'node': db_admin_serialize_node(session, tid, user.language),
-            'notification': db_get_notification(session, tid, user.language)
-        }
+            user_desc = user_serialize_user(session, user, user.language)
 
-        State.format_and_send_mail(session, tid, user_desc['mail_address'], template_vars)
+            user_desc['mail_address'] = request['mail_address']
+
+            template_vars = {
+                'type': 'email_validation',
+                'user': user_desc,
+                'new_email_address': request['mail_address'],
+                'validation_token': token,
+                'node': db_admin_serialize_node(session, tid, user.language),
+                'notification': db_get_notification(session, tid, user.language)
+            }
+
+            State.format_and_send_mail(session, tid, user_desc['mail_address'], template_vars)
 
     parse_pgp_options(user, request)
 

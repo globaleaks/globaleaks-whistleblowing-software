@@ -1,19 +1,15 @@
 <form name="statisticsForm" #statisticsForm="ngForm" novalidate class="reveal">
-  <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
-    @for (tab of tabs; track tab) {
-      <li [ngbNavItem]="tab.title">
-        <button ngbNavLink [attr.data-cy]="tab.id">{{ tab.title | translate }}</button>
-        <ng-template ngbNavContent>
-          <ng-container *ngTemplateOutlet="tab.component"></ng-container>
-        </ng-template>
-      </li>
-    }
-  </ul>
-  <div [ngbNavOutlet]="nav" class="mt-2"></div>
-  <ng-template #tab1>
-    <src-statistical-reports-tab [statisticsForm]="statisticsForm"></src-statistical-reports-tab>
-  </ng-template>
-  <ng-template #tab2>
-    <src-statistical-templates-tab [statisticsForm]="statisticsForm"></src-statistical-templates-tab>
-  </ng-template>
+  <src-tabs>
+    <ng-template srcTab="statistics" title="Statistics" [visible]="isAnalyst">
+      @if (defaultTemplate) {
+        <src-statistical-template-view [templateData]="defaultTemplate" [templatesData]="templatesData" [statisticsData]="statistics()"></src-statistical-template-view>
+      }
+    </ng-template>
+    <ng-template srcTab="statistical_reports" title="Statistical reports" [visible]="isAnalyst">
+      <src-statistical-reports-tab [statisticsForm]="statisticsForm"></src-statistical-reports-tab>
+    </ng-template>
+    <ng-template srcTab="templates" title="Templates" [visible]="canConfigureTemplates">
+      <src-statistical-templates-tab [statisticsForm]="statisticsForm"></src-statistical-templates-tab>
+    </ng-template>
+  </src-tabs>
 </form>

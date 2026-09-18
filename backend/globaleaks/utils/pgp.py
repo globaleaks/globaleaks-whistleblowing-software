@@ -1,6 +1,6 @@
 import os
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from tempfile import TemporaryDirectory
 
@@ -10,13 +10,13 @@ from globaleaks.rest import errors
 from globaleaks.utils.log import log
 
 
-class PGPContext(object):
+class PGPContext:
     def __init__(self, key):
         """
         :param key: The PGP key to be loaded
         """
         self.fingerprint = ''
-        self.expiration = datetime.utcfromtimestamp(0)
+        self.expiration = datetime.fromtimestamp(0, timezone.utc).replace(tzinfo=None)
 
         self.tempdir = TemporaryDirectory()
 
@@ -24,7 +24,7 @@ class PGPContext(object):
             self.gnupg = GPG(gnupghome=self.tempdir.name, options=['--trust-model', 'always'])
             self.gnupg.encoding = "UTF-8"
         except Exception as excep:
-            log.err("Unable to instance GnuPGP: %s" % excep)
+            log.err(f"Unable to instance GnuPGP: {excep}")
             raise
 
         try:
@@ -41,7 +41,7 @@ class PGPContext(object):
             for k in all_keys:
                 if k['fingerprint'] == self.fingerprint:
                     if k['expires']:
-                        self.expiration = datetime.utcfromtimestamp(int(k['expires']))
+                        self.expiration = datetime.fromtimestamp(int(k['expires']), timezone.utc).replace(tzinfo=None)
                     break
 
         except Exception as excep:

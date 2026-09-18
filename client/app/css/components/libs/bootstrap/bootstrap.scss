@@ -18,22 +18,39 @@ $gray-800:   #58606E;
 $gray-900:   #434A54;
 $black:      #1D1F24;
 
-$indigo:     $blue;
-$purple:     $red;
-$pink:       $red;
-$orange:     $yellow;
-$green:      $blue;
-$teal:       $blue;
-$cyan:       $blue;
-
-$primary:    $blue;
-$secondary:  $gray-800;
-$success:    $blue;
-$info:       $blue;
-$warning:    $yellow;
-$danger:     $red;
-$light:      $gray-100;
-$dark:       $gray-900;
-
 // Import Bootstrap
-@import "bootstrap/scss/bootstrap";
+@use "bootstrap/scss/bootstrap" with (
+  $blue:       $blue,
+  $red:        $red,
+  $yellow:     $yellow,
+
+  $white:      $white,
+
+  $gray-100:   $gray-100,
+  $gray-200:   $gray-200,
+  $gray-300:   $gray-300,
+  $gray-400:   $gray-400,
+  $gray-500:   $gray-500,
+  $gray-600:   $gray-600,
+  $gray-700:   $gray-700,
+  $gray-800:   $gray-800,
+  $gray-900:   $gray-900,
+  $black:      $black,
+
+  $indigo:     $blue,
+  $purple:     $red,
+  $pink:       $red,
+  $orange:     $yellow,
+  $green:      $blue,
+  $teal:       $blue,
+  $cyan:       $blue,
+
+  $primary:    $blue,
+  $secondary:  $gray-800,
+  $success:    $blue,
+  $info:       $blue,
+  $warning:    $yellow,
+  $danger:     $red,
+  $light:      $gray-100,
+  $dark:       $gray-900
+);

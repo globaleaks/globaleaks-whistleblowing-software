@@ -17,7 +17,6 @@ from getpass import getpass
 from nacl.encoding import Base64Encoder
 
 from globaleaks.db import get_db_file
-from globaleaks.models.config import DEFAULT_PROFILE_ID
 from globaleaks.orm import make_db_uri, get_engine
 from globaleaks.rest.requests import AdminNotificationDesc, AdminNodeDesc
 from globaleaks.settings import Settings
@@ -61,7 +60,7 @@ def check_db(d):
 def default_backup_path():
     t = datetime.now().strftime("%y_%m_%d")
     name = "globaleaks_backup_{}.tar.gz".format(t)
-    return os.path.join("/tmp", name)
+    return os.path.join(os.getcwd(), name)
 
 
 def get_gl_pid():
@@ -149,8 +148,12 @@ def reset_password(args):
     user_salt = GCE.generate_salt()
     user_enc_key, user_hash = GCE.calculate_key_and_hash(password, user_salt)
 
+    # The operator authenticates as an administrator of the root tenant (tid 1):
+    # recovery relies on the root tenant escrow key, which is the only escrow key
+    # reachable from the CLI and the one the user account keys are backed up to
+    # (crypto_escrow_bkp1_key).
     QUERY = "SELECT id, salt, hash, crypto_prv_key, crypto_escrow_prv_key FROM user WHERE tid=? AND username=?"
-    c.execute(QUERY, (args.tid, admin_username))
+    c.execute(QUERY, (1, admin_username))
 
     admin_user = c.fetchone()
     if admin_user is None:
@@ -166,6 +169,7 @@ def reset_password(args):
 
     admin_enc_key = GCE.derive_key(admin_password.encode(), admin_salt)
 
+    admin_ek = None
     if admin_crypto_prv_key:
         try:
             admin_cc = GCE.symmetric_decrypt(admin_enc_key, Base64Encoder.decode(admin_crypto_prv_key))
@@ -173,9 +177,10 @@ def reset_password(args):
             print("Failed! Invalid password")
             sys.exit(1)
 
-        admin_ek = GCE.asymmetric_decrypt(admin_cc, Base64Encoder.decode(admin_crypto_escrow_prv_key))
+        if admin_crypto_escrow_prv_key:
+            admin_ek = GCE.asymmetric_decrypt(admin_cc, Base64Encoder.decode(admin_crypto_escrow_prv_key))
 
-    QUERY = "SELECT id, crypto_escrow_bkp1_key FROM user WHERE tid=? AND username=?;"
+    QUERY = "SELECT id, crypto_pub_key, crypto_escrow_bkp1_key FROM user WHERE tid=? AND username=?;"
     c.execute(QUERY, (args.tid, args.username))
 
     user = c.fetchone()
@@ -184,12 +189,25 @@ def reset_password(args):
         print("Failed! The user '{}' does not exist".format(args.username))
         sys.exit(1)
 
-    user_id, user_crypto_escrow_bkp1_key = user[0], user[1]
-    if user_crypto_escrow_bkp1_key:
+    user_id, user_crypto_pub_key, user_crypto_escrow_bkp1_key = user[0], user[1], user[2]
+
+    if user_crypto_escrow_bkp1_key and admin_ek is not None:
+        # The account key is recoverable from the root tenant escrow backup:
+        # re-wrap it under the new password.
         user_cc = GCE.asymmetric_decrypt(admin_ek, Base64Encoder.decode(user_crypto_escrow_bkp1_key))
         user_crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(user_enc_key, user_cc))
-    else:
+    elif not user_crypto_pub_key:
+        # The user has no encryption enabled: a plain password reset is safe.
         user_crypto_prv_key = ''
+    else:
+        # The user has encryption enabled but the operator holds no escrow key
+        # able to recover the account key. Overwriting crypto_prv_key here would
+        # irreversibly destroy the key and every report the user can decrypt, so
+        # refuse the reset instead of silently causing data loss.
+        print("Failed! The user '{}' has encryption enabled and the account key "
+              "cannot be recovered without access to the root tenant escrow key; "
+              "the password has not been reset to avoid permanent data loss".format(args.username))
+        sys.exit(1)
 
     QUERY = "UPDATE user SET salt=?, hash=?, crypto_prv_key=?, password_change_date=?, password_change_needed=? WHERE id=?;"
     c.execute(QUERY, (user_salt, user_hash, user_crypto_prv_key, datetime_now(), True, user_id))
@@ -261,189 +279,6 @@ def disable_2fa(args):
          ).format(args.username))
 
 
-def db_resolve_pid(c, tid):
-    """
-    Resolve the tenant ID of the profile a tenant inherits its configuration from
-
-    :param c: A database cursor
-    :param tid: A tenant ID
-    :return: The tenant ID of the profile of the tenant
-    """
-    c.execute("SELECT value FROM config WHERE tid=? AND var_name='profile';", (tid,))
-
-    ret = c.fetchone()
-
-    profile = json.loads(str(ret[0])) if ret is not None else None
-
-    if not profile or profile == 'default':
-        return DEFAULT_PROFILE_ID
-
-    c.execute("SELECT tid FROM config WHERE var_name='uuid' AND value=?;", (json.dumps(profile),))
-
-    ret = c.fetchone()
-
-    return ret[0] if ret is not None else DEFAULT_PROFILE_ID
-
-
-def db_get_effective_var(c, tid, var_name):
-    """
-    Read a configuration variable resolving the inheritance chain of a tenant
-
-    The variables are resolved by the backend following the chain default
-    profile < profile of the tenant < tenant, so that a variable configured on
-    a profile is in effect on every tenant that has not overridden it.
-
-    :param c: A database cursor
-    :param tid: A tenant ID
-    :param var_name: The name of the configuration variable
-    :return: The value in effect and the tenant ID it is configured on
-    """
-    for t in [tid, db_resolve_pid(c, tid), DEFAULT_PROFILE_ID]:
-        c.execute("SELECT value FROM config WHERE tid=? AND var_name=?;", (t, var_name))
-
-        ret = c.fetchone()
-
-        if ret is not None:
-            return json.loads(str(ret[0])), t
-
-    return None, None
-
-
-def db_set_effective_var(c, tid, var_name, value):
-    """
-    Write a configuration variable on a tenant
-
-    The variable is written on the tenant itself, whose value takes precedence
-    over the one of its profile, so that the other tenants sharing the same
-    profile are left untouched.
-
-    :param c: A database cursor
-    :param tid: A tenant ID
-    :param var_name: The name of the configuration variable
-    :param value: The value to be configured
-    """
-    c.execute("UPDATE config SET value=?, update_date=? WHERE tid=? AND var_name=?;",
-              (json.dumps(value), str(datetime_now()), tid, var_name))
-
-    if not c.rowcount:
-        c.execute("INSERT INTO config(tid, var_name, value, update_date) VALUES(?,?,?,?);",
-                  (tid, var_name, json.dumps(value), str(datetime_now())))
-
-
-def db_authenticate_admin(c, tid):
-    """
-    Authenticate an administrator of a tenant against the credentials on the database
-
-    :param c: A database cursor
-    :param tid: A tenant ID
-    :return: The user ID of the authenticated administrator
-    """
-    admin_username = input("Username: ")
-    admin_password = getpass()
-
-    QUERY = "SELECT id, salt, hash FROM user WHERE tid=? AND username=?"
-    c.execute(QUERY, (tid, admin_username))
-
-    admin_user = c.fetchone()
-    if admin_user is None:
-        print("Failed! The specified admin user '{}' does not exist".format(admin_username))
-        sys.exit(1)
-
-    admin_id, admin_salt, admin_hash = admin_user[0], admin_user[1], admin_user[2]
-
-    _, check_hash = GCE.calculate_key_and_hash(admin_password, admin_salt)
-    if not GCE.check_equality(admin_hash, check_hash):
-        print("Failed! Invalid password")
-        sys.exit(1)
-
-    return admin_id
-
-
-def disable_idp(args):
-    """
-    Disable the identity provider configured on a tenant
-
-    The command restores the access to a platform whose administrators have been
-    locked out by the configuration of an identity provider, either because the
-    identities bound to their accounts are no longer available or because the
-    provider became unreachable. It requires no credentials, as the identity
-    provider is likely to be the only mean of authentication left on the
-    platform.
-    """
-    db_path = check_db(args.workdir)
-
-    conn = sqlite3.connect(db_path)
-    c = conn.cursor()
-
-    value, source_tid = db_get_effective_var(c, args.tid, 'idp')
-
-    if not value:
-        conn.close()
-        print("The identity provider is already disabled on tenant {}".format(args.tid))
-        sys.exit(0)
-
-    db_set_effective_var(c, args.tid, 'idp', False)
-
-    conn.commit()
-    conn.close()
-
-    reset_gl_cache()
-
-    print(("=========================================\n"
-           "||     Identity provider disabled      ||\n"
-           "=========================================\n"
-           " Tenant: {}\n"
-           "=========================================\n"
-         ).format(args.tid))
-
-    if source_tid != args.tid:
-        print("Note: the identity provider was enabled by the profile {}: it has been\n"
-              "disabled on this tenant only. To disable it on every tenant inheriting\n"
-              "from that profile run: gl-admin disable-idp --tid {}".format(source_tid, source_tid))
-
-
-def reset_idp_binding(args):
-    """
-    Reset the identity of the identity provider bound to a user
-
-    The account is bound again on its next authentication, restoring the access
-    of the users whose identity changed on the identity provider.
-    """
-    db_path = check_db(args.workdir)
-
-    conn = sqlite3.connect(db_path)
-    c = conn.cursor()
-
-    admin_id = db_authenticate_admin(c, args.tid)
-
-    QUERY = "SELECT id FROM user WHERE tid=? AND username=?;"
-    c.execute(QUERY, (args.tid, args.username))
-
-    user = c.fetchone()
-
-    if user is None:
-        print("Failed! The user '{}' does not exist".format(args.username))
-        sys.exit(1)
-
-    user_id = user[0]
-
-    QUERY = "UPDATE user SET idp_id=? WHERE id=?;"
-    c.execute(QUERY, ('', user_id))
-
-    QUERY = "INSERT INTO auditlog(tid, date, type, user_id, object_id) VALUES(?,?,?,?,?);"
-    c.execute(QUERY, (args.tid, str(datetime_now()), 'reset_idp_binding', admin_id, user_id))
-
-    conn.commit()
-    conn.close()
-
-    print(("=========================================\n"
-           "||        IdP binding reset            ||\n"
-           "=========================================\n"
-           " Username: {}\n"
-           "=========================================\n"
-         ).format(args.username))
-
-
 def get_var(args):
     db_path = check_db(args.workdir)
 
@@ -488,6 +323,52 @@ def set_var(args, silent=False):
         print("Success! {} set to '{}'".format(args.varname, args.value))
 
 
+def set_user_protection(args, protect):
+    db_path = check_db(args.workdir)
+
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+
+    c.execute("SELECT id FROM user WHERE tid=? AND username=?;", (args.tid, args.username))
+    user = c.fetchone()
+    if user is None:
+        print("Failed! The user '{}' does not exist".format(args.username))
+        conn.close()
+        sys.exit(1)
+
+    user_id = user[0]
+
+    # protected_users stores the list of protected user ids; ids are used in
+    # place of usernames so that the protection survives a username change.
+    c.execute("SELECT value FROM config WHERE tid=? AND var_name='protected_users';", (args.tid,))
+    ret = c.fetchone()
+    protected = json.loads(ret[0]) if ret is not None and ret[0] else []
+
+    if protect:
+        if user_id not in protected:
+            protected.append(user_id)
+    else:
+        protected = [u for u in protected if u != user_id]
+
+    c.execute("UPDATE config SET value=? WHERE tid=? AND var_name='protected_users';",
+              (json.dumps(protected), args.tid))
+    conn.commit()
+    conn.close()
+
+    reset_gl_cache()
+
+    print("Success! User '{}' has been {}.".format(args.username,
+          "protected" if protect else "unprotected"))
+
+
+def protect_user(args):
+    set_user_protection(args, True)
+
+
+def unprotect_user(args):
+    set_user_protection(args, False)
+
+
 def add_workingdir_path_arg(parser):
     parser.add_argument("-w",
                         "--workdir",
@@ -525,17 +406,6 @@ pw_p.add_argument("--tid", help="the tenant id", default='1', type=int)
 pw_p.add_argument("username")
 pw_p.set_defaults(func=disable_2fa)
 
-idp_p = subp.add_parser("disable-idp", help="disable the identity provider configured on a tenant")
-add_workingdir_path_arg(idp_p)
-idp_p.add_argument("--tid", help="the tenant id", default='1', type=int)
-idp_p.set_defaults(func=disable_idp)
-
-rib_p = subp.add_parser("reset-idp-binding", help="reset the identity provider identity bound to a user")
-add_workingdir_path_arg(rib_p)
-rib_p.add_argument("--tid", help="the tenant id", default='1', type=int)
-rib_p.add_argument("username")
-rib_p.set_defaults(func=reset_idp_binding)
-
 rv_p = subp.add_parser("getvar", help="get database config variable")
 add_workingdir_path_arg(rv_p)
 rv_p.add_argument("--tid", help="the tenant id", default='1', type=int)
@@ -548,6 +418,18 @@ sv_p.add_argument("--tid", help="the tenant id", default='1', type=int)
 sv_p.add_argument("varname", help="the name of the config var", type=str)
 sv_p.add_argument("value", help="value which must be of the correct type Bool(0|1), Int(0-9^9), String(everything else)")
 sv_p.set_defaults(func=set_var)
+
+pr_p = subp.add_parser("protect-user", help="protect a user from deletion and password reset")
+add_workingdir_path_arg(pr_p)
+pr_p.add_argument("--tid", help="the tenant id", default='1', type=int)
+pr_p.add_argument("username")
+pr_p.set_defaults(func=protect_user)
+
+upr_p = subp.add_parser("unprotect-user", help="remove the protection from a user")
+add_workingdir_path_arg(upr_p)
+upr_p.add_argument("--tid", help="the tenant id", default='1', type=int)
+upr_p.add_argument("username")
+upr_p.set_defaults(func=unprotect_user)
 
 if __name__ == '__main__':
     try:

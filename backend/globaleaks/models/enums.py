@@ -12,11 +12,8 @@ class EnumUserRole(_Enum):
     receiver = 1
     custodian = 2
     analyst = 3
-
-
-class EnumUserStatus(_Enum):
-    active = 0
-    suspend = 1
+    auditor = 4
+    transmitter = 5
 
 
 class EnumFieldInstance(_Enum):
@@ -42,8 +39,16 @@ class EnumVisibility(_Enum):
     public = 0
     internal = 1
     personal = 2
-    eo = 3
-    whistleblower = 4
+
+
+class EnumExchangeType(_Enum):
+    transmission = 0
+    communication = 1
+
+
+class EnumExchangeOwner(_Enum):
+    source = 0
+    target = 1
 
 
 class EnumStateFile(_Enum):
@@ -52,27 +57,20 @@ class EnumStateFile(_Enum):
     infected = 2
 
 
+class EnumSupportRequestStatus(_Enum):
+    new = 0
+    opened = 1
+    closed = 2
+
+
+class EnumUserStatus(_Enum):
+    active = 0
+    suspend = 1
+
+
 class EnumSubscriberStatus(_Enum):
     requested = 0
     accredited = 1
     rejected = 2
     instructor_request = 3
     invited = 4
-    suspended = 5
-    approved = 6
-
-
-class EnumContentForwarding(_Enum):
-    internal_file = 0
-    receiver_file = 1
-    comment = 2
-
-
-class EnumForwardingState(_Enum):
-    open = 0
-    closed = 1
-
-
-class EnumAuthorType(_Enum):
-    main = 0
-    eo = 1

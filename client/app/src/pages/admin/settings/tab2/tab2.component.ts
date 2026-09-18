@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, inject, input, viewChild} from "@angular/core";
 import {NgForm} from "@angular/forms";
 import type {FlowFile} from "@flowjs/flow.js";
 import {FlowConfig} from "@flowjs/ngx-flow";
@@ -9,10 +9,7 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {AdminFile} from "@app/models/component-model/admin-file";
-import {NgClass} from "@angular/common";
 import {AdminFileComponent} from "@app/shared/partials/admin-file/admin-file.component";
-import {SwitchComponent} from "@app/shared/components/switch/switch.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {TranslateModule} from "@ngx-translate/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -21,18 +18,18 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tab2",
     templateUrl: "./tab2.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, NgClass, AdminFileComponent, SwitchComponent, TranslatorPipe, OrderByPipe, TranslateModule]
+    imports: [NgbTooltipModule, AdminFileComponent, OrderByPipe, TranslateModule]
 })
 export class Tab2Component implements OnInit {
-  private appConfigService = inject(AppConfigService);
-  private preferenceResolver = inject(PreferenceResolver);
-  private utilsService = inject(UtilsService);
-  private nodeResolver = inject(NodeResolver);
-  private authenticationService = inject(AuthenticationService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly preferenceResolver = inject(PreferenceResolver);
+  private readonly utilsService = inject(UtilsService);
+  private readonly nodeResolver = inject(NodeResolver);
+  private readonly authenticationService = inject(AuthenticationService);
 
-  @Input() contentForm: NgForm;
-  @ViewChild("flowAdvanced", {static: true}) flowAdvanced: FlowConfig;
-  @ViewChild("uploader") uploaderInput: ElementRef;
+  readonly contentForm = input<NgForm>();
+  readonly flowAdvanced = viewChild<FlowConfig>("flowAdvanced");
+  readonly uploaderInput = viewChild<ElementRef>("uploader");
 
   files: FlowFile[] = [];
   files_names: string[] = [];
@@ -71,28 +68,28 @@ export class Tab2Component implements OnInit {
     };
     this.preferenceData.profile.permissions.can_upload_files = false;
     this.updateFiles();
-    this.permissionStatus = this.authenticationData.session.permissions.can_upload_files;
+    this.permissionStatus = this.canUploadFiles();
   }
 
   onFileSelected(files: FileList | null) {
-    if (files && files.length > 0) {
-      const file = files[0];
-      const flowJsInstance = this.utilsService.getFlowInstance();
+    const file = files?.[0];
+    if (file) {
+      const flowJsInstance = this.utilsService.getFlowInstance({
+        target: "api/admin/files/custom",
+        allowDuplicateUploads: true,
+        singleFile: true,
+        query: {fileSizeLimit: this.nodeResolver.dataModel.maximum_filesize * 1024 * 1024}
+      });
 
-      flowJsInstance.opts.target = "api/admin/files/custom";
-      flowJsInstance.opts.allowDuplicateUploads = true;
-      flowJsInstance.opts.singleFile = true;
-      flowJsInstance.opts.query = {fileSizeLimit: this.nodeResolver.dataModel.maximum_filesize * 1024 * 1024};
-      flowJsInstance.opts.headers = {"X-Session": this.authenticationService.session.id};
-
-      flowJsInstance.on("fileSuccess", (_) => {
-        this.appConfigService.reinit(false);
+      flowJsInstance.on("fileSuccess", () => {
+        this.appConfigService.reinit();
         this.updateFiles();
       });
 
-      flowJsInstance.on("fileError", (_) => {
-        if (this.uploaderInput) {
-          this.uploaderInput.nativeElement.value = "";
+      flowJsInstance.on("fileError", () => {
+        const uploaderInput = this.uploaderInput();
+        if (uploaderInput) {
+          uploaderInput.nativeElement.value = "";
         }
       });
 
@@ -101,7 +98,7 @@ export class Tab2Component implements OnInit {
   }
 
   canUploadFiles() {
-    return this.authenticationData.session.permissions.can_upload_files;
+    return this.authenticationData.session?.permissions.can_upload_files ?? false;
   }
 
   deleteFile(url: string): void {
@@ -125,25 +122,22 @@ export class Tab2Component implements OnInit {
   }
 
   togglePermissionUploadFiles(): void {
-    if (!this.authenticationData.session.permissions.can_upload_files) {
-      this.utilsService.runAdminOperation("enable_user_permission_file_upload", {}, false).subscribe({
-        next: (_) => {
-          this.authenticationData.session.permissions.can_upload_files = true;
-          this.permissionStatus = true;
-        },
-        error: (_) => {
-          this.authenticationData.session.permissions.can_upload_files = false;
-          this.togglePermissionUploadFiles();
-          this.permissionStatus = false;
+    // The switch shows the permission the session holds: the click asks the backend and the answer
+    // flips it
+    const enable = !this.canUploadFiles();
+    const operation = enable ? "enable_user_permission_file_upload" : "disable_user_permission_file_upload";
+
+    this.utilsService.runAdminOperation(operation, {}, false).subscribe({
+      next: () => {
+        const session = this.authenticationData.session;
+        if (session) {
+          session.permissions.can_upload_files = enable;
         }
-      });
-    } else {
-      this.utilsService.runAdminOperation("disable_user_permission_file_upload", {}, false).subscribe(
-        () => {
-          this.authenticationData.session.permissions.can_upload_files = false;
-          this.permissionStatus = false;
-        }
-      );
-    }
+        this.permissionStatus = enable;
+      },
+      error: () => {
+        this.permissionStatus = this.canUploadFiles();
+      }
+    });
   }
 }

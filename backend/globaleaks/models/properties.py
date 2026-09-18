@@ -1,17 +1,18 @@
-# pylint: disable=unused-import
 import json
 
 from sqlalchemy import Column, CheckConstraint, ForeignKeyConstraint, UniqueConstraint, types
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import Boolean, DateTime, Integer, LargeBinary, UnicodeText
 
-try:
-    from sqlalchemy.orm import declarative_base, declared_attr
-except:
-    from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.orm import declarative_base, declared_attr
 
 from globaleaks.utils.utility import uuid4
-# pylint: enable=unused-import
+
+__all__ = [
+    'Boolean', 'CheckConstraint', 'Column', 'DateTime', 'Enum', 'ForeignKey',
+    'ForeignKeyConstraint', 'Integer', 'JSON', 'LargeBinary', 'UnicodeText',
+    'UniqueConstraint', 'declarative_base', 'declared_attr', 'uuid4'
+]
 
 
 class JSON(types.TypeDecorator):

@@ -33,8 +33,12 @@ class TokenBucket:
 
 class RateLimit(LRUCache):
     seed = uuid4().encode()
+    enabled = True
 
     def check(self, key: bytes, limit: int, refill_interval: int) -> int:
+        if not self.enabled:
+            return 0
+
         hashed_key = sha256(self.seed + key)[:16]  # 16 bytes hash key
 
         if hashed_key not in self:

@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, Input, OnInit, ViewChild, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -6,27 +6,26 @@ import {WbFile} from "@app/models/app/shared-public-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-file-view",
     templateUrl: "./file-view.component.html",
     standalone: true,
-    imports: [TranslateModule, TranslatorPipe]
+    imports: [TranslateModule]
 })
 export class FileViewComponent implements OnInit {
-  private authenticationService = inject(AuthenticationService);
-  private sanitizer = inject(DomSanitizer);
-  private utilsService = inject(UtilsService);
-  private modalService = inject(NgbModal);
-  private cdr = inject(ChangeDetectorRef);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly utilsService = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  @Input() args: {
+  args: {
     file: WbFile,
     loaded: boolean,
     iframeHeight: number
   };
-  @ViewChild("viewer") viewerFrame: ElementRef;
+  readonly viewerFrame = viewChild<ElementRef>("viewer");
 
   iframeUrl: SafeResourceUrl;
 
@@ -37,18 +36,21 @@ export class FileViewComponent implements OnInit {
   }
 
   viewFile() {
-    const url = this.authenticationService.session.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
+    const url = this.authenticationService.session?.role === "whistleblower"?"api/whistleblower/wbtip/wbfiles/":"api/recipient/wbfiles/";
     this.utilsService.view(this.authenticationService, url + this.args.file.id, this.args.file.type, (blob: Blob) => {
       this.args.loaded = true;
-      window.addEventListener("message", () => {
-        const data = {
+      const onReady = (event: MessageEvent) => {
+        const iframeElement = this.viewerFrame()?.nativeElement;
+        if (!iframeElement || event.source !== iframeElement.contentWindow || event.data !== "ready") {
+          return;
+        }
+        window.removeEventListener("message", onReady);
+        iframeElement.contentWindow.postMessage({
           tag: this.getFileTag(this.args.file.type),
           blob: blob
-        };
-        const iframeElement = this.viewerFrame.nativeElement;
-        iframeElement.contentWindow.postMessage(data, "*");
-
-      }, {once: true});
+        }, "*");
+      };
+      window.addEventListener("message", onReady);
       this.cdr.markForCheck();
     });
   }

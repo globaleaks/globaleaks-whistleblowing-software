@@ -21,24 +21,17 @@
         <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
       </div>
     } @else if (userStats) {
-      <div class="mb-2">
-        <strong>{{'Reports' | translate}}:</strong> {{userStats.total_reports}}
-      </div>
+      @if (userStats.total_reports > 0) {
+        <div class="mb-2">
+          <strong>{{'Reports' | translate}}:</strong> {{userStats.total_reports}}
+        </div>
+      }
 
-      <div class="mb-2">
-        <strong>{{'Reports with exclusive access' | translate}}:</strong> {{userStats.exclusive_reports}}
-      </div>
-
-      <div>
-        <button
-          type="button"
-          class="btn btn-sm btn-outline-secondary"
-          (click)="openAuditLog()"
-        >
-          <i class="fas fa-clipboard-list" aria-hidden="true"></i>
-          <span>{{'Audit log' | translate}}</span>
-        </button>
-      </div>
+      @if (userStats.exclusive_reports > 0) {
+        <div class="mb-2">
+          <strong>{{'Reports with exclusive access' | translate}}:</strong> {{userStats.exclusive_reports}}
+        </div>
+      }
     }
   }
 
@@ -48,13 +41,17 @@
         <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
       </div>
     } @else if (tenantStats) {
-      <div class="mb-2">
-        <strong>{{'Open reports' | translate}}:</strong> {{tenantStats.open_reports}}
-      </div>
+      @if (tenantStats.open_reports > 0) {
+        <div class="mb-2">
+          <strong>{{'Open reports' | translate}}:</strong> {{tenantStats.open_reports}}
+        </div>
+      }
 
-      <div class="mb-2">
-        <strong>{{'Total reports' | translate}}:</strong> {{tenantStats.total_reports}}
-      </div>
+      @if (tenantStats.total_reports > 0) {
+        <div class="mb-2">
+          <strong>{{'Reports' | translate}}:</strong> {{tenantStats.total_reports}}
+        </div>
+      }
     }
   }
 </div>

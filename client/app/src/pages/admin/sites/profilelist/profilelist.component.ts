@@ -1,4 +1,5 @@
-import {Component, Input, inject} from "@angular/core";
+import {CollapsibleCardComponent} from "@app/shared/components/collapsible-card/collapsible-card.component";
+import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
@@ -9,7 +10,6 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {Observable} from "rxjs";
 import {CommonModule, DatePipe} from "@angular/common";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
@@ -17,21 +17,22 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
   selector: "src-profilelist",
   templateUrl: "./profilelist.component.html",
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe, TranslatorPipe, TranslateModule]
+  imports: [CollapsibleCardComponent, CommonModule, FormsModule, DatePipe, TranslateModule]
 })
 export class ProfilelistComponent {
   protected nodeResolver = inject(NodeResolver);
   protected appDataService = inject(AppDataService);
-  private modalService = inject(NgbModal);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly modalService = inject(NgbModal);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   @Input() editTenant: NgForm;
   @Input() tenant: tenantResolverModel;
   @Input() tenants: tenantResolverModel[];
   @Input() index: number;
   @Input() indexNumber: number;
+  @Output() deleted = new EventEmitter<number>();
   editing = false;
 
   isRemovableTenant(): boolean {
@@ -41,7 +42,7 @@ export class ProfilelistComponent {
   saveTenant() {
     this.tenant.profile = 'default';
     const url = "api/admin/tenants/" + this.tenant.id;
-    this.httpService.requestUpdateTenant(url, this.tenant).subscribe((_) => {});
+    this.httpService.requestUpdateTenant(url, this.tenant).subscribe();
   }
 
   deleteTenant(event: Event, tenant: tenantResolverModel, statsChanged = false) {
@@ -69,16 +70,19 @@ export class ProfilelistComponent {
         backdrop: "static",
         keyboard: false,
       });
-      modalRef.componentInstance.tenant = arg;
-      modalRef.componentInstance.statsChanged = statsChanged;
+      // The dialog states what the deletion carries away and closes before it is performed: its
+      // counts are read from the instance
+      const dialog = modalRef.componentInstance;
+      dialog.tenant = arg;
+      dialog.statsChanged = statsChanged;
 
-      modalRef.componentInstance.confirmFunction = () => {
-        const stats = modalRef.componentInstance.tenantStats;
+      dialog.confirmFunction = () => {
+        const stats = dialog.tenantStats;
         observer.complete();
         const url = "api/admin/tenants/" + arg.id;
-        return this.httpService.requestDeleteTenant(url, stats || undefined).subscribe({
+        return this.utilsService.deleteWithConfirmation(url, stats).subscribe({
           next: () => {
-            ; // TODO this.utilsService.deleteResource(this.tenants, arg);
+            this.deleted.emit(arg.id);
           },
           error: (err) => {
             if (err.status === 409) {
@@ -90,8 +94,7 @@ export class ProfilelistComponent {
     });
   }
 
-  toggleEditing(event: Event): void {
-    event.stopPropagation();
+  toggleEditing(): void {
     if (this.tenant.id !== 1) {
       this.editing = !this.editing;
     }

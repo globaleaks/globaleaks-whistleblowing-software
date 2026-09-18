@@ -21,20 +21,20 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         yield handler.get()
 
     @inlineCallbacks
     def test_handler_update_key(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         response = yield handler.get()
 
         # perform and test key update
         response['pgp_key_public'] = helpers.PGPKEYS['VALID_PGP_KEY2_PUB']
         response['pgp_key_remove'] = False
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver')
         response = yield handler.put()
 
         self.assertEqual(response['pgp_key_fingerprint'],
@@ -45,7 +45,7 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
         # perform and test key removal
         response['pgp_key_remove'] = True
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver')
         response = yield handler.put()
 
         self.assertEqual(response['pgp_key_fingerprint'], '')
@@ -54,35 +54,38 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_load_malformed_key(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         response = yield handler.get()
 
         response['pgp_key_public'] = helpers.PGPKEYS['VALID_PGP_KEY1_PUB'].replace('A', 'B')
         response['pgp_key_remove'] = False
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver')
         yield self.assertFailure(handler.put(), errors.InputValidationError)
 
     @inlineCallbacks
     def test_change_name(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         response = yield handler.get()
         response['name'] = "Test Name"
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver',
+                               permissions={'can_manage_settings': True})
 
         response = yield handler.put()
         self.assertEqual(response['name'], 'Test Name')
 
+
     @inlineCallbacks
     def test_start_email_change_process(self):
-        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(user_id=self.dummy_receiver_1['id'], role='receiver')
 
         response = yield handler.get()
 
         email = "change1@test.com"
         response['mail_address'] = email
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver',
+                               permissions={'can_manage_settings': True})
         response = yield handler.put()
 
         self.assertNotEqual(response['mail_address'], email)
@@ -90,7 +93,8 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
         email = "change2@test.com"
         response['mail_address'] = email
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+        handler = self.request(response, user_id=self.dummy_receiver_1['id'], role='receiver',
+                               permissions={'can_manage_settings': True})
         response = yield handler.put()
 
         self.assertEqual(response['change_email_address'], email)
@@ -114,10 +118,10 @@ class TestUser2FAEnrollment(helpers.TestHandlerWithPopulatedDB):
 
         handler = self.request(data_request, role='receiver')
 
-        self.assertFailure(handler.put(), errors.InvalidTwoFactorAuthCode)
+        yield self.assertFailure(handler.put(), errors.InvalidTwoFactorAuthCode)
 
         # Attempt enrolling for 2FA with a valid token
-        totp = TOTP(Base32Encoder.decode(totp_secret), 6, SHA1(), 30, default_backend())
+        totp = TOTP(Base32Encoder.decode(totp_secret), 6, SHA1(), 30, default_backend())  # noqa: S303 - SHA1 mandated by the TOTP standard (RFC 6238)
         current_token = totp.generate(time.time()).decode()
 
         data_request = {
@@ -145,26 +149,95 @@ class TestUser2FAEnrollment(helpers.TestHandlerWithPopulatedDB):
 
         yield handler.put()
 
+    @inlineCallbacks
+    def test_2fa_enable_fails_if_already_enabled(self):
+        totp_secret = 'B6IZ6BEH6BMWDBZ2ND7PGAQN2GIBVOVX'
+
+        totp = TOTP(Base32Encoder.decode(totp_secret), 6, SHA1(), 30, default_backend())  # noqa: S303 - SHA1 mandated by the TOTP standard (RFC 6238)
+
+        # Enroll for 2FA with a valid token
+        data_request = {
+            'operation': 'enable_2fa',
+            'args': {
+                'secret': totp_secret,
+                'token': totp.generate(time.time()).decode()
+            }
+        }
+
+        handler = self.request(data_request, role='receiver')
+
+        yield handler.put()
+
+        self.state.TwoFactorTokens.clear()
+
+        # Attempt enrolling for 2FA again must fail as 2FA is already enabled
+        data_request = {
+            'operation': 'enable_2fa',
+            'args': {
+                'secret': totp_secret,
+                'token': totp.generate(time.time()).decode()
+            }
+        }
+
+        handler = self.request(data_request, role='receiver')
+
+        yield self.assertFailure(handler.put(), errors.ForbiddenOperation)
+
 
 class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
     _handler = UserOperationHandler
 
-    def _test_operation_handler(self, operation, args={}):
+    def _test_operation_handler(self, operation, args=None, properties=None):
         data_request = {
             'operation': operation,
-            'args': args
+            'args': args if args is not None else {}
         }
 
-        return self.request(data_request, role='receiver').put()
+        handler = self.request(data_request, role='receiver', properties=properties,
+                               uri=b'https://globaleaks.org/api/user/operations')
+        return handler.put()
 
     @inlineCallbacks
     def test_user_change_password(self):
-        yield self.assertFailure(self._test_operation_handler('change_password', {'password': helpers.VALID_KEY}),
+        # A voluntary password change requires the current credential; reusing
+        # it as the new password is rejected.
+        yield self.assertFailure(self._test_operation_handler('change_password',
+                                                              {'current_password': helpers.VALID_KEY,
+                                                               'new_password': helpers.VALID_KEY}),
                                  errors.PasswordReuseError)
 
         NEW_KEY = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
 
-        yield self._test_operation_handler('change_password', {'password': NEW_KEY})
+        yield self._test_operation_handler('change_password',
+                                           {'current_password': helpers.VALID_KEY,
+                                            'new_password': NEW_KEY})
+
+    @inlineCallbacks
+    def test_user_change_password_requires_current_credential(self):
+        # A voluntary password change with a missing or wrong current credential
+        # must be rejected (CWE-620).
+        NEW_KEY = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
+
+        yield self.assertFailure(self._test_operation_handler('change_password',
+                                                              {'new_password': NEW_KEY}),
+                                 errors.InvalidAuthentication)
+
+        WRONG_KEY = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
+        yield self.assertFailure(self._test_operation_handler('change_password',
+                                                              {'current_password': WRONG_KEY,
+                                                               'new_password': NEW_KEY}),
+                                 errors.InvalidAuthentication)
+
+    @inlineCallbacks
+    def test_user_change_password_forced_skips_confirmation(self):
+        # When a password change is forced (first login or password reset) the
+        # session is flagged and the current credential is not required, as the
+        # user may be recovering access through a reset token.
+        NEW_KEY = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
+
+        yield self._test_operation_handler('change_password',
+                                           {'new_password': NEW_KEY},
+                                           properties={'password_change_needed': True})
 
     def test_user_get_recovery_key(self):
         return self._test_operation_handler('get_recovery_key')
@@ -174,3 +247,23 @@ class TestUserOperations(helpers.TestHandlerWithPopulatedDB):
 
     def test_user_accepted_privacy_policy(self):
         return self._test_operation_handler('accepted_privacy_policy')
+
+    @inlineCallbacks
+    def test_reset_token_session_restricted_to_change_password(self):
+        reset_token = 'a' * 64
+        properties = {'reset_token': reset_token}
+
+        # An operation other than the password change is not dispatched
+        handler = self.request({'operation': 'get_users_names', 'args': {}},
+                               role='receiver', properties=properties,
+                               uri=b'https://globaleaks.org/api/user/operations')
+        self.assertIsNone((yield handler.put()))
+
+        # The password change itself remains available
+        self.write_reset_token(reset_token, self.dummy_receiver_1['id'])
+
+        new_key = GCE.derive_key(generateRandomPassword(20), helpers.VALID_SALT)
+        handler = self.request({'operation': 'change_password', 'args': {'new_password': new_key}},
+                               role='receiver', properties=properties,
+                               uri=b'https://globaleaks.org/api/user/operations')
+        yield handler.put()

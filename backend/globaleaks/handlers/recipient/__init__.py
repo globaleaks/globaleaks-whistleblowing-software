@@ -4,20 +4,182 @@ import json
 from datetime import datetime
 
 from nacl.encoding import Base64Encoder
-from sqlalchemy.sql.expression import distinct, func, and_, or_
+from sqlalchemy.orm import aliased
+from sqlalchemy.sql.expression import and_, or_
 
 import globaleaks.handlers.recipient.export
+import globaleaks.handlers.exchange
+import globaleaks.handlers.recipient.insertion
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.handlers.recipient.rtip import db_grant_tip_access, db_revoke_tip_access, db_notify_grant_access
-from globaleaks.handlers.recipient.search_dashboard import search_reports
-from globaleaks.orm import db_get, db_log, transact
+from globaleaks.handlers.recipient.rtip import db_grant_tip_access, db_revoke_tip_access, db_notify_grant_access, db_user_can_bypass_masking, redact_answers
+from globaleaks.handlers.whistleblower.submission import index_answers
+from globaleaks.models import get_localized_values
+from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
+from globaleaks.utils.utility import datetime_never
+from globaleaks.handlers.exchange import db_get_presented_context_id
 
 
-def serialize_receivertips(session, tid, user_session, language, args={}, report_ids=None):
+def _db_context_info(session, context_id, language, context_cache):
+    """
+    Describe a channel as the list of the reports names it, once per channel
+    """
+    if context_id in context_cache:
+        return context_cache[context_id]
+
+    context = session.query(models.Context).filter(models.Context.id == context_id).one_or_none()
+    if context is None:
+        context_cache[context_id] = {
+            'name': '',
+            'order': 0,
+            'slug': ''
+        }
+        return context_cache[context_id]
+
+    name = get_localized_values({}, context, ['name'], language)['name']
+    context_cache[context_id] = {
+        'name': name,
+        'order': context.order or 0,
+        'slug': context.slug
+    }
+    return context_cache[context_id]
+
+
+def _db_receiver_ids_by_itip(session):
+    """
+    Return the recipients that have access to each report
+    """
+    receiver_ids_by_itip = {}
+
+    for itip_id, receiver_id in session.query(models.ReceiverTip.internaltip_id,
+                                              models.ReceiverTip.receiver_id) \
+                                       .filter(models.User.id == models.ReceiverTip.receiver_id,
+                                               models.User.tid == models.InternalTip.tid,
+                                               models.InternalTip.id == models.ReceiverTip.internaltip_id):
+        receiver_ids_by_itip.setdefault(itip_id, []).append(receiver_id)
+
+    return receiver_ids_by_itip
+
+
+def _db_listed_reports(session, tid, user_id, updated_after, updated_before):
+    """
+    Return the reports a recipient is shown: the ones it received and the ones of the channels it
+    is on whose recipients are not selectable, paired with their answers and the identity of the
+    whistleblower; the report of an exchange is listed to the owning site, and to the other side
+    only where it cannot reach it through the origin
+    """
+    receiver_contexts = [
+        context_id[0] for context_id in session.query(models.Context.id)
+                                               .join(models.ReceiverContext,
+                                                     models.Context.id == models.ReceiverContext.context_id)
+                                               .filter(models.Context.allow_recipients_selection == False,
+                                                       models.ReceiverContext.receiver_id == user_id
+                                                      ).all()
+    ]
+
+    # Reached from its origin by whoever holds it: the report it was filed from, or the request
+    origin_rtip = aliased(models.ReceiverTip)
+    origin_held = session.query(models.InternalTipTransmission) \
+                         .filter(models.InternalTipTransmission.transmitting_internaltip_id == models.InternalTip.id,
+                                 origin_rtip.internaltip_id == models.InternalTipTransmission.internaltip_id,
+                                 origin_rtip.receiver_id == user_id) \
+                         .exists()
+
+    return session.query(models.ReceiverTip,
+                         models.InternalTip,
+                         models.InternalTipAnswers,
+                         models.InternalTipData) \
+                  .join(models.InternalTipData,
+                        and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
+                             models.InternalTipData.key == 'whistleblower_identity'),
+                        isouter=True) \
+                  .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
+                              models.ReceiverTip.receiver_id == user_id),
+                          or_(models.InternalTip.type != 'exchange',
+                              models.InternalTip.tid == tid,
+                              ~origin_held),
+                          models.InternalTip.update_date >= updated_after,
+                          models.InternalTip.update_date <= updated_before,
+                          models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                          models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id) \
+                  .group_by(models.ReceiverTip.id)
+
+
+def _listed_answers(user_key, rtip, itip, itip_answers, label, accessible):
+    """
+    Return the answers and the label of a report as listed: decrypted by the key of the recipient
+    that holds it, dropped when it holds none
+    """
+    answers = itip_answers.answers
+
+    if itip.crypto_tip_pub_key and accessible and rtip.crypto_tip_prv_key:
+        tip_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(rtip.crypto_tip_prv_key))
+
+        if label:
+            label = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(label.encode())).decode()
+
+        answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())
+        index_answers(answers)
+    elif itip.crypto_tip_pub_key:
+        # remove useless and unusable crypted data
+        answers = ""
+        label = ""
+
+    return answers, label
+
+
+def _subscription_level(data, itip):
+    """
+    Return how the whistleblower is identified: not at all, from the filing, or later on
+    """
+    if data is None:
+        return 0
+
+    if data.creation_date == itip.creation_date:
+        return 1
+
+    return 2
+
+
+def _db_redact_listed_answers(session, user_id, dict_ret):
+    """
+    The list shows the answers: the redactions apply here too
+    """
+    if not dict_ret or db_user_can_bypass_masking(session, user_id):
+        return
+
+    redactions_by_itip = {}
+    for redaction in session.query(models.Redaction) \
+                            .filter(models.Redaction.internaltip_id.in_(dict_ret.keys())):
+        redactions_by_itip.setdefault(redaction.internaltip_id, []).append(redaction)
+
+    for itip_id, entry in dict_ret.items():
+        redactions = redactions_by_itip.get(itip_id)
+        if redactions and isinstance(entry['answers'], dict):
+            redact_answers(entry['answers'], redactions)
+
+
+def _number_reports_by_channel(session, ret, language, context_cache):
+    """
+    Number the reports of each channel in the order they were filed
+    """
+    reports_by_context = {}
+    for report in ret:
+        reports_by_context.setdefault(report['context_id'], []).append(report)
+
+    for reports in reports_by_context.values():
+        reports.sort(key=lambda r: (r['creation_date'], r['progressive']))
+        for index, report in enumerate(reports, start=1):
+            context_order = _db_context_info(session, report['context_id'], language, context_cache)['order']
+            report['channel_progressive'] = index
+            report['context_count'] = index
+            report['channel_progressive_sort_key'] = f'{context_order:08d}-{index:08d}'
+
+
+def db_get_receivertips(session, tid, user_session, language, args=None):
     """
     Return list of submissions received by the specified receiver
 
@@ -30,91 +192,42 @@ def serialize_receivertips(session, tid, user_session, language, args={}, report
     user_id = user_session.user_id
     user_key = user_session.cc
 
+    args = args or {}
     updated_after = datetime.fromtimestamp(int(args.get(b'updated_after', [b'0'])[0]))
     updated_before = datetime.fromtimestamp(int(args.get(b'updated_before', [b'32503680000'])[0]))
 
-    comments_by_itip = {}
-    files_by_itip = {}
-    receiver_ids_by_itip = {}
-
-    comments_query = session.query(models.InternalTip.id,
-                                   func.count(distinct(models.Comment.id))) \
-                            .filter(models.ReceiverTip.receiver_id == user_id,
-                                    models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                    models.Comment.internaltip_id == models.InternalTip.id,
-                                    models.Comment.visibility == 0)
-    if report_ids is not None:
-        comments_query = comments_query.filter(models.InternalTip.id.in_(report_ids))
-    for itip_id, count in comments_query.group_by(models.InternalTip.id):
-        comments_by_itip[itip_id] = count
-
-    files_query = session.query(models.InternalTip.id,
-                                func.count(distinct(models.InternalFile.id))) \
-                         .filter(models.ReceiverTip.receiver_id == user_id,
-                                 models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                 models.InternalFile.internaltip_id == models.InternalTip.id)
-    if report_ids is not None:
-        files_query = files_query.filter(models.InternalTip.id.in_(report_ids))
-    for itip_id, count in files_query.group_by(models.InternalTip.id):
-        files_by_itip[itip_id] = count
-
-    receivers_query = session.query(models.ReceiverTip.internaltip_id, models.ReceiverTip.receiver_id)
-    if report_ids is not None:
-        receivers_query = receivers_query.filter(models.ReceiverTip.internaltip_id.in_(report_ids))
-    for itip_id, receiver_id in receivers_query:
-        receiver_ids_by_itip.setdefault(itip_id, []).append(receiver_id)
-
-    # Retrieve all channels that include this recipient, but only if
-    # the recipients of those channels are not selectable.
-    receiver_contexts = [
-        context_id[0] for context_id in session.query(models.Context.id)
-                                               .join(models.ReceiverContext,
-                                                     models.Context.id == models.ReceiverContext.context_id)
-                                               .filter(models.Context.allow_recipients_selection == False,
-                                                       models.ReceiverContext.receiver_id == user_id
-                                                      ).all()
-    ]
+    receiver_ids_by_itip = _db_receiver_ids_by_itip(session)
 
     dict_ret = dict()
-    tips_query = session.query(models.ReceiverTip,
-                               models.InternalTip,
-                               models.InternalTipAnswers,
-                               models.InternalTipData) \
-                        .join(models.InternalTipData,
-                              and_(models.InternalTipData.internaltip_id == models.InternalTip.id,
-                                   models.InternalTipData.key == 'whistleblower_identity'),
-                              isouter=True) \
-                        .filter(or_(models.InternalTip.context_id.in_(receiver_contexts),
-                                    models.ReceiverTip.receiver_id == user_id),
-                                models.InternalTip.update_date >= updated_after,
-                                models.InternalTip.update_date <= updated_before,
-                                models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                models.InternalTipAnswers.internaltip_id == models.ReceiverTip.internaltip_id)
-    if report_ids is not None:
-        tips_query = tips_query.filter(models.InternalTip.id.in_(report_ids))
-    for rtip, itip, answers, data in tips_query.group_by(models.ReceiverTip.id):
-        answers = answers.answers
+    can_transmit = globaleaks.handlers.exchange.db_can_transmit(session, tid)
+
+    context_cache = {}
+
+    for rtip, itip, itip_answers, data in _db_listed_reports(session, tid, user_id, updated_after, updated_before):
         label = itip.label
+        important = itip.important
+        reminder_date = itip.reminder_date
+
+        # Importance, label and reminder belong to the owning tenant: not listed to the other side
+        if not itip.is_owned_by(tid):
+            label = ''
+            important = False
+            reminder_date = datetime_never()
+
+        # The report of an exchange is presented to the recipients of each of
+        # the two sites on the channel their own site knows it by
+        context_id = db_get_presented_context_id(session, tid, itip)
+
         accessible = rtip.receiver_id == user_id
-        if itip.crypto_tip_pub_key and accessible:
-            tip_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(rtip.crypto_tip_prv_key))
+        answers, label = _listed_answers(user_key, rtip, itip, itip_answers, label, accessible)
 
-            if label:
-                label = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(label.encode())).decode()
+        can_communicate = globaleaks.handlers.exchange.db_can_communicate_report(session, tid, itip)
 
-            answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())
-        elif itip.crypto_tip_pub_key:
-            # remove useless and unusable crypted data
-            answers = ""
-            label = ""
+        receiver_count = len(receiver_ids_by_itip.get(itip.id, []))
+        if itip.type == 'request' and tid != itip.tid:
+            receiver_count = 1
 
-        if data is None:
-            subscription = 0
-        elif data.creation_date == itip.creation_date:
-            subscription = 1
-        else:
-            subscription = 2
-
+        context_info = _db_context_info(session, context_id, language, context_cache)
         if accessible or itip.id not in dict_ret:
             dict_ret[itip.id] = {
                 'id': itip.id,
@@ -123,33 +236,81 @@ def serialize_receivertips(session, tid, user_session, language, args={}, report
                 'last_access': itip.last_access,
                 'update_date': itip.update_date,
                 'expiration_date': itip.expiration_date,
-                'reminder_date': itip.reminder_date,
+                'reminder_date': reminder_date,
                 'progressive': itip.progressive,
-                'important': itip.important,
+                'important': important,
                 'label': label,
                 'updated': rtip.last_access < itip.update_date,
-                'context_id': itip.context_id,
+                'context_id': context_id,
+                'context_name': context_info['name'],
+                'slug': context_info['slug'],
+                'type': itip.type,
+                'allow_transmission': itip.allow_transmission,
+                'can_communicate': can_communicate,
+                'can_transmit': can_transmit,
                 'tor': itip.tor,
                 'answers': answers,
                 'score': itip.score,
                 'status': itip.status,
                 'substatus': itip.substatus,
-                'file_count': files_by_itip.get(itip.id, 0),
-                'comment_count': comments_by_itip.get(itip.id, 0),
-                'receiver_count': len(receiver_ids_by_itip.get(itip.id, [])),
+                'receiver_count': receiver_count,
                 'receiver_ids': receiver_ids_by_itip.get(itip.id, []),
-                'subscription': subscription,
+                'subscription': _subscription_level(data, itip),
                 'accessible': accessible
             }
 
-    if report_ids is not None:
-        return [dict_ret[report_id] for report_id in report_ids if report_id in dict_ret]
-    return list(dict_ret.values())
+    _db_redact_listed_answers(session, user_id, dict_ret)
+
+    ret = list(dict_ret.values())
+
+    _number_reports_by_channel(session, ret, language, context_cache)
+
+    return ret
 
 
 @transact
-def get_receivertips(session, tid, user_session, language, args={}, report_ids=None):
-    return serialize_receivertips(session, tid, user_session, language, args, report_ids)
+def get_receivertips(session, tid, user_session, language, args=None):
+    return db_get_receivertips(session, tid, user_session, language, args)
+
+
+def db_grant_tips_access(session, tid, user_session, tips, receiver_id, log_data):
+    """
+    Grant a recipient access to some reports, announcing it once
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_session: The session of the recipient that grants
+    :param tips: The reports, paired with the access of the recipient that grants
+    :param receiver_id: The recipient granted
+    :param log_data: The data logged with each grant
+    """
+    notified = False
+    for itip, rtip in tips:
+        new_receiver, _ = db_grant_tip_access(session, tid, user_session, itip, rtip, receiver_id)
+        if not new_receiver:
+            continue
+
+        db_log(session, tid=tid, type='grant_access', user_id=user_session.user_id, object_id=itip.id, data=log_data)
+
+        if not notified:
+            db_notify_grant_access(session, new_receiver)
+            notified = True
+
+
+def db_revoke_tips_access(session, tid, user_id, tips, receiver_id, log_data):
+    """
+    Revoke from a recipient the access to some reports
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_id: The recipient that revokes
+    :param tips: The reports, paired with the access of the recipient that revokes
+    :param receiver_id: The recipient revoked
+    :param log_data: The data logged with each revocation
+    """
+    for itip, _ in tips:
+        if db_revoke_tip_access(session, tid, user_id, itip, receiver_id):
+            db_log(session, tid=tid, type='revoke_access', user_id=user_id, object_id=itip.id, data=log_data)
 
 
 @transact
@@ -159,52 +320,29 @@ def perform_tips_operation(session, tid, user_session, user_cc, operation, args)
 
     :param session: An ORM session
     :param tid: A tenant ID
-    :param user_id: A recipient ID
+    :param user_session: The session of the recipient
     :param user_cc: A recipient crypto key
     :param operation: An operation command (grant/revoke)
     :param args: The operation arguments
     """
+    if operation not in ('grant', 'revoke') or not user_session.permissions.can_grant_access_to_reports:
+        raise errors.ForbiddenOperation
+
     user_id = user_session.user_id
 
     log_data = {
         'recipient_id': args['receiver']
     }
 
-    receiver = db_get(session, models.User, models.User.id == user_id)
+    tips = session.query(models.InternalTip, models.ReceiverTip) \
+                  .filter(models.ReceiverTip.receiver_id == user_id,
+                          models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                          models.InternalTip.id.in_(args['rtips']))
 
-    result = session.query(models.InternalTip, models.ReceiverTip) \
-                                 .filter(models.ReceiverTip.receiver_id == user_id,
-                                         models.InternalTip.id == models.ReceiverTip.internaltip_id,
-                                         models.InternalTip.id.in_(args['rtips']))
-
-    if operation == 'grant' and user_session.permissions.can_grant_access_to_reports:
-        notified = False
-        for itip, rtip in result:
-           new_receiver, _ = db_grant_tip_access(session, tid, user_session, itip, rtip, args['receiver'])
-           if new_receiver:
-                db_log(session, tid=tid, type='grant_access', user_id=user_id, object_id=itip.id, data=log_data)
-
-                if not notified:
-                    db_notify_grant_access(session, new_receiver)
-                    notified = True
-
-    elif operation == 'revoke' and user_session.permissions.can_grant_access_to_reports:
-        for itip, _ in result:
-            if db_revoke_tip_access(session, tid, user_id, itip, args['receiver']):
-                db_log(session, tid=tid, type='revoke_access', user_id=user_id, object_id=itip.id, data=log_data)
-
-    elif operation == 'transfer' and receiver.can_transfer_access_to_reports:
-        for itip, _ in result:
-            new_receiver, _ = db_grant_tip_access(session, tid, user_id, user_cc, itip, rtip, args['receiver'])
-            if new_receiver:
-                db_revoke_tip_access(session, tid, user, itip, user_id)
-                db_log(session, tid=tid, type='transfer_access', user_id=user_id, object_id=itip.id, data=log_data)
-                if not notified:
-                    db_notify_grant_access(session, new_receiver)
-                    notified = True
-
+    if operation == 'grant':
+        db_grant_tips_access(session, tid, user_session, tips, args['receiver'], log_data)
     else:
-        raise errors.ForbiddenOperation
+        db_revoke_tips_access(session, tid, user_id, tips, args['receiver'], log_data)
 
 
 class TipsCollection(BaseHandler):
@@ -212,7 +350,13 @@ class TipsCollection(BaseHandler):
 
     Handler dealing with submissions fetch
     """
-    check_roles = 'receiver'
+    check_roles = {'receiver', 'transmitter'}
+
+    def post(self):
+        from globaleaks.handlers.recipient.search_dashboard import search_reports  # noqa: PLC0415
+
+        request = self.validate_request(self.request.content.read(), requests.SearchDashboardQueryDesc)
+        return search_reports(self.request.tid, self.session, self.request.language, request)
 
     def get(self):
         return get_receivertips(self.request.tid,
@@ -220,39 +364,12 @@ class TipsCollection(BaseHandler):
                                 self.request.language,
                                 self.request.args)
 
-    def post(self):
-        request = self.validate_request(self.request.content.read(), requests.SearchDashboardQueryDesc)
-        result = search_reports(self.request.tid, self.session, self.request.language, request)
-
-        def serialize_page(page):
-            reports = get_receivertips(
-                self.request.tid,
-                self.session,
-                self.request.language,
-                {},
-                page['report_ids']
-            )
-
-            def build_response(serialized_reports):
-                return {
-                    'reports': serialized_reports,
-                    'page': page['page'],
-                    'page_size': page['page_size'],
-                    'total': page['total']
-                }
-
-            reports.addCallback(build_response)
-            return reports
-
-        result.addCallback(serialize_page)
-        return result
-
 
 class Operations(BaseHandler):
     """
     Handler that enables to issue operations on submissions
     """
-    check_roles = 'receiver'
+    check_roles = {'receiver', 'transmitter'}
 
     def put(self):
         request = self.validate_request(self.request.content.read(), requests.OpsDesc)

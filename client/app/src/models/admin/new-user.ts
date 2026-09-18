@@ -2,10 +2,24 @@ export class NewUserPermissions {
   can_postpone_expiration = true;
   can_delete_submission = false;
   can_grant_access_to_reports = false;
-  can_edit_general_settings = false;
+  can_manage_settings = false;
+  can_manage_users = false;
+  can_manage_user_profiles = false;
+  can_manage_channels = false;
+  can_manage_questionnaires = false;
+  can_manage_case_management = false;
+  can_manage_notifications = false;
+  can_manage_network = false;
+  can_manage_sites = false;
+  can_manage_auditlog = false;
+  can_manage_support = false;
   can_transfer_access_to_reports = false;
+  can_send_communications = false;
+  can_change_status = true;
+  can_change_label = true;
   can_mask_information = true;
   can_redact_information = false;
+  can_configure_statistical_report_templates = false;
 }
 
 export class NewUserProfile {
@@ -13,6 +27,7 @@ export class NewUserProfile {
   name = "";
   role = "";
   roles: string[] = [];
+  contexts: string[] = [];
   permissions = new NewUserPermissions();
 }
 

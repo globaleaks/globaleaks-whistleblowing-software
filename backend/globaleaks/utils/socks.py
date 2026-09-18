@@ -9,6 +9,7 @@
 #
 # code concept from https://github.com/habnabit/txsocksx
 
+import contextlib
 import struct
 
 from twisted.internet import defer, interfaces
@@ -21,9 +22,9 @@ from zope.interface import implementer, directlyProvides, providedBy
 
 
 class SOCKS5ClientProtocol(ProtocolWrapper):
-    def __init__(self, factory, wrappedProtocol, connectedDeferred, host, port):
-        ProtocolWrapper.__init__(self, factory, wrappedProtocol)
-        self._connectedDeferred = connectedDeferred
+    def __init__(self, factory, wrapped_protocol, connected_deferred, host, port):
+        ProtocolWrapper.__init__(self, factory, wrapped_protocol)
+        self._connectedDeferred = connected_deferred
         self._host = host
         self._port = port
         self._buf = b''
@@ -36,7 +37,6 @@ class SOCKS5ClientProtocol(ProtocolWrapper):
     def socks_state_0(self):
         # error state
         self.error()
-        return
 
     def socks_state_1(self):
         if len(self._buf) < 2:
@@ -50,7 +50,7 @@ class SOCKS5ClientProtocol(ProtocolWrapper):
         self._buf = self._buf[2:]
 
         self.state = 2
-        getattr(self, 'socks_state_%s' % self.state)()
+        getattr(self, f'socks_state_{self.state}')()
 
     def socks_state_2(self):
         if len(self._buf) < 2:
@@ -63,7 +63,7 @@ class SOCKS5ClientProtocol(ProtocolWrapper):
         self._buf = self._buf[2:]
 
         self.state = 3
-        getattr(self, 'socks_state_%s' % self.state)()
+        getattr(self, f'socks_state_{self.state}')()
 
     def socks_state_3(self):
         if len(self._buf) < 8:
@@ -89,17 +89,15 @@ class SOCKS5ClientProtocol(ProtocolWrapper):
         self.transport.write(struct.pack("!BBBBB", 5, 1, 0, 3, len(self._host)) + self._host + struct.pack("!H", self._port))
         self.wrappedProtocol.makeConnection(self)
 
-        try:
+        with contextlib.suppress(defer.AlreadyCalledError):
             self._connectedDeferred.callback(self.wrappedProtocol)
-        except Exception:
-            pass
 
         self.state = 1
 
     def dataReceived(self, data):
         if self.state != 4:
             self._buf = b''.join([self._buf, data])
-            getattr(self, 'socks_state_%s' % self.state)()
+            getattr(self, f'socks_state_{self.state}')()
         else:
             self.wrappedProtocol.dataReceived(data)
 
@@ -109,11 +107,11 @@ class SOCKS5ClientFactory(WrappingFactory):
     proto = None
     canceled = False
 
-    def __init__(self, host, port, wrappedFactory):
+    def __init__(self, host, port, wrapped_factory):
         self.host = host
         self.port = port
         self.deferred = defer.Deferred(self._cancel)
-        WrappingFactory.__init__(self, wrappedFactory)
+        WrappingFactory.__init__(self, wrapped_factory)
 
     def buildProtocol(self, addr):
         try:
@@ -131,10 +129,7 @@ class SOCKS5ClientFactory(WrappingFactory):
         pass
 
     def unregisterProtocol(self, p):
-        try:
-            del self.protocols[p]
-        except Exception:
-            pass
+        self.protocols.pop(p, None)
 
     def _cancel(self, d):
         self.proto.sender.transport.abortConnection()
@@ -142,30 +137,30 @@ class SOCKS5ClientFactory(WrappingFactory):
 
 
 @implementer(interfaces.IStreamClientEndpoint)
-class SOCKS5ClientEndpoint(object):
-    def __init__(self, host, port, proxyEndpoint):
+class SOCKS5ClientEndpoint:
+    def __init__(self, host, port, proxy_endpoint):
         self.host = host
         self.port = port
-        self.proxyEndpoint = proxyEndpoint
+        self.proxy_endpoint = proxy_endpoint
 
-    def connect(self, protocolFactory):
-        proxyFac = SOCKS5ClientFactory(self.host, self.port, protocolFactory)
-        return self.proxyEndpoint.connect(proxyFac).addCallback(lambda proto: proxyFac.deferred)
+    def connect(self, protocol_factory):
+        proxy_factory = SOCKS5ClientFactory(self.host, self.port, protocol_factory)
+        return self.proxy_endpoint.connect(proxy_factory).addCallback(lambda proto: proxy_factory.deferred)
 
 
 @implementer(interfaces.IStreamClientEndpoint)
-class TLSWrapClientEndpoint(object):
+class TLSWrapClientEndpoint:
     _wrapper = tls.TLSMemoryBIOFactory
 
-    def __init__(self, contextFactory, wrappedEndpoint):
-        self.contextFactory = contextFactory
-        self.wrappedEndpoint = wrappedEndpoint
+    def __init__(self, context_factory, wrapped_endpoint):
+        self.context_factory = context_factory
+        self.wrapped_endpoint = wrapped_endpoint
 
     def connect(self, fac):
-        fac = self._wrapper(self.contextFactory, True, fac)
-        return self.wrappedEndpoint.connect(fac).addCallback(self._unwrapProtocol)
+        fac = self._wrapper(self.context_factory, True, fac)
+        return self.wrapped_endpoint.connect(fac).addCallback(self._unwrap_protocol)
 
-    def _unwrapProtocol(self, proto):
+    def _unwrap_protocol(self, proto):
         return proto.wrappedProtocol
 
 
@@ -173,34 +168,36 @@ _Agent = Agent
 
 
 @implementer(IAgentEndpointFactory, IAgent)
-class SOCKS5Agent(object):
-    endpointFactory = SOCKS5ClientEndpoint
-    _tlsWrapper = TLSWrapClientEndpoint
+class SOCKS5Agent:
+    endpoint_factory = SOCKS5ClientEndpoint
+    _tls_wrapper = TLSWrapClientEndpoint
 
-    def __init__(self, reactor, contextFactory=BrowserLikePolicyForHTTPS(),
-                 connectTimeout=None, bindAddress=None, pool=None, proxyEndpoint=None, endpointArgs=None):
-        if endpointArgs is None:
-            endpointArgs = {}
-        if not IPolicyForHTTPS.providedBy(contextFactory):
+    def __init__(self, reactor, context_factory=None,
+                 connect_timeout=None, bind_address=None, pool=None, proxy_endpoint=None, endpoint_args=None):
+        if context_factory is None:
+            context_factory = BrowserLikePolicyForHTTPS()
+        if endpoint_args is None:
+            endpoint_args = {}
+        if not IPolicyForHTTPS.providedBy(context_factory):
             raise NotImplementedError(
-                'contextFactory must implement IPolicyForHTTPS')
-        self.proxyEndpoint = proxyEndpoint
-        self.endpointArgs = endpointArgs
-        self._policyForHTTPS = contextFactory
-        self._wrappedAgent = _Agent.usingEndpointFactory(
+                'context_factory must implement IPolicyForHTTPS')
+        self.proxy_endpoint = proxy_endpoint
+        self.endpoint_args = endpoint_args
+        self._policy_for_https = context_factory
+        self._wrapped_agent = _Agent.usingEndpointFactory(
             reactor, self, pool=pool)
 
     def request(self, *a, **kw):
-        return self._wrappedAgent.request(*a, **kw)
+        return self._wrapped_agent.request(*a, **kw)
 
-    def _getEndpoint(self, scheme, host, port):
-        endpoint = self.endpointFactory(host, port, self.proxyEndpoint, **self.endpointArgs)
+    def _get_endpoint(self, scheme, host, port):
+        endpoint = self.endpoint_factory(host, port, self.proxy_endpoint, **self.endpoint_args)
 
         if scheme == b'https':
-            tlsPolicy = self._policyForHTTPS.creatorForNetloc(host, port)
-            endpoint = self._tlsWrapper(tlsPolicy, endpoint)
+            tls_policy = self._policy_for_https.creatorForNetloc(host, port)
+            endpoint = self._tls_wrapper(tls_policy, endpoint)
 
         return endpoint
 
     def endpointForURI(self, uri):
-        return self._getEndpoint(uri.scheme, uri.host, uri.port)
+        return self._get_endpoint(uri.scheme, uri.host, uri.port)

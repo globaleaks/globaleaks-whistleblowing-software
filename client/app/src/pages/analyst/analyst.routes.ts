@@ -1,9 +1,9 @@
 import {Routes} from "@angular/router";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import {StatisticsResolver} from "@app/shared/resolvers/statistics.resolver";
 import {StatisticalTemplatesResolver} from "@app/shared/resolvers/statistical-templates.resolver";
 import {StatisticalReportsResolver} from "@app/shared/resolvers/statistical-reports.resolver";
+import {StatisticalMetricsResolver} from "@app/shared/resolvers/statistical-metrics.resolver";
 export const analystRoutes: Routes = [
   {
     path: "",
@@ -16,7 +16,7 @@ export const analystRoutes: Routes = [
     loadComponent: () => import('@app/pages/analyst/home/home.component').then(m => m.HomeComponent),
     pathMatch: "full",
     resolve: {
-      PreferenceResolver, RTipsResolver
+      PreferenceResolver
     },
     data: {pageTitle: "Home"},
   },
@@ -24,17 +24,17 @@ export const analystRoutes: Routes = [
     path: "statistics",
     loadComponent: () => import('@app/pages/analyst/statistics/statistics.component').then(m => m.StatisticsComponent),
     resolve: {
-      StatisticsResolver, StatisticalTemplatesResolver, StatisticalReportsResolver
+      PreferenceResolver, StatisticsResolver, StatisticalTemplatesResolver, StatisticalReportsResolver, StatisticalMetricsResolver
     },
     pathMatch: "full",
-    data: {pageTitle: "statistics"},
+    data: {pageTitle: "Statistics"},
   },
   {
     path: "preferences",
     loadComponent: () => import('@app/shared/partials/preferences/preferences.component').then(m => m.PreferencesComponent),
     pathMatch: "full",
     resolve: {
-      PreferenceResolver, RTipsResolver
+      PreferenceResolver
     },
     data: {pageTitle: "Preferences"},
   }

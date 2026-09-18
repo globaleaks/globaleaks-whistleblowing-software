@@ -7,16 +7,16 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from twisted.internet import reactor, defer
-from twisted.internet.endpoints import TCP4ClientEndpoint
+from twisted.internet.endpoints import TCP4ClientEndpoint, UNIXClientEndpoint
 from twisted.mail.smtp import messageid, ESMTPSenderFactory
 from twisted.protocols import tls
 
 from globaleaks.utils.socks import SOCKS5ClientEndpoint
-from globaleaks.utils.tls import TLSClientContextFactory
+from globaleaks.utils.tls import client_tls_options, new_tls_client_context
 from globaleaks.utils.log import log
 
 
-def MIME_mail_build(src_name, src_mail, dest_name, dest_mail, mail_subject, mail_body):
+def mime_mail_build(src_name, src_mail, dest_name, dest_mail, mail_subject, mail_body):
     """
     Prepare the mail headers
 
@@ -39,7 +39,7 @@ def MIME_mail_build(src_name, src_mail, dest_name, dest_mail, mail_subject, mail
     return BytesIO(multipart.as_bytes())  # pylint: disable=no-member
 
 
-def sendmail(tid, smtp_host, smtp_port, security, authentication, username, password, from_name, from_address, to_address, subject, body, anonymize=True, socks_port=9999):
+def sendmail(tid, smtp_host, smtp_port, security, authentication, username, password, from_name, from_address, to_address, subject, body, anonymize=True, socks_socket=None):
     """
     Send an email using SMTPS/SMTP+TLS and maybe torify the connection.
 
@@ -56,12 +56,12 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
     :param subject: A mail subject
     :param body: A mail body
     :param anonymize: A boolean to enable anonymous mail connection
-    :param socks_port: A socks port to be used for the mail connection
+    :param socks_socket: The path of the tor SOCKS unix-domain socket
     :return: A deferred resource resolving at the end of the connection
     """
     try:
         timeout = 30
-        message = MIME_mail_build(from_name,
+        message = mime_mail_build(from_name,
                                   from_address,
                                   to_address,
                                   to_address,
@@ -71,7 +71,7 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
         log.debug('Sending email to %s using SMTP server [%s:%d] [%s]',
                   to_address, smtp_host, smtp_port, security, tid=tid)
 
-        context_factory = TLSClientContextFactory()
+        context_factory = client_tls_options(smtp_host, new_tls_client_context())
         smtp_deferred = defer.Deferred()
 
         factory = ESMTPSenderFactory(
@@ -91,8 +91,8 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
             factory = tls.TLSMemoryBIOFactory(context_factory, True, factory)
 
         if anonymize:
-            socksProxy = TCP4ClientEndpoint(reactor, "127.0.0.1", socks_port, timeout=timeout)
-            endpoint = SOCKS5ClientEndpoint(smtp_host.encode('utf-8'), smtp_port, socksProxy)
+            socks_proxy = UNIXClientEndpoint(reactor, socks_socket, timeout=timeout)
+            endpoint = SOCKS5ClientEndpoint(smtp_host.encode('utf-8'), smtp_port, socks_proxy)
         else:
             endpoint = TCP4ClientEndpoint(reactor, smtp_host, smtp_port, timeout=timeout)
 
@@ -107,7 +107,7 @@ def sendmail(tid, smtp_host, smtp_port, security, authentication, username, pass
         def timeout_cb():
             if not smtp_deferred.called:
                 log.err("SMTP deferred timeout reached, forcing errback for %s", to_address, tid=tid)
-                smtp_deferred.errback(Exception("SMTP deferred timeout"))
+                smtp_deferred.errback(TimeoutError("SMTP deferred timeout"))
         reactor.callLater(timeout + 30, timeout_cb)  # 30s extra buffer
 
         def failure_cb(failure):

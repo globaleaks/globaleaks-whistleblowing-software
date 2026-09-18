@@ -2,13 +2,15 @@ from sqlalchemy.sql.expression import func, and_, false
 from nacl.encoding import Base64Encoder
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
+from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_config_variable, db_get_pid, db_set_config_variable
 from globaleaks.orm import transact, tw
 from twisted.internet.defer import inlineCallbacks
 import json
 from datetime import datetime, timedelta
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.utility import datetime_now, uuid4
+from globaleaks.utils.utility import uuid4
+from nacl.exceptions import CryptoError
 
 
 def _empty_time_metrics():
@@ -27,7 +29,7 @@ def _hours_between(later, earlier):
         return None
     try:
         return (later - earlier).total_seconds() / 3600.0
-    except Exception:
+    except (TypeError, AttributeError):
         return None
 
 
@@ -45,7 +47,7 @@ def _get_status_from_audit_log_data(log_data):
     if isinstance(log_data, str):
         try:
             parsed = json.loads(log_data)
-        except Exception:
+        except (TypeError, ValueError):
             return None
 
         if isinstance(parsed, dict):
@@ -79,6 +81,46 @@ def _parse_filters(raw_filters):
     return raw_filters
 
 
+def _strptime_any(text, date_formats):
+    """
+    Return the date a text carries in one of the given formats, None when in none
+
+    :param text: The text carrying the date
+    :param date_formats: The formats the date is looked for in
+    """
+    for date_format in date_formats:
+        try:
+            return datetime.strptime(text, date_format)
+        except ValueError:
+            continue
+
+    return None
+
+
+def _parse_filter_date_str(text, field_name):
+    """
+    Return the date a filter carries as a text
+
+    :param text: The text carrying the date, already stripped
+    :param field_name: The name of the filter, named in the error it raises
+    """
+    if not text:
+        return None
+
+    if text.isdigit():
+        timestamp = float(text)
+        return datetime.fromtimestamp(timestamp / 1000.0 if timestamp > 10**11 else timestamp)
+
+    parsed = _strptime_any(text, ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%S.%f'))
+    if parsed is not None:
+        return parsed
+
+    try:
+        return datetime.fromisoformat(text.replace('Z', '+00:00')).replace(tzinfo=None)
+    except ValueError:
+        raise errors.InputValidationError(f"Invalid {field_name} format")
+
+
 def _parse_filter_date(value, field_name):
     if value in (None, ''):
         return None
@@ -91,32 +133,9 @@ def _parse_filter_date(value, field_name):
         return datetime.fromtimestamp(timestamp)
 
     if isinstance(value, str):
-        parsed = None
-        text = value.strip()
-        if not text:
-            return None
+        return _parse_filter_date_str(value.strip(), field_name)
 
-        if text.isdigit():
-            timestamp = float(text)
-            timestamp = timestamp / 1000.0 if timestamp > 10**11 else timestamp
-            return datetime.fromtimestamp(timestamp)
-
-        for date_format in ('%Y-%m-%d', '%Y-%m-%dT%H:%M:%S', '%Y-%m-%dT%H:%M:%S.%f'):
-            try:
-                parsed = datetime.strptime(text, date_format)
-                break
-            except ValueError:
-                continue
-
-        if parsed is not None:
-            return parsed
-
-        try:
-            return datetime.fromisoformat(text.replace('Z', '+00:00')).replace(tzinfo=None)
-        except ValueError:
-            raise errors.InputValidationError("Invalid %s format" % field_name)
-
-    raise errors.InputValidationError("Invalid %s type" % field_name)
+    raise errors.InputValidationError(f"Invalid {field_name} type")
 
 
 def _context_name_candidates(context_name):
@@ -209,7 +228,8 @@ def _decode_stat_answers(raw_stat_answers, stat_prv_key):
             parsed = json.loads(stat_text)
             if isinstance(parsed, dict):
                 return parsed
-        except Exception:
+        except ValueError:
+            # Not plain JSON: the answers may be encrypted, and are read below
             pass
 
         if not stat_prv_key:
@@ -221,7 +241,7 @@ def _decode_stat_answers(raw_stat_answers, stat_prv_key):
             parsed = json.loads(decrypted)
             if isinstance(parsed, dict):
                 return parsed
-        except Exception:
+        except (ValueError, CryptoError):
             return {}
 
     return {}
@@ -241,11 +261,19 @@ def _get_user_stat_prv_key(session, tid, user_id, user_cc):
 
     try:
         return GCE.asymmetric_decrypt(user_cc, Base64Encoder.decode(encrypted_stat_key[0].encode()))
-    except Exception:
+    except (ValueError, CryptoError):
         return None
 
 
-def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, language='en', user_id=None, user_cc=None):
+def db_get_statistical_questions(session, tid, language='en'):
+    """
+    Return the questions the statistics account for: the question templates of
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param language: The language of the serialization
+    :return: The questions, by the ID of their template
+    """
     template_rows = session.query(models.Field.id, models.Field.label) \
                            .filter(models.Field.tid.in_({1, tid}),
                                    models.Field.instance == 'template',
@@ -253,29 +281,156 @@ def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, la
                                    models.Field.type.in_(('selectbox', 'multichoice', 'checkbox')),
                                    models.Field.statistical == True) \
                            .all()
-    if not template_rows:
-        return []
 
-    template_ids = [template_id for template_id, _ in template_rows]
-    template_id_keys = {template_id: str(template_id) for template_id in template_ids}
-    template_metrics = {
-        template_id_keys[template_id]: {
-            'template_id': template_id_keys[template_id],
+    questions = {
+        str(template_id): {
+            'template_id': str(template_id),
             'title': _localized_label(label, language),
-            'option_labels': {},
-            'option_counts': {},
-            'total_answers': 0
+            'options': []
         } for template_id, label in template_rows
     }
 
+    if not questions:
+        return questions
+
     option_rows = session.query(models.FieldOption.field_id, models.FieldOption.id, models.FieldOption.label) \
-                         .filter(models.FieldOption.field_id.in_(template_ids)) \
+                         .filter(models.FieldOption.field_id.in_(list(questions))) \
                          .all()
+
     for field_id, option_id, option_label in option_rows:
-        field_id_key = template_id_keys.get(field_id, str(field_id))
         option_id_str = str(option_id)
-        template_metrics[field_id_key]['option_labels'][option_id_str] = _localized_label(option_label, language) or option_id_str
-        template_metrics[field_id_key]['option_counts'][option_id_str] = 0
+        questions[str(field_id)]['options'].append({
+            'id': option_id_str,
+            'label': _localized_label(option_label, language) or option_id_str
+        })
+
+    return questions
+
+
+def db_get_metric_catalog(session, tid, language='en'):
+    """
+    Return the metrics a template is composed of, carrying no value
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param language: The language of the serialization
+    :return: The catalog of the metrics of the site
+    """
+    questions = db_get_statistical_questions(session, tid, language)
+
+    return {
+        'question_template_dropdown_metrics': [{
+            'id': 'question_template_dropdown_{}'.format(question['template_id']),
+            'template_id': question['template_id'],
+            'title': question['title'] or question['template_id'],
+            'options': question['options']
+        } for question in sorted(questions.values(), key=lambda q: (q['title'] or '').lower())]
+    }
+
+
+def _stat_answer_template_id(answer_key, field_to_template, template_metrics, stat_answers_dict):
+    """
+    Return the question template an answer counts towards, None when it counts for none
+
+    An answer is keyed by its template, by the field that carries it or by the
+    template identifier alone; a key that is not the explicit template one is
+    ignored when the explicit one is present, so that an answer is counted once.
+
+    :param answer_key: The key of the answer among the statistical ones
+    :param field_to_template: The map from the fields to the templates they instance
+    :param template_metrics: The metrics being accumulated, keyed by template
+    :param stat_answers_dict: The statistical answers of the report
+    """
+    key_is_field_mapping = False
+
+    if answer_key.startswith('template:'):
+        template_id = answer_key.split('template:', 1)[1]
+    elif answer_key in field_to_template:
+        template_id = field_to_template[answer_key]
+        key_is_field_mapping = True
+    elif answer_key in template_metrics:
+        template_id = answer_key
+    else:
+        return None
+
+    if template_id not in template_metrics:
+        return None
+
+    if (key_is_field_mapping or answer_key == template_id) and f'template:{template_id}' in stat_answers_dict:
+        return None
+
+    return template_id
+
+
+def _tally_stat_answer(metric_data, answer_value):
+    """
+    Count an answer among the metrics of the question template it belongs to
+
+    :param metric_data: The metrics of the question template
+    :param answer_value: The answer, one option or the list of the selected ones
+    """
+    # checkbox answers carry a list of selected option ids; single-choice
+    # answers (selectbox/multichoice) carry a single option id.
+    selected_values = answer_value if isinstance(answer_value, list) else [answer_value]
+
+    for selected_value in selected_values:
+        if selected_value in (None, ''):
+            continue
+
+        answer_value_key = str(selected_value)
+        metric_data['total_answers'] += 1
+
+        if answer_value_key not in metric_data['option_counts']:
+            metric_data['option_counts'][answer_value_key] = 0
+            metric_data['option_labels'][answer_value_key] = answer_value_key
+
+        metric_data['option_counts'][answer_value_key] += 1
+
+
+def _serialize_dropdown_metrics(template_metrics):
+    """
+    Return the accumulated metrics as the catalog the client renders
+
+    :param template_metrics: The metrics accumulated, keyed by question template
+    """
+    dropdown_metrics = []
+
+    for template_id, metric_data in sorted(template_metrics.items(), key=lambda x: x[1]['title'].lower()):
+        total_answers = metric_data['total_answers']
+
+        option_entries = [{
+            'id': option_id,
+            'label': metric_data['option_labels'].get(option_id, option_id),
+            'count': count,
+            'percentage': round((count * 100.0 / total_answers), 1) if total_answers else 0
+        } for option_id, count in sorted(metric_data['option_counts'].items(), key=lambda x: x[1], reverse=True)]
+
+        dropdown_metrics.append({
+            'id': f'question_template_dropdown_{template_id}',
+            'template_id': template_id,
+            'title': metric_data['title'] or template_id,
+            'total_answers': total_answers,
+            'options': option_entries
+        })
+
+    return dropdown_metrics
+
+
+def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, language='en', user_id=None, user_cc=None):
+    questions = db_get_statistical_questions(session, tid, language)
+    if not questions:
+        return []
+
+    template_ids = list(questions)
+    template_metrics = {
+        template_id: {
+            'template_id': template_id,
+            'title': question['title'],
+            'option_labels': {option['id']: option['label'] for option in question['options']},
+            'option_counts': {option['id']: 0 for option in question['options']},
+            'total_answers': 0
+        } for template_id, question in questions.items()
+    }
 
     field_template_rows = session.query(models.Field.id, models.Field.template_id) \
                                  .filter(models.Field.tid.in_({1, tid}),
@@ -284,7 +439,7 @@ def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, la
                                  .all()
 
     field_to_template = {
-        str(field_id): template_id_keys.get(template_id, str(template_id))
+        str(field_id): str(template_id)
         for field_id, template_id in field_template_rows
     }
 
@@ -301,67 +456,12 @@ def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, la
         for answer_key, answer_value in stat_answers_dict.items():
             if answer_value in (None, ''):
                 continue
-            answer_key_str = str(answer_key).strip()
-            template_id = None
-            key_is_field_mapping = False
 
-            if answer_key_str.startswith('template:'):
-                template_id = answer_key_str.split('template:', 1)[1]
-            elif answer_key_str in field_to_template:
-                template_id = field_to_template[answer_key_str]
-                key_is_field_mapping = True
-            elif answer_key_str in template_metrics:
-                template_id = answer_key_str
+            template_id = _stat_answer_template_id(str(answer_key).strip(), field_to_template, template_metrics, stat_answers_dict)
+            if template_id is not None:
+                _tally_stat_answer(template_metrics[template_id], answer_value)
 
-            if template_id not in template_metrics:
-                continue
-
-            template_answer_key = 'template:%s' % template_id
-            if key_is_field_mapping and template_answer_key in stat_answers_dict:
-                continue
-
-            if answer_key_str == template_id and template_answer_key in stat_answers_dict:
-                continue
-
-            metric_data = template_metrics[template_id]
-
-            # checkbox answers carry a list of selected option ids; single-choice
-            # answers (selectbox/multichoice) carry a single option id.
-            selected_values = answer_value if isinstance(answer_value, list) else [answer_value]
-            for selected_value in selected_values:
-                if selected_value in (None, ''):
-                    continue
-
-                answer_value_key = str(selected_value)
-                metric_data['total_answers'] += 1
-
-                if answer_value_key not in metric_data['option_counts']:
-                    metric_data['option_counts'][answer_value_key] = 0
-                    metric_data['option_labels'][answer_value_key] = answer_value_key
-
-                metric_data['option_counts'][answer_value_key] += 1
-
-    dropdown_metrics = []
-    for template_id, metric_data in sorted(template_metrics.items(), key=lambda x: x[1]['title'].lower()):
-        total_answers = metric_data['total_answers']
-        option_entries = []
-        for option_id, count in sorted(metric_data['option_counts'].items(), key=lambda x: x[1], reverse=True):
-            option_entries.append({
-                'id': option_id,
-                'label': metric_data['option_labels'].get(option_id, option_id),
-                'count': count,
-                'percentage': round((count * 100.0 / total_answers), 1) if total_answers else 0
-            })
-
-        dropdown_metrics.append({
-            'id': 'question_template_dropdown_%s' % template_id,
-            'template_id': template_id,
-            'title': metric_data['title'] or template_id,
-            'total_answers': total_answers,
-            'options': option_entries
-        })
-
-    return dropdown_metrics
+    return _serialize_dropdown_metrics(template_metrics)
 
 
 def _get_filtered_tips_subquery(session, tid, filters):
@@ -396,6 +496,43 @@ def _count_identity_tips(session, tid, filtered_tips_subquery, equals_creation_d
                   .scalar() or 0
 
 
+def _filtered_context_ids(session, tid, channel_filter):
+    """
+    Return the channels a filter names, by identity or by name
+
+    :param session: An ORM session
+    :param tid: The tenant the channels belong to
+    :param channel_filter: The channels the filter names
+    """
+    channel_values = _normalize_channel_filters(channel_filter)
+
+    contexts = session.query(models.Context.id, models.Context.name).filter(models.Context.tid == tid).all()
+
+    context_id_list = []
+    for ctx_id, ctx_name in contexts:
+        ctx_name_values = _context_name_candidates(ctx_name)
+        if str(ctx_id) in channel_values or bool(ctx_name_values.intersection(channel_values)):
+            context_id_list.append(ctx_id)
+
+    return context_id_list
+
+
+def _filter_date_to(date_to_value):
+    """
+    Return the instant a date filter ends at, the whole day when it names a day
+
+    :param date_to_value: The end of the interval, as the filter carries it
+    """
+    date_to = _parse_filter_date(date_to_value, 'date_to')
+
+    if isinstance(date_to_value, str):
+        date_to_text = date_to_value.strip()
+        if date_to_text and len(date_to_text) == 10 and date_to_text[4] == '-' and date_to_text[7] == '-':
+            date_to = date_to + timedelta(days=1)
+
+    return date_to
+
+
 def apply_filters_to_query(session, query, filters, tid):
     if not filters:
         return query
@@ -404,16 +541,7 @@ def apply_filters_to_query(session, query, filters, tid):
         query = query.filter(models.InternalTip.context_id == filters['context_id'])
 
     if 'channel' in filters and filters['channel']:
-        channel_values = _normalize_channel_filters(filters['channel'])
-
-        contexts = session.query(models.Context.id, models.Context.name).filter(models.Context.tid == tid).all()
-
-        context_id_list = []
-        for ctx_id, ctx_name in contexts:
-            ctx_id_str = str(ctx_id)
-            ctx_name_values = _context_name_candidates(ctx_name)
-            if ctx_id_str in channel_values or bool(ctx_name_values.intersection(channel_values)):
-                context_id_list.append(ctx_id)
+        context_id_list = _filtered_context_ids(session, tid, filters['channel'])
 
         if context_id_list:
             query = query.filter(models.InternalTip.context_id.in_(context_id_list))
@@ -425,31 +553,19 @@ def apply_filters_to_query(session, query, filters, tid):
         query = query.filter(models.InternalTip.creation_date >= date_from)
 
     if 'date_to' in filters and filters['date_to']:
-        date_to_value = filters['date_to']
-        date_to = _parse_filter_date(date_to_value, 'date_to')
-        if isinstance(date_to_value, str):
-            date_to_text = date_to_value.strip()
-            if date_to_text and len(date_to_text) == 10 and date_to_text[4] == '-' and date_to_text[7] == '-':
-                date_to = date_to + timedelta(days=1)
-        query = query.filter(models.InternalTip.creation_date < date_to)
+        query = query.filter(models.InternalTip.creation_date < _filter_date_to(filters['date_to']))
 
     return query
 
 
-def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
-    tip_rows = session.query(
-        models.InternalTip.id,
-        models.InternalTip.creation_date
-    ).join(
-        filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTip.id
-    ).filter(
-        models.InternalTip.tid == tid
-    ).all()
-    if not tip_rows:
-        return _empty_time_metrics()
+def _average(values):
+    return sum(values) / len(values) if values else 0
 
-    tip_creation_map = {tip_id: creation_date for tip_id, creation_date in tip_rows}
 
+def _db_first_status_dates(session, tid, filtered_tips_subquery):
+    """
+    Return, by report, the date of its first opening and the one of its first closure
+    """
     first_opened_by_tip = {}
     first_closed_by_tip = {}
     status_logs = session.query(
@@ -472,6 +588,13 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
         elif status == 'closed' and object_id not in first_closed_by_tip:
             first_closed_by_tip[object_id] = log_date
 
+    return first_opened_by_tip, first_closed_by_tip
+
+
+def _processing_times(tip_creation_map, first_opened_by_tip, first_closed_by_tip):
+    """
+    Return the hours the reports took to be opened and the ones they took to be closed
+    """
     opening_times = []
     closure_times = []
     for tip_id, creation_date in tip_creation_map.items():
@@ -487,12 +610,17 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
         if closure_hours is not None:
             closure_times.append(closure_hours)
 
-    avg_opening_time = sum(opening_times) / len(opening_times) if opening_times else 0
-    avg_closure_time = sum(closure_times) / len(closure_times) if closure_times else 0
+    return opening_times, closure_times
 
-    first_whistleblower_comment_subq = session.query(
+
+def _db_first_recipient_replies(session, tid, filtered_tips_subquery):
+    """
+    Return, by report, the date of the first reply to the whistleblower: the first public content
+    authored by a recipient, a comment or an uploaded file
+    """
+    first_receiver_comment_rows = session.query(
         models.Comment.internaltip_id,
-        func.min(models.Comment.creation_date).label('first_comment_date')
+        func.min(models.Comment.creation_date)
     ).join(
         models.InternalTip, models.Comment.internaltip_id == models.InternalTip.id
     ).join(
@@ -500,26 +628,39 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
     ).filter(
         and_(
             models.InternalTip.tid == tid,
-            models.Comment.author_id.is_(None),
+            models.Comment.author_id.isnot(None),
             models.Comment.visibility == 0
         )
-    ).group_by(models.Comment.internaltip_id).subquery()
+    ).group_by(models.Comment.internaltip_id).all()
 
-    response_query = session.query(
-        first_whistleblower_comment_subq.c.first_comment_date,
-        models.InternalTip.creation_date
+    first_receiver_file_rows = session.query(
+        models.ReceiverFile.internaltip_id,
+        func.min(models.ReceiverFile.creation_date)
     ).join(
-        first_whistleblower_comment_subq,
-        first_whistleblower_comment_subq.c.internaltip_id == models.InternalTip.id
-    )
-    response_times = []
-    for first_comment_date, creation_date in response_query.all():
-        hours = _hours_between(first_comment_date, creation_date)
-        if hours is not None:
-            response_times.append(hours)
-    avg_first_reply_time = sum(response_times) / len(response_times) if response_times else 0
+        models.InternalTip, models.ReceiverFile.internaltip_id == models.InternalTip.id
+    ).join(
+        filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTip.id
+    ).filter(
+        and_(
+            models.InternalTip.tid == tid,
+            models.ReceiverFile.visibility == 0
+        )
+    ).group_by(models.ReceiverFile.internaltip_id).all()
 
-    exchange_counts_query = session.query(
+    first_recipient_reply_by_tip = {}
+    for internaltip_id, first_date in first_receiver_comment_rows + first_receiver_file_rows:
+        current = first_recipient_reply_by_tip.get(internaltip_id)
+        if current is None or first_date < current:
+            first_recipient_reply_by_tip[internaltip_id] = first_date
+
+    return first_recipient_reply_by_tip
+
+
+def _db_exchange_counts(session, tid, filtered_tips_subquery):
+    """
+    Return the number of comments of each report that carries some
+    """
+    return session.query(
         models.Comment.internaltip_id,
         func.count(models.Comment.id).label('cnt')
     ).join(
@@ -528,17 +669,41 @@ def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
         filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTip.id
     ).filter(
         models.InternalTip.tid == tid
-    ).group_by(models.Comment.internaltip_id)
+    ).group_by(models.Comment.internaltip_id).all()
 
-    exchange_data = exchange_counts_query.all()
+
+def calculate_time_based_metrics(session, tid, filtered_tips_subquery):
+    tip_rows = session.query(
+        models.InternalTip.id,
+        models.InternalTip.creation_date
+    ).join(
+        filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTip.id
+    ).filter(
+        models.InternalTip.tid == tid
+    ).all()
+    if not tip_rows:
+        return _empty_time_metrics()
+
+    tip_creation_map = {tip_id: creation_date for tip_id, creation_date in tip_rows}
+
+    first_opened_by_tip, first_closed_by_tip = _db_first_status_dates(session, tid, filtered_tips_subquery)
+    opening_times, closure_times = _processing_times(tip_creation_map, first_opened_by_tip, first_closed_by_tip)
+
+    response_times = []
+    for internaltip_id, first_reply_date in _db_first_recipient_replies(session, tid, filtered_tips_subquery).items():
+        hours = _hours_between(first_reply_date, tip_creation_map.get(internaltip_id))
+        if hours is not None:
+            response_times.append(hours)
+
+    exchange_data = _db_exchange_counts(session, tid, filtered_tips_subquery)
     total_exchanges = sum(cnt for _, cnt in exchange_data)
     num_tips_with_exchanges = len(exchange_data)
     avg_exchanges_per_tip = total_exchanges / num_tips_with_exchanges if num_tips_with_exchanges > 0 else 0
 
     return {
-        "avg_opening_time_hours": _round_time_metric(avg_opening_time),
-        "avg_first_reply_time_hours": _round_time_metric(avg_first_reply_time),
-        "avg_closure_time_hours": _round_time_metric(avg_closure_time),
+        "avg_opening_time_hours": _round_time_metric(_average(opening_times)),
+        "avg_first_reply_time_hours": _round_time_metric(_average(response_times)),
+        "avg_closure_time_hours": _round_time_metric(_average(closure_times)),
         "avg_exchanges_per_report": round(avg_exchanges_per_tip, 2),
         "total_exchanges": total_exchanges,
         "reports_with_exchanges": num_tips_with_exchanges
@@ -586,22 +751,58 @@ def get_stats(session, tid, filters=None, language='en', user_id=None, user_cc=N
     return db_get_stats(session, tid, filters, language, user_id, user_cc)
 
 
-def _default_template():
+# The template of the platform is designated by a conventional identifier, so
+# that it can be recognized wherever it is presented and replaced in the future
+DEFAULT_TEMPLATE_ID = 'globaleaks'
+
+
+def empty_template_data():
+    """
+    Return the configuration of a template holding no metric: a template is
+    """
     return {
-        'label': 'GlobaLeaks',
-        'creation_date': datetime_now(),
-        'data': {
-            'config': {
-                'selectedMetrics': ['reports_received', 'avg_opening_time', 'avg_closure_time'],
-                'selectedCharts': [{'id': 'anonymity', 'chartType': 'pie'}]
-            },
-            'permissions': {
-                'canEdit': True,
-                'canDelete': False,
-                'canExport': True
-            }
+        'config': {
+            'selectedMetrics': [],
+            'selectedCharts': []
         }
     }
+
+
+def default_template_data():
+    """
+    Return the configuration of the template a platform starts with: the
+    """
+    return {
+        'config': {
+            'selectedMetrics': [
+                {'id': 'reports_received', 'title': 'Reports', 'chartType': 'number'}
+            ],
+            'selectedCharts': [
+                {'id': 'returning_whistleblowers', 'title': 'Returning whistleblowers', 'chartType': 'pie'},
+                {'id': 'anonymity', 'title': 'Anonymity', 'chartType': 'pie'},
+                {'id': 'tor', 'title': 'Tor', 'chartType': 'pie'},
+                {'id': 'mobile', 'title': 'Mobile', 'chartType': 'pie'}
+            ]
+        }
+    }
+
+
+def db_load_default_statistical_template(session):
+    """
+    Transaction for loading the statistical template of the platform
+
+    :param session: An ORM session
+    """
+    template = session.query(models.StatisticalReportTemplate) \
+                      .filter(models.StatisticalReportTemplate.id == DEFAULT_TEMPLATE_ID) \
+                      .one_or_none()
+
+    if template is None:
+        template = models.StatisticalReportTemplate({'id': DEFAULT_TEMPLATE_ID, 'tid': DEFAULT_PROFILE_ID})
+        session.add(template)
+
+    template.label = 'GlobaLeaks'
+    template.data = default_template_data()
 
 
 class FilterOptions(BaseHandler):
@@ -649,37 +850,102 @@ class Statistics(BaseHandler):
 
 
 def db_create_statistical_template(session, tid, request):
-    default = _default_template()
     request['id'] = uuid4()
     request['tid'] = tid
-    request['data'] = default['data']
+    request['data'] = request.get('data') or empty_template_data()
 
     template = models.StatisticalReportTemplate(request)
     session.add(template)
     session.flush()
+
     return template
+
+
+def db_statistical_template_tids(session, tid):
+    """
+    Return the tenants holding the templates a site is presented with: the site
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :return: The tenant IDs the templates are looked up on
+    """
+    return {DEFAULT_PROFILE_ID, db_get_pid(session, tid) or DEFAULT_PROFILE_ID, tid}
 
 
 def db_list_statistical_templates(session, tid):
-    return session.query(models.StatisticalReportTemplate).filter(models.StatisticalReportTemplate.tid == tid).all()
+    """
+    Return the templates a site is presented with: the template of the platform
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :return: The templates of the site
+    """
+    templates = session.query(models.StatisticalReportTemplate) \
+                       .filter(models.StatisticalReportTemplate.tid.in_(db_statistical_template_tids(session, tid))).all()
+
+    return sorted(templates, key=lambda t: (t.id != DEFAULT_TEMPLATE_ID, t.label.lower()))
 
 
 def db_get_statistical_template(session, tid, template_id):
-    template = session.query(models.StatisticalReportTemplate).filter(models.StatisticalReportTemplate.tid == tid,
-                                                                      models.StatisticalReportTemplate.id == template_id).first()
+    template = session.query(models.StatisticalReportTemplate) \
+                      .filter(models.StatisticalReportTemplate.tid.in_(db_statistical_template_tids(session, tid)),
+                              models.StatisticalReportTemplate.id == template_id).one_or_none()
     if not template:
         raise errors.ResourceNotFound
+
     return template
 
 
-def db_update_statistical_template(session, tid, template_id, request):
+def db_get_own_statistical_template(session, tid, template_id):
+    """
+    Return a template of the site, the only kind a site writes: the template of
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param template_id: The ID of the template
+    :return: The template the site holds
+    """
     template = db_get_statistical_template(session, tid, template_id)
+
+    if template.tid != tid or template.id == DEFAULT_TEMPLATE_ID:
+        raise errors.ForbiddenOperation
+
+    return template
+
+
+def db_get_default_statistical_template(session, tid, templates):
+    """
+    Return the ID of the template the statistics of a site are presented with:
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param templates: The templates of the site
+    :return: The ID of the template presenting the statistics
+    """
+    template_id = db_get_config_variable(session, tid, 'default_statistical_template')
+
+    if not any(template.id == template_id for template in templates):
+        template_id = DEFAULT_TEMPLATE_ID
+
+    return template_id
+
+
+def db_update_statistical_template(session, tid, template_id, request):
+    template = db_get_own_statistical_template(session, tid, template_id)
     template.update(request)
+
     return template
 
 
 def db_delete_statistical_template(session, tid, template_id):
-    template = db_get_statistical_template(session, tid, template_id)
+    template = db_get_own_statistical_template(session, tid, template_id)
+
+    # A template a report is built on is kept, or the report would lose its layout
+    if session.query(models.StatisticalReport) \
+              .filter(models.StatisticalReport.tid == tid,
+                      models.StatisticalReport.template_id == template.id).first():
+        raise errors.ForbiddenOperation
+
     session.delete(template)
 
 
@@ -687,13 +953,14 @@ def db_create_statistical_report(session, tid, request, language='en', user_id=N
     request['id'] = uuid4()
     request['tid'] = tid
 
+    # A report is built on a template the site is presented with
+    db_get_statistical_template(session, tid, request['template_id'])
+
+    # A report is a frozen snapshot: the statistics are computed once, at
+    # creation, and stored so that the view renders the stored values
     data = request.get('data') or {}
-    # Non-realtime reports are frozen snapshots: the statistics are computed
-    # once, at creation, and stored so the view renders the stored values.
-    # Realtime reports omit the snapshot and are recomputed on every view.
-    if not data.get('realtime'):
-        data['snapshot'] = db_get_stats(session, tid, data.get('filters') or None, language, user_id, user_cc)
-        request['data'] = data
+    data['snapshot'] = db_get_stats(session, tid, data.get('filters') or None, language, user_id, user_cc)
+    request['data'] = data
 
     report = models.StatisticalReport(request)
     session.add(report)
@@ -724,13 +991,23 @@ def db_delete_statistical_report(session, tid, report_id):
     session.delete(report)
 
 
-def serialize_statistical_template(template):
+def serialize_statistical_template(template, tid, default_id):
+    """
+    Serialize a template of the statistics
+
+    :param template: The template to be serialized
+    :param tid: The tenant ID the template is presented to
+    :param default_id: The ID of the template presenting the statistics
+    :return: The serialization of the template
+    """
     return {
         'id': template.id,
         'tid': template.tid,
         'label': template.label,
         'creation_date': template.creation_date,
-        'data': template.data if template.data is not None else _default_template()['data']
+        'editable': template.tid == tid and template.id != DEFAULT_TEMPLATE_ID,
+        'default': template.id == default_id,
+        'data': template.data if template.data is not None else empty_template_data()
     }
 
 
@@ -747,22 +1024,40 @@ def serialize_statistical_report(report):
 
 def create_statistical_template(session, tid, request):
     template = db_create_statistical_template(session, tid, request)
-    return serialize_statistical_template(template)
+    return serialize_statistical_template(template, tid, db_get_config_variable(session, tid, 'default_statistical_template'))
 
 
 def list_statistical_templates(session, tid):
     templates = db_list_statistical_templates(session, tid)
-    return [serialize_statistical_template(t) for t in templates]
+    default_id = db_get_default_statistical_template(session, tid, templates)
+    return [serialize_statistical_template(t, tid, default_id) for t in templates]
 
 
 def get_statistical_template(session, tid, template_id):
     template = db_get_statistical_template(session, tid, template_id)
-    return serialize_statistical_template(template)
+    return serialize_statistical_template(template, tid, db_get_config_variable(session, tid, 'default_statistical_template'))
 
 
 def update_statistical_template(session, tid, template_id, request):
     template = db_update_statistical_template(session, tid, template_id, request)
-    return serialize_statistical_template(template)
+    return serialize_statistical_template(template, tid, db_get_config_variable(session, tid, 'default_statistical_template'))
+
+
+def get_metric_catalog(session, tid, language='en'):
+    return db_get_metric_catalog(session, tid, language)
+
+
+def set_default_statistical_template(session, tid, template_id):
+    """
+    Configure the template the statistics of a site are presented with
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param template_id: The ID of the template to be presented
+    """
+    db_get_statistical_template(session, tid, template_id)
+
+    db_set_config_variable(session, tid, 'default_statistical_template', template_id)
 
 
 def delete_statistical_template(session, tid, template_id):
@@ -793,8 +1088,20 @@ def delete_statistical_report(session, tid, report_id):
     return db_delete_statistical_report(session, tid, report_id)
 
 
+class MetricCatalog(BaseHandler):
+    # The catalog names the metrics and carries none of their values: it is read
+    # by whoever is presented the templates, and says nothing about the reports
+    check_roles = {'analyst', 'admin'}
+
+    def get(self):
+        return tw(get_metric_catalog, self.request.tid, self.request.language)
+
+
 class StatisticalReportTemplates(BaseHandler):
-    check_roles = 'analyst'
+    # Composed by the analysts and by the administrators holding the permission
+    check_roles = {'analyst', 'admin'}
+
+    require_permission = {'post': 'can_configure_statistical_report_templates'}
 
     def get(self):
         return tw(list_statistical_templates, self.request.tid)
@@ -808,7 +1115,10 @@ class StatisticalReportTemplates(BaseHandler):
 
 
 class StatisticalReportTemplateInstance(BaseHandler):
-    check_roles = 'analyst'
+    check_roles = {'analyst', 'admin'}
+
+    require_permission = {'put': 'can_configure_statistical_report_templates',
+                          'delete': 'can_configure_statistical_report_templates'}
 
     def get(self, template_id):
         return tw(get_statistical_template, self.request.tid, template_id)
@@ -854,3 +1164,4 @@ class StatisticalReportInstance(BaseHandler):
 
     def delete(self, report_id):
         return tw(delete_statistical_report, self.request.tid, report_id)
+

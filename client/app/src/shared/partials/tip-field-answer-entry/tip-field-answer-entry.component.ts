@@ -1,5 +1,4 @@
-import {HttpClient} from "@angular/common/http";
-import {Component, ElementRef, forwardRef, Input, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, forwardRef, OnInit, inject, input, viewChild} from "@angular/core";
 import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
 import {AppDataService} from "@app/app-data.service";
 import {WbFile} from "@app/models/app/shared-public-model";
@@ -14,7 +13,6 @@ import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {DatePipe} from "@angular/common";
 import {TipFieldComponent} from "../tip-field/tip-field.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {SplitPipe} from "@app/shared/pipes/split.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -23,7 +21,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-field-answer-entry",
     templateUrl: "./tip-field-answer-entry.component.html",
     standalone: true,
-    imports: [forwardRef(() => TipFieldComponent), DatePipe, TranslateModule, TranslatorPipe, SplitPipe, OrderByPipe, NgbTooltipModule]
+    imports: [forwardRef(() => TipFieldComponent), DatePipe, TranslateModule, SplitPipe, OrderByPipe, NgbTooltipModule]
 })
 export class TipFieldAnswerEntryComponent implements OnInit {
   protected httpService = inject(HttpService);
@@ -32,36 +30,38 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   protected utilsService = inject(UtilsService);
   protected maskService = inject(MaskService);
   protected preferenceResolver = inject(PreferenceResolver);
-  private http = inject(HttpClient);
-  private sanitizer = inject(DomSanitizer);
+  private readonly sanitizer = inject(DomSanitizer);
   protected authenticationService = inject(AuthenticationService);
-  private wbTipService = inject(WbtipService);
-  private rTipService = inject(ReceiverTipService);
+  private readonly wbTipService = inject(WbtipService);
+  private readonly rTipService = inject(ReceiverTipService);
 
-  @Input() entry: any;
-  @Input() field: any;
-  @Input() fieldAnswers: any;
-  @Input() redactOperationTitle: string;
-  @Input() redactMode: boolean;
+  readonly entry = input<any>();
+  readonly field = input<any>();
+  readonly fieldAnswers = input<any>();
+  readonly redactOperationTitle = input<string>();
+  readonly redactMode = input<boolean>();
+  readonly disabled = input(false);
 
   format = "dd/MM/yyyy";
   locale = "en-US";
   audioFiles: Record<string, Blob> = {};
   iframeUrl: SafeResourceUrl;
-  @ViewChild("viewer") viewerFrame: ElementRef;
+  readonly viewerFrame = viewChild<ElementRef>("viewer");
   tipService:WbtipService|ReceiverTipService;
   wbfile:WbFile;
 
   ngOnInit(): void {
-    if (this.authenticationService.session.role === "whistleblower") {
-      this.tipService = this.wbTipService;
-    }
-    if(this.authenticationService.session.role === "receiver") {
-      this.tipService = this.rTipService;
-    }
+    // The whistleblower reads its own report; every other role reads it as a recipient does
+    this.tipService = this.authenticationService.session?.role === "whistleblower" ?
+      this.wbTipService : this.rTipService;
+
     if(this.tipService.tip){
-      this.filterWbFilesByReferenceId(this.tipService.tip.wbfiles,this.entry['index']);
+      this.filterWbFilesByReferenceId(this.tipService.tip.wbfiles,this.entry()['index']);
     }
+  }
+
+  hasAudioFile(reference_id: string): boolean {
+    return this.tipService.tip.wbfiles.some((wbfile: WbFile) => wbfile.reference_id === reference_id);
   }
 
   loadAudioFile(reference_id: string): void {
@@ -79,15 +79,12 @@ export class TipFieldAnswerEntryComponent implements OnInit {
       const id = wbfile.id;
       const url = this.getApiUrl(id);
 
-      this.http.get(url, {
-        headers: {
-          'x-session': this.authenticationService.session.id
-        },
-        responseType: 'blob'
+      this.httpService.requestBlobResource(url, {
+        'x-session': this.authenticationService.session?.id ?? ""
       }).subscribe((response: Blob) => {
         this.audioFiles[reference_id] = response;
         window.addEventListener("message", (message: MessageEvent) => {
-          const iframe = this.viewerFrame?.nativeElement;
+          const iframe = this.viewerFrame()?.nativeElement;
           if (message.source !== iframe?.contentWindow) {
             return;
           }
@@ -104,7 +101,7 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   }
 
   private getApiUrl(id: string): string {
-    const role = this.authenticationService.session.role;
+    const role = this.authenticationService.session?.role;
     return role === 'whistleblower' ?
       `api/whistleblower/wbtip/wbfiles/${id}` :
       `api/recipient/wbfiles/${id}`;
@@ -139,11 +136,19 @@ export class TipFieldAnswerEntryComponent implements OnInit {
   }
 
   maskContent(id: string, index: string, value: string) {
-   return this.maskService.maskingContent(id,index,value,this.tipService.tip)
+    // The masker reads the real content; the masked rendering is shown to
+    // them only while editing the masking (redact mode).
+    if (!this.redactMode() &&
+        (this.preferenceResolver.dataModel?.profile?.permissions?.can_mask_information ||
+         this.preferenceResolver.dataModel?.profile?.permissions?.can_redact_information)) {
+      return value;
+    }
+
+    return this.maskService.maskingContent(id, index, value, this.tipService.tip);
   }
 
   filterWbFilesByReferenceId(wbfiles: WbFile[], index:any): WbFile[] {
-   return wbfiles.filter((wbfile: WbFile) => wbfile.reference_id === `${this.field.id}-${index}`);
+   return wbfiles.filter((wbfile: WbFile) => wbfile.reference_id === `${this.field().id}-${index}`);
   }
 
   selectedFile(file: WbFile) {

@@ -1,27 +1,19 @@
 <form name="contentForm" novalidate class="reveal">
-  <ul ngbNav #nav="ngbNav" class="nav-tabs" [(activeId)]="active">
-    @for (tab of tabs; track tab) {
-      @if (tab.id !== 'invites' || node.dataModel.enable_signup) {
-        <li [ngbNavItem]="tab.title">
-          <button ngbNavLink [attr.data-cy]="tab.id">{{ tab.title | translate }}</button>
-          <ng-template ngbNavContent>
-            <ng-container *ngTemplateOutlet="tab.component"></ng-container>
-          </ng-template>
-        </li>
-      }
-    }
-  </ul>
-  <div [ngbNavOutlet]="nav" class="mt-2"></div>
-  <ng-template #tab1>
-    <src-sites-tab1></src-sites-tab1>
-  </ng-template>
-  <ng-template #tab2>
-    <src-sites-tab2></src-sites-tab2>
-  </ng-template>
-  <ng-template #tab3>
-      <src-sites-tab3></src-sites-tab3>
-  </ng-template>
-  <ng-template #tab4>
+  <src-tabs>
+    <ng-template srcTab="sites" title="Sites">
+      <src-sites-tab1></src-sites-tab1>
+    </ng-template>
+    <ng-template srcTab="profiles" title="Profiles" [visible]="isAdmin">
+      <src-sites-tab2></src-sites-tab2>
+    </ng-template>
+    <ng-template srcTab="exchanges" title="Exchanges" [visible]="isAdmin">
+      <src-sites-tab5></src-sites-tab5>
+    </ng-template>
+    <ng-template srcTab="invites" title="Registrations" [visible]="areInvitesConfigurable">
       <src-sites-tab4></src-sites-tab4>
-  </ng-template>
+    </ng-template>
+    <ng-template srcTab="options" title="Options" [visible]="isAdmin">
+      <src-sites-tab3></src-sites-tab3>
+    </ng-template>
+  </src-tabs>
 </form>

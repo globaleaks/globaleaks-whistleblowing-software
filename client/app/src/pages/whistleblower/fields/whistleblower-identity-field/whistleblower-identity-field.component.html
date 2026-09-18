@@ -1,5 +1,5 @@
 <div>
-  @if (!field.required) {
+  @if (!field().required) {
     <div>
       <input id="whistleblower_identity_radio_1" class="form-check-input" type="radio" (click)="changeIdentitySetting(true)" [(ngModel)]="identity_provided" [value]="true" />
       <label class="form-check-inline" for="whistleblower_identity_radio_1">{{'Yes'|translate}}</label>
@@ -7,12 +7,12 @@
       <label class="form-check-inline" for="whistleblower_identity_radio_2">{{'No'|translate}}</label>
     </div>
   }
-  @if (!identity_provided && field.attrs.text_shown_upon_negative_answer.value) {
-    <div>{{field.attrs.text_shown_upon_negative_answer.value|translate}}</div>
+  @if (!identity_provided && field().attrs.text_shown_upon_negative_answer.value) {
+    <div>{{field().attrs.text_shown_upon_negative_answer.value|translate}}</div>
   }
   @if (identity_provided) {
     <div>
-      <src-form (notifyFileUpload)="notifyFileUpload.emit()" [uploads]="uploads" [fileUploadUrl]="fileUploadUrl" [displayErrors]="displayErrors" [entry]="entry" [answers]="answers" [step]="step" [submission]="submission" [index]="index"></src-form>
+      <src-form (notifyFileUpload)="notifyFileUpload.emit($event)" [uploads]="uploads()" [fileUploadUrl]="fileUploadUrl()" [displayErrors]="displayErrors()" [entry]="entry()" [answers]="answers()" [step]="step()" [submission]="submission()" [index]="index()"></src-form>
     </div>
   }
 </div>

@@ -24,7 +24,7 @@ class TestORM(helpers.TestGL):
 
     def db_add_config(self, session):
         tenant_data = {'active': True, 'name': 'GlobaLeaks', 'profile': 'default', 'subdomain': 'subdomain'}
-        db_create_tenant(session, tenant_data, isTenant=True)
+        db_create_tenant(session, tenant_data, is_tenant=True)
 
     @inlineCallbacks
     def test_transact_with_stuff(self):
@@ -48,7 +48,7 @@ class TestORM(helpers.TestGL):
     def test_transact_decorate_function(self):
         @transact
         def transaction(session):
-            self.assertTrue(getattr(session, 'query'))
+            self.assertTrue(session.query)
 
         return transaction()
 
@@ -60,26 +60,29 @@ class TestORM(helpers.TestGL):
         yield self.assertRaises(sqlalchemy.exc.DatabaseError, session.execute, sqlalchemy.text("DROP TABLE Tenant"))
 
     def test_do_connect_pragmas_values(self):
-        # Test that verifies that the PRAGMA configurations are efeectively applied
+        # Test that verifies that the PRAGMA configurations are effectively applied
         dstpath = os.path.join(Settings.working_path, 'globaleaks.db')
         engine = get_engine(db_uri="sqlite:////" + dstpath, foreign_keys=True, orm_lockdown=False)
 
         # Connect to the database
         with engine.connect() as conn:
+            result = conn.execute(text("PRAGMA secure_delete")).fetchone()
+            self.assertEqual(result[0], 1)  # 1 stands for ON
+
             result = conn.execute(text("PRAGMA temp_store")).fetchone()
-            self.assertEqual(result[0], 2)  # MEMORY = 2
+            self.assertEqual(result[0], 2)  # 2 stands for MEMORY
 
             result = conn.execute(text("PRAGMA trusted_schema")).fetchone()
-            self.assertEqual(result[0], 0)  # OFF = 0
+            self.assertEqual(result[0], 0)  # 0 stands for OFF
 
             result = conn.execute(text("PRAGMA foreign_keys")).fetchone()
-            self.assertEqual(result[0], 1)  # ON = 1
+            self.assertEqual(result[0], 1)  # 1 stands for ON
 
             result = conn.execute(text("PRAGMA journal_mode")).fetchone()
-            self.assertEqual(result[0].upper(), "WAL")
+            self.assertEqual(result[0].upper(), "DELETE")
 
             result = conn.execute(text("PRAGMA synchronous")).fetchone()
-            self.assertEqual(result[0], 2)  # FULL = 2
+            self.assertEqual(result[0], 2)  # 2 stands for FULL
 
             result = conn.execute(text("PRAGMA cache_size")).fetchone()
             self.assertEqual(result[0], -32000) # 32MB

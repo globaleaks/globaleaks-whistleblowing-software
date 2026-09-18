@@ -1,39 +1,36 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, computed, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
+import {SelectablesResolver} from "@app/shared/resolvers/selectables.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Option} from "@app/models/app/shared-public-model";
-import {User} from "@app/models/resolvers/user-resolver-model";
+import {SelectableUser} from "@app/models/app/selectables";
 import {NgSelectComponent, NgLabelTemplateDirective, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 
 @Component({
     selector: "src-trigger-receiver",
     templateUrl: "./trigger-receiver.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgLabelTemplateDirective, NgOptionTemplateDirective, TranslateModule, TranslatorPipe, FilterPipe]
+    imports: [NgbTooltipModule, NgSelectComponent, FormsModule, NgLabelTemplateDirective, NgOptionTemplateDirective, TranslateModule, FilterPipe]
 })
 export class TriggerReceiverComponent implements OnInit {
-  private utilsService = inject(UtilsService);
-  private users = inject(UsersResolver);
-  private activeModal = inject(NgbActiveModal);
-  private modalService = inject(NgbModal);
+  private readonly utilsService = inject(UtilsService);
+  private readonly selectables = inject(SelectablesResolver);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly modalService = inject(NgbModal);
 
 
-  @Input() arg: Option;
+  arg: Option;
   confirmFunction: (data: Option) => void;
 
   selected: { value: []; name: string };
-  admin_receivers_by_id: { [userId: string]: User} = {};
-  userData: User[] = [];
+  readonly userData = computed<SelectableUser[]>(() => this.selectables.dataModel.users);
+  readonly admin_receivers_by_id = computed<Record<string, SelectableUser>>(() => this.utilsService.array_to_map(this.userData()));
 
   ngOnInit(): void {
     this.selected = {value: [], name: ""};
-    this.userData = this.users.dataModel;
-    this.admin_receivers_by_id = this.utilsService.array_to_map(this.users.dataModel);
   }
 
   confirm() {
@@ -45,7 +42,7 @@ export class TriggerReceiverComponent implements OnInit {
     this.modalService.dismissAll();
   }
 
-  addReceiver(item: User) {
+  addReceiver(item: SelectableUser) {
     if (item && this.arg.trigger_receiver.indexOf(item.id) === -1) {
       this.arg.trigger_receiver.push(item.id);
     }

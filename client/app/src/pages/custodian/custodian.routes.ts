@@ -1,7 +1,6 @@
 import {Routes} from "@angular/router";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {RTipsResolver} from "@app/shared/resolvers/r-tips-resolver.service";
 import {IarResolver} from "@app/shared/resolvers/iar-resolver.service";
 
 export const custodianRoutes: Routes = [
@@ -35,7 +34,7 @@ export const custodianRoutes: Routes = [
     pathMatch: "full",
     data: {pageTitle: "Requests"},
     resolve: {
-      PreferenceResolver, NodeResolver, RtipsResolver: RTipsResolver, IarsResolver: IarResolver
+      PreferenceResolver, NodeResolver, IarsResolver: IarResolver
     },
   }
 ];

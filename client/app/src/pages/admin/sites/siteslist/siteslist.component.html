@@ -1,75 +1,62 @@
-<div class="config-item reveal">
-  <div class="editorHeader row">
-    <div class="col-md-6" (click)="toggleEditing($event)">
-      <div>
-        <span class="badge bg-secondary">{{indexNumber}}</span>
-        <span>{{tenant.name}}</span>
-      </div>
-      @if (tenant.active && (tenant.onionservice || tenant.hostname || tenant.subdomain)) {
-        <div class="tenant-badge">
-          @if (tenant.hostname) {
-            <a class="badge bg-primary" [href]="'https://' + tenant.hostname" target="_blank">{{tenant.hostname}}</a>
-          }
-          @if (tenant.onionservice) {
-            <a class="badge bg-primary" [href]="'http://' + tenant.onionservice" target="_blank">{{tenant.onionservice}}</a>
-          }
-          @if (tenant.subdomain) {
-            @if (nodeResolver.dataModel.rootdomain) {
-              <a class="badge bg-primary" [href]="'https://' + tenant.subdomain + '.' + nodeResolver.dataModel.rootdomain" target="_blank">{{tenant.subdomain}}.{{nodeResolver.dataModel.rootdomain}}</a>
-            }
-            @if (nodeResolver.dataModel.onionservice) {
-              <a class="badge bg-primary" [href]="'http://' + tenant.subdomain + '.' + nodeResolver.dataModel.onionservice" target="_blank">{{tenant.subdomain}}.{{nodeResolver.dataModel.onionservice}}</a>
-	    }
-          }
-        </div>
+<src-list-item class="tenant" [(editing)]="editing" [canEdit]="tenant().id !== 1" [canDelete]="isRemovableTenant()" (save)="saveTenant()" (deleted)="deleteTenant(tenant())">
+  <ng-container title>
+    <div>
+      <span class="badge bg-secondary">{{(index() ?? 0) + 1}}</span>
+      <span>{{tenant().name}}</span>
+      @if (profileName) {
+        <span class="badge bg-primary">{{profileName}}</span>
       }
     </div>
-    @if (tenant.id !== 1) {
-      <div class="col-md-6 clearfix" (click)="toggleEditing($event)">
-        <span class="float-end">
-          @if (tenant.active) {
-            <button id="action-tenant-disable" class="btn btn-sm btn-primary" name="disable_tenant" (click)="toggleActivation($event)">{{'Enabled'|translate}} </button>
-            <button id="action-tenant-view" class="btn btn-sm btn-outline-secondary" (click)="viewTenant(tenant)"><span>{{ 'View' | translate }}</span></button>
+    @if (tenant().active && (tenant().onionservice || tenant().hostname || tenant().subdomain)) {
+      <div class="tenant-badge">
+        @if (tenant().hostname) {
+          <a class="badge bg-primary" [href]="'https://' + tenant().hostname" target="_blank">{{tenant().hostname}}</a>
+        }
+        @if (tenant().onionservice) {
+          <a class="badge bg-primary" [href]="'http://' + tenant().onionservice" target="_blank">{{tenant().onionservice}}</a>
+        }
+        @if (tenant().subdomain) {
+          @if (nodeResolver.dataModel.rootdomain) {
+            <a class="badge bg-primary" [href]="'https://' + tenant().subdomain + '.' + nodeResolver.dataModel.rootdomain" target="_blank">{{tenant().subdomain}}.{{nodeResolver.dataModel.rootdomain}}</a>
           }
-          @if (!tenant.active) {
-            <button id="action-tenant-enable" class="btn btn-sm btn-danger" name="enable_tenant" (click)="toggleActivation($event)">{{'Disabled'|translate}} </button>
+          @if (nodeResolver.dataModel.onionservice) {
+            <a class="badge bg-primary" [href]="'http://' + tenant().subdomain + '.' + nodeResolver.dataModel.onionservice" target="_blank">{{tenant().subdomain}}.{{nodeResolver.dataModel.onionservice}}</a>
           }
-          @if (tenant.active) {
-            <button id="action-tenant-configure" class="btn btn-sm btn-outline-secondary" name="configure_tenant" (click)="configureTenant($event, tenant.id)">{{'Configure'|translate}}</button>
-          }
-          @if (editing) {
-            <button id="action-tenant-save" class="btn btn-sm btn-primary" name="save_tenant" (click)="saveTenant()">{{'Save'|translate}}</button>
-          }
-          @if (isRemovableTenant()) {
-            <button id="action-tenant-delete" class="btn btn-sm btn-danger" name="delete_tenant" (click)="deleteTenant($event, tenant)">{{'Delete'|translate}}</button>
-          }
-          <button class="btn btn-sm btn-outline-secondary" name="edit_tenant" (click)="toggleEditing($event)">
-            <i id="action-tenant-edit" class="fa" [ngClass]="{'fa-chevron-down': !editing, 'fa-chevron-up': editing}"></i>
-          </button>
-        </span>
+        }
       </div>
     }
-  </div>
-  @if (editing) {
-    <div>
-      <hr />
+  </ng-container>
+  <ng-container actions>
+    @if (tenant().id !== 1) {
+      @if (tenant().active) {
+        <button type="button" class="btn btn-sm btn-primary" data-action="disable" name="disable_tenant" (click)="toggleActivation($event)">{{'Enabled'|translate}}</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="view" (click)="viewTenant(tenant())"><span>{{ 'View' | translate }}</span></button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="configure" name="configure_tenant" (click)="configureTenant($event, tenant().id)">{{'Configure'|translate}}</button>
+        @if (profileName) {
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-action="detach" name="detach_tenant" (click)="detachFromProfile($event)">{{'Detach'|translate}}</button>
+        }
+      } @else {
+        <button type="button" class="btn btn-sm btn-danger" data-action="enable" name="enable_tenant" (click)="toggleActivation($event)">{{'Disabled'|translate}}</button>
+      }
+    }
+  </ng-container>
+  <ng-template #body>
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label for="tenant-name-{{tenant.id}}">{{'Name'|translate}}</label>
-            <input id="tenant-name-{{tenant.id}}" name="name" class="form-control" [(ngModel)]="tenant.name" type="text" required>
+            <label for="tenant-name-{{tenant().id}}">{{'Name'|translate}}</label>
+            <input id="tenant-name-{{tenant().id}}" name="name" class="form-control" [(ngModel)]="tenant().name" type="text" required>
           </div>
           <div class="form-group">
-            <label for="tenant-subdomain-{{tenant.id}}">{{'Subdomain'|translate}}</label>
-            <input id="tenant-subdomain-{{tenant.id}}" name="subdomain" class="form-control" [(ngModel)]="tenant.subdomain" type="text" maxlength="40" required>
+            <label for="tenant-subdomain-{{tenant().id}}">{{'Subdomain'|translate}}</label>
+            <input id="tenant-subdomain-{{tenant().id}}" name="subdomain" class="form-control" [(ngModel)]="tenant().subdomain" type="text" maxlength="40" required>
           </div>
           <div class="form-group">
-            <label>
-              <span>{{'Creation date:'|translate}}</span> {{tenant.creation_date | date:'dd-MM-yyyy'}}
-            </label>
+            <span class="form-label">
+              <span>{{'Creation date:'|translate}}</span> {{tenant().creation_date | date:'dd-MM-yyyy'}}
+            </span>
           </div>
         </div>
       </div>
-    </div>
-  }
-</div>
+  </ng-template>
+</src-list-item>

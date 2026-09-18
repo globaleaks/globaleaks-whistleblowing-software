@@ -2,11 +2,11 @@
 
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
-from globaleaks.models.properties import *
+from globaleaks.models.properties import Boolean, Column, DateTime, Integer, JSON, UnicodeText, uuid4
 from globaleaks.utils.utility import datetime_never, datetime_now
 
 
-class Context_v_63(Model):
+class ContextV63(Model):
     __tablename__ = 'context'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -26,7 +26,7 @@ class Context_v_63(Model):
     order = Column(Integer, default=0, nullable=False)
 
 
-class InternalTip_v_63(Model):
+class InternalTipV63(Model):
     __tablename__ = 'internaltip'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -58,5 +58,4 @@ class MigrationScript(MigrationBase):
     def epilogue(self):
         for t in self.session_new.query(self.model_to['Tenant']):
             if self.session_old.query(self.model_to['User']).filter(self.model_to['User'].tid == t.id, self.model_to['User'].pgp_key_public != '').count():
-                self.session_new.add(self.model_to['Config']({'tid': t.id, 'var_name': 'pgp', 'value': True}))
-                self.entries_count["Config"] += 1
+                self.add_entry('Config', self.model_to['Config']({'tid': t.id, 'var_name': 'pgp', 'value': True}))

@@ -1,33 +1,32 @@
-import {HttpClient} from "@angular/common/http";
 import {Component, inject} from "@angular/core";
 import {NgbModal, NgbModalRef, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {UtilsService} from "@app/shared/services/utils.service";
+import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 
 @Component({
     selector: "src-tip-operation-file-identity-access-request",
     templateUrl: "./tip-operation-file-identity-access-request.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslateModule, TranslatorPipe]
+    imports: [FormsModule, NgbTooltipModule, TranslateModule]
 })
 export class TipOperationFileIdentityAccessRequestComponent {
-  private modalService = inject(NgbModal);
-  private tipsService = inject(ReceiverTipService);
-  private http = inject(HttpClient);
-  private utils = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly tipsService = inject(ReceiverTipService);
+  private readonly httpService = inject(HttpService);
+  private readonly utils = inject(UtilsService);
 
   request_motivation: string;
   modal: NgbModalRef;
 
   confirm() {
     this.modalService.dismissAll();
-    this.http.post("api/recipient/rtips/" + this.tipsService.tip.id + "/iars", {"request_motivation": this.request_motivation})
+    this.httpService.requestIdentityAccess(this.tipsService.tip.id, this.request_motivation)
       .subscribe(
-        _ => {
+        () => {
           this.utils.reloadCurrentRoute();
         }
       );

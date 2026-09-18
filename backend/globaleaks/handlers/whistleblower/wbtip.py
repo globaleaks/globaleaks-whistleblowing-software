@@ -8,40 +8,36 @@ from nacl.encoding import Base64Encoder
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.zipstream import ZipStream
 from twisted.internet.threads import deferToThread
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.handlers.admin.auditlog import serialize_log
+from globaleaks.handlers.auditlog import db_get_report_audit_log, decrypt_log_hashes
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.public import db_get_submission_statuses
+from globaleaks.handlers.auth import db_set_receipt_hash
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
-    db_set_internaltip_answers, db_get_questionnaire, \
-    db_archive_questionnaire_schema, db_set_internaltip_data, \
-    extract_statistical_data
-from globaleaks.handlers.user import serialize_user
+    db_set_internaltip_answers, db_archive_questionnaire_schema, \
+    db_set_internaltip_data, db_validate_answers, extract_statistical_data
+from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
-from globaleaks.orm import db_get, transact
+from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
-from globaleaks.utils.log import log
+from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null
 from globaleaks.models.config import db_get_config_variable
 
 @transact
 def get_report_audit_log(session, tid, user_id):
-    _ = db_get(session, models.InternalTip, models.InternalTip.id == user_id)
+    itip = db_get(session, models.InternalTip, models.InternalTip.id == user_id)
 
-    logs = session.query(models.AuditLog) \
-                  .filter(models.AuditLog.tid == tid,
-                          models.AuditLog.object_id == user_id) \
-                  .order_by(models.AuditLog.date.desc())
-
-    return [serialize_log(log) for log in logs]
+    return db_get_report_audit_log(session, tid, user_id), Base64Encoder.decode(itip.crypto_tip_prv_key)
 
 
 def db_notify_report_update(session, user, rtip, itip):
@@ -51,14 +47,20 @@ def db_notify_report_update(session, user, rtip, itip):
     :param rtip: A rtip ORM object
     :param itip: A itip ORM object
     """
+    notif = State.tenants[user.tid].cache.notification
+    if (notif and not notif.enable_receiver_notification_emails) or not user.notification or not rtip.enable_notifications:
+        return
+
     data = {
       'type': 'tip_update',
-      'user': serialize_user(session, user, user.language),
+      'user': user_serialize_user(session, user, user.language),
       'node': db_admin_serialize_node(session, user.tid, user.language),
       'tip': serializers.serialize_rtip(session, itip, rtip, user.language),
     }
 
     data['notification'] = db_get_notification(session, user.tid, user.language)
+
+    data['submission_statuses'] = db_get_submission_statuses(session, user.tid, user.language)
 
     subject, body = Templating().get_mail_subject_and_body(data)
 
@@ -70,12 +72,11 @@ def db_notify_report_update(session, user, rtip, itip):
         'secondary_smtp': mail_uses_smtp2(data['notification'], data['type'])
     }))
 
-
 def db_notify_recipients_of_tip_update(session, itip_id):
     for user, rtip, itip in session.query(models.User, models.ReceiverTip, models.InternalTip) \
                                    .filter(models.User.id == models.ReceiverTip.receiver_id,
                                            models.ReceiverTip.internaltip_id == models.InternalTip.id,
-                                           models.ReceiverTip.last_access > models.ReceiverTip.last_notification,
+                                           models.ReceiverTip.last_notification < models.ReceiverTip.last_access,
                                            models.InternalTip.id == itip_id):
         db_notify_report_update(session, user, rtip, itip)
 
@@ -84,6 +85,8 @@ def db_get_wbtip(session, itip_id, language):
     itip = db_get(session, models.InternalTip, models.InternalTip.id == itip_id)
 
     itip.last_access = datetime_now()
+
+    db_log(session, tid=itip.tid, type='whistleblower_access_report', user_id=itip_id, object_id=itip.id)
 
     return serializers.serialize_wbtip(session, itip, language), Base64Encoder.decode(itip.crypto_tip_prv_key)
 
@@ -98,7 +101,7 @@ def create_comment(session, tid, user_id, content):
     itip = db_get(session,
                   models.InternalTip,
                   (models.InternalTip.id == user_id,
-                   models.InternalTip.tid.in_({tid, State.tenants[tid].cache.ptid})))
+                   models.InternalTip.tid == tid))
 
     itip.update_date = itip.last_access = datetime_now()
 
@@ -120,6 +123,10 @@ def create_comment(session, tid, user_id, content):
     session.add(comment)
     session.flush()
 
+    # The whistleblower is identified by the report it holds the session of,
+    # as for any other action it performs on it
+    db_log(session, tid=tid, type='whistleblower_add_comment', user_id=itip.id, object_id=comment.id, data={'internaltip_id': itip.id})
+
     ret = serializers.serialize_comment(session, comment)
     ret['content'] = content
     ret['hash_sha256'] = hash_sha256
@@ -130,16 +137,34 @@ def create_comment(session, tid, user_id, content):
 
 @transact
 def update_identity_information(session, tid, user_id, identity_field_id, wbi, language):
-    itip = db_get(session,
-                  models.InternalTip,
-                  (models.InternalTip.id == user_id,
-                   models.InternalTip.status != 'closed',
-                   models.InternalTip.tid == tid))
+    itip, context = session.query(models.InternalTip, models.Context) \
+                           .filter(models.InternalTip.id == user_id,
+                                   models.InternalTip.status != 'closed',
+                                   models.InternalTip.tid == tid,
+                                   models.Context.id == models.InternalTip.context_id).one()
 
+    whistleblower_identity = session.query(models.Field) \
+                                    .filter(models.Field.template_id == 'whistleblower_identity',
+                                            models.Field.step_id == models.Step.id,
+                                            models.Step.questionnaire_id == context.questionnaire_id).one_or_none()
+
+    if whistleblower_identity is None or identity_field_id != whistleblower_identity.id:
+        raise errors.InputValidationError("Invalid whistleblower identity field")
+
+    # The identity answers are the entry of the whistleblower identity field,
+    # so they are validated exactly as the initial submission validates the
+    answers = {whistleblower_identity.id: [wbi]}
+    db_validate_answers(session, tid, context.questionnaire_id, answers, True)
+
+    identity_data = answers[whistleblower_identity.id][0]
+
+    wbi = identity_data
     if itip.crypto_tip_pub_key:
         wbi = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(wbi).encode())).decode()
 
-    db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi)
+    db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi, None, identity_data, itip.crypto_tip_pub_key)
+
+    db_log(session, tid=tid, type='whistleblower_provide_identity', user_id=itip.id, object_id=itip.id)
 
     now = datetime_now()
     itip.update_date = now
@@ -150,41 +175,44 @@ def update_identity_information(session, tid, user_id, identity_field_id, wbi, l
 
 @transact
 def store_additional_questionnaire_answers(session, tid, user_id, answers, language):
-    itip, context = session.query(models.InternalTip, models.Context) \
-                           .filter(models.InternalTip.id == user_id,
-                                   models.InternalTip.status != 'closed',
-                                   models.InternalTip.tid == tid,
-                                   models.Context.id == models.InternalTip.context_id).one()
+    itip = session.query(models.InternalTip) \
+                  .filter(models.InternalTip.id == user_id,
+                          models.InternalTip.status != 'closed',
+                          models.InternalTip.tid == tid).one()
 
-    if not context.additional_questionnaire_id:
+    # The additional questionnaire asked of the report: the automatic one of the channel, or the one
+    # the recipients asked
+    questionnaire_id = itip.additional_questionnaire_id
+    if not questionnaire_id:
         return
 
-    for _, field_items in answers.items():
-            for item in field_items:
-                if 'value' in item and item['value']:
-                    val_str = str(item['value'])
-                    item['hash_sha256'] = sha256(val_str).decode()
-                    item['hash_sha512'] = sha512(val_str).decode()
-
-    steps = db_get_questionnaire(session, tid, context.additional_questionnaire_id, None)['steps']
+    steps, _ = db_validate_answers(session, tid, questionnaire_id, answers, True)
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
     stat_data = extract_statistical_data(session, tid, answers)
+    plaintext_answers = answers
 
     if itip.crypto_tip_pub_key:
         if stat_data:
             crypto_stat_pub_key = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'crypto_stat_pub_key'))[0]
             stat_data = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_stat_pub_key, json.dumps(stat_data, cls=JSONEncoder).encode())).decode()
 
-        answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers).encode())).decode()
+        answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_hash, answers, stat_data)
+    db_set_internaltip_answers(session, itip.id, questionnaire_id, questionnaire_hash, answers, stat_data, None, plaintext_answers, itip.crypto_tip_pub_key)
+
+    # The questionnaire has been answered and is no longer asked: the report
+    # carries no request until the recipients make another one
+    itip.additional_questionnaire_id = ''
+    itip.update_date = datetime_now()
+
+    db_log(session, tid=tid, type='whistleblower_add_answers', user_id=itip.id, object_id=itip.id, data={'questionnaire_hash': questionnaire_hash})
 
     db_notify_recipients_of_tip_update(session, itip.id)
 
 
 @transact
-def change_receipt(session, itip_id, cc, receipt, receipt_change_needed):
+def change_receipt(session, itip_id, cc, receipt):
     """
     Transaction for updating old receipt to a new one
     """
@@ -193,17 +221,12 @@ def change_receipt(session, itip_id, cc, receipt, receipt_change_needed):
     if itip is None:
         return
 
-    tid = itip.tid
+    key = db_set_receipt_hash(session, itip.tid, itip, receipt)
 
-    # update receipt
-    wb_key, itip.receipt_hash = GCE.calculate_key_and_hash(receipt, State.tenants[tid].cache.receipt_salt)
-    itip.receipt_change_needed = receipt_change_needed
+    itip.receipt_change_needed = False
 
-    if cc is None:
-        return
-
-    # update private keys
-    itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(wb_key, cc))
+    if cc:
+        itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
 
 
 class Operations(BaseHandler):
@@ -217,9 +240,18 @@ class Operations(BaseHandler):
         if request["operation"] != "change_receipt":
             raise errors.InputValidationError("Invalid command")
 
-        return change_receipt(self.session.user_id, self.session.cc,
-                              self.session.properties["new_receipt"],
-                              "operator_session" in self.session.properties)
+        receipt = request["args"].get("receipt", "")
+        if not receipt:
+            raise errors.InputValidationError("Missing receipt")
+
+        return change_receipt(self.session.user_id, self.session.cc, receipt)
+
+
+def db_file_is_masked(session, itip_id, file_id):
+    return session.query(models.Redaction) \
+                  .filter(models.Redaction.internaltip_id == itip_id,
+                          models.Redaction.reference_id == file_id,
+                          models.Redaction.entry == '0').count() > 0
 
 
 class WBTipInstance(BaseHandler):
@@ -230,6 +262,9 @@ class WBTipInstance(BaseHandler):
 
     @inlineCallbacks
     def get(self):
+        # Local import to avoid a circular import with recipient.rtip.
+        from globaleaks.handlers.recipient.rtip import redact_report  # noqa: PLC0415
+
         tip, crypto_tip_prv_key = yield get_wbtip(self.session.user_id, self.request.language)
 
         if State.tenants[self.request.tid].cache.antivirus_enabled and crypto_tip_prv_key:
@@ -240,7 +275,9 @@ class WBTipInstance(BaseHandler):
         if crypto_tip_prv_key:
             tip = yield deferToThread(decrypt_tip, self.session.cc, crypto_tip_prv_key, tip)
 
-        returnValue(tip)
+        tip = yield redact_report(self.session, tip)
+
+        return tip
 
 
 class WBTipCommentCollection(BaseHandler):
@@ -268,10 +305,16 @@ class WhistleblowerFileDownload(BaseHandler):
                               models.InternalTip),
                              (models.InternalFile.id == file_id,
                               models.InternalFile.internaltip_id == models.InternalTip.id,
-                              models.InternalTip.id == user_id))
-        log.debug("Download of file %s by whistleblower %s" % (ifile.id, user_id))
+                              models.InternalTip.id == user_id,
+                              models.InternalTip.tid == tid))
+
+        if db_file_is_masked(session, ifile.internaltip_id, ifile.id):
+            raise errors.ForbiddenOperation
+
         antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
         recheck_needed = prepare_file_download(ifile, antivirus_enabled)
+
+        db_log(session, tid=tid, type='whistleblower_access_file', user_id=user_id, object_id=ifile.id, data={'internaltip_id': ifile.internaltip_id})
 
         return ifile.name, ifile.id, itip.crypto_tip_prv_key, ifile.state, antivirus_enabled, recheck_needed, ifile.size
 
@@ -328,10 +371,15 @@ class ReceiverFileDownload(BaseHandler):
                                (models.ReceiverFile, models.InternalTip),
                                (models.ReceiverFile.id == file_id,
                                 models.ReceiverFile.internaltip_id == models.InternalTip.id,
-                                models.InternalTip.id == self.session.user_id))
+                                models.ReceiverFile.visibility == 'public',
+                                models.InternalTip.id == self.session.user_id,
+                                models.InternalTip.tid == tid))
 
         if not wbtip:
             raise errors.ResourceNotFound
+
+        if db_file_is_masked(session, rfile.internaltip_id, rfile.id):
+            raise errors.ForbiddenOperation
 
         if rfile.access_date == datetime_null():
             rfile.access_date = datetime_now()
@@ -339,8 +387,7 @@ class ReceiverFileDownload(BaseHandler):
         antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
         recheck_needed = prepare_file_download(rfile, antivirus_enabled)
 
-        log.debug("Download of file %s by whistleblower %s",
-                  rfile.id, self.session.user_id)
+        db_log(session, tid=tid, type='whistleblower_access_file', user_id=self.session.user_id, object_id=rfile.id, data={'internaltip_id': rfile.internaltip_id})
 
         return (rfile.name, rfile.id, Base64Encoder.decode(wbtip.crypto_tip_prv_key), '',
                 rfile.state, recheck_needed, rfile.size)
@@ -414,11 +461,18 @@ class WBTipAdditionalQuestionnaire(BaseHandler):
                                                       request['answers'],
                                                       self.request.language)
 
+
 class ReportAuditLog(BaseHandler):
     """
-    Handler that provide access to the report audit log
+    Handler that provides access to the audit log of the report of the session
     """
     check_roles = 'whistleblower'
 
-    def get(self, tip_id):
-        return get_report_audit_log(self.session.tid, self.session.user_id)
+    @inlineCallbacks
+    def get(self):
+        logs, crypto_tip_prv_key = yield get_report_audit_log(self.session.tid, self.session.user_id)
+
+        if crypto_tip_prv_key:
+            decrypt_log_hashes(self.session.cc, crypto_tip_prv_key, logs)
+
+        return logs

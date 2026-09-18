@@ -4,21 +4,46 @@ ORM Models definitions.
 import copy
 
 from datetime import datetime
+
 from sqlalchemy.orm import relationship
 
 from globaleaks.models import config_desc
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.enums import EnumFieldAttrType, EnumFieldInstance, \
+    EnumFieldOptionScoreType, EnumExchangeType, EnumStateFile, \
+    EnumSupportRequestStatus, EnumUserRole, EnumUserStatus, EnumVisibility
+from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
+    Column, DateTime, Enum, ForeignKeyConstraint, Integer, UnicodeText, \
+    UniqueConstraint, declarative_base, declared_attr, uuid4
 from globaleaks.utils.utility import datetime_now, datetime_never, datetime_null
 
-user_permissions = [
-    'can_edit_general_settings',
+
+# Each permission gates an independent administrative area on every operation, reads included
+admin_permissions = [
+    'can_manage_settings',
+    'can_manage_users',
+    'can_manage_user_profiles',
+    'can_manage_channels',
+    'can_manage_questionnaires',
+    'can_manage_case_management',
+    'can_manage_notifications',
+    'can_manage_network',
+    'can_manage_sites',
+    'can_manage_auditlog',
+    'can_manage_support'
+]
+
+user_permissions = admin_permissions + [
     'can_delete_submission',
     'can_postpone_expiration',
     'can_grant_access_to_reports',
     'can_redact_information',
     'can_mask_information',
-    'can_transfer_access_to_reports'
+    'can_transfer_access_to_reports',
+    'can_reopen_reports',
+    'can_send_communications',
+    'can_change_status',
+    'can_change_label',
+    'can_configure_statistical_report_templates'
 ]
 
 
@@ -37,11 +62,10 @@ field_types = [
 ]
 
 
-class LocalizationEngine(object):
+class LocalizationEngine:
     """
     This Class can manage all the localized strings inside one ORM object
     """
-
     def __init__(self, keys):
         self._localized_strings = {}
         self._localized_keys = keys
@@ -100,7 +124,7 @@ def get_localized_values(dictionary, obj, keys, language):
 Base = declarative_base()
 
 
-class Model(object):
+class Model:
     """
     Base ORM model
     """
@@ -121,6 +145,32 @@ class Model(object):
 
         self.properties = self.__mapper__.column_attrs.keys()
 
+    @staticmethod
+    def _bool_value(value):
+        """
+        A boolean carried by a request may travel as the string the client sends
+        """
+        if value == 'true':
+            return True
+
+        if value == 'false':
+            return False
+
+        return bool(value)
+
+    def _localized_value(self, key, value):
+        """
+        A localized value is merged onto the translations the model already holds, so that a
+        language left out of a request is not dropped
+        """
+        previous = copy.deepcopy(getattr(self, key))
+
+        if previous and isinstance(previous, dict):
+            previous.update(value)
+            return previous
+
+        return value
+
     def update(self, values=None):
         """
         Updated Models attributes from dict.
@@ -128,61 +178,35 @@ class Model(object):
         if values is None:
             return
 
-        if 'id' in values and values['id']:
-            setattr(self, 'id', values['id'])
-
-        if 'tid' in values and values['tid']:
-            setattr(self, 'tid', values['tid'])
-
-        for k in getattr(self, 'unicode_keys'):
-            if k in values and values[k] is not None:
+        for k in ('id', 'tid'):
+            if values.get(k):
                 setattr(self, k, values[k])
 
-        for k in getattr(self, 'int_keys'):
-            if k in values and values[k] is not None:
-                setattr(self, k, int(values[k]))
+        # Each group of keys is read as it is, or through the reader its type asks for
+        groups = [(self.unicode_keys, None),
+                  (self.datetime_keys, None),
+                  (self.json_keys, None),
+                  (self.int_keys, lambda _, value: int(value)),
+                  (self.bool_keys, lambda _, value: self._bool_value(value)),
+                  (self.localized_keys, self._localized_value)]
 
-        for k in getattr(self, 'datetime_keys'):
-            if k in values and values[k] is not None:
-                setattr(self, k, values[k])
+        for keys, read in groups:
+            for k in keys:
+                if k not in values or values[k] is None:
+                    continue
 
-        for k in getattr(self, 'bool_keys'):
-            if k in values and values[k] is not None:
-                if values[k] == 'true':
-                    value = True
-                elif values[k] == 'false':
-                    value = False
-                else:
-                    value = bool(values[k])
-                setattr(self, k, value)
+                setattr(self, k, read(k, values[k]) if read is not None else values[k])
 
-        for k in getattr(self, 'localized_keys'):
-            if k in values and values[k] is not None:
-                value = values[k]
-                previous = copy.deepcopy(getattr(self, k))
-
-                if previous and isinstance(previous, dict):
-                    previous.update(value)
-                    value = previous
-
-                setattr(self, k, value)
-
-        for k in getattr(self, 'json_keys'):
-            if k in values and values[k] is not None:
-                setattr(self, k, values[k])
-
-        for k in getattr(self, 'optional_references'):
+        # An emptied reference is cleared rather than left untouched
+        for k in self.optional_references:
             if k in values:
-                if values[k]:
-                    setattr(self, k, values[k])
-                else:
-                    setattr(self, k, None)
+                setattr(self, k, values[k] or None)
 
     def __setattr__(self, name, value):
         if isinstance(value, bytes):
             value = value.decode()
 
-        return super(Model, self).__setattr__(name, value)
+        return super().__setattr__(name, value)
 
     def dict(self, language=None):
         """
@@ -202,11 +226,10 @@ class Model(object):
 
                 elif k in self.date_keys:
                     ret[k] = value
+            elif self.__table__.columns[k].default and not callable(self.__table__.columns[k].default.arg):
+                ret[k] = self.__table__.columns[k].default.arg
             else:
-                if self.__table__.columns[k].default and not callable(self.__table__.columns[k].default.arg):
-                    ret[k] = self.__table__.columns[k].default.arg
-                else:
-                    ret[k] = ''
+                ret[k] = ''
 
         for k in self.list_keys:
             ret[k] = []
@@ -222,9 +245,6 @@ class _ArchivedSchema(Model):
 
     unicode_keys = ['hash']
 
-
-class ArchivedSchema(_ArchivedSchema, Base):
-    pass
 
 class _AuditLog(Model):
     """
@@ -242,10 +262,6 @@ class _AuditLog(Model):
     data = Column(JSON)
 
 
-class AuditLog(_AuditLog, Base):
-    pass
-
-
 class _Comment(Model):
     """
     This table handle the comment collection, has an InternalTip referenced
@@ -261,8 +277,9 @@ class _Comment(Model):
     new = Column(Boolean, default=True, nullable=False)
     hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
     hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
+    verification_date = Column(DateTime, nullable=True)
 
-class Comment(_Comment, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -275,8 +292,9 @@ class _Config(Model):
     value = Column(JSON, default=dict, nullable=False)
     update_date = Column(DateTime, default=datetime_null, nullable=False)
 
-    unicode_keys = ['var_name']
-    json_keys = ['value']
+    @declared_attr
+    def __table_args__(self):
+        return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
 
     def __init__(self, values=None):
         """
@@ -301,19 +319,13 @@ class _Config(Model):
             val = int(datetime.timestamp(val))
 
         if not isinstance(val, desc._type):
-            raise ValueError("Cannot assign %s with %s" % (self, type(val)))
+            raise ValueError(f"Cannot assign {self} with {type(val)}")
 
         if self.value != val:
             if self.value is not None:
                 self.update_date = datetime_now()
 
             self.value = val
-
-
-class Config(_Config, Base):
-    @declared_attr
-    def __table_args__(self):
-        return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
 
 
 class _ConfigL10N(Model):
@@ -325,8 +337,6 @@ class _ConfigL10N(Model):
     value = Column(UnicodeText, nullable=False)
     update_date = Column(DateTime, default=datetime_null, nullable=False)
 
-
-class ConfigL10N(_ConfigL10N, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid', 'lang'], ['enabledlanguage.tid', 'enabledlanguage.name'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -346,36 +356,6 @@ class ConfigL10N(_ConfigL10N, Base):
                 self.update_date = datetime_now()
 
             self.value = value
-
-
-class _ContentForwarding(Model):
-    """
-    This model keeps track of submission files for the eo
-    """
-    __tablename__ = 'content_forwarding'
-
-    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    internaltip_forwarding_id = Column(UnicodeText(36), nullable=False, index=True)
-    content_id = Column(UnicodeText(36), nullable=False, index=True)
-    forwarding_content_id = Column(UnicodeText(36), nullable=False, index=True)
-    content_origin = Column(Enum(EnumContentForwarding), default='receiver_file', nullable=False)
-    author_type = Column(Enum(EnumAuthorType), default='main', nullable=False)
-
-    @declared_attr
-    def __table_args__(self):
-        return (
-            ForeignKeyConstraint(
-                ['internaltip_forwarding_id'],
-                ['internaltip.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-        )
-
-
-class ContentForwarding(_ContentForwarding, Base):
-    pass
 
 
 class _Context(Model):
@@ -398,11 +378,30 @@ class _Context(Model):
     score_threshold_high = Column(Integer, default=0, nullable=False)
     score_threshold_medium = Column(Integer, default=0, nullable=False)
     questionnaire_id = Column(UnicodeText(36), default='default', nullable=False, index=True)
-    additional_questionnaire_id = Column(UnicodeText(36), index=True)
+    # The additional questionnaire asked automatically of every report filed on the channel; the
+    # recipients ask the others of a single report
+    additional_questionnaire_id = Column(UnicodeText(36), default='', nullable=False, index=True)
+    slug = Column(UnicodeText(100), default='', nullable=False)
     hidden = Column(Boolean, default=False, nullable=False)
     order = Column(Integer, default=0, nullable=False)
 
+    # Offered to the users of the site that enter a report in place of a reporting person
+    internally_available = Column(Boolean, default=False, nullable=False)
+
+    # Whether the access code of a report entered internally is handed to the user that entered it;
+    # otherwise the server draws one
+    provide_access_code = Column(Boolean, default=False, nullable=False)
+
+    # Derived from a channel of the tenant profile: references it and inherits its configuration;
+    # written by the derivation only
+    template_id = Column(UnicodeText(36), default='', nullable=False)
+
+    # Receives what the other sites of the platform file here; declared by the exchanges that run
+    # through it
+    exchange = Column(Boolean, default=False, nullable=False)
+
     unicode_keys = [
+        'slug',
         'questionnaire_id',
         'additional_questionnaire_id'
     ]
@@ -427,13 +426,13 @@ class _Context(Model):
         'show_context',
         'show_receivers_in_alphabetical_order',
         'show_steps_navigation_interface',
-        'allow_recipients_selection'
+        'allow_recipients_selection',
+        'internally_available',
+        'provide_access_code'
     ]
 
-    list_keys = ['receivers']
+    list_keys = ['receivers', 'profiles', 'additional_questionnaires']
 
-
-class Context(_Context, Base):
     @declared_attr
     def __table_args__(self):
         return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -453,8 +452,6 @@ class _CustomTexts(Model):
     unicode_keys = ['lang']
     json_keys = ['texts']
 
-
-class CustomTexts(_CustomTexts, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -468,8 +465,6 @@ class _EnabledLanguage(Model):
 
     unicode_keys = ['name']
 
-
-class EnabledLanguage(_EnabledLanguage, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -498,14 +493,6 @@ class _Field(Model):
     template_override_id = Column(UnicodeText(36), index=True)
     statistical = Column(Boolean, default=False, nullable=False)
 
-    unicode_keys = ['type', 'instance', 'key']
-    int_keys = ['x', 'y', 'width', 'triggered_by_score']
-    localized_keys = ['label', 'description', 'hint', 'placeholder']
-    bool_keys = ['multi_entry', 'required']
-    optional_references = ['template_id', 'step_id', 'fieldgroup_id', 'template_override_id']
-
-
-class Field(_Field, Base):
     @declared_attr
     def __table_args__(self):
         return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -513,13 +500,12 @@ class Field(_Field, Base):
                 ForeignKeyConstraint(['fieldgroup_id'], ['field.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
                 ForeignKeyConstraint(['template_id'], ['field.id'], deferrable=True, initially='DEFERRED'),
                 ForeignKeyConstraint(['template_override_id'], ['field.id'], ondelete='SET NULL', deferrable=True, initially='DEFERRED'),
-                CheckConstraint(self.instance.in_(EnumFieldInstance.keys())),
-                CheckConstraint(self.type.in_(field_types)))
+                CheckConstraint(self.instance.in_(EnumFieldInstance.keys())))
 
     unicode_keys = ['type', 'instance', 'key']
     int_keys = ['x', 'y', 'width', 'triggered_by_score']
     localized_keys = ['label', 'description', 'hint', 'placeholder']
-    bool_keys = ['multi_entry', 'required', 'statistical']
+    bool_keys = ['multi_entry', 'required']
     optional_references = ['template_id', 'step_id', 'fieldgroup_id', 'template_override_id']
 
 
@@ -533,8 +519,6 @@ class _FieldAttr(Model):
 
     unicode_keys = ['field_id', 'name', 'type']
 
-
-class FieldAttr(_FieldAttr, Base):
     @declared_attr
     def __table_args__(self):
         return (UniqueConstraint('field_id', 'name'),
@@ -542,7 +526,7 @@ class FieldAttr(_FieldAttr, Base):
                 CheckConstraint(self.type.in_(EnumFieldAttrType.keys())))
 
     def update(self, values=None):
-        super(_FieldAttr, self).update(values)
+        super().update(values)
 
         if values is None:
             return
@@ -550,7 +534,7 @@ class FieldAttr(_FieldAttr, Base):
         value = values['value']
 
         if self.type == 'localized':
-            previous = getattr(self, 'value')
+            previous = self.value
             if previous and isinstance(previous, dict):
                 previous = copy.deepcopy(previous)
                 previous.update(value)
@@ -579,8 +563,6 @@ class _FieldOption(Model):
     json_keys = ['trigger_receiver']
     localized_keys = ['hint1', 'hint2', 'label']
 
-
-class FieldOption(_FieldOption, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['field_id'], ['field.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -593,8 +575,6 @@ class _FieldOptionTriggerField(Model):
     object_id = Column(UnicodeText(36), primary_key=True)
     sufficient = Column(Boolean, default=True, nullable=False)
 
-
-class FieldOptionTriggerField(_FieldOptionTriggerField, Base):
     @declared_attr
     def __table_args__(self):
         return (ForeignKeyConstraint(['option_id'], ['fieldoption.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -608,8 +588,6 @@ class _FieldOptionTriggerStep(Model):
     object_id = Column(UnicodeText(36), primary_key=True)
     sufficient = Column(Boolean, default=True, nullable=False)
 
-
-class FieldOptionTriggerStep(_FieldOptionTriggerStep, Base):
     @declared_attr
     def __table_args__(self):
         return (ForeignKeyConstraint(['option_id'], ['fieldoption.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -628,8 +606,6 @@ class _File(Model):
 
     unicode_keys = ['name']
 
-
-class File(_File, Base):
     @declared_attr
     def __table_args__(self):
         return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -653,8 +629,6 @@ class _IdentityAccessRequest(Model):
     reply_motivation = Column(UnicodeText, default='', nullable=False)
     reply = Column(UnicodeText, default='pending', nullable=False)
 
-
-class IdentityAccessRequest(_IdentityAccessRequest, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -670,38 +644,10 @@ class _IdentityAccessRequestCustodian(Model):
     custodian_id = Column(UnicodeText(36), primary_key=True)
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
 
-
-class IdentityAccessRequestCustodian(_IdentityAccessRequestCustodian, Base):
     @declared_attr
     def __table_args__(self):
         return (ForeignKeyConstraint(['identityaccessrequest_id'], ['identityaccessrequest.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
                 ForeignKeyConstraint(['custodian_id'], ['user.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
-
-
-class _ContentForwarding(Model):
-    """
-    This model keeps track of submission files for the eo
-    """
-    __tablename__ = 'content_forwarding'
-
-    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    internaltip_forwarding_id = Column(UnicodeText(36), nullable=False, index=True)
-    content_id = Column(UnicodeText(36), nullable=False, index=True)
-    forwarding_content_id = Column(UnicodeText(36), nullable=False, index=True)
-    content_origin = Column(Enum(EnumContentForwarding), default='receiver_file', nullable=False)
-    author_type = Column(Enum(EnumAuthorType), default='main', nullable=False)
-
-    @declared_attr
-    def __table_args__(self):
-        return (
-            ForeignKeyConstraint(
-                ['internaltip_forwarding_id'],
-                ['internaltip.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-        )
 
 
 class _InternalFile(Model):
@@ -718,12 +664,11 @@ class _InternalFile(Model):
     size = Column(JSON, default='', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
     reference_id = Column(UnicodeText(36), default='', nullable=False)
-    verification_date = Column(DateTime, nullable=True)
-    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
     hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
     hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
+    verification_date = Column(DateTime, nullable=True)
 
-class InternalFile(_InternalFile, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -740,6 +685,11 @@ class _InternalTip(Model):
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     update_date = Column(DateTime, default=datetime_now, nullable=False)
     context_id = Column(UnicodeText(36), nullable=False)
+    # The additional questionnaire asked of this report: the automatic one of the channel, or the
+    # one the recipients asked
+    additional_questionnaire_id = Column(UnicodeText(36), default='', nullable=False)
+    type = Column(UnicodeText(24), default='submission', nullable=False)
+    allow_transmission = Column(Boolean, default=False, nullable=False)
     operator_id = Column(UnicodeText(33), default='', nullable=False)
     progressive = Column(Integer, default=0, nullable=False)
     access_count = Column(Integer, default=0, nullable=False)
@@ -762,8 +712,14 @@ class _InternalTip(Model):
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
     deprecated_crypto_files_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
+    def is_owned_by(self, tid):
+        """
+        Tell whether the report belongs to a tenant, that is whether it is
 
-class InternalTip(_InternalTip, Base):
+        :param tid: The tenant ID of the recipient reading the report
+        """
+        return self.type not in ('request', 'exchange') or tid == self.tid
+
     @declared_attr
     def __table_args__(self):
         return (UniqueConstraint('tid', 'progressive'),
@@ -780,12 +736,15 @@ class _InternalTipAnswers(Model):
 
     internaltip_id = Column(UnicodeText(36), primary_key=True)
     questionnaire_hash = Column(UnicodeText(64), primary_key=True)
+    # The questionnaire the answers were given to; the hash names the archived schema. No foreign
+    # key, so that the answers outlive the questionnaire
+    questionnaire_id = Column(UnicodeText(36), default='', nullable=False)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     answers = Column(JSON, default=dict, nullable=False)
     stat_answers = Column(JSON, default=dict, nullable=False)
+    hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
+    hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
 
-
-class InternalTipAnswers(_InternalTipAnswers, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -798,45 +757,13 @@ class _InternalTipData(Model):
     key = Column(UnicodeText, primary_key=True)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     value = Column(JSON, default=dict, nullable=False)
+    hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
+    hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
 
-
-class InternalTipData(_InternalTipData, Base):
     @declared_attr
     def __table_args__(self):
         return (UniqueConstraint('internaltip_id', 'key'),
                 ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
-
-
-class _InternalTipForwarding(Model):
-    """
-    This model keeps track of forward tip.
-    """
-    __tablename__ = 'internaltip_forwarding'
-    internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
-    forwarding_internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
-
-    @declared_attr
-    def __table_args__(self):
-        return (
-            ForeignKeyConstraint(
-                ['internaltip_id'],
-                ['internaltip.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            ),
-            ForeignKeyConstraint(
-                ['forwarding_internaltip_id'],
-                ['internaltip.id'],
-                ondelete='CASCADE',
-                deferrable=True,
-                initially='DEFERRED'
-            )
-        )
-
-
-class InternalTipForwarding(_InternalTipForwarding, Base):
-    pass
 
 
 class _Mail(Model):
@@ -856,8 +783,6 @@ class _Mail(Model):
     unicode_keys = ['address', 'subject', 'body']
     bool_keys = ['secondary_smtp']
 
-
-class Mail(_Mail, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -873,11 +798,29 @@ class _Questionnaire(Model):
     unicode_keys = ['name']
     list_keys = ['steps']
 
-
-class Questionnaire(_Questionnaire, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+
+
+class _ContextAdditionalQuestionnaire(Model):
+    """
+    The additional questionnaires a channel can ask of the reports filed on it
+    """
+    __tablename__ = 'context_additional_questionnaire'
+
+    context_id = Column(UnicodeText(36), primary_key=True)
+    questionnaire_id = Column(UnicodeText(36), primary_key=True)
+
+    unicode_keys = ['context_id', 'questionnaire_id']
+
+
+class ContextAdditionalQuestionnaire(_ContextAdditionalQuestionnaire, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['context_id'], ['context.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['questionnaire_id'], ['questionnaire.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                UniqueConstraint('context_id', 'questionnaire_id'))
 
 
 class _ReceiverContext(Model):
@@ -893,43 +836,28 @@ class _ReceiverContext(Model):
     unicode_keys = ['context_id', 'receiver_id']
     int_keys = ['order']
 
-
-class ReceiverContext(_ReceiverContext, Base):
     @declared_attr
     def __table_args__(self):
         return (ForeignKeyConstraint(['context_id'], ['context.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
                 ForeignKeyConstraint(['receiver_id'], ['user.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
 
 
-class _ReceiverFile(Model):
+class _WhistleblowerFile(Model):
     """
-    This models stores metadata of files uploaded by recipients intended to be
-    delivered to the whistleblower. This file is not encrypted and nor is it
-    integrity checked in any meaningful way.
+    This model keeps track of files destinated to a specific receiver
     """
-    __tablename__ = 'receiverfile'
+    __tablename__ = 'whistleblowerfile'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
-    author_id = Column(UnicodeText(36))
-    name = Column(UnicodeText, nullable=False)
-    size = Column(Integer, nullable=False)
-    content_type = Column(UnicodeText, nullable=False)
-    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    internalfile_id = Column(UnicodeText(36), nullable=False, index=True)
+    receivertip_id = Column(UnicodeText(36), nullable=False, index=True)
     access_date = Column(DateTime, default=datetime_null, nullable=False)
-    description = Column(UnicodeText, default="", nullable=False)
-    visibility = Column(Enum(EnumVisibility), default='public', nullable=False)
     new = Column(Boolean, default=True, nullable=False)
-    hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
-    hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
-    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
-    verification_date = Column(DateTime, nullable=True)
 
-class ReceiverFile(_ReceiverFile, Base):
     @declared_attr
     def __table_args__(self):
-        return (ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
-                CheckConstraint(self.visibility.in_(EnumVisibility.keys())))
+        return (ForeignKeyConstraint(['internalfile_id'], ['internalfile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['receivertip_id'], ['receivertip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
 
 
 class _ReceiverTip(Model):
@@ -951,12 +879,11 @@ class _ReceiverTip(Model):
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
     deprecated_crypto_files_prv_key = Column(UnicodeText(84), default='', nullable=False)
 
-
-class ReceiverTip(_ReceiverTip, Base):
     @declared_attr
     def __table_args__(self):
-        return (ForeignKeyConstraint(['receiver_id'], ['user.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
-                ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
+        return (UniqueConstraint('internaltip_id', 'receiver_id'),
+                ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['receiver_id'], ['user.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'))
 
 
 class _Redaction(Model):
@@ -973,11 +900,27 @@ class _Redaction(Model):
     permanent_redaction = Column(JSON, default=dict, nullable=False)
     update_date = Column(DateTime, default=datetime_now, nullable=False)
 
-
-class Redaction(_Redaction, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+
+
+class _Exchange(Model):
+    """
+    Class used to implement the exchanges established between the sites
+    """
+    __tablename__ = 'exchange'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    type = Column(Enum(EnumExchangeType), default='transmission', nullable=False)
+    source = Column(UnicodeText(36), nullable=False)
+    target = Column(UnicodeText(36), nullable=False)
+    channel = Column(UnicodeText(36), default='', nullable=False)
+    questionnaire = Column(UnicodeText(36), default='', nullable=False)
+    request_questionnaire = Column(UnicodeText(36), default='', nullable=False)
+
+    unicode_keys = ['type', 'source', 'target', 'channel',
+                    'questionnaire', 'request_questionnaire']
 
 
 class _Redirect(Model):
@@ -993,8 +936,6 @@ class _Redirect(Model):
 
     unicode_keys = ['path1', 'path2']
 
-
-class Redirect(_Redirect, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -1014,8 +955,6 @@ class _Step(Model):
     int_keys = ['order', 'triggered_by_score']
     localized_keys = ['label', 'description']
 
-
-class Step(_Step, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['questionnaire_id'], ['questionnaire.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -1039,8 +978,6 @@ class _SubmissionStatus(Model):
     int_keys = ['order', 'tip_timetolive']
     json_keys = ['receivers']
 
-
-class SubmissionStatus(_SubmissionStatus, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -1062,8 +999,6 @@ class _SubmissionSubStatus(Model):
     localized_keys = ['label']
     int_keys = ['order', 'tip_timetolive']
 
-
-class SubmissionSubStatus(_SubmissionSubStatus, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid', 'submissionstatus_id'], ['submissionstatus.tid', 'submissionstatus.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -1115,8 +1050,6 @@ class _Subscriber(Model):
 
     optional_references = ['activation_token']
 
-
-class Subscriber(_Subscriber, Base):
     @declared_attr
     def __table_args__(self):
         return ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
@@ -1129,15 +1062,12 @@ class _Tenant(Model):
     __tablename__ = 'tenant'
     __table_args__ = {'sqlite_autoincrement': True}
 
+
     id = Column(Integer, primary_key=True)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     active = Column(Boolean, default=False, nullable=False)
 
     bool_keys = ['active']
-
-
-class Tenant(_Tenant, Base):
-    pass
 
 
 class _User(Model):
@@ -1175,15 +1105,30 @@ class _User(Model):
     change_email_date = Column(DateTime, default=datetime_null, nullable=False)
     notification = Column(Boolean, default=True, nullable=False)
     forcefully_selected = Column(Boolean, default=False, nullable=False)
+    can_delete_submission = Column(Boolean, default=False, nullable=False)
+    can_postpone_expiration = Column(Boolean, default=True, nullable=False)
+    can_grant_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_transfer_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_redact_information = Column(Boolean, default=False, nullable=False)
+    can_mask_information = Column(Boolean, default=True, nullable=False)
+    can_reopen_reports = Column(Boolean, default=True, nullable=False)
+    can_edit_general_settings = Column(Boolean, default=False, nullable=False)
+    readonly = Column(Boolean, default=False, nullable=False)
     two_factor_secret = Column(UnicodeText(32), default='', nullable=False)
     reminder_date = Column(DateTime, default=datetime_null, nullable=False)
-    profile_id = Column(Integer, default='', nullable=False)
+    profile_id = Column(UnicodeText(36), default='', nullable=False)
     status = Column(Enum(EnumUserStatus), default='active', nullable=False)
     idp_id = Column(UnicodeText, default='', nullable=False)
+    crypto_support_prv_key = Column(UnicodeText, default='', nullable=False)
+
+    # BEGIN of PGP key fields
     pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
     pgp_key_public = Column(UnicodeText, default='', nullable=False)
     pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
+    # END of PGP key fields
+
     last_expiration_reminder_date = Column(DateTime, default=datetime_null, nullable=False)
+
     accepted_privacy_policy = Column(DateTime, default=datetime_null, nullable=False)
     clicked_recovery_key = Column(Boolean, default=False, nullable=False)
 
@@ -1191,7 +1136,7 @@ class _User(Model):
                     'language', 'mail_address',
                     'name', 'public_name',
                     'language', 'change_email_address',
-                    'salt','profile_id',
+                    'salt', 'profile_id',
                     'two_factor_secret', 'status', 'idp_id']
 
     localized_keys = ['description']
@@ -1218,18 +1163,42 @@ class _User(Model):
                  'password_change_date',
                  'pgp_key_expiration']
 
-
-class User(_User, Base):
     @declared_attr
     def __table_args__(self):
         return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
-                ForeignKeyConstraint(['profile_id'], ['user_profile.id'], deferrable=True, initially='DEFERRED'),
-                ForeignKeyConstraint(['profile_id', 'role'], ['user_profile_role.profile_id', 'user_profile_role.role'], deferrable=True, initially='DEFERRED'),
+                UniqueConstraint('tid', 'username'),
                 CheckConstraint(self.role.in_(EnumUserRole.keys())))
 
+
+class _ReceiverFile(Model):
+    """
+    This models stores metadata of files uploaded by recipients intended to be
+    delivered to the whistleblower. This file is not encrypted and nor is it
+    integrity checked in any meaningful way.
+    """
+    __tablename__ = 'receiverfile'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
+    author_id = Column(UnicodeText(36))
+    name = Column(UnicodeText, nullable=False)
+    size = Column(Integer, nullable=False)
+    content_type = Column(UnicodeText, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    access_date = Column(DateTime, default=datetime_null, nullable=False)
+    description = Column(UnicodeText, default="", nullable=False)
+    visibility = Column(Enum(EnumVisibility), default='public', nullable=False)
+    new = Column(Boolean, default=True, nullable=False)
+    hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
+    hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
+    state = Column(Enum(EnumStateFile), default='pending', nullable=False)
+    verification_date = Column(DateTime, nullable=True)
+
     @declared_attr
-    def profile(cls):
-        return relationship("UserProfile")
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['internaltip_id'], ['internaltip.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                CheckConstraint(self.visibility.in_(EnumVisibility.keys())))
+
 
 
 class _UserProfile(Model):
@@ -1266,6 +1235,34 @@ class UserProfile(_UserProfile, Base):
     @property
     def roles_list(self):
         return [r.role for r in self.roles] if self.roles else []
+
+    @declared_attr
+    def contexts(cls):
+        return relationship("UserProfileContext", cascade="all")
+
+    @property
+    def contexts_list(self):
+        return [c.context_id for c in self.contexts] if self.contexts else []
+
+
+class _UserProfileContext(Model):
+    """
+    This model keeps track of the channels associated to a user profile: the
+    """
+    __tablename__ = 'user_profile_context'
+
+    profile_id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    context_id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+
+    unicode_keys = ['profile_id', 'context_id']
+
+
+class UserProfileContext(_UserProfileContext, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['profile_id'], ['user_profile.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['context_id'], ['context.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                UniqueConstraint('profile_id', 'context_id'))
 
 
 class _UserProfileRole(Model):
@@ -1312,17 +1309,252 @@ class UserProfilePermission(_UserProfilePermission, Base):
                 CheckConstraint(self.permission.in_(user_permissions)))
 
 
-class _WhistleblowerFile(Model):
+class _SupportRequest(Model):
     """
-    This model keeps track of files destinated to a specific receiver
+    An encrypted support conversation scoped to one tenant.
     """
-    __tablename__ = 'whistleblowerfile'
+    __tablename__ = 'supportrequest'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
-    internalfile_id = Column(UnicodeText(36), nullable=False, index=True)
-    receivertip_id = Column(UnicodeText(36), nullable=False, index=True)
-    access_date = Column(DateTime, default=datetime_null, nullable=False)
+    tid = Column(Integer, default=1, nullable=False, index=True)
+    progressive = Column(Integer, default=0, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    update_date = Column(DateTime, default=datetime_now, nullable=False)
+    author_id = Column(UnicodeText(36), nullable=True, index=True)
+    crypto_pub_key = Column(UnicodeText, nullable=False)
+    crypto_prv_key = Column(UnicodeText, nullable=False)
+    root_crypto_prv_key = Column(UnicodeText, default='', nullable=False)
+    crypto_author_prv_key = Column(UnicodeText, default='', nullable=False)
+    mail_address = Column(UnicodeText, default='', nullable=False)
+    status = Column(Enum(EnumSupportRequestStatus), default='new', nullable=False, index=True)
+
+    unicode_keys = [
+        'author_id',
+        'crypto_pub_key',
+        'crypto_prv_key',
+        'root_crypto_prv_key',
+        'crypto_author_prv_key',
+        'mail_address',
+        'status'
+    ]
+    int_keys = ['progressive']
+    optional_references = ['author_id']
+
+
+class SupportRequest(_SupportRequest, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                UniqueConstraint('tid', 'progressive'),
+                CheckConstraint(self.status.in_(EnumSupportRequestStatus.keys())))
+
+
+class _SupportMessage(Model):
+    """
+    An encrypted message belonging to a support conversation.
+    """
+    __tablename__ = 'supportmessage'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    support_request_id = Column(UnicodeText(36), nullable=False, index=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    author_id = Column(UnicodeText(36), nullable=True, index=True)
+    content = Column(UnicodeText, nullable=False)
     new = Column(Boolean, default=True, nullable=False)
+
+    unicode_keys = ['support_request_id', 'author_id', 'content']
+    optional_references = ['author_id']
+    bool_keys = ['new']
+
+
+class SupportMessage(_SupportMessage, Base):
+    @declared_attr
+    def __table_args__(self):
+        return ForeignKeyConstraint(['support_request_id'], ['supportrequest.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+
+
+class _InternalTipTransmission(Model):
+    """
+    This model keeps track of transmission tip.
+    """
+    __tablename__ = 'internaltip_transmission'
+    internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
+    transmitting_internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
+
+    @declared_attr
+    def __table_args__(self):
+        return (
+            ForeignKeyConstraint(
+                ['internaltip_id'],
+                ['internaltip.id'],
+                ondelete='CASCADE',
+                deferrable=True,
+                initially='DEFERRED'
+            ),
+            ForeignKeyConstraint(
+                ['transmitting_internaltip_id'],
+                ['internaltip.id'],
+                ondelete='CASCADE',
+                deferrable=True,
+                initially='DEFERRED'
+            )
+        )
+
+
+class InternalTipTransmission(_InternalTipTransmission, Base):
+    pass
+
+
+class ArchivedSchema(_ArchivedSchema, Base):
+    pass
+
+
+class AuditLog(_AuditLog, Base):
+    pass
+
+
+class Comment(_Comment, Base):
+    pass
+
+
+class Config(_Config, Base):
+    pass
+
+
+class ConfigL10N(_ConfigL10N, Base):
+    pass
+
+
+class Context(_Context, Base):
+    pass
+
+
+class CustomTexts(_CustomTexts, Base):
+    pass
+
+
+class EnabledLanguage(_EnabledLanguage, Base):
+    pass
+
+
+class Field(_Field, Base):
+    pass
+
+
+class FieldAttr(_FieldAttr, Base):
+    pass
+
+
+class FieldOption(_FieldOption, Base):
+    pass
+
+
+class FieldOptionTriggerField(_FieldOptionTriggerField, Base):
+    pass
+
+
+class FieldOptionTriggerStep(_FieldOptionTriggerStep, Base):
+    pass
+
+
+class File(_File, Base):
+    pass
+
+
+class IdentityAccessRequest(_IdentityAccessRequest, Base):
+    pass
+
+
+class IdentityAccessRequestCustodian(_IdentityAccessRequestCustodian, Base):
+    pass
+
+
+class InternalFile(_InternalFile, Base):
+    pass
+
+
+class InternalTip(_InternalTip, Base):
+    pass
+
+
+class InternalTipAnswers(_InternalTipAnswers, Base):
+    pass
+
+
+class InternalTipData(_InternalTipData, Base):
+    pass
+
+
+class Mail(_Mail, Base):
+    pass
+
+
+class Questionnaire(_Questionnaire, Base):
+    pass
+
+
+class ReceiverContext(_ReceiverContext, Base):
+    pass
+
+
+class ReceiverFile(_ReceiverFile, Base):
+    pass
+
+
+class ReceiverTip(_ReceiverTip, Base):
+    pass
+
+
+class Redaction(_Redaction, Base):
+    pass
+
+
+class Redirect(_Redirect, Base):
+    pass
+
+
+class Exchange(_Exchange, Base):
+    pass
+
+
+class Subscriber(_Subscriber, Base):
+    pass
+
+
+class SubmissionStatus(_SubmissionStatus, Base):
+    pass
+
+
+class SubmissionSubStatus(_SubmissionSubStatus, Base):
+    pass
+
+
+class Step(_Step, Base):
+    pass
+
+
+class Tenant(_Tenant, Base):
+    pass
+
+
+class User(_User, Base):
+    @declared_attr
+    def __table_args__(self):
+        return (ForeignKeyConstraint(['tid'], ['tenant.id'], ondelete='CASCADE', deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['profile_id'], ['user_profile.id'], deferrable=True, initially='DEFERRED'),
+                ForeignKeyConstraint(['profile_id', 'role'], ['user_profile_role.profile_id', 'user_profile_role.role'], deferrable=True, initially='DEFERRED'),
+                CheckConstraint(self.role.in_(EnumUserRole.keys())))
+
+    @declared_attr
+    def profile(cls):
+        return relationship("UserProfile")
+
+    @property
+    def permissions_list(self):
+        return self.profile.permissions_list if self.profile else []
+
+    def has_permission(self, permission):
+        return permission in self.permissions_list
 
 
 class WhistleblowerFile(_WhistleblowerFile, Base):

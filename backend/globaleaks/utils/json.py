@@ -3,10 +3,10 @@ import json
 
 try:
     from sqlalchemy.engine import row
-except:
+except ImportError:
     row = None
 
-from globaleaks.utils.utility import datetime_to_ISO8601
+from globaleaks.utils.utility import datetime_to_iso8601
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -16,6 +16,6 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(obj, bytes):
             return obj.decode()
         elif isinstance(obj, datetime.datetime):
-            return datetime_to_ISO8601(obj)
+            return datetime_to_iso8601(obj)
         else:
             return super().default(obj)

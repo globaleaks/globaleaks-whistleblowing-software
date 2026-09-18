@@ -8,7 +8,6 @@ export class TwoFactorAuthData {
   totp = {
     qrcode_string: "",
     secret: "",
-    edit: false,
     token: ""
   };
 }

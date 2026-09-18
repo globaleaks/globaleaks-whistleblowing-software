@@ -1,4 +1,4 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject, input} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
@@ -6,7 +6,6 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {ControlContainer, NgForm, FormsModule} from "@angular/forms";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "app-default-login",
@@ -16,8 +15,7 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     imports: [
     FormsModule,
     NgbTooltipModule,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
 ],
 })
 export class DefaultLoginComponent {
@@ -25,6 +23,6 @@ export class DefaultLoginComponent {
   protected authentication = inject(AuthenticationService);
   protected appDataService = inject(AppDataService);
 
-  @Input() loginData: LoginDataRef;
-  @Input() loginValidator: NgForm;
+  readonly loginData = input<LoginDataRef>();
+  readonly loginValidator = input.required<NgForm>();
 }

@@ -23,7 +23,7 @@
         <div class="form-group">
           <div class="row mb-3">
             <div class="col-md-6 col-lg-6">
-              <label class="mb-1">{{ 'Backup Job Status' | translate }}</label>
+              <label class="mb-1" for="backup-status">{{ 'Backup Job Status' | translate }}</label>
               <input type="text" [(ngModel)]="jobStatus" id="backup-status" class="form-control" disabled />
             </div>
           </div>
@@ -34,7 +34,7 @@
           <table class="table" id="backup-list">
             <thead>
               <tr>
-                <th>{{ 'Date' | translate }}</th>
+                <th scope="col">{{ 'Date' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -54,12 +54,12 @@
               <span>{{ 'Save' | translate }}</span>
           </button>
           @if (!nodeData.backup_enabled) {
-            <button class="btn btn-primary me-2" id="backup-enable" (click)="toggleBackup()">{{ 'Enable' | translate }}</button>
+            <button type="button" class="btn btn-primary me-2" id="backup-enable" (click)="toggleBackup()">{{ 'Enable' | translate }}</button>
           }
           @if (nodeData.backup_enabled) {
-            <button class="btn btn-danger me-2" id="backup-disable" (click)="toggleBackup()">{{ 'Disable' | translate }}</button>
+            <button type="button" class="btn btn-danger me-2" id="backup-disable" (click)="toggleBackup()">{{ 'Disable' | translate }}</button>
           }
-          <button class="btn btn-danger" id="backup-reset" (click)="resetBackups()">{{ 'Reset' | translate }}</button>
+          <button type="button" class="btn btn-danger" id="backup-reset" (click)="resetBackups()">{{ 'Reset' | translate }}</button>
         </div>
     </div>
 </div>

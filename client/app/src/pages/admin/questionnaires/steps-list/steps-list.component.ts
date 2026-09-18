@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, OnInit, inject, input, output} from "@angular/core";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -11,28 +11,28 @@ import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {TriggeredByOption} from "@app/models/app/shared-public-model";
 
 import {FormsModule} from "@angular/forms";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 import {StepComponent} from "../step/step.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {TranslateModule} from "@ngx-translate/core";
 
 @Component({
     selector: "src-steps-list",
     templateUrl: "./steps-list.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, StepComponent, TranslatorPipe, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, StepComponent, TranslateModule, ListItemComponent]
 })
 export class StepsListComponent implements OnInit {
-  private utilsService = inject(UtilsService);
-  private modalService = inject(NgbModal);
-  private fieldUtilities = inject(FieldUtilitiesService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly modalService = inject(NgbModal);
+  private readonly fieldUtilities = inject(FieldUtilitiesService);
   protected nodeResolver = inject(NodeResolver);
-  private httpService = inject(HttpService);
+  private readonly httpService = inject(HttpService);
 
-  @Input() step: Step;
-  @Input() steps: Step[];
-  @Input() questionnaire: questionnaireResolverModel;
-  @Input() index: number;
-  @Output() deleted = new EventEmitter<string>();
+  readonly step = input.required<Step>();
+  readonly steps = input<Step[]>();
+  readonly questionnaire = input.required<questionnaireResolverModel>();
+  readonly index = input.required<number>();
+  readonly deleted = output<string>();
   editing = false;
   showAddTrigger = false;
   parsedFields: ParsedFields;
@@ -43,7 +43,11 @@ export class StepsListComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    this.parsedFields = this.fieldUtilities.parseQuestionnaire(this.questionnaire, {
+    this.recompute();
+  }
+
+  recompute(): void {
+    this.parsedFields = this.fieldUtilities.parseQuestionnaire(this.questionnaire(), {
       fields: [],
       fields_by_id: {},
       options_by_id: {}
@@ -51,7 +55,7 @@ export class StepsListComponent implements OnInit {
   }
 
   swap($event: Event, index: number, n: number): void {
-    this.utilsService.swap($event, index, n, this.questionnaire)
+    this.utilsService.swap($event, index, n, this.questionnaire())
   }
 
   moveUp(e: Event, idx: number): void {
@@ -62,18 +66,12 @@ export class StepsListComponent implements OnInit {
     this.swap(e, idx, 1);
   }
 
-  toggleEditing() {
-    this.editing = !this.editing;
-  }
-
   toggleAddTrigger() {
     this.showAddTrigger = !this.showAddTrigger;
   }
 
   saveStep(step: Step) {
-    return this.httpService.requestUpdateAdminQuestionnaireStep(step.id, step).subscribe(_ => {
-      this.toggleEditing();
-    });
+    return this.httpService.requestUpdateAdminQuestionnaireStep(step.id, step).subscribe();
   }
 
   deleteStep(step: Step) {
@@ -82,29 +80,29 @@ export class StepsListComponent implements OnInit {
 
   openConfirmableModalDialog(arg: Step, scope: any): Observable<string> {
     scope = !scope ? this : scope;
-    return new Observable((observer) => {
+    return new Observable(() => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
 
       modalRef.componentInstance.confirmFunction = () => {
-        return this.httpService.requestDeleteAdminQuestionareStep(arg.id).subscribe(_ => {
-          this.deleted.emit(this.step.id);
+        return this.httpService.requestDeleteAdminQuestionareStep(arg.id).subscribe(() => {
+          this.deleted.emit(this.step().id);
         });
       };
     });
   }
 
   addTrigger() {
-    this.step.triggered_by_options.push(this.new_trigger);
+    this.step().triggered_by_options.push(this.new_trigger);
     this.toggleAddTrigger();
     this.new_trigger = {"field": "", "option": "", "sufficient": true};
   }
 
   delTrigger(trigger: TriggeredByOption) {
-    const index = this.step.triggered_by_options.indexOf(trigger);
+    const index = this.step().triggered_by_options.indexOf(trigger);
     if (index !== -1) {
-      this.step.triggered_by_options.splice(index, 1);
+      this.step().triggered_by_options.splice(index, 1);
     }
   }
 }

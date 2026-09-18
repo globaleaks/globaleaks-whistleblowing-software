@@ -17,7 +17,7 @@ key_regexp = r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^[
 key_regexp_or_empty = r'^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$|^[a-z_]{0,100}$|^$'
 uuid_regexp = r'^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$'
 uuid_regexp_or_empty = r'^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$|^$'
-user_role_regexp = r'^(admin|analyst|custodian|receiver)$'
+user_role_regexp = r'^(admin|analyst|auditor|custodian|receiver|transmitter)$'
 default_user_profile_regexp = r'^(admin|analyst|custodian|recipient)$|^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$|^$'
 profile_regexp = r'^default$|^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})$'
 email_regexp = r'^(([\w+-\.]){0,100}[\w]{1,100}@([\w+-\.]){0,100}[\w]{2,})$'
@@ -26,14 +26,23 @@ hostname_regexp = r'^[0-9a-z\-\.]+$'
 hostname_regexp_or_empty = r'^[0-9a-z\-\.]+$|^$'
 subdomain_regexp = r'^[0-9a-z\-]+$'
 subdomain_regexp_or_empty = r'^[0-9a-z\-]+$|^$'
+# The OIDC issuer is reflected into the Content-Security-Policy header and used
+# to build outbound requests: it must be a bare http(s) origin (+ optional
+# path) with no characters that could break out of the header directive or the
+# URL (no ';', whitespace, quotes, userinfo, query or fragment).
+idp_issuer_regexp = r'^https?://[0-9a-zA-Z\-.]+(:[0-9]{1,5})?(/[0-9a-zA-Z\-._~%/]*)?$|^$'
 url_regexp = r'^https?:\/\/([0-9a-z\-]+)\.([^\n])*$'
 url_regexp_or_empty = r'^https?:\/\/([0-9a-z\-]+)\.([^\n])*$|^$'
 tip_operation_regexp = r'^(postpone|set)$'
-token_regexp = r'^[a-f0-9]{64}$'
+sha256_hex_regexp = r'^[a-f0-9]{64}$'
 short_text_regexp = r'^.{1,255}$'
 short_text_regexp_or_empty = r'^.{0,255}$'
 languages_list_regexp = r'^([a-zA-Z-]+)?(,\s*[a-zA-Z-]+)*$'
-homepage_regexp = r'^/(submission)?$'
+homepage_regexp = r'^/(submission|signup)?$'
+# Which of the support requests received by a site the root tenant handles
+support_escalation_regexp = r'^(none|admins|all)$'
+whistleblowing_destination_regexp = r'^/(submission|login)$'
+support_status_regexp = r'^(new|opened|closed)$'
 
 field_instance_regexp = (r'^('
                          'instance|'
@@ -90,6 +99,21 @@ AdminTenantDesc = {
     'profile': profile_regexp,
 }
 
+AdminExchangeConfigDesc = {
+    'questionnaire': key_regexp_or_empty,
+    'request_questionnaire': key_regexp_or_empty
+}
+
+AdminExchangeDesc = {
+    'type': str,
+    'source': uuid_regexp,
+    'target': uuid_regexp,
+    'channel': uuid_regexp_or_empty,
+    'channel_name': str,
+    'questionnaire': key_regexp_or_empty,
+    'request_questionnaire': key_regexp_or_empty
+}
+
 AdminTenantDeleteDesc = {
     'total_reports': int,
     'open_reports': int,
@@ -131,7 +155,6 @@ SearchDashboardDesc = {
 
 SearchDashboardQueryDesc = {
     'page': int,
-    'page_size': int,
     'search': str,
     'unread': bool,
     'sort': str,
@@ -155,7 +178,6 @@ SubmissionDesc = {
     'receivers': [uuid_regexp],
     'identity_provided': bool,
     'answers': dict,
-    'score': int,
     'receipt': str
 }
 
@@ -163,7 +185,7 @@ AdminUserProfileDesc = {
     'name': str,
     'role': user_role_regexp,
     'roles': [user_role_regexp],
-    'permissions': [str],
+    'permissions': dict,
 }
 
 AdminUserDesc = {
@@ -215,6 +237,18 @@ CommentDesc = {
     'visibility': str
 }
 
+ExchangeReportDesc = {
+    'target_tid': int,
+    'exchange_id': uuid_regexp_or_empty,
+    'answers': dict
+}
+
+InsertedReportDesc = {
+    'context_id': uuid_regexp,
+    'answers': dict,
+    'receipt': str
+}
+
 OpsDesc = {
     'operation': str,
     'args': dict,
@@ -247,6 +281,7 @@ AdminNodeDesc = {
     'homepage': homepage_regexp,
     'whistleblowing_question': str,
     'whistleblowing_button': str,
+    'whistleblowing_destination': whistleblowing_destination_regexp,
     'languages_enabled': [str],
     'languages_supported': list,
     'default_language': str,
@@ -256,6 +291,7 @@ AdminNodeDesc = {
     'disable_privacy_badge': bool,
     'disable_submissions': bool,
     'simplified_login': bool,
+    'support_escalation': support_escalation_regexp,
     'enable_scoring_system': bool,
     'enable_signup': bool,
     'enable_onion': bool,
@@ -264,7 +300,10 @@ AdminNodeDesc = {
     'signup_invite_only': bool,
     'signup_auto_authorize': bool,
     'signup_profile': profile_regexp,
-    'signup_request_organization': bool,
+    'signup_request_location': bool,
+    'signup_request_phone': bool,
+    'signup_request_tax_code': bool,
+    'signup_request_vat_code': bool,
     'signup_request_subdomain': bool,
     'signup_tos1_enable': bool,
     'signup_tos1_title': str,
@@ -290,7 +329,6 @@ AdminNodeDesc = {
     'log_level': str,
     'log_accesses_of_internal_users': bool,
     'two_factor': bool,
-    'encryption': bool,
     'adminonly': bool,
     'custom_support_url': url_regexp_or_empty,
     'pgp': bool,
@@ -301,9 +339,10 @@ AdminNodeDesc = {
     'backup_period': int,
     'backup_retention': int,
     'idp': bool,
-    'idp_issuer': str,
+    'idp_issuer': idp_issuer_regexp,
     'default_user_profile': default_user_profile_regexp,
     'idp_client_id': str,
+    'idp_provisioning': bool,
     'antivirus_enabled': bool,
     'antivirus_clamd_ip': str,
     'antivirus_clamd_port': int,
@@ -315,6 +354,7 @@ AdminNetworkDesc = {
     'https_custodian': bool,
     'https_whistleblower': bool,
     'https_receiver': bool,
+    'https_transmitter': bool,
     'reachable_via_web': bool,
     'anonymize_outgoing_connections': bool,
     'ip_filter_admin_enable': bool,
@@ -324,7 +364,9 @@ AdminNetworkDesc = {
     'ip_filter_custodian_enable': bool,
     'ip_filter_custodian': str,
     'ip_filter_receiver_enable': bool,
-    'ip_filter_receiver': str
+    'ip_filter_receiver': str,
+    'ip_filter_transmitter_enable': bool,
+    'ip_filter_transmitter': str
 }
 
 AdminNotificationDesc = {
@@ -397,7 +439,6 @@ AdminFieldDesc = {
     'attrs': dict,
     'options': [AdminFieldOptionDesc],
     'children': list,
-    'triggered_by_score': int,
     'triggered_by_options': list
 }
 
@@ -413,7 +454,6 @@ AdminStepDesc = {
     'children': [AdminFieldDesc],
     'questionnaire_id': key_regexp_or_empty,
     'order': int,
-    'triggered_by_score': int,
     'triggered_by_options': list
 }
 
@@ -432,6 +472,8 @@ AdminQuestionnaireDescRaw['steps'] = list
 AdminContextDesc = {
     'id': uuid_regexp_or_empty,
     'name': str,
+    'profiles': [uuid_regexp],
+    'slug': str,
     'hidden': bool,
     'description': str,
     'maximum_selectable_receivers': int,
@@ -445,7 +487,10 @@ AdminContextDesc = {
     'order': int,
     'show_steps_navigation_interface': bool,
     'show_receivers_in_alphabetical_order': bool,
+    'internally_available': bool,
+    'provide_access_code': bool,
     'questionnaire_id': key_regexp_or_empty,
+    'additional_questionnaires': [key_regexp],
     'additional_questionnaire_id': key_regexp_or_empty
 }
 
@@ -507,7 +552,9 @@ NodeDesc = {
     'signup_tos2_title': str,
     'simplified_login': bool,
     'start_time': DateType,
+    'support': bool,
     'whistleblowing_button': str,
+    'whistleblowing_destination': str,
     'whistleblowing_question': str,
     'user_privacy_policy_text': str,
     'user_privacy_policy_url': str
@@ -531,6 +578,7 @@ ReceiverDesc = {
 ContextDesc = {
     'id': uuid_regexp,
     'name': str,
+    'slug': str,
     'hidden': bool,
     'description': str,
     'order': int,
@@ -570,12 +618,12 @@ WizardDesc = {
     'admin_username': str,
     'admin_name': str,
     'admin_password': str,
-    'admin_mail_address': str,
+    'admin_mail_address': email_regexp_or_empty,
     'admin_escrow': bool,
     'receiver_username': str,
     'receiver_name': str,
     'receiver_password': str,
-    'receiver_mail_address': str,
+    'receiver_mail_address': email_regexp_or_empty,
     'profile': r'^(default)$',
     'skip_admin_account_creation': bool,
     'skip_recipient_account_creation': bool,
@@ -601,7 +649,8 @@ SignupDesc = {
 
 TenantInviteDesc = {
     'organization_name': str,
-    'email': email_regexp
+    'email': email_regexp,
+    'mail_template': str
 }
 
 TenantInviteUpdateDesc = {
@@ -623,25 +672,48 @@ SupportDesc = {
     'text': str
 }
 
+AuthenticatedSupportDesc = {
+    'text': str
+}
+
+AdminSupportRequestDesc = {
+    'status': support_status_regexp,
+}
+
+SupportMessageDesc = {
+    'content': str
+}
+
 PasswordReset1Desc = {
     'username': str
 }
 
 PasswordReset2Desc = {
-    'reset_token': token_regexp,
+    'reset_token': sha256_hex_regexp,
     'recovery_key': str,
     'auth_code': str
 }
 
-SiteSettingsDesc = {
-    'disclaimer_text': str,
-    'header_title_homepage': str,
-    'footer': str,
-    'footer_privacy_policy': str,
-    'footer_whistleblowing_policy': str,
-    'name': str,
-    'presentation': str,
-}
+# The variables of the first settings tab (General settings), the only ones a
+# non administrator holding can_manage_settings is entitled to configure. This
+# is the single source of truth for that set: it defines what such a user can
+# write (SiteSettingsDesc) and mirrors the fields presented by the first tab, so
+# that everything the tab shows is actually saved and nothing beyond it is.
+SITE_SETTINGS_FIELDS = [
+    'name',
+    'description',
+    'header_title_homepage',
+    'presentation',
+    'whistleblowing_question',
+    'whistleblowing_button',
+    'whistleblowing_destination',
+    'disclaimer_text',
+    'footer',
+    'footer_privacy_policy',
+    'footer_whistleblowing_policy',
+]
+
+SiteSettingsDesc = {field: str for field in SITE_SETTINGS_FIELDS}
 
 QuestionnaireDuplicationDesc = {
     'questionnaire_id': str,
@@ -670,6 +742,6 @@ AdminStatisticalTemplateDesc = {
 
 AdminStatisticalReportDesc = {
     'label': str,
-    'template_id': uuid_regexp_or_empty,
+    'template_id': key_regexp_or_empty,
     'data': dict
 }

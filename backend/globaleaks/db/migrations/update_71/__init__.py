@@ -1,15 +1,71 @@
 # -*- coding: UTF-8 -*-
+"""
+Migration 70 -> 71: the schema of the new-stable branch.
+
+From 70 on, every installation - stable or ANAC fork - holds the same data in
+the same conventions; the migration introduces what new-stable adds on top of
+them, feature by feature:
+
+- Tenants and user profiles: the permissions of an account move from the
+  columns of the account to a profile of its own; the tenant used as the
+  default profile of the platform is created; the counter of the tenants is
+  initialized.
+- Per-area administrative permissions: every administrator receives the whole
+  set of the area permissions, as it administered every area so far; the
+  permission can_edit_general_settings of the recipients becomes the area
+  permission can_manage_settings.
+- Auditor role: the role 4 of the fork was the accreditor, the operator
+  approving the signups; in new-stable the role 4 is the auditor and the
+  signups are approved by the administrators of the sites. The accreditors
+  become administrators confined to the sites.
+- Progressive notification: tip_expiration_threshold is expressed in days
+  chosen among a fixed set instead of a free number of hours.
+- Hashing of the evidences, support requests, statistical reports, channel
+  slug, secondary SMTP, backup, antivirus: the new columns and tables take
+  their defaults.
+"""
+from sqlalchemy import func
+
 from globaleaks.db.migrations.update import MigrationBase
-from globaleaks.handlers.admin import tenant, user
-from globaleaks.handlers.user import user_permissions
-from globaleaks.models import Model
-from globaleaks.models.config import get_default
-from globaleaks.models.enums import EnumStateFile, EnumVisibility
+from globaleaks.handlers.admin import tenant
+from globaleaks.models import Model, admin_permissions
+from globaleaks.models.config import db_set_config_variable, get_default
+from globaleaks.models.enums import EnumStateFile, EnumUserRole, EnumVisibility
 from globaleaks.models.properties import *
-from globaleaks.utils.utility import datetime_now, datetime_null
+from globaleaks.utils.utility import datetime_never, datetime_now, datetime_null
 
 
-class Tenant_v_70(Model):
+# The threshold of the report expiration alert is expressed in days and is
+# chosen among a fixed set of values, where it used to be a free number of
+# hours. The configured values are converted rather than reset, so that a
+# platform keeps alerting on the same horizon it was set to: leaving them
+# untouched would read 72 hours as 72 days and silence the alert for good.
+EXPIRATION_ALERT_DAYS = [3, 7, 14, 28]
+
+
+class ReceiverTipV70(Model):
+    __tablename__ = 'receivertip'
+
+    id = Column(UnicodeText(36), primary_key=True)
+    internaltip_id = Column(UnicodeText(36), nullable=False, index=True)
+    receiver_id = Column(UnicodeText(36), nullable=False, index=True)
+    access_date = Column(DateTime, default=datetime_null, nullable=False)
+    last_access = Column(DateTime, default=datetime_null, nullable=False)
+    last_notification = Column(DateTime, default=datetime_null, nullable=False)
+    new = Column(Boolean, default=True, nullable=False)
+    enable_notifications = Column(Boolean, default=True, nullable=False)
+    crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    deprecated_crypto_files_prv_key = Column(UnicodeText(84), default='', nullable=False)
+
+
+class InternalTipTransmissionV70(Model):
+    __tablename__ = 'internaltip_forwarding'
+
+    internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
+    forwarding_internaltip_id = Column(UnicodeText(36), nullable=False, primary_key=True)
+
+
+class TenantV70(Model):
     __tablename__ = 'tenant'
     __table_args__ = {'sqlite_autoincrement': False}
 
@@ -18,7 +74,7 @@ class Tenant_v_70(Model):
     active = Column(Boolean, default=False, nullable=False)
 
 
-class Comment_v_70(Model):
+class CommentV70(Model):
     __tablename__ = 'comment'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -30,7 +86,26 @@ class Comment_v_70(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
-class InternalFile_v_70(Model):
+class InternalTipAnswersV70(Model):
+    __tablename__ = 'internaltipanswers'
+
+    internaltip_id = Column(UnicodeText(36), primary_key=True)
+    questionnaire_hash = Column(UnicodeText(64), primary_key=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    answers = Column(JSON, default=dict, nullable=False)
+    stat_answers = Column(JSON, default=dict, nullable=False)
+
+
+class InternalTipDataV70(Model):
+    __tablename__ = 'internaltipdata'
+
+    internaltip_id = Column(UnicodeText(36), primary_key=True)
+    key = Column(UnicodeText, primary_key=True)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    value = Column(JSON, default=dict, nullable=False)
+
+
+class InternalFileV70(Model):
     __tablename__ = 'internalfile'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -45,7 +120,7 @@ class InternalFile_v_70(Model):
     state = Column(Enum(EnumStateFile), default='pending', nullable=False)
 
 
-class ReceiverFile_v_70(Model):
+class ReceiverFileV70(Model):
     __tablename__ = 'receiverfile'
 
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
@@ -61,8 +136,123 @@ class ReceiverFile_v_70(Model):
     new = Column(Boolean, default=True, nullable=False)
 
 
+class ContextV70(Model):
+    __tablename__ = 'context'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    show_steps_navigation_interface = Column(Boolean, default=True, nullable=False)
+    allow_recipients_selection = Column(Boolean, default=False, nullable=False)
+    maximum_selectable_receivers = Column(Integer, default=0, nullable=False)
+    select_all_receivers = Column(Boolean, default=True, nullable=False)
+    tip_timetolive = Column(Integer, default=90, nullable=False)
+    tip_reminder = Column(Integer, default=0, nullable=False)
+    name = Column(JSON, default=dict, nullable=False)
+    description = Column(JSON, default=dict, nullable=False)
+    show_receivers_in_alphabetical_order = Column(Boolean, default=True, nullable=False)
+    score_threshold_high = Column(Integer, default=0, nullable=False)
+    score_threshold_medium = Column(Integer, default=0, nullable=False)
+    questionnaire_id = Column(UnicodeText(36), default='default', nullable=False, index=True)
+    additional_questionnaire_id = Column(UnicodeText(36), index=True)
+    hidden = Column(Boolean, default=False, nullable=False)
+    order = Column(Integer, default=0, nullable=False)
+
+
+class InternalTipV70(Model):
+    __tablename__ = 'internaltip'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    update_date = Column(DateTime, default=datetime_now, nullable=False)
+    context_id = Column(UnicodeText(36), nullable=False)
+    operator_id = Column(UnicodeText(33), default='', nullable=False)
+    progressive = Column(Integer, default=0, nullable=False)
+    access_count = Column(Integer, default=0, nullable=False)
+    tor = Column(Boolean, default=False, nullable=False)
+    mobile = Column(Boolean, default=False, nullable=False)
+    score = Column(Integer, default=0, nullable=False)
+    expiration_date = Column(DateTime, default=datetime_never, nullable=False)
+    reminder_date = Column(DateTime, default=datetime_never, nullable=False)
+    enable_whistleblower_identity = Column(Boolean, default=False, nullable=False)
+    important = Column(Boolean, default=False, nullable=False)
+    label = Column(UnicodeText, default='', nullable=False)
+    last_access = Column(DateTime, default=datetime_now, nullable=False)
+    status = Column(UnicodeText(36))
+    substatus = Column(UnicodeText(36))
+    receipt_change_needed = Column(Boolean, default=False, nullable=False)
+    receipt_hash = Column(UnicodeText(64), nullable=False)
+    crypto_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_pub_key = Column(UnicodeText(56), default='', nullable=False)
+    crypto_tip_pub_key = Column(UnicodeText(56), default='', nullable=False)
+    crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    deprecated_crypto_files_pub_key = Column(UnicodeText(56), default='', nullable=False)
+
+
+class UserV70(Model):
+    """
+    This model keeps track of users.
+    """
+    __tablename__ = 'user'
+
+    id = Column(UnicodeText(36), primary_key=True, default=uuid4)
+    tid = Column(Integer, default=1, nullable=False)
+    creation_date = Column(DateTime, default=datetime_now, nullable=False)
+    username = Column(UnicodeText, default='', nullable=False)
+    salt = Column(UnicodeText(24), default='', nullable=False)
+    hash = Column(UnicodeText(64), default='', nullable=False)
+    name = Column(UnicodeText, default='', nullable=False)
+    description = Column(JSON, default=dict, nullable=False)
+    public_name = Column(UnicodeText, default='', nullable=False)
+    role = Column(Enum(EnumUserRole), default='receiver', nullable=False)
+    enabled = Column(Boolean, default=True, nullable=False)
+    last_login = Column(DateTime, default=datetime_null, nullable=False)
+    mail_address = Column(UnicodeText, default='', nullable=False)
+    language = Column(UnicodeText(12), nullable=False)
+    password_change_needed = Column(Boolean, default=True, nullable=False)
+    password_change_date = Column(DateTime, default=datetime_null, nullable=False)
+    crypto_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_pub_key = Column(UnicodeText(56), default='', nullable=False)
+    crypto_rec_key = Column(UnicodeText(80), default='', nullable=False)
+    crypto_bkp_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_escrow_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_escrow_bkp1_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_escrow_bkp2_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_global_stat_prv_key = Column(UnicodeText(84), default='', nullable=True)
+    change_email_address = Column(UnicodeText, default='', nullable=False)
+    change_email_token = Column(UnicodeText, unique=True)
+    change_email_date = Column(DateTime, default=datetime_null, nullable=False)
+    notification = Column(Boolean, default=True, nullable=False)
+    forcefully_selected = Column(Boolean, default=False, nullable=False)
+    can_delete_submission = Column(Boolean, default=False, nullable=False)
+    can_postpone_expiration = Column(Boolean, default=True, nullable=False)
+    can_grant_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_transfer_access_to_reports = Column(Boolean, default=False, nullable=False)
+    can_redact_information = Column(Boolean, default=False, nullable=False)
+    can_mask_information = Column(Boolean, default=True, nullable=False)
+    can_reopen_reports = Column(Boolean, default=True, nullable=False)
+    can_edit_general_settings = Column(Boolean, default=False, nullable=False)
+    readonly = Column(Boolean, default=False, nullable=False)
+    two_factor_secret = Column(UnicodeText(32), default='', nullable=False)
+    reminder_date = Column(DateTime, default=datetime_null, nullable=False)
+    pgp_key_fingerprint = Column(UnicodeText, default='', nullable=False)
+    pgp_key_public = Column(UnicodeText, default='', nullable=False)
+    pgp_key_expiration = Column(DateTime, default=datetime_null, nullable=False)
+    accepted_privacy_policy = Column(DateTime, default=datetime_null, nullable=False)
+    clicked_recovery_key = Column(Boolean, default=False, nullable=False)
+
+
 class MigrationScript(MigrationBase):
     default_tenant_keys = ["subdomain", "onionservice", "https_admin", "https_analyst", "https_cert" ,"wizard_done", "uuid", "mode", "default_language", "name"]
+
+    # The forwarding of a report became its transmission: the table and the
+    # column naming the report it transmits keep the values they held and take
+    # the name of what they hold.
+    renamed_attrs = {
+        'InternalTipTransmission': {
+            'transmitting_internaltip_id': 'forwarding_internaltip_id'
+        }
+    }
 
     skip_count_check = {
         'Config': True,
@@ -71,91 +261,202 @@ class MigrationScript(MigrationBase):
         'SubmissionStatus': True
     }
 
-    def migrate_User(self):
-        old_configs = self.session_old.query(self.model_from['User']).all()
-        for old_obj in old_configs:
-            user_desc = {
-                'tid': getattr(old_obj, 'tid'),
-                'name': getattr(old_obj, 'name'),
-                'role': getattr(old_obj, 'role'),
-                'roles': [getattr(old_obj, 'role')],
-                'permissions': {}
-            }
+    # The permissions of a user moved from columns on the account to a profile
+    # of its own: each existing account keeps its exact permissions by receiving
+    # a personal profile that replicates them, so the migration changes where the
+    # permissions are stored, never which ones an account holds.
+    PROFILE_PERMISSIONS = [
+        'can_delete_submission',
+        'can_postpone_expiration',
+        'can_grant_access_to_reports',
+        'can_transfer_access_to_reports',
+        'can_redact_information',
+        'can_mask_information',
+        'can_reopen_reports'
+    ]
 
-            for p in user_permissions:
-                if getattr(old_obj, p, False):
-                    user_desc['permissions'][p] = True
+    # Per-area administrative permissions: the permission letting a recipient
+    # edit the general settings is the area permission of the settings.
+    RENAMED_PERMISSIONS = {
+        'can_edit_general_settings': 'can_manage_settings'
+    }
 
-            new_profile = user.db_create_user_profile(self.session_new, user_desc.get("tid"), user_desc)
+    # Auditor role: before 71 the role 4 is the accreditor of the ANAC fork.
+    ACCREDITOR_ROLE = EnumUserRole.auditor.name
+    ACCREDITOR_PERMISSIONS = ['can_manage_sites']
 
-            new_obj = self.model_to['User']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                if hasattr(old_obj, key):
-                    setattr(new_obj, key, getattr(old_obj, key))
+    # Statistical report templates: composing them becomes a permission of the
+    # analysts, that every analyst held so far.
+    ANALYST_PERMISSIONS = ['can_configure_statistical_report_templates']
 
-            new_obj.profile_id = new_profile['id']
+    def user_permissions(self, old_obj):
+        """
+        Return the permissions the profile of an account is granted
+        """
+        if old_obj.role == self.ACCREDITOR_ROLE:
+            return self.ACCREDITOR_PERMISSIONS
+
+        if old_obj.role == EnumUserRole.analyst.name:
+            return self.ANALYST_PERMISSIONS
+
+        permissions = [p for p in self.PROFILE_PERMISSIONS if getattr(old_obj, p, False)]
+
+        permissions += [new for old, new in self.RENAMED_PERMISSIONS.items() if getattr(old_obj, old, False)]
+
+        if old_obj.role == EnumUserRole.admin.name:
+            permissions += admin_permissions
+
+        return permissions
+
+    def migrate_user(self):
+        from globaleaks.models import UserProfile, UserProfileRole, UserProfilePermission
+
+        for old_obj in self.session_old.query(self.model_from['User']):
+            new_obj = self.copy('User', old_obj)
+
+            if old_obj.role == self.ACCREDITOR_ROLE:
+                new_obj.role = EnumUserRole.admin.name
+
+            # The personal profile carries the id of the account it belongs to,
+            # so the account and its profile are bound one to one.
+            new_obj.profile_id = old_obj.id
+            new_obj.status = 'active'
+            new_obj.idp_id = ''
+            new_obj.crypto_support_prv_key = ''
+
+            profile = UserProfile()
+            profile.id = old_obj.id
+            profile.tid = old_obj.tid
+            profile.name = old_obj.name
+            profile.role = new_obj.role
+            self.session_new.add(profile)
+
+            role = UserProfileRole()
+            role.profile_id = old_obj.id
+            role.role = new_obj.role
+            self.session_new.add(role)
+
+            for permission in self.user_permissions(old_obj):
+                p = UserProfilePermission()
+                p.profile_id = old_obj.id
+                p.permission = permission
+                self.session_new.add(p)
+
             self.session_new.add(new_obj)
 
-    def migrate_Comment(self):
-        old_comments = self.session_old.query(self.model_from['Comment']).all()
-        new_comments = []
+    converted_config = {
+        'tip_expiration_threshold': lambda v: MigrationScript.hours_to_alert_days(v)
+    }
 
-        for old_obj in old_comments:
-            new_comment = self.model_to['Comment']()
+    @staticmethod
+    def hours_to_alert_days(hours):
+        """
+        Convert a threshold expressed in hours into the closest of the values
+        the interface now offers. A threshold of 0 keeps disabling the alert.
+        """
+        try:
+            hours = int(hours)
+        except (TypeError, ValueError):
+            return 3
 
-            for key in new_comment.__mapper__.column_attrs.keys():
-                if hasattr(old_obj, key):
-                    setattr(new_comment, key, getattr(old_obj, key))
+        if hours <= 0:
+            return 0
 
-            new_comment.hash_sha256 = ''
-            new_comment.hash_sha512 = ''
+        days = hours / 24
 
-            new_comments.append(new_comment)
+        return min(EXPIRATION_ALERT_DAYS, key=lambda d: abs(d - days))
 
-        self.session_new.add_all(new_comments)
+    def elect_additional_questionnaires(self, context_model, known):
+        """
+        Turn the additional questionnaire each channel names into its election, joining the set it
+        is elected from
 
-    def migrate_InternalFile(self):
-        old_rows = self.session_old.query(self.model_from['InternalFile']).all()
+        :param context_model: The model of the channels
+        :param known: The questionnaires that exist
+        :return: The questionnaire composing the reports and the automatic one, by channel
+        """
+        from globaleaks.models import ContextAdditionalQuestionnaire
 
-        for old in old_rows:
-            new = self.model_to['InternalFile']()
+        questionnaires = {}
+        for context in self.session_new.query(context_model):
+            automatic = context.additional_questionnaire_id or ''
 
-            for col in new.__mapper__.column_attrs.keys():
-                if hasattr(old, col):
-                    setattr(new, col, getattr(old, col))
+            # A channel could name a questionnaire that is no longer there: the
+            # column carried no foreign key. Such an election is dropped rather
+            # than turned into an association that would not hold
+            if automatic not in known:
+                automatic = ''
+                context.additional_questionnaire_id = ''
 
-            new.hash_sha256 = ''
-            new.hash_sha512 = ''
+            questionnaires[context.id] = (context.questionnaire_id, automatic)
 
-            self.session_new.add(new)
+            if not automatic:
+                continue
 
-    def migrate_ReceiverFile(self):
-        old_rows = self.session_old.query(self.model_from['ReceiverFile']).all()
+            entry = ContextAdditionalQuestionnaire()
+            entry.context_id = context.id
+            entry.questionnaire_id = automatic
+            self.add_entry('ContextAdditionalQuestionnaire', entry)
 
-        for old in old_rows:
-            new = self.model_to['ReceiverFile']()
+        return questionnaires
 
-            for col in new.__mapper__.column_attrs.keys():
-                if hasattr(old, col):
-                    setattr(new, col, getattr(old, col))
+    def migrate_additional_questionnaires(self):
+        """
+        Give the additional questionnaires the shape the channels and the
+        reports now hold them in
 
-            new.hash_sha256 = ''
-            new.hash_sha512 = ''
+        A channel used to name a single additional questionnaire, asked of
+        every report filed on it. It now names a set of them, that the
+        recipients choose from of a single report, and elects one of the set as
+        the automatic one: the questionnaire it had is that election, and joins
+        the set it is elected from.
 
-            self.session_new.add(new)
+        The election is asked of a report by the report itself and no longer by
+        its channel: the reports that have not answered it yet carry it from
+        here on, so that asking and answering read the same field.
 
-    def migrate_Tenant(self):
-        old_tenants = self.session_old.query(self.model_from['Tenant']).all()
-        new_tenants = []
-        for old_obj in old_tenants:
-            new_tenant = self.model_to['Tenant']()
-            for key in new_tenant.__mapper__.column_attrs.keys():
-                setattr(new_tenant, key, getattr(old_obj, key, None))
-            new_tenants.append(new_tenant)
+        The answers used to name the schema they were archived against and not
+        the questionnaire they were given to: the first answers of a report are
+        the ones of the questionnaire composing it, the following ones those of
+        the additional questionnaire its channel asked.
+        """
+        internal_tip_model = self.model_to['InternalTip']
+        internal_tip_answers_model = self.model_to['InternalTipAnswers']
+        questionnaire_model = self.model_to['Questionnaire']
 
-        self.session_new.add_all(new_tenants)
+        known = {questionnaire.id for questionnaire in self.session_new.query(questionnaire_model)}
+
+        questionnaires = self.elect_additional_questionnaires(self.model_to['Context'], known)
+
+        answers = {}
+        for row in self.session_new.query(internal_tip_answers_model) \
+                                   .order_by(internal_tip_answers_model.internaltip_id,
+                                             internal_tip_answers_model.creation_date):
+            answers.setdefault(row.internaltip_id, []).append(row)
+
+        for itip in self.session_new.query(internal_tip_model):
+            main, automatic = questionnaires.get(itip.context_id, ('', ''))
+
+            filled = answers.get(itip.id, [])
+            for i, row in enumerate(filled):
+                row.questionnaire_id = main if i == 0 else automatic
+
+            # A report that has answered nothing beyond the questionnaire
+            # composing it is still being asked the automatic one
+            if automatic and len(filled) < 2 and itip.status != 'closed':
+                itip.additional_questionnaire_id = automatic
 
     def epilogue(self):
         tenant.db_create(self.session_new, {'active': False, 'mode': 'default', 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''}, False)
         self.entries_count['SubmissionStatus'] += 3
         self.entries_count['Tenant'] += 1
+
+        # The tenants counter is introduced along the profiles counter but is
+        # not written by the creation of the default profile: initialize it to
+        # the highest ordinary tenant id, so that the tenants created after the
+        # migration are not assigned the id of an existing tenant
+        max_tid = self.session_new.query(func.max(self.model_to['Tenant'].id)) \
+                                  .filter(self.model_to['Tenant'].id < tenant.DEFAULT_PROFILE_ID).scalar()
+        db_set_config_variable(self.session_new, 1, 'counter_tenants', max_tid or 1)
+
+        self.migrate_additional_questionnaires()

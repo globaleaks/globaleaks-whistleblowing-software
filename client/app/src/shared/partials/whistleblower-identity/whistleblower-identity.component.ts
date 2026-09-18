@@ -1,4 +1,5 @@
-import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
+import {Component, inject, input, output} from "@angular/core";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -9,30 +10,32 @@ import {NgFormChangeDirective} from "../../directive/ng-form-change.directive";
 import {WhistleblowerIdentityFieldComponent} from "@app/pages/whistleblower/fields/whistleblower-identity-field/whistleblower-identity-field.component";
 import {RFilesUploadStatusComponent} from "../rfiles-upload-status/r-files-upload-status.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-whistleblower-identity",
     templateUrl: "./whistleblower-identity.component.html",
     standalone: true,
-    imports: [TipFieldComponent, FormsModule, NgbTooltipModule, NgFormChangeDirective, WhistleblowerIdentityFieldComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe]
+    imports: [CollapsiblePanelComponent, TipFieldComponent, FormsModule, NgbTooltipModule, NgFormChangeDirective, WhistleblowerIdentityFieldComponent, RFilesUploadStatusComponent, TranslateModule]
 })
 export class WhistleblowerIdentityComponent {
   protected wbTipService = inject(WbtipService);
   protected utilsService = inject(UtilsService);
 
-  @Input() submission: any;
-  @Input() field: any;
-  @Input() step: any;
-  @Input() answers: Answers;
-  @Input() uploadEstimateTime: number;
-  @Input() isUploading: boolean | undefined;
-  @Input() uploadProgress: number | undefined;
+  readonly submission = input<any>();
+  readonly field = input<any>();
+  readonly step = input<any>();
+  readonly answers = input.required<Answers>();
+  readonly uploadEstimateTime = input<number>();
+  readonly isUploading = input<boolean>();
+  readonly uploadProgress = input<number>();
 
-  @Output() provideIdentityInformation = new EventEmitter<{ param1: string, param2: Answers }>();
-  @Output() onFormUpdate = new EventEmitter<void>();
-  @Output() notifyFileUpload: EventEmitter<any> = new EventEmitter<any>();
-  @Input() uploads: Record<string, any>;
+  readonly provideIdentityInformation = output<{
+    param1: string;
+    param2: Answers;
+}>();
+  readonly formUpdate = output<void>();
+  readonly notifyFileUpload = output<any>();
+  readonly uploads = input<Record<string, any>>();
 
   fileUploadUrl = "api/whistleblower/wbtip/wbfiles";
 
@@ -49,11 +52,11 @@ export class WhistleblowerIdentityComponent {
   }
 
   onFormChange() {
-    this.onFormUpdate.emit();
+    this.formUpdate.emit();
   }
 
   stateChanged(status: boolean) {
     this.identity_provided = status;
-    this.submission.submission.identity_provided = status;
+    this.submission().submission.identity_provided = status;
   }
 }

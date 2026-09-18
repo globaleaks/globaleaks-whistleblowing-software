@@ -9,13 +9,13 @@ import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-
   providedIn: "root"
 })
 export class StatisticalReportsResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+  private readonly httpService = inject(HttpService);
+  private readonly authenticationService = inject(AuthenticationService);
 
   dataModel: statisticalReportResolverModel[] = [];
 
   resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "analyst") {
+    if (this.authenticationService.session?.role === "analyst") {
       return this.httpService.requestStatisticalReports().pipe(
         map((response) => {
           this.dataModel = response;

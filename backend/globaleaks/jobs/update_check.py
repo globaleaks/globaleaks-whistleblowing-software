@@ -1,3 +1,5 @@
+import re
+
 from packaging.version import parse as parse_version
 from twisted.internet.defer import inlineCallbacks
 
@@ -13,8 +15,6 @@ from globaleaks.utils.agent import get_page
 from globaleaks.utils.log import log
 
 DEB_PACKAGE_URL = b'https://deb.globaleaks.org/trixie/Packages'
-
-import re
 
 def get_latest_version(packages_file):
     # Split the Packages file into individual package entries
@@ -53,6 +53,10 @@ def evaluate_update_notification(session, state, latest_version):
     if parse_version(__version__) != parse_version(stored_latest):
         return
 
+    notif = state.tenants[1].cache.notification
+    if notif and not notif.enable_admin_notification_emails:
+        return
+
     for user_desc in db_get_users(session, 1, 'admin'):
         if not user_desc['notification']:
             continue
@@ -86,5 +90,5 @@ class UpdateCheck(HourlyJob):
                 yield evaluate_update_notification(self.state, latest_version)
 
             log.debug('The newest version in the repository is: %s', latest_version)
-        except:
-            pass
+        except Exception as e:
+            log.debug('Unable to fetch the latest version from the repository: %s', e)

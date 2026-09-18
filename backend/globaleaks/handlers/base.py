@@ -2,14 +2,18 @@ import json
 import mimetypes
 import os
 import re
-import binascii
+import hashlib
+import unicodedata
 
 from datetime import datetime
+from urllib.parse import quote
 
 from tempfile import NamedTemporaryFile
 
 from nacl.encoding import Base64Encoder
 from twisted.internet import abstract
+from twisted.internet.defer import DeferredLock
+from twisted.internet.threads import deferToThread
 from twisted.protocols.basic import FileSender
 
 from globaleaks.utils.ip import get_ip_identity
@@ -19,26 +23,89 @@ from globaleaks.sessions import Sessions
 from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.transactions import db_get_user
+from globaleaks.utils import dpop
 from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.ip import check_ip
 from globaleaks.utils.log import log
 from globaleaks.utils.pgp import PGPContext
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.utility import datetime_now
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.backends import default_backend
 
 mimetypes.add_type('text/javascript', '.js')
-crypto_backend = default_backend()
 
 
-def decodeString(string):
+# RFC 7230 token characters; a value made only of these needs no quoting.
+_token_chars = frozenset(
+    "!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz|~"
+)
+
+
+def quote_header_value(value):
+    """
+    Quote a header parameter value (port of werkzeug.http.quote_header_value).
+
+    A bare token is returned unchanged; anything else is wrapped in double
+    quotes with `\\` and `"` backslash-escaped. The escaping is what prevents
+    an attacker-controlled filename from breaking out of the quoted-string.
+    """
+    if not value:
+        return '""'
+
+    if _token_chars.issuperset(value):
+        return value
+
+    value = value.replace("\\", "\\\\").replace('"', '\\"')
+    return f'"{value}"'
+
+
+def sanitize_filename(filename):
+    """
+    Reduce a client-supplied filename to a bare, line-break-free basename.
+
+    `os.path.basename` drops any directory components (path traversal), and
+    `splitlines()` removes every line-boundary character (CR, LF, and the wider
+    set Python recognises: VT, FF, FS/GS/RS, NEL, LS, PS). This is the single
+    sanitization step shared by both ends of a file's lifecycle: it cleans the
+    name stored at upload time (then reflected into the UI, emails and the
+    Content-Disposition header) and is reapplied as defense in depth when a
+    download header is built.
+    """
+    return ''.join(os.path.basename(filename).splitlines())
+
+
+def content_disposition_attachment(filename):
+    """
+    Build a safe Content-Disposition "attachment" header value (RFC 6266).
+
+    Port of the logic in werkzeug.utils.send_file: the filename of a download
+    can be attacker-controlled (e.g. a whistleblower chooses the name of an
+    uploaded attachment), so a raw name could otherwise break out of the
+    quoted-string and dictate the filename the recipient's browser saves
+    (Content-Disposition spoofing).
+
+    An ASCII name is emitted as a single, escaped "filename". A non-ASCII name
+    additionally gets a percent-encoded "filename*" (RFC 5987) for modern
+    browsers, with an ASCII-folded "filename" fallback for legacy clients.
+    """
+    filename = sanitize_filename(filename)
+
+    try:
+        filename.encode('ascii')
+    except UnicodeEncodeError:
+        fallback = unicodedata.normalize('NFKD', filename).encode('ascii', 'ignore').decode('ascii')
+        encoded = quote(filename, safe="!#$&+-.^_`|~")  # safe = RFC 8187 attr-char (ex RFC 5987)
+        return f"attachment; filename={quote_header_value(fallback)}; filename*=UTF-8''{encoded}"
+
+    return f'attachment; filename={quote_header_value(filename)}'
+
+
+def decode_utf16_string(string):
     string = Base64Encoder.decode(string)
     uint8_array = [c for c in string]
     uint16_array = []
     for i in range(len(uint8_array)):
         if not (i%2):
-             uint16_array.append((uint8_array[i] | (uint8_array[i+1] << 8)))
+             uint16_array.append(uint8_array[i] | (uint8_array[i+1] << 8))
     return ''.join(map(chr, uint16_array))
 
 
@@ -53,7 +120,7 @@ def serve_file(request, fo):
         fo.close()
 
     if request.finished:
-        return
+        return None
 
     d = filesender.beginFileTransfer(fo, request)
     d.addCallback(on_success)
@@ -80,11 +147,11 @@ def connection_check(tid, role, client_ip, client_using_tor):
     if ip_filter_enabled:
         ip_filter = cache.get(ip_filter_key)
         if not check_ip(client_ip, ip_filter):
-            raise errors.AccessLocationInvalid
+            raise errors.InvalidAuthentication
 
     https_allowed = cache.get(https_allowed_key)
     if not https_allowed and not client_using_tor:
-        raise errors.TorNetworkRequired
+        raise errors.InvalidAuthentication
 
 
 def db_confirmation_check(session, tid, user_id, secret):
@@ -96,7 +163,7 @@ def db_confirmation_check(session, tid, user_id, secret):
         if len(user.hash) == 64:
             hash = sha256(Base64Encoder.decode(secret.encode())).decode()
         else:
-            hash = GCE.hash_password(secret, user.salt)
+            _, hash = GCE.calculate_key_and_hash(secret, user.salt)
 
         if not GCE.check_equality(hash, user.hash):
             raise errors.InvalidAuthentication
@@ -107,13 +174,16 @@ def sync_confirmation_check(session, tid, user_id, secret):
     return db_confirmation_check(session, tid, user_id, secret)
 
 
-class BaseHandler(object):
+class BaseHandler:
     check_roles = 'admin'
     handler_exec_time_threshold = 120
     cache_resource = False
     invalidate_cache = False
     root_tenant_only = False
     root_tenant_or_management_only = False
+    # The permission required to reach the handler, reads included; None leaves it to the role
+    # check; a single permission or a tuple of alternatives
+    require_permission = None
     upload_handler = False
     uploaded_file = None
     allowed_mimetypes = []
@@ -124,6 +194,17 @@ class BaseHandler(object):
         self.request = request
         self.request.start_time = datetime.now()
         self.token = None
+
+        # DPoP (RFC 9449): the cleartext session id presented in the X-Session
+        # header (needed to compute the `ath` claim) and the verified thumbprint
+        # of the request's DPoP proof (cached once verified).
+        self.session_id_cleartext = None
+        self.dpop_thumbprint = None
+        self.dpop_checked = False
+
+        # True when the request is authenticated solely by a session bearing
+        # token, a path that is exempt from the DPoP proof of possession check.
+        self.session_from_token = False
 
         self.session = self.get_session()
 
@@ -140,32 +221,75 @@ class BaseHandler(object):
             token = token_arg[0]
 
         if token:
+            # Throttle token validation per client IP before the proof-of-work
+            # verification so that a burst of invalid redemptions cannot
+            # monopolize the reactor with synchronous Argon2 work. Tor clients
+            # share an exit identity and are excluded to avoid penalizing them.
+            if not self.request.client_using_tor and \
+               State.RateLimit.check(b"token_validations_per_minute_per_ip:" + get_ip_identity(self.request.client_ip).encode(), 100, 60) > 0:
+                return None
+
             try:
                 self.token = self.state.tokens.validate(token)
-                if self.token.session is not None:
+                if self.token.session is not None and \
+                   self.token.session.id in Sessions:
+                    # The token keeps its own reference to the session object, so
+                    # without re-checking liveness it would keep authenticating
+                    # after logout, after Sessions.revoke() (used on password,
+                    # role and permission changes) and after natural expiry: all
+                    # of those only drop the entry from Sessions. The stored
+                    # session id is already the hashed key used by Sessions.
                     session = self.token.session
-            except:
-                return
+                    self.session_from_token = True
+            except Exception:
+                return None
 
         # Check session header
         session_id = self.request.headers.get(b'x-session')
         if session_id:
-            session = Sessions.get(session_id.decode())
+            self.session_id_cleartext = session_id.decode()
+            session = Sessions.get(self.session_id_cleartext)
+            self.session_from_token = False
 
         if session is None or session.tid != self.request.tid:
-            return
-
-        # A session is usable only along the identity of the identity provider
-        # bound to its account, so that a token of a different identity cannot
-        # be carried on requests performed with it
-        if session.idp_id and self.request.oidc_token and session.idp_id != self.request.oidc_token.get('sub'):
-            return
+            return None
 
         if session.role != 'whistleblower' and \
            self.state.tenants[1].cache.get('log_accesses_of_internal_users', False):
              self.request.log_ip_and_ua = True
 
         return session
+
+    def dpop_request_fields(self):
+        """Return the (proof, htm, htu) tuple of the current request for DPoP."""
+        return (self.request.headers.get(b'dpop'),
+                self.request.method.decode(),
+                self.dpop_htu())
+
+    def dpop_htu(self):
+        """
+        Reconstruct the htu claim: the request path only, without scheme, host,
+        query or fragment. See globaleaks.utils.dpop for why the binding is
+        path-only rather than the full RFC 9449 request URI.
+
+        request.path has been stripped of the tenant prefix by the API router,
+        so both client and server compute the same value.
+        """
+        return self.request.path.decode()
+
+    def get_dpop_thumbprint(self):
+        """
+        Verify the DPoP proof of a session-establishing request and return the
+        thumbprint (jkt) to bind to the new session.
+
+        When the request already carried a session whose proof was verified by
+        check_dpop, that thumbprint is reused to avoid re-validating (and double
+        -consuming the jti of) the same proof.
+        """
+        if self.dpop_thumbprint is None:
+            self.dpop_thumbprint = dpop.verify_dpop_proof(*self.dpop_request_fields())
+
+        return self.dpop_thumbprint
 
     @staticmethod
     def validate_python_type(value, python_type):
@@ -175,16 +299,15 @@ class BaseHandler(object):
         if value is None:
             return True
 
-        if python_type == int:
+        if python_type is int:
             try:
                 int(value)
                 return True
-            except:
+            except Exception:
                 return False
 
-        if python_type == bool:
-            if value == 'true' or value == 'false':
-                return True
+        if python_type is bool and value in {'true', 'false'}:
+            return True
 
         return isinstance(value, python_type)
 
@@ -245,7 +368,7 @@ class BaseHandler(object):
         if not isinstance(request, (dict, list)):
             try:
                 request = json.loads(request)
-            except:
+            except Exception:
                 raise errors.InputValidationError
 
         if isinstance(request_template, dict):
@@ -268,7 +391,7 @@ class BaseHandler(object):
 
                 if not BaseHandler.validate_type(value, request_template[key]):
                     log.err("Received key %s: type validation fail", key)
-                    raise errors.InputValidationError("Key (%s) type validation failure" % key)
+                    raise errors.InputValidationError(f"Key ({key}) type validation failure")
                 success_check += 1
 
             for key in keys_to_strip:
@@ -279,14 +402,14 @@ class BaseHandler(object):
                     log.debug("Key %s expected but missing!", key)
                     log.debug("Received schema %s - Expected %s",
                               request.keys(), request_template.keys())
-                    raise errors.InputValidationError("Missing key %s" % key)
+                    raise errors.InputValidationError(f"Missing key {key}")
 
                 if not BaseHandler.validate_type(request[key], value):
                     log.err("Expected key: %s type validation failure", key)
-                    raise errors.InputValidationError("Key (%s) double validation failure" % key)
+                    raise errors.InputValidationError(f"Key ({key}) double validation failure")
 
-                if isinstance(request_template[key], (dict, list)) and request_template[key]:
-                    BaseHandler.validate_request(request[key], request_template[key])
+                if isinstance(value, (dict, list)) and value:
+                    BaseHandler.validate_request(request[key], value)
 
                 success_check += 1
 
@@ -294,10 +417,9 @@ class BaseHandler(object):
                 log.err("Success counter double check failure: %d", success_check)
                 raise errors.InputValidationError("Success counter double check failure")
 
-        elif isinstance(request_template, list):
-            if not all(BaseHandler.validate_type(x, request_template[0]) for x in request):
-                raise errors.InputValidationError("Not every element in %s is %s" %
-                                                  (request, request_template[0]))
+        elif (isinstance(request_template, list)
+                and not all(BaseHandler.validate_type(x, request_template[0]) for x in request)):
+            raise errors.InputValidationError(f"Not every element in {request} is {request_template[0]}")
 
         return request
 
@@ -312,9 +434,24 @@ class BaseHandler(object):
     def check_confirmation(self):
         user_id = self.session.user_id
 
-        secret = decodeString(self.request.headers.get(b'x-confirmation', b''))
+        secret = decode_utf16_string(self.request.headers.get(b'x-confirmation', b''))
 
-        sync_confirmation_check(self.session.user_tid, user_id, secret)
+        try:
+            sync_confirmation_check(self.session.user_tid, user_id, secret)
+        except (errors.InvalidAuthentication, errors.InvalidTwoFactorAuthCode):
+            # Count consecutive failed confirmations and drop the session once
+            # the budget is exhausted: this prevents a session-holding attacker
+            # from brute forcing the six-digit TOTP or the password used to
+            # authorize sensitive operations (e.g. disable_2fa, get_recovery_key).
+            failures = self.session.properties.get('confirmation_failures', 0) + 1
+            if failures >= 5:
+                Sessions.revoke(self.session.tid, self.session.user_id)
+            else:
+                self.session.properties['confirmation_failures'] = failures
+
+            raise
+
+        self.session.properties.pop('confirmation_failures', None)
 
     def open_file(self, filepath):
         self.check_file_presence(filepath)
@@ -350,31 +487,44 @@ class BaseHandler(object):
         if pgp_key:
             filename += '.pgp'
             _fp = fp
-            fp = NamedTemporaryFile()
-            PGPContext(pgp_key).encrypt_file(_fp, fp.name)
+            out = NamedTemporaryFile()  # noqa: SIM115 - handle is returned to serve_file for streaming
+            # PGP encryption of a whole file is CPU-heavy; run it off the
+            # reactor thread so large downloads/exports cannot stall the
+            # single-threaded event loop. The response is served once the
+            # encryption completes.
+            d = deferToThread(PGPContext(pgp_key).encrypt_file, _fp, out.name)
+            d.addCallback(lambda _: self._serve_download(filename, out))
+            return d
 
+        return self._serve_download(filename, fp)
+
+    def _serve_download(self, filename, fp):
         self.request.setHeader(b'Content-Type', 'application/octet-stream')
         self.request.setHeader(b'Content-Disposition',
-                               'attachment; filename="%s"' % filename)
+                               content_disposition_attachment(filename))
 
         return serve_file(self.request, fp)
 
-    def compute_file_hashes(self, filepath, chunk_size=8192):
-        sha256_ctx = hashes.Hash(hashes.SHA256(), backend=crypto_backend)
-        sha512_ctx = hashes.Hash(hashes.SHA512(), backend=crypto_backend)
+    def serialize_download(self, fn, *args):
+        # Serialize CPU-heavy downloads per user (report exports and PGP-wrapped
+        # attachment downloads): a user runs at most one at a time and the rest
+        # queue rather than being rejected, so a single user cannot multiply the
+        # decrypt/compress/encrypt cost. The lock is dropped once idle so
+        # download_locks stays bounded.
+        key = self.session.user_id
+        lock = self.state.download_locks.get(key)
+        if lock is None:
+            lock = DeferredLock()
+            self.state.download_locks[key] = lock
 
-        with open(filepath, 'rb') as fh:
-            while True:
-                chunk = fh.read(chunk_size)
-                if not chunk:
-                    break
-                sha256_ctx.update(chunk)
-                sha512_ctx.update(chunk)
+        def drop_if_idle(result):
+            if not lock.locked and not lock.waiting:
+                self.state.download_locks.pop(key, None)
+            return result
 
-        sha256_digest = binascii.b2a_hex(sha256_ctx.finalize()).decode()
-        sha512_digest = binascii.b2a_hex(sha512_ctx.finalize()).decode()
-
-        return sha256_digest, sha512_digest
+        # DeferredLock.run acquires the lock, runs fn, and releases it (even on
+        # failure); drop_if_idle then prunes the map once no one is queued.
+        return lock.run(fn, *args).addBoth(drop_if_idle)
 
     def process_file_upload(self):
         if b'flowFilename' not in self.request.args:
@@ -386,7 +536,6 @@ class BaseHandler(object):
         if file_id not in self.state.TempUploadFiles:
             if self.session and self.session.role == 'whistleblower':
                 user_id = self.session.user_id.encode()
-
                 block = State.RateLimit.check(b"attachments_per_hour_per_report:" + user_id,
                                               State.tenants[1].cache.threshold_attachments_per_hour_per_report,
                                               3600)
@@ -394,28 +543,52 @@ class BaseHandler(object):
                     raise errors.ForbiddenOperation()
 
             self.state.TempUploadFiles[file_id] = SecureTemporaryFile(Settings.tmp_path)
+            # The digests are accumulated on the cleartext chunks as they
+            # arrive: the temporary file on disk is encrypted with an ephemeral
+            # key, so hashing it afterwards would attest the ciphertext of a
+            # key that dies with the process rather than the evidence itself.
+            self.state.TempUploadFiles[file_id].hash_sha256_ctx = hashlib.sha256()
+            self.state.TempUploadFiles[file_id].hash_sha512_ctx = hashlib.sha512()
 
         f = self.state.TempUploadFiles[file_id]
 
         max_file_size = self.state.tenants[self.request.tid].cache.maximum_filesize
+        max_file_size_bytes = max_file_size * 1024 * 1024
 
         chunk_size = len(self.request.args[b'file'][0])
-        if (chunk_size // (1024 * 1024) > max_file_size or
-            total_file_size // (1024 * 1024) > max_file_size or
-            f.size // (1024 * 1024) > max_file_size):
+        if (chunk_size > max_file_size_bytes or
+            total_file_size > max_file_size_bytes or
+            f.size + chunk_size > max_file_size_bytes):
             log.err("File upload request rejected: file too big", tid=self.request.tid)
             raise errors.FileTooBig(max_file_size)
 
+        chunk_number = int(self.request.args[b'flowChunkNumber'][0])
+
         with f.open('w') as f:
+            # Chunks are uploaded strictly in order (simultaneousUploads: 1). Anything that
+            # is not the next expected chunk is a re-send of one already received (its
+            # response was lost, e.g. on a connection the server closed after its idle
+            # timeout): acknowledge it with the regular 201 without rewriting or
+            # re-finalizing. Rewriting would duplicate bytes and desync the ChaCha20
+            # keystream, while re-finalizing the last chunk would attach the file twice.
+            # process_file_upload runs synchronously on the reactor thread, so this
+            # check-and-write needs no lock.
+            if chunk_number != f.written_chunks + 1:
+                return
+
             f.write(self.request.args[b'file'][0])
+            f.hash_sha256_ctx.update(self.request.args[b'file'][0])
+            f.hash_sha512_ctx.update(self.request.args[b'file'][0])
+            f.written_chunks += 1
 
             if self.request.args[b'flowChunkNumber'][0] != self.request.args[b'flowTotalChunks'][0]:
-                return None
+                return
 
-        filename = os.path.basename(self.request.args[b'flowFilename'][0].decode())
+        filename = sanitize_filename(self.request.args[b'flowFilename'][0].decode())
         mime_type, _ = mimetypes.guess_type(filename)
         mime_type = mime_type or 'application/octet-stream'  # Default MIME type if None
-        sha256_digest, sha512_digest = self.compute_file_hashes(f.filepath)
+        sha256_digest = f.hash_sha256_ctx.hexdigest()
+        sha512_digest = f.hash_sha512_ctx.hexdigest()
 
         # Prepare the uploaded file metadata
         self.uploaded_file = {
@@ -452,8 +625,16 @@ class BaseHandler(object):
         finally:
             self.uploaded_file['path'] = destination
 
+    def root_or_management_session(self):
+        """
+        Tell whether the request comes from the administrators of the platform
+        """
+        return self.request.tid == 1 or \
+            bool(self.session and self.session.properties and
+                 self.session.properties.get('management_session', False))
+
     def check_root_or_management_session(self):
-        if self.request.tid != 1 and not (self.session and self.session.properties and self.session.properties.get('management_session', False)):
+        if not self.root_or_management_session():
             raise errors.ForbiddenOperation
 
     def check_execution_time(self):
@@ -462,4 +643,4 @@ class BaseHandler(object):
         if self.request.execution_time.seconds > self.handler_exec_time_threshold:
             err_tup = ("Handler [%s] exceeded execution threshold (of %d secs) with an execution time of %.2f seconds",
                        self.name, self.handler_exec_time_threshold, self.request.execution_time.seconds)
-            log.err(tid=self.request.tid, *err_tup)
+            log.err(*err_tup, tid=self.request.tid)

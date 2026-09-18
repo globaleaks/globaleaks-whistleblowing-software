@@ -1,19 +1,21 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-confirmation",
     templateUrl: "./confirmation.component.html",
     standalone: true,
-    imports: [TranslateModule, TranslatorPipe]
+    imports: [TranslateModule]
 })
 export class ConfirmationComponent {
-  private modalService = inject(NgbModal);
-  private activeModal = inject(NgbActiveModal);
+  private readonly modalService = inject(NgbModal);
+  private readonly activeModal = inject(NgbActiveModal);
 
-  @Input() arg: string;
+  arg: string;
+  title = "Are you sure?";
+  message = "";
+  confirmLabel = "Yes";
 
   confirmFunction: (secret: string) => void;
 

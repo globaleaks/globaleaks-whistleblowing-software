@@ -1,8 +1,9 @@
-import {HttpClient} from "@angular/common/http";
-import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, inject, viewChild} from "@angular/core";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
+import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
+import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model"
 import {AddFieldComponent} from "../add-field/add-field.component";;
@@ -19,16 +20,17 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     imports: [AddFieldComponent, FieldsComponent, FormsModule, PaginatedInterfaceComponent, TranslateModule]
 })
 export class QuestionsComponent implements OnInit {
-  private httpClient = inject(HttpClient);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private fieldTemplates = inject(FieldTemplatesResolver);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly fieldTemplates = inject(FieldTemplatesResolver);
+  private readonly fieldUtilities = inject(FieldUtilitiesService);
 
   showAddQuestion = false;
   fields: fieldtemplatesResolverModel[] = [];
+  parsedFields: Record<string, ParsedFields> = {};
   questionnairesData: questionnaireResolverModel[] = [];
   step: Step;
-  @ViewChild('uploadInput') uploadInput: ElementRef<HTMLInputElement>;
+  readonly uploadInput = viewChild<ElementRef<HTMLInputElement>>('uploadInput');
 
   ngOnInit(): void {
     this.getResolver();
@@ -39,15 +41,17 @@ export class QuestionsComponent implements OnInit {
   };
 
   importQuestion(files: FileList | null): void {
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0]).subscribe((txt) => {
-        return this.httpClient.post("api/admin/fieldtemplates?multilang=1", txt).subscribe({
+    const file = files?.[0];
+    if (file) {
+      this.utilsService.readFileAsText(file).subscribe((txt) => {
+        return this.httpService.requestImportAdminFieldTemplate(txt).subscribe({
           next:()=>{
             this.utilsService.reloadComponent();
           },
           error:()=>{
-            if (this.uploadInput) {
-                this.uploadInput.nativeElement.value = "";
+            const uploadInput = this.uploadInput();
+            if (uploadInput) {
+                uploadInput.nativeElement.value = "";
             }
           }
         });
@@ -60,6 +64,18 @@ export class QuestionsComponent implements OnInit {
       this.fieldTemplates.dataModel = response;
       this.fields = response;
       this.fields = this.fields.filter((field: { editable: boolean; }) => field.editable);
+      this.parseFields();
+    });
+  }
+
+  parseFields() {
+    this.parsedFields = {};
+    this.fields.forEach(field => {
+      this.parsedFields[field.id] = this.fieldUtilities.parseField(field, {
+        fields: [],
+        fields_by_id: {},
+        options_by_id: {}
+      });
     });
   }
 
@@ -70,5 +86,6 @@ export class QuestionsComponent implements OnInit {
 
   onDelete(id: string) {
     this.fields = this.fields.filter(i => i.id !== id);
+    this.parseFields();
   }
 }

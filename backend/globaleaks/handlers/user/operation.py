@@ -15,12 +15,21 @@ from globaleaks.utils.utility import datetime_now
 
 
 @transact
-def change_password(session, tid, user_session, password):
+def change_password(session, tid, user_session, new_password, current_password):
     user = db_get_user(session, tid, user_session.user_id)
 
     config = models.config.ConfigFactory(session, tid)
 
-    key = Base64Encoder.decode(password.encode())
+    # A voluntary password change must prove knowledge of the current
+    # credential; the forced and reset flows (flagged on the session) are
+    # exempt, as the user does not know the current password.
+    forced = user_session.properties.get('reset_token') or \
+             user_session.properties.get('password_change_needed')
+
+    if not forced and sha256(Base64Encoder.decode(current_password.encode())).decode() != user.hash:
+        raise errors.InvalidAuthentication
+
+    key = Base64Encoder.decode(new_password.encode())
     hash = sha256(key).decode()
 
     # Check that the new password is different form the current password
@@ -32,12 +41,15 @@ def change_password(session, tid, user_session, password):
     user.password_change_needed = False
 
     cc = user_session.cc
-    if config.get_val('encryption'):
-        if not user.crypto_pub_key:
-            # The first password change triggers the generation
-            # of the user encryption private key and its backup
-            user.crypto_pub_key = PrivateKey(user_session.cc, Base64Encoder).public_key.encode(Base64Encoder)
+    if config.get_val('encryption') or config.get_val('crypto_support_pub_key'):
+        derived_public_key = PrivateKey(user_session.cc, Base64Encoder).public_key.encode(Base64Encoder)
+        if not user.crypto_pub_key or not GCE.check_equality(
+                user.crypto_pub_key, derived_public_key):
+            # The first password change generates the user key and its backup; a regenerated keypair
+            # invalidates the support key wrap
+            user.crypto_pub_key = derived_public_key
             user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(user_session.cc)
+            user.crypto_support_prv_key = ''
 
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
 
@@ -53,10 +65,14 @@ def change_password(session, tid, user_session, password):
 
     reset_token = user_session.properties.get('reset_token')
     if reset_token:
-        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, reset_token))
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(reset_token).decode()))
         directory_traversal_check(State.settings.ramdisk_path, filepath)
         srm(filepath)
         del user_session.properties['reset_token']
+
+    # Once the forced/reset change is performed the session is no longer exempt
+    # from confirmation: a subsequent voluntary change must prove the credential.
+    user_session.properties.pop('password_change_needed', None)
 
     db_log(session, tid=tid, type='change_password', user_id=user.id, object_id=user.id)
 
@@ -92,6 +108,8 @@ def get_recovery_key(session, tid, user_id, user_cc):
 
     user.clicked_recovery_key = True
 
+    db_log(session, tid=tid, type='access_recovery_key', user_id=user.id)
+
     return Base32Encoder.encode(GCE.asymmetric_decrypt(user_cc, Base64Encoder.decode(user.crypto_rec_key.encode()))).replace(b'=', b'')
 
 
@@ -108,6 +126,9 @@ def enable_2fa(session, tid, user_id, obj_id, secret, token):
     :param token: The current two factor token
     """
     user = db_get_user(session, tid, obj_id)
+
+    if user.two_factor_secret:
+        raise errors.ForbiddenOperation
 
     try:
         State.totp_verify(secret, token)
@@ -131,7 +152,11 @@ def disable_2fa(session, tid, user_id, obj_id):
     """
     user = db_get_user(session, tid, obj_id)
 
-    user.two_factor_secret = ''
+    if obj_id in models.config.db_get_protected_users(session, tid):
+        # Prevent disabling two factor authentication of protected users
+        raise errors.ForbiddenOperation
+
+    user.two_factor_secret = ''  # nosec B105
 
     db_log(session, tid=tid, type='disable_2fa', user_id=user_id, object_id=obj_id)
 
@@ -140,9 +165,6 @@ def disable_2fa(session, tid, user_id, obj_id):
 def reset_idp_binding(session, tid, user_id, obj_id):
     """
     Transaction for resetting the identity bound to a user
-
-    The account is bound again on its next authentication, so that the access
-    can be restored when the identity of a user changes on the identity provider
 
     :param session: An ORM session
     :param tid: A tenant ID
@@ -180,7 +202,8 @@ class UserOperationHandler(OperationHandler):
     def change_password(self, req_args, *args, **kwargs):
         return change_password(self.session.user_tid,
                                self.session,
-                               req_args['password'])
+                               req_args['new_password'],
+                               req_args.get('current_password', ''))
 
     def get_users_names(self, req_args, *args, **kwargs):
         return get_users_names(self.session.user_tid)
@@ -191,11 +214,17 @@ class UserOperationHandler(OperationHandler):
                                 self.session.cc)
 
     def enable_2fa(self, req_args, *args, **kwargs):
-        return enable_2fa(self.session.user_tid,
-                          self.session.user_id,
-                          self.session.user_id,
-                          req_args['secret'],
-                          req_args['token'])
+        d = enable_2fa(self.session.user_tid,
+                       self.session.user_id,
+                       self.session.user_id,
+                       req_args['secret'],
+                       req_args['token'])
+
+        def clear_require_two_factor(_):
+            self.session.properties.pop('require_two_factor', None)
+
+        d.addCallback(clear_require_two_factor)
+        return d
 
     def disable_2fa(self, req_args, *args, **kwargs):
         return disable_2fa(self.session.user_tid,
@@ -207,6 +236,15 @@ class UserOperationHandler(OperationHandler):
                                        self.session.user_id)
 
     def operation_descriptors(self):
+        if self.session.properties.get('reset_token') or \
+           self.session.properties.get('password_change_needed'):
+            # A session pending a forced/reset password change may only change the password
+            return {'change_password': UserOperationHandler.change_password}
+
+        if self.session.properties.get('require_two_factor'):
+            # A session pending mandatory two-factor enrollment may only enable 2fa
+            return {'enable_2fa': UserOperationHandler.enable_2fa}
+
         return {
             'change_password': UserOperationHandler.change_password,
             'get_users_names': UserOperationHandler.get_users_names,

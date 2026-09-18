@@ -1,5 +1,6 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, OnInit, inject, input, output} from "@angular/core";
 import {NgForm, FormsModule} from "@angular/forms";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
 import {NgbModal, NgbInputDatepicker, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {AddOptionHintComponent} from "@app/shared/modals/add-option-hint/add-option-hint.component";
 import {AssignScorePointsComponent} from "@app/shared/modals/assign-score-points/assign-score-points.component";
@@ -7,19 +8,17 @@ import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmatio
 import {TriggerReceiverComponent} from "@app/shared/modals/trigger-receiver/trigger-receiver.component";
 import {FieldTemplatesResolver} from "@app/shared/resolvers/field-templates-resolver.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {map, Observable, of} from "rxjs";
-import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
+import {Observable} from "rxjs";
+import {Step} from "@app/models/resolvers/questionnaire-model";
 import {ParsedFields} from "@app/models/component-model/parsedFields";
 import {Field, fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {Children, Option, TriggeredByOption} from "@app/models/app/shared-public-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {NgClass, DatePipe} from "@angular/common";
+import {DatePipe} from "@angular/common";
 import {AddFieldComponent} from "../add-field/add-field.component";
 import {AddFieldFromTemplateComponent} from "../add-field-from-template/add-field-from-template.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {TranslateModule} from "@ngx-translate/core";
 
@@ -27,25 +26,25 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-fields",
     templateUrl: "./fields.component.html",
     standalone: true,
-    imports: [FormsModule, NgbInputDatepicker, NgbTooltipModule, NgClass, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, TranslatorPipe, OrderByPipe, TranslateModule]
+    imports: [FormsModule, NgbInputDatepicker, NgbTooltipModule, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, OrderByPipe, TranslateModule, ListItemComponent]
 })
 export class FieldsComponent implements OnInit {
-  private authenticationService = inject(AuthenticationService);
-  private modalService = inject(NgbModal);
+  private readonly authenticationService = inject(AuthenticationService);
+  private readonly modalService = inject(NgbModal);
   nodeResolver = inject(NodeResolver);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
-  private cdr = inject(ChangeDetectorRef);
-  private fieldTemplates = inject(FieldTemplatesResolver);
-  private fieldUtilities = inject(FieldUtilitiesService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly fieldTemplates = inject(FieldTemplatesResolver);
 
-  @Input() editField: NgForm;
-  @Input() field: Children | Step | Field;
-  @Input() fields: Children[] | Field[] | Step[];
-  @Input() type: string;
-  @Input() step: Step;
-  @Input() parsedFields: ParsedFields;
-  @Output() deleted = new EventEmitter<string>();
+  readonly editField = input.required<NgForm>();
+  readonly field = input.required<Children | Step | Field>();
+  readonly fields = input<Children[] | Field[] | Step[]>();
+  readonly type = input<string>();
+  readonly step = input<Step>();
+  readonly parsedFields = input.required<ParsedFields>();
+  readonly deleted = output<string>();
+  readonly updated = output<void>();
   custom = "custom";
   editing = false;
   openMinDate = false;
@@ -70,12 +69,12 @@ export class FieldsComponent implements OnInit {
     } else {
       this.fieldTemplatesData = [this.fieldTemplates.dataModel];
     }
-    this.fieldIsMarkableSubjectToStats = this.isMarkableSubjectToStats(this.field);
-    this.fieldIsMarkableSubjectToPreview = this.isMarkableSubjectToPreview(this.field);
-    this.children = this.field.children;
+    this.fieldIsMarkableSubjectToStats = this.isMarkableSubjectToStats(this.field());
+    this.fieldIsMarkableSubjectToPreview = this.isMarkableSubjectToPreview(this.field());
+    this.children = this.field().children;
   }
 
-  saveField(field: Step | Field, editing?:boolean) {
+  saveField(field: Step | Field) {
     this.utilsService.assignUniqueOrderIndex(field.options);
     return this.httpService.requestUpdateAdminQuestionnaireField(field.id, field).subscribe();
   }
@@ -96,10 +95,6 @@ export class FieldsComponent implements OnInit {
     }
   }
 
-  toggleEditing() {
-    this.editing = !this.editing;
-  }
-
   exportQuestion(field: Step | Field) {
     this.utilsService.saveAs(this.authenticationService,field.label + ".json","api/admin/fieldtemplates/" + field.id + "?multilang=1");
   }
@@ -109,14 +104,14 @@ export class FieldsComponent implements OnInit {
   }
 
   openConfirmableModalDialog(arg: Step | Field, scope: any): Observable<string> {
-    return new Observable((observer) => {
+    return new Observable(() => {
       const modalRef = this.modalService.open(DeleteConfirmationComponent, {backdrop: 'static', keyboard: false});
       modalRef.componentInstance.arg = arg;
       modalRef.componentInstance.scope = scope;
 
       modalRef.componentInstance.confirmFunction = () => {
         return this.httpService.requestDeleteAdminQuestionareField(arg.id).subscribe(() => {
-          this.deleted.emit(this.field.id);
+          this.deleted.emit(arg.id);
         });
       };
     });
@@ -125,21 +120,25 @@ export class FieldsComponent implements OnInit {
   moveUpAndSave(field: Step | Field): void {
     this.utilsService.moveUp(field);
     this.saveField(field);
+    this.updated.emit();
   }
 
   moveDownAndSave(field: Step | Field): void {
     this.utilsService.moveDown(field);
     this.saveField(field);
+    this.updated.emit();
   }
 
   moveLeftAndSave(field: Step | Field): void {
     this.utilsService.moveLeft(field);
     this.saveField(field);
+    this.updated.emit();
   }
 
   moveRightAndSave(field: Step | Field): void {
     this.utilsService.moveRight(field);
     this.saveField(field);
+    this.updated.emit();
   }
 
   typeSwitch(type: string): string {
@@ -175,14 +174,14 @@ export class FieldsComponent implements OnInit {
   };
 
   delTrigger(trigger: TriggeredByOption): void {
-    const index = this.field.triggered_by_options.indexOf(trigger);
+    const index = this.field().triggered_by_options.indexOf(trigger);
     if (index !== -1) {
-      this.field.triggered_by_options.splice(index, 1);
+      this.field().triggered_by_options.splice(index, 1);
     }
   }
 
   addTrigger() {
-    this.field.triggered_by_options.push(this.new_trigger);
+    this.field().triggered_by_options.push(this.new_trigger);
     this.toggleAddTrigger();
     this.new_trigger = {"field": "", "option": "", "sufficient": false};
   }
@@ -208,15 +207,15 @@ export class FieldsComponent implements OnInit {
       order: 0,
     };
 
-    new_option.order = this.utilsService.newItemOrder(this.field.options, "order");
+    new_option.order = this.utilsService.newItemOrder(this.field().options, "order");
 
-    this.field.options.push(new_option);
+    this.field().options.push(new_option);
   }
 
   delOption(option: Option): void {
-    const index = this.field.options.indexOf(option);
+    const index = this.field().options.indexOf(option);
     if (index !== -1) {
-      this.field.options.splice(index, 1);
+      this.field().options.splice(index, 1);
     }
   }
 
@@ -246,17 +245,22 @@ export class FieldsComponent implements OnInit {
 
   private swapOption(index: number, n: number): void {
     const target = index + n;
-    if (target < 0 || target >= this.field.options.length) {
+    if (target < 0 || target >= this.field().options.length) {
       return;
     }
 
-    const tmp = this.field.options[target];
+    const options = this.field().options;
+    const moved = options[index];
+    const displaced = options[target];
+    if (moved === undefined || displaced === undefined) {
+      return;
+    }
 
-    this.field.options[target] = this.field.options[index];
-    this.field.options[target].order = target;
+    options[target] = moved;
+    moved.order = target;
 
-    this.field.options[index] = tmp;
-    this.field.options[index].order = index;
+    options[index] = displaced;
+    displaced.order = index;
   }
 
   flipBlockSubmission(option: Option): void {
@@ -308,30 +312,43 @@ export class FieldsComponent implements OnInit {
     return field?.attrs?.input_validation?.value === 'custom';
   }
 
+  onUpdate() {
+    this.children = [...this.children];
+    this.updated.emit();
+  }
+
+  // One label per line: the options already present are renamed in order and
+  // the surplus ones are dropped, so that the file is the list of the options
   importOptions(files: FileList | null): void {
-    if (files && files.length > 0) {
-      this.utilsService.readFileAsText(files[0]).subscribe(
-        (txt: string) => {
-          const labels = txt.replace(/^\uFEFF/, "").split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
-          if (labels.length === 0) {
-            return;
-          }
-
-          let currentOrder = this.utilsService.newItemOrder(this.field.options, "order");
-          labels.forEach((label, i) => {
-            if (i < this.field.options.length) {
-              this.field.options[i].label = label;
-            } else {
-              this.field.options.push({ id: "", label: label, hint1: "", hint2: "", block_submission: false, score_points: 0, score_type: "none", trigger_receiver: [], order: currentOrder++ });
-            }
-          });
-
-          if (this.field.options.length > labels.length) {
-            this.field.options.splice(labels.length);
-          }
-
-          this.cdr.markForCheck();
-        });
+    const file = files?.[0];
+    if (!file) {
+      return;
     }
+
+    this.utilsService.readFileAsText(file).subscribe((txt: string) => {
+      const labels = txt.replace(/^\uFEFF/, "").split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+
+      if (labels.length === 0) {
+        return;
+      }
+
+      const options = this.field().options;
+      let currentOrder = this.utilsService.newItemOrder(options, "order");
+
+      labels.forEach((label, i) => {
+        const option = options[i];
+        if (option) {
+          option.label = label;
+        } else {
+          options.push({id: "", label: label, hint1: "", hint2: "", block_submission: false, score_points: 0, score_type: "none", trigger_receiver: [], order: currentOrder++});
+        }
+      });
+
+      if (options.length > labels.length) {
+        options.splice(labels.length);
+      }
+
+      this.cdr.markForCheck();
+    });
   }
 }

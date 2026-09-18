@@ -14,7 +14,6 @@ class OIDC(LoopingJob):
     def operation(self):
         """
         This scheduler is responsible for:
-            - Refreshing the JWKS of the IdP configured on each tenant
         """
         issuers = set()
         for tid in self.state.tenants:

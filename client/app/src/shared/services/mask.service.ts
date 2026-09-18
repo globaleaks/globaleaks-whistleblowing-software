@@ -8,7 +8,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
   providedIn: 'root',
 })
 export class MaskService {
-  private modalService = inject(NgbModal);
+  private readonly modalService = inject(NgbModal);
 
 
   getSelectedRanges(select: boolean, selected_ranges: any[],redactTextArea:ElementRef) {

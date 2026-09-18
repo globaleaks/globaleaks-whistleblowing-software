@@ -1,10 +1,9 @@
-import {Component, Input, inject} from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {Receiver} from "@app/models/app/public-model";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {NgSelectComponent, NgLabelTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-transfer-access",
@@ -15,14 +14,13 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
         FormsModule,
         NgLabelTemplateDirective,
         TranslateModule,
-        TranslatorPipe,
-    ],
+        ],
 })
 export class TransferAccessComponent {
-  private activeModal = inject(NgbActiveModal);
+  private readonly activeModal = inject(NgbActiveModal);
 
-  @Input() usersNames: Record<string, string> | undefined;
-  @Input() selectableRecipients: Receiver[];
+  usersNames: Record<string, string>;
+  selectableRecipients: Receiver[];
   receiverId: { id: number };
 
   confirm(receiverId: { id: number }) {

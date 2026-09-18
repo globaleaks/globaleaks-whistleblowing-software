@@ -1,4 +1,5 @@
-import {Component, OnInit, QueryList, ViewChild, ViewChildren, inject} from "@angular/core";
+import {Component, OnInit, inject, viewChild, viewChildren} from "@angular/core";
+import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {ActivatedRoute} from '@angular/router';
 import {AppDataService} from "@app/app-data.service";
 import {WhistleblowerLoginResolver} from "@app/shared/resolvers/whistleblower-login.resolver";
@@ -8,13 +9,14 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NgForm, FormsModule} from "@angular/forms";
 import {AppConfigService} from "@app/services/root/app-config.service";
+import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
+import {DisclaimerComponent} from "@app/shared/modals/disclaimer/disclaimer.component";
 import {Context, Questionnaire, Receiver} from "@app/models/app/public-model";
 import {Answers} from "@app/models/receiver/receiver-tip-data";
 import Flow from "@flowjs/flow.js";
 import {TitleService} from "@app/shared/services/title.service";
 import {Router} from "@angular/router";
 import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistleblower-submission.service";
-import {NgClass} from "@angular/common";
 import {ContextSelectionComponent} from "../context-selection/context-selection.component";
 import {ReceiverSelectionComponent} from "../receiver-selection/receiver-selection.component";
 import {NgFormChangeDirective} from "@app/shared/directive/ng-form-change.directive";
@@ -22,7 +24,6 @@ import {MarkdownComponent} from "ngx-markdown";
 import {FormComponent} from "../form/form.component";
 import {RFilesUploadStatusComponent} from "@app/shared/partials/rfiles-upload-status/r-files-upload-status.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {HttpService} from "@app/shared/services/http.service";
@@ -34,26 +35,29 @@ import {firstValueFrom} from "rxjs";
     templateUrl: "./submission.component.html",
     providers: [SubmissionService],
     standalone: true,
-    imports: [ContextSelectionComponent, FormsModule, NgClass, ReceiverSelectionComponent, NgFormChangeDirective, MarkdownComponent, FormComponent, RFilesUploadStatusComponent, TranslateModule, TranslatorPipe, StripHtmlPipe, OrderByPipe]
+    imports: [ContextSelectionComponent, FormsModule, ReceiverSelectionComponent, NgFormChangeDirective, MarkdownComponent, FormComponent, RFilesUploadStatusComponent, TranslateModule, StripHtmlPipe, OrderByPipe]
 })
 export class SubmissionComponent implements OnInit {
-  private route = inject(ActivatedRoute);
+  private readonly renderScheduler = inject(RenderSchedulerService);
+  private readonly route = inject(ActivatedRoute);
   protected whistleblowerSubmissionService = inject(WhistleblowerSubmissionService);
-  private titleService = inject(TitleService);
-  private router = inject(Router);
-  private appConfigService = inject(AppConfigService);
-  private whistleblowerLoginResolver = inject(WhistleblowerLoginResolver);
+  private readonly titleService = inject(TitleService);
+  private readonly router = inject(Router);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly modalService = inject(NgbModal);
+  private readonly whistleblowerLoginResolver = inject(WhistleblowerLoginResolver);
   protected authenticationService = inject(AuthenticationService);
   protected appDataService = inject(AppDataService);
-  private utilsService = inject(UtilsService);
-  private fieldUtilitiesService = inject(FieldUtilitiesService);
-  private httpService = inject(HttpService);
-  private cryptoService = inject(CryptoService);
+  private readonly utilsService = inject(UtilsService);
+  private readonly fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly httpService = inject(HttpService);
+  private readonly cryptoService = inject(CryptoService);
   submission = inject(SubmissionService);
 
-  @ViewChild("submissionForm") public submissionForm: NgForm;
-  @ViewChildren("stepForm") stepForms: QueryList<NgForm>;
+  disclaimerShown = false;
 
+  public readonly submissionForm = viewChild<NgForm>("submissionForm");
+  readonly stepForms = viewChildren<NgForm>("stepForm");
   _navigation = -1;
   answers: Answers = {};
   context: Context | undefined = undefined;
@@ -85,6 +89,23 @@ export class SubmissionComponent implements OnInit {
       this.appDataService.context_id = params.get('context') || this.appDataService.context_id;
       this.initializeSubmission();
     });
+
+    this.openDisclaimer();
+  }
+
+  // The disclaimer is shown on opening the page, so that it reaches whoever lands here directly
+  private openDisclaimer(): void {
+    if (!this.appDataService.public.node.disclaimer_text || this.disclaimerShown) {
+      return;
+    }
+
+    this.disclaimerShown = true;
+
+    const modalRef = this.modalService.open(DisclaimerComponent, {backdrop: 'static', keyboard: false});
+    modalRef.componentInstance.confirmFunction = () => { /* nothing to confirm */ };
+
+    // Closing the disclaimer leaves the composition of the report in place
+    modalRef.result.then(() => { /* accepted */ }, () => { /* dismissed */ });
   }
 
   firstStepIndex() {
@@ -136,18 +157,19 @@ export class SubmissionComponent implements OnInit {
   }
 
   initializeSubmission() {
-    let context = null;
-
     this.selectable_contexts = this.appDataService.public.contexts.filter(context => !context.hidden);
 
     if (this.appDataService.context_id) {
-      context = this.appDataService.public.contexts.find(context => context.id === this.appDataService.context_id);
+      // A context identifier addresses a specific context, possibly one that is
+      // hidden from the public listing. Resolve it on demand: knowledge of the
+      // identifier is the capability granting access to such contexts.
+      this.appConfigService.loadContext(this.appDataService.context_id).subscribe(context => {
+        if (context) {
+          this.prepareSubmission(context);
+        }
+      });
     } else if (this.selectable_contexts.length === 1) {
-      context = this.selectable_contexts[0];
-    }
-
-    if (context) {
-      this.prepareSubmission(context);
+      this.prepareSubmission(this.selectable_contexts[0]);
     }
   }
 
@@ -198,7 +220,7 @@ export class SubmissionComponent implements OnInit {
     if (this.questionnaire) {
 
       for (let i = 0; i < this.questionnaire.steps.length; i++) {
-        if (this.fieldUtilitiesService.isFieldTriggered(null, this.questionnaire.steps[i], this.answers, this.score, this.submission.submission.identity_provided, false)) {
+        if (this.fieldUtilitiesService.isFieldTriggered(null, this.questionnaire.steps[i], this.answers, this.submission.submission.identity_provided, false)) {
           last_enabled = i;
         }
       }
@@ -208,16 +230,7 @@ export class SubmissionComponent implements OnInit {
   };
 
   uploading() {
-    let uploading = false;
-    if (this.uploads && this.done) {
-      for (const key in this.uploads) {
-        if (this.uploads[key].flowJs && this.uploads[key].flowJs.isUploading()) {
-          uploading = true;
-        }
-      }
-    }
-
-    return uploading;
+    return this.done && this.utilsService.isUploading(this.uploads);
   }
 
   calculateEstimatedTime() {
@@ -291,15 +304,9 @@ export class SubmissionComponent implements OnInit {
     this.utilsService.resumeFileUploads(this.uploads);
     this.done = true;
 
-    const intervalId = setInterval(async () => {
-      if (this.uploads) {
-        for (const key in this.uploads) {
-
-          if (this.uploads[key].flowFile && this.uploads[key].flowFile.isUploading()) {
-            return;
-          }
-        }
-      }
+    const intervalId = setInterval(() => {
+      // Upload progress is polled outside change detection: render it.
+      this.renderScheduler.schedule();
 
       if (this.uploading()) {
         return;
@@ -307,25 +314,34 @@ export class SubmissionComponent implements OnInit {
 
       clearInterval(intervalId);
 
-      this.authenticationService.session.receipt = this.cryptoService.generateReceipt();
-
-      const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': "" /* whistleblower */ })));
-
-      if (res.type == 'key') {
-        this.appDataService.updateShowLoadingPanel(true);
-        this.submission.submission.receipt = await this.cryptoService.hashArgon2(this.authenticationService.session.receipt, res.salt);
-        this.appDataService.updateShowLoadingPanel(false);
-      } else {
-        this.submission.submission.receipt = this.authenticationService.session.receipt;
-      }
-
-      this.submission.submit().subscribe({
-        next: (response) => {
-          this.router.navigate(["/"]).then();
-          this.titleService.setPage("receiptpage");
-        }
-      });
+      void this.finalizeSubmission();
     }, 1000);
+  }
+
+  private async finalizeSubmission() {
+    const receipt = this.cryptoService.generateReceipt();
+
+    const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': "" /* whistleblower */ })));
+
+    if (res.type == 'key') {
+      this.appDataService.updateShowLoadingPanel(true);
+      this.submission.submission.receipt = await this.cryptoService.hashArgon2(receipt, res.salt);
+      this.appDataService.updateShowLoadingPanel(false);
+    } else {
+      this.submission.submission.receipt = receipt;
+    }
+
+    const session = this.authenticationService.session;
+    if (session) {
+      session.receipt = receipt;
+    }
+
+    this.submission.submit().subscribe({
+      next: () => {
+        void this.router.navigate(["/"]);
+        this.titleService.setPage("receiptpage");
+      }
+    });
   }
 
   runValidation() {
@@ -340,8 +356,9 @@ export class SubmissionComponent implements OnInit {
   }
 
   resetForm() {
-    if (this.submissionForm) {
-      this.submissionForm.reset();
+    const submissionForm = this.submissionForm();
+    if (submissionForm) {
+      submissionForm.reset();
     }
   }
 

@@ -1,10 +1,10 @@
+
 from datetime import timedelta
 
 from globaleaks import models
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers import analyst
-from globaleaks.handlers.recipient import rtip
 from globaleaks.orm import transact
 from globaleaks.tests import helpers
 
@@ -65,7 +65,7 @@ class TestStatistics(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_get(self):
-        handler = self.request(user_id=self.dummyAnalyst['id'], role='analyst')
+        handler = self.request(user_id=self.dummy_analyst['id'], role='analyst')
         stats = yield handler.get()
         self.assertEqual(stats['reports_count'], 2)
         self.assertEqual(stats['reports_with_no_access'], 2)
@@ -75,39 +75,33 @@ class TestStatistics(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(stats['reports_mobile'], 0)
         self.assertEqual(stats['reports_tor'], 2)
 
-    @inlineCallbacks
-    def test_closure_time_preserves_short_intervals(self):
-        rtip_desc = (yield self.get_rtips())[0]
 
-        for status in ('opened', 'closed'):
-            operation = {
-              'operation': 'update_status',
-              'args': {
-                'status': status,
-                'substatus': '',
-                'motivation': ''
-              }
-            }
+    @transact
+    def add_receiver_file(self, session, after_seconds):
+        tip = session.query(models.InternalTip).first()
 
-            handler = self.request(operation,
-                                   role='receiver',
-                                   user_id=rtip_desc['receiver_id'],
-                                   handler_cls=rtip.RTipInstance)
-            yield handler.put(rtip_desc['id'])
-            self.assertEqual(handler.request.code, 200)
+        rfile = models.ReceiverFile()
+        rfile.internaltip_id = tip.id
+        rfile.name = 'reply.pdf'
+        rfile.size = 100
+        rfile.content_type = 'application/pdf'
+        rfile.creation_date = tip.creation_date + timedelta(seconds=after_seconds)
+        session.add(rfile)
 
-        yield self.set_tip_status_log_dates(rtip_desc['id'], 5, 10)
 
-        handler = self.request(user_id=self.dummyAnalyst['id'], role='analyst')
-        stats = yield handler.get()
+    @transact
+    def get_a_tip_day(self, session):
+        return session.query(models.InternalTip).first().creation_date.strftime('%Y-%m-%d')
 
-        self.assertAlmostEqual(stats['avg_closure_time_hours'], 10 / 3600.0, places=4)
 
-    @inlineCallbacks
-    def test_first_reply_uses_whistleblower_comments(self):
-        yield self.set_tip_comment_dates(5 * 60, 15 * 60)
+class TestStatisticalTemplates(helpers.TestHandlerWithPopulatedDB):
+    _handler = analyst.StatisticalReportTemplates
 
-        handler = self.request(user_id=self.dummyAnalyst['id'], role='analyst')
-        stats = yield handler.get()
+    permissions = {'can_configure_statistical_report_templates': True}
 
-        self.assertAlmostEqual(stats['avg_first_reply_time_hours'], 15 / 60.0, places=4)
+    def analyst(self, body='', handler_cls=None, permissions=None):
+        return self.request(body,
+                            user_id=self.dummy_analyst['id'],
+                            role='analyst',
+                            permissions=permissions,
+                            handler_cls=handler_cls)

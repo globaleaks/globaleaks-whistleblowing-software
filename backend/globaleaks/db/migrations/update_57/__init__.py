@@ -1,12 +1,12 @@
 # -*- coding: UTF-8
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.models import Model
-from globaleaks.models.enums import *
-from globaleaks.models.properties import *
+from globaleaks.models.enums import EnumUserRole
+from globaleaks.models.properties import Boolean, Column, DateTime, Enum, Integer, JSON, UnicodeText, uuid4
 from globaleaks.utils.utility import datetime_now, datetime_null
 
 
-class User_v_56(Model):
+class UserV56(Model):
     __tablename__ = 'user'
     id = Column(UnicodeText(36), primary_key=True, default=uuid4)
     tid = Column(Integer, default=1, nullable=False)
@@ -51,13 +51,6 @@ class User_v_56(Model):
 
 
 class MigrationScript(MigrationBase):
-    def migrate_User(self):
-        for old_obj in self.session_old.query(self.model_from['User']):
-            new_obj = self.model_to['User']()
-            for key in new_obj.__mapper__.column_attrs.keys():
-                setattr(new_obj, key, getattr(old_obj, key))
-
-            if not old_obj.two_factor_enable:
-                new_obj.two_factor_secret = ''
-
-            self.session_new.add(new_obj)
+    converted_attrs = {
+        'User': {'two_factor_secret': lambda o: o.two_factor_secret if o.two_factor_enable else ''}
+    }

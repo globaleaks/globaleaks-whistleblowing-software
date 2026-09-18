@@ -9,9 +9,9 @@ import {UtilsService} from "@app/shared/services/utils.service";
   providedIn: "root"
 })
 export class AnalystGuard {
-  private utilsService = inject(UtilsService);
-  private appConfigService = inject(AppConfigService);
-  private router = inject(Router);
+  private readonly utilsService = inject(UtilsService);
+  private readonly appConfigService = inject(AppConfigService);
+  private readonly router = inject(Router);
   authenticationService = inject(AuthenticationService);
 
 
@@ -20,7 +20,7 @@ export class AnalystGuard {
       if(this.authenticationService.session.role === "analyst"){
         this.appConfigService.setPage(this.router.url);
       }else {
-        this.router.navigateByUrl("/login").then();
+        void this.router.navigateByUrl("/login");
       }
       return true;
     } else {

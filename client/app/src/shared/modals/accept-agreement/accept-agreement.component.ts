@@ -6,7 +6,6 @@ import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver
 
 import {FormsModule} from "@angular/forms";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-accept-agreement",
@@ -14,13 +13,12 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     standalone: true,
     imports: [
     FormsModule,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
 ],
 })
 export class AcceptAgreementComponent implements OnInit {
-  private activeModal = inject(NgbActiveModal);
-  private preference = inject(PreferenceResolver);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly preference = inject(PreferenceResolver);
   appDataService = inject(AppDataService);
 
   confirmFunction: () => void;

@@ -1,3 +1,4 @@
+import contextlib
 import os
 from datetime import datetime
 
@@ -9,12 +10,13 @@ from globaleaks import models
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.handlers.user import serialize_user
+from globaleaks.handlers.user import user_serialize_user
+from globaleaks.models.config import db_get_protected_users
 from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests
 from globaleaks.sessions import Sessions
 from globaleaks.state import State
-from globaleaks.utils.crypto import generateRandomKey, GCE
+from globaleaks.utils.crypto import generateRandomKey, GCE, sha256
 from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.utility import datetime_null
 
@@ -33,13 +35,12 @@ def db_generate_password_reset_token(session, user):
     else:
         template = 'account_activation'
 
-    user_desc = serialize_user(session, user, user.language)
+    user_desc = user_serialize_user(session, user, user.language)
 
-    try:
-        with open(os.path.abspath(os.path.join(State.settings.ramdisk_path, token)), "wb") as f:
+    with contextlib.suppress(OSError):
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(token).decode()))
+        with open(filepath, "wb") as f:
             f.write(user.id.encode())
-    except:
-        pass
 
     template_vars = {
         'type': template,
@@ -64,8 +65,8 @@ def generate_password_reset_token_by_user_id(session, tid, user_id):
     :param user_id: The user id of the user for which issue a password reset
     :return:
     """
-    user = session.query(models.User).filter(models.User.tid == tid, models.User.id == user_id).one_or_none()
-    if user is not None:
+    user = session.query(models.User).filter(models.User.tid == tid, models.User.id == user_id, models.User.enabled.is_(True)).one_or_none()
+    if user is not None and user.id not in db_get_protected_users(session, tid):
         db_generate_password_reset_token(session, user)
 
     return {'redirect': '/login/passwordreset/requested'}
@@ -84,17 +85,28 @@ def generate_password_reset_token_by_username_or_mail(session, tid, username_or_
     users = session.query(models.User).filter(
       or_(func.lower(models.User.username) == username_or_email.lower(),
           func.lower(models.User.mail_address) == username_or_email.lower()),
+      models.User.enabled.is_(True),
       models.User.tid == tid
     ).distinct()
 
+    protected_users = db_get_protected_users(session, tid)
+
     for user in users:
+        if user.id in protected_users:
+            # Silently skip protected users to avoid sending reset links and
+            # to preserve the generic anti-enumeration response
+            continue
+
+        if State.RateLimit.check(b"password_resets_per_hour_per_user:" + user.id.encode(), 5, 3600) > 0:
+            continue
+
         db_generate_password_reset_token(session, user)
 
     return {'redirect': '/login/passwordreset/requested'}
 
 
 @transact
-def validate_password_reset(session, reset_token, recovery_key, auth_code):
+def validate_password_reset(session, reset_token, recovery_key, auth_code, dpop_jkt=''):
     """
     Retrieves a user given a password reset validation token
 
@@ -109,25 +121,24 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
     prv_key = ''
 
     try:
-        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, reset_token))
+        filepath = os.path.abspath(os.path.join(State.settings.ramdisk_path, sha256(reset_token).decode()))
         directory_traversal_check(State.settings.ramdisk_path, filepath)
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             token = f.read()
             user_id = token.split(":")[0]
-    except:
+    except Exception:
         return {'status': 'invalid_reset_token_provided'}
 
-    user = session.query(models.User).filter(models.User.id == user_id).one_or_none()
+    user = session.query(models.User).filter(models.User.id == user_id,
+                                             models.User.enabled.is_(True)).one_or_none()
     if user is None:
         return {'status': 'invalid_reset_token_provided'}
 
     # If encryption is enabled require the recovery key
     if user.crypto_prv_key:
         try:
-            try:
-                prv_key = token.split(":")[1]
-            except:
-                pass
+            parts = token.split(":")
+            prv_key = parts[1] if len(parts) > 1 else None
 
             if prv_key:
                 enc_key = Base64Encoder.decode(GCE.derive_key(reset_token, user.salt).encode())
@@ -136,13 +147,22 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
                 recovery_key = recovery_key.replace('-', '').upper() + '===='
                 recovery_key = Base32Encoder.decode(recovery_key.encode())
                 prv_key = GCE.symmetric_decrypt(recovery_key, Base64Encoder.decode(user.crypto_bkp_key))
-        except:
+        except Exception:
             return {'status': 'require_recovery_key'}
 
     if user.two_factor_secret:
         try:
             State.totp_verify(user.two_factor_secret, auth_code)
-        except:
+        except Exception:
+            # Bound brute forcing of the second factor against a compromised
+            # reset token: invalidate the token after repeated failed codes so
+            # that further guessing requires issuing a new reset token.
+            if State.RateLimit.check(b"password_reset_failures_per_token:" + sha256(reset_token), 5, 3600) > 0:
+                with contextlib.suppress(OSError):
+                    os.unlink(filepath)
+
+                return {'status': 'invalid_reset_token_provided'}
+
             return {'status': 'require_two_factor_authentication'}
 
     # Special condition where the user is accessing for the first time via a reset
@@ -161,13 +181,23 @@ def validate_password_reset(session, reset_token, recovery_key, auth_code):
                                 user.username,
                                 user.role,
                                 prv_key,
-                                user.crypto_escrow_prv_key)
+                                user.crypto_escrow_prv_key,
+                                sk=user.crypto_support_prv_key,
+                                dpop_jkt=dpop_jkt)
 
     user_session.idp_id = user.idp_id
 
+    # The session is issued for the redirect login flow: the client is sent to
+    # /login?token=<id> and adopts it via /api/auth/tokenauth. Flag it as
+    # presentable as an authtoken, consistently with the other redirect logins.
+    user_session.properties['authtoken'] = True
     user_session.properties['reset_token'] = reset_token
+    user_session.properties['password_change_needed'] = True
 
     db_log(session, tid=user.tid, type='login', user_id=user.id)
+
+    # Note: the token is not invalidated intentionally;
+    #       it is required to preserve validity till actuall password reset
 
     return {'status': 'success', 'token': user_session.id}
 
@@ -189,4 +219,5 @@ class PasswordResetHandler(BaseHandler):
 
         return validate_password_reset(request['reset_token'],
                                        request['recovery_key'],
-                                       request['auth_code'])
+                                       request['auth_code'],
+                                       self.get_dpop_thumbprint())

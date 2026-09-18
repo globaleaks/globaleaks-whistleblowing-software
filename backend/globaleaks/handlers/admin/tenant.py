@@ -1,25 +1,35 @@
 # -*- coding: UTF-8
 import json
 from nacl.encoding import Base64Encoder
-from sqlalchemy import func
+from sqlalchemy import and_, func, or_
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import LANGUAGES_SUPPORTED_CODES, models
 from globaleaks.db.appdata import load_appdata, db_load_defaults
-from globaleaks.handlers.admin.context import db_create_context
-from globaleaks.handlers.admin.node import db_update_enabled_languages
-from globaleaks.handlers.admin.questionnaire import db_get_questionnaires, import_questionnaires
+from globaleaks.handlers.admin.context import admin_serialize_context, \
+                                             db_create_context, db_derive_context, \
+                                             db_sync_derived_contexts
+from globaleaks.handlers.admin.node import db_sync_languages_from_profile, \
+                                           db_update_enabled_languages
+from globaleaks.handlers.admin.questionnaire import db_get_questionnaires, \
+                                                  db_import_questionnaire, \
+                                                  serialize_questionnaire
 from globaleaks.handlers.admin.user import db_create_user
+from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, \
+                                                   db_create_user_profile
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.handlers.user import user_permissions
-from globaleaks.models import Config, EnabledLanguage, config, serializers
-from globaleaks.models.config import db_get_configs, db_get_pid_by_profile, db_get_profile_children, \
-    db_get_config_variable, db_get_signup_profile, db_set_config_variable
+from globaleaks.handlers.support import db_initialize_support
+from globaleaks.handlers.user import serialize_user_profile, user_permissions
+from globaleaks.models import EnabledLanguage, config, serializers
+from globaleaks.models.config_desc import ConfigDescriptor
+from globaleaks.models.exchanges import db_forget_exchanges
+from globaleaks.models.config import db_get_configs, db_get_pid, db_get_pid_by_profile, \
+    db_get_profile_children, db_get_config_variable, db_get_signup_profile, db_set_config_variable
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.log import log
-from globaleaks.utils.sock import isIPAddress
+from globaleaks.utils.sock import is_ip_address
 from globaleaks.utils.tls import gen_selfsigned_certificate
 from globaleaks.utils.utility import datetime_null, uuid4
 
@@ -39,8 +49,8 @@ def db_initialize_tenant_submission_statuses(session, tid):
         session.add(models.SubmissionStatus(s))
 
 
-def get_tenant_id(session, isTenant, is_profile):
-    id_key = 'counter_tenants' if isTenant and not is_profile else 'counter_profiles'
+def get_tenant_id(session, is_tenant, is_profile):
+    id_key = 'counter_tenants' if is_tenant and not is_profile else 'counter_profiles'
     tid = db_get_config_variable(session, 1, id_key)
     return id_key, tid
 
@@ -49,10 +59,34 @@ def calculate_tenant_id(tid, is_profile):
     return tid + 1
 
 
-def db_create(session, desc, isTenant = True, **kwargs):
+def db_subdomain_in_use(session, subdomain, excluded_tids=None):
+    """
+    Return whether the given subdomain is already taken by an existing tenant,
+    either as its configured subdomain or as the leading label of its hostname.
+    """
+    if not subdomain:
+        return False
+
+    # Config.value stores JSON, so string values are quoted; substr is used
+    # because the ORM SQL authorizer does not permit LIKE
+    hostname_prefix = '"' + subdomain + '.'
+
+    query = session.query(models.Config.tid).filter(
+        or_(and_(models.Config.var_name == 'subdomain',
+                 models.Config.value == subdomain),
+            and_(models.Config.var_name == 'hostname',
+                 func.substr(models.Config.value, 1, len(hostname_prefix)) == hostname_prefix)))
+
+    if excluded_tids:
+        query = query.filter(models.Config.tid.notin_(list(excluded_tids)))
+
+    return session.query(query.exists()).scalar()
+
+
+def db_create(session, desc, is_tenant = True, **kwargs):
     is_profile = kwargs.get('is_profile', False)
 
-    id_key, tid = get_tenant_id(session, isTenant, is_profile)
+    id_key, tid = get_tenant_id(session, is_tenant, is_profile)
 
     tenant_id = calculate_tenant_id(tid, is_profile)
 
@@ -72,12 +106,20 @@ def db_create(session, desc, isTenant = True, **kwargs):
 
         models.config.initialize_config(session, t.id, desc)
 
+        # A site speaks the language of the platform that creates it: the pages of a site
+        # are read by the public of that platform, and the default of the application
+        # would leave them in a language nobody there has chosen
+        if t.id != 1:
+            db_set_config_variable(session, t.id, 'default_language', language)
+
         if t.id == 1:
             db_set_config_variable(session, 1, id_key, t.id)
             db_load_defaults(session)
             key, cert = gen_selfsigned_certificate()
             db_set_config_variable(session, 1, 'https_selfsigned_key', key)
             db_set_config_variable(session, 1, 'https_selfsigned_cert', cert)
+        if db_subdomain_in_use(session, desc['subdomain'], excluded_tids=[t.id]):
+            raise errors.ForbiddenOperation
 
         for var in ['profile', 'subdomain']:
             db_set_config_variable(session, t.id, var, desc[var])
@@ -91,6 +133,11 @@ def db_create(session, desc, isTenant = True, **kwargs):
 
     else:
         db_set_config_variable(session, t.id, 'uuid', uuid4())
+
+        # A profile is born speaking the language of the platform that creates it, as a site is,
+        # and its author adds the others: the sites naming it hold the languages it holds
+        session.add(EnabledLanguage({'tid': t.id, 'name': language}))
+        db_set_config_variable(session, t.id, 'default_language', language)
 
     db_initialize_tenant_submission_statuses(session, t.id)
 
@@ -171,7 +218,7 @@ def create_and_initialize(session, desc, *args, **kwargs):
     t = db_create(session, desc, *args, **kwargs)
 
     wizard = {
-        'node_language': 'en',
+        'node_language': db_get_config_variable(session, 1, 'default_language'),
         'node_name': desc['name'],
         'profile': 'default',
         'skip_admin_account_creation': True,
@@ -184,15 +231,32 @@ def create_and_initialize(session, desc, *args, **kwargs):
     return serializers.serialize_tenant(session, t)
 
 
-def db_get_tenant_list(session):
+def db_get_tenant_list(session, language='en'):
     ret = []
     configs = db_get_configs(session, 'tenant')
+
+    # Channels and questionnaires are carried along, so that the exchanges can name them
+    contexts = {}
+    for context in session.query(models.Context):
+        contexts.setdefault(context.tid, []).append(
+            models.get_localized_values({'id': context.id,
+                                         'exchange': context.exchange},
+                                        context, ['name'], language))
+
+    questionnaires = {}
+    for questionnaire in session.query(models.Questionnaire):
+        questionnaires.setdefault(questionnaire.tid, []).append({
+            'id': questionnaire.id,
+            'name': questionnaire.name
+        })
 
     for t, s in session.query(models.Tenant, models.Subscriber).join(models.Subscriber, models.Subscriber.tid == models.Tenant.id, isouter=True).filter(models.Tenant.id != DEFAULT_PROFILE_ID):
         if s and not t.active:
             continue
 
         tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
+        tenant_dict['contexts'] = contexts.get(t.id, [])
+        tenant_dict['questionnaires'] = questionnaires.get(t.id, [])
 
         ret.append(tenant_dict)
 
@@ -200,12 +264,15 @@ def db_get_tenant_list(session):
 
 
 @transact
-def get_tenant_list(session):
-    return db_get_tenant_list(session)
+def get_tenant_list(session, language='en'):
+    return db_get_tenant_list(session, language)
 
 
 @transact
 def get(session, self, tid):
+    """
+    Return what a site or a profile is made of, so that it can be carried elsewhere
+    """
     tenant = db_get(session, models.Tenant, models.Tenant.id == tid)
     configs = session.query(models.Config).filter(models.Config.tid == tid).all()
     config_langs = session.query(models.ConfigL10N).filter(models.ConfigL10N.tid == tid).all()
@@ -213,15 +280,162 @@ def get(session, self, tid):
     questionnaires = db_get_questionnaires(session, tid, self.request.language)
     editable_questionnaires = [q for q in questionnaires if q.get('editable', True)]
 
+    contexts = session.query(models.Context) \
+                      .filter(models.Context.tid == tid) \
+                      .order_by(models.Context.order)
+
     return {
         "tenant": serializers.serialize_tenant(session, tenant),
         "config_vars": {
             "configs": [{col.name: getattr(config, col.name) for col in config.__table__.columns} for config in configs],
             "config_langs": [{col.name: getattr(config_lang, col.name) for col in config_lang.__table__.columns} for config_lang in config_langs],
         },
-        "user_profiles": [{col.name: getattr(profile, col.name) for col in profile.__table__.columns} for profile in user_profiles],
-        "questionnaires": editable_questionnaires
+        "user_profiles": [serialize_user_profile(session, profile) for profile in user_profiles],
+        "questionnaires": editable_questionnaires,
+        "contexts": [admin_serialize_context(session, context, self.request.language)
+                     for context in contexts]
     }
+
+
+def db_wizard_user(session, tid, request, prefix, role, language):
+    """
+    Create one of the accounts the wizard asks for
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param request: A user request
+    :param prefix: The prefix of the keys of the request describing the account
+    :param role: The role of the account
+    :param language: The language of the account
+    :return: The account created
+    """
+    desc = models.User().dict(language)
+    desc['username'] = request[f'{prefix}_username']
+    desc['name'] = request[f'{prefix}_name']
+    desc['password'] = request[f'{prefix}_password']
+    desc['mail_address'] = request[f'{prefix}_mail_address']
+    desc['language'] = language
+    desc['role'] = role
+    desc['profile_id'] = request.get(f'{prefix}_profile_id', '')
+    desc['idp_id'] = request.get('idp_id', '')
+    desc['pgp_key_remove'] = False
+    desc = desc | user_permissions
+
+    user = db_create_user(session, tid, None, desc, language)
+    user.password_change_needed = (tid != 1)
+
+    return user
+
+
+def db_wizard_keys(node, root_tenant_node, tid, encryption, escrow):
+    """
+    Generate the statistical key of a site and, with the escrow, its escrow key, keeping a recovery
+    copy of the statistical key encrypted to the escrow key
+
+    :param node: The configuration of the site
+    :param root_tenant_node: The configuration of the root site
+    :param tid: A tenant ID
+    :param encryption: Whether the site encrypts
+    :param escrow: Whether the site holds an escrow key
+    :return: The statistical private key, the escrow private key and the escrow public key
+    """
+    crypto_stat_prv_key = ""
+    crypto_escrow_prv_key = ""
+    crypto_escrow_pub_key = ""
+
+    if encryption:
+        crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
+        node.set_val('crypto_stat_pub_key', crypto_stat_pub_key)
+
+    if encryption and escrow:
+        crypto_escrow_prv_key, crypto_escrow_pub_key = GCE.generate_keypair()
+
+        node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
+
+        node.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, crypto_stat_prv_key)))
+
+        if tid != 1 and root_tenant_node.get_val('crypto_escrow_pub_key'):
+            node.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_node.get_val('crypto_escrow_pub_key'), crypto_escrow_prv_key)))
+
+    return crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key
+
+
+def db_wizard_admin(session, tid, request, language, node, encryption, escrow,
+                    crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key):
+    """
+    Create the first administrator of a site, holder of the escrow key and of the statistical key
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param request: A user request
+    :param language: The language of the account
+    :param node: The configuration of the site
+    :param encryption: Whether the site encrypts
+    :param escrow: Whether the site holds an escrow key
+    :param crypto_stat_prv_key: The statistical private key of the site
+    :param crypto_escrow_prv_key: The escrow private key of the site
+    :param crypto_escrow_pub_key: The escrow public key of the site
+    """
+    admin_user = db_wizard_user(session, tid, request, 'admin', 'admin', language)
+
+    if encryption and escrow:
+        node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
+        admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
+
+    # The first admin always becomes a holder of the statistical key so that
+    # it can be propagated to every other admin/analyst (escrow independent)
+    if encryption and admin_user.crypto_pub_key:
+        admin_user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_stat_prv_key))
+
+
+def db_wizard_channels(session, tid, node, request, receiver_user, language):
+    """
+    Give a site its channels: a tenant whose profile carries channels derives one from each
+    template, and the users of a shared profile receive on it; without channels in the profile the
+    default one is kept, as a profile carries none until its templates are defined
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param node: The configuration of the site
+    :param request: A user request
+    :param receiver_user: The recipient created, if any
+    :param language: The language of the channel
+    """
+    templates = []
+    if tid != 1:
+        pid = config.db_get_pid(session, tid)
+        if pid and pid != tid:
+            templates = session.query(models.Context) \
+                               .filter(models.Context.tid == pid).all()
+
+    if templates:
+        for template in templates:
+            db_derive_context(session, tid, template)
+
+        for user in session.query(models.User) \
+                           .filter(models.User.tid == tid,
+                                   models.User.id != models.User.profile_id):
+            user_profile = session.query(models.UserProfile) \
+                                  .filter(models.UserProfile.id == user.profile_id) \
+                                  .one_or_none()
+            if user_profile is not None:
+                db_attach_user_to_profile_contexts(session, user, user_profile)
+
+        return
+
+    if tid >= DEFAULT_PROFILE_ID:
+        return
+
+    context_desc = models.Context().dict(language)
+    context_desc['name'] = 'Default'
+    context_desc['status'] = 'enabled'
+    context_desc['questionnaire_id'] = node.get_val('default_questionnaire')
+    context_desc['tip_timetolive'] = node.get_val('default_tip_timetolive')
+
+    if not request['skip_recipient_account_creation']:
+        context_desc['receivers'] = [receiver_user.id]
+
+    db_create_context(session, tid, None, context_desc, language)
 
 
 def db_wizard(session, tid, hostname, request):
@@ -250,7 +464,14 @@ def db_wizard(session, tid, hostname, request):
         log.err("DANGER: Wizard already initialized!", tid=tid)
         raise errors.ForbiddenOperation
 
-    db_update_enabled_languages(session, tid, [language], language)
+    # A site naming a profile speaks the languages of the profile rather than the one of the
+    # platform: the pages of the site are written by the profile, and in those languages alone
+    pid = db_get_pid_by_profile(session, node.get_val('profile'))
+    if tid != 1 and pid is not None and pid != DEFAULT_PROFILE_ID:
+        db_sync_languages_from_profile(session, tid, pid)
+        language = node.get_val('default_language')
+    else:
+        db_update_enabled_languages(session, tid, [language], language)
 
     node.set_val('encryption', encryption)
 
@@ -259,95 +480,29 @@ def db_wizard(session, tid, hostname, request):
     node.set_val('wizard_done', True)
     node.set_val('enable_developers_exception_notification', request['enable_developers_exception_notification'])
 
-    if tid == 1 and not isIPAddress(hostname):
+    if tid == 1 and not is_ip_address(hostname):
        node.set_val('hostname', hostname)
 
-    crypto_stat_prv_key = ""
-    if encryption:
-        crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
-        node.set_val('crypto_stat_pub_key', crypto_stat_pub_key)
-
-    if encryption and escrow:
-        crypto_escrow_prv_key, crypto_escrow_pub_key = GCE.generate_keypair()
-
-        node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
-
-        # Keep a recovery copy of the statistical key encrypted to the escrow key
-        node.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, crypto_stat_prv_key)))
-
-        if  tid != 1 and root_tenant_node.get_val('crypto_escrow_pub_key'):
-            node.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_node.get_val('crypto_escrow_pub_key'), crypto_escrow_prv_key)))
+    crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key = \
+        db_wizard_keys(node, root_tenant_node, tid, encryption, escrow)
 
     if not request['skip_admin_account_creation']:
-        admin_desc = models.User().dict(language)
-        admin_desc['username'] = request['admin_username']
-        admin_desc['name'] = request['admin_name']
-        admin_desc['password'] = request['admin_password']
-        admin_desc['mail_address'] = request['admin_mail_address']
-        admin_desc['language'] = language
-        admin_desc['role'] = 'admin'
-        admin_desc['profile_id'] = request['admin_profile_id'] if 'admin_profile_id' in request else ''
-        admin_desc['idp_id'] = request.get('idp_id', '')
-        admin_desc['pgp_key_remove'] = False
-        admin_desc = admin_desc | user_permissions
+        db_wizard_admin(session, tid, request, language, node, encryption, escrow,
+                        crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key)
 
-        admin_user = db_create_user(session, tid, None, admin_desc, language)
-        admin_user.password_change_needed = (tid != 1)
-
-        if encryption and escrow:
-            node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
-            admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
-
-        # The first admin always becomes a holder of the statistical key so that
-        # it can be propagated to every other admin/analyst (escrow independent)
-        if encryption and admin_user.crypto_pub_key:
-            admin_user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_stat_prv_key))
-
+    receiver_user = None
     if not request['skip_recipient_account_creation']:
-        receiver_desc = models.User().dict(language)
-        receiver_desc['username'] = request['receiver_username']
-        receiver_desc['password'] = request['receiver_password']
-        receiver_desc['name'] = request['receiver_name']
-        receiver_desc['mail_address'] = request['receiver_mail_address']
-        receiver_desc['language'] = language
-        receiver_desc['role'] = 'receiver'
-        receiver_desc['profile_id'] = request['receiver_profile_id'] if 'receiver_profile_id' in request else ''
-        receiver_desc['idp_id'] = request.get('idp_id', '')
-        receiver_desc['pgp_key_remove'] = False
-        receiver_desc = receiver_desc | user_permissions
-
-        receiver_user = db_create_user(session, tid, None, receiver_desc, language)
-        receiver_user.password_change_needed = (tid != 1)
+        receiver_user = db_wizard_user(session, tid, request, 'receiver', 'receiver', language)
 
     if 'skip_default_account_creation' in request and not request['skip_default_account_creation']:
-        default_desc = models.User().dict(language)
-        default_desc['username'] = request['default_username']
-        default_desc['password'] = request['default_password']
-        default_desc['name'] = request['default_name']
-        default_desc['mail_address'] = request['default_mail_address']
-        default_desc['language'] = language
-        default_desc['role'] = request['default_role']
-        default_desc['profile_id'] = request['default_profile_id'] if 'default_profile_id' in request else ''
-        default_desc['idp_id'] = request.get('idp_id', '')
-        default_desc['pgp_key_remove'] = False
-        default_desc = default_desc | user_permissions
-
-        default_user = db_create_user(session, tid, None, default_desc, language)
-        default_user.password_change_needed = (tid != 1)
+        default_user = db_wizard_user(session, tid, request, 'default', request['default_role'], language)
 
         if default_user.role == 'receiver':
             receiver_user = default_user
 
-    context_desc = models.Context().dict(language)
-    context_desc['name'] = 'Default'
-    context_desc['status'] = 'enabled'
-    context_desc['questionnaire_id'] = node.get_val('default_questionnaire')
-    context_desc['tip_timetolive'] = node.get_val('default_tip_timetolive')
+    db_initialize_support(session, tid)
 
-    if not request['skip_recipient_account_creation']:
-        context_desc['receivers'] = [receiver_user.id]
-
-    db_create_context(session, tid, None, context_desc, language)
+    db_wizard_channels(session, tid, node, request, receiver_user, language)
 
     # Root tenants initialization terminates here
 
@@ -379,14 +534,19 @@ def update(session, tid, request, language):
         ).one_or_none()
 
         if subscriber is not None:
-            from globaleaks.handlers.signup import db_signup_activation
-            db_signup_activation(session, subscriber.activation_token, '', language)
+            # The subscriber stores the hash of its activation token: the
+            # activation is invoked through its hash-based variant
+            from globaleaks.handlers.signup import db_signup_activation_by_hash  # noqa: PLC0415
+            db_signup_activation_by_hash(session, subscriber.activation_token, language)
         else:
             t.active = True
     else:
         t.active = request['active']
 
     if request['subdomain'] + "." + root_tenant_config.get_val('rootdomain') == root_tenant_config.get_val('hostname'):
+        raise errors.ForbiddenOperation
+
+    if db_subdomain_in_use(session, request['subdomain'], excluded_tids=[tid]):
         raise errors.ForbiddenOperation
 
     for var in ['name', 'subdomain']:
@@ -401,8 +561,7 @@ def add_user_profiles(session, model, data):
     session.commit()
 
 
-@transact
-def add_or_update_configs(session, model, data):
+def db_add_or_update_configs(session, model, data):
     for config_data in data:
         filters = {'tid': config_data['tid'], 'var_name': config_data['var_name']}
         if model == models.ConfigL10N:
@@ -415,11 +574,234 @@ def add_or_update_configs(session, model, data):
         else:
             session.add(model(values=config_data))
 
-    session.commit()
+
+@transact
+def add_or_update_configs(session, model, data):
+    db_add_or_update_configs(session, model, data)
+
+
+def db_import_contexts(session, tid, contexts, questionnaire_map):
+    """
+    Recreate on an imported object the channels it was composed with
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the imported object
+    :param contexts: The channels of the object
+    :param questionnaire_map: The ids the questionnaires are imported under
+    :return: The ids the channels are imported under
+    """
+    context_map = {}
+
+    def resolve(questionnaire_id):
+        questionnaire_id = questionnaire_map.get(questionnaire_id, questionnaire_id)
+
+        if session.query(models.Questionnaire) \
+                  .filter(models.Questionnaire.tid.in_({1, tid}),
+                          models.Questionnaire.id == questionnaire_id) \
+                  .one_or_none() is None:
+            return ''
+
+        return questionnaire_id
+
+    for context in contexts:
+        request = {key: value for key, value in context.items()
+                   if key not in ['id', 'tid', 'template_id', 'picture', 'profiles']}
+
+        # Recipients are accounts of the object and are not carried; the user profiles naming the
+        # channel are composed afterwards
+        request['receivers'] = []
+
+        request['questionnaire_id'] = resolve(request.get('questionnaire_id')) or 'default'
+
+        request['additional_questionnaire_id'] = resolve(request.get('additional_questionnaire_id'))
+
+        # Additional questionnaires are named by the ids they are imported under; the automatic
+        # election travels with them
+        additional = [q for q in (resolve(questionnaire_id)
+                                  for questionnaire_id in context.get('additional_questionnaires', []))
+                      if q]
+
+        if request['additional_questionnaire_id'] and request['additional_questionnaire_id'] not in additional:
+            additional.append(request['additional_questionnaire_id'])
+
+        request['additional_questionnaires'] = additional
+
+        created = db_create_context(session, tid, None, request, 'en')
+
+        # The exchange nature of a channel travels with it; no request declares it
+        created.exchange = context.get('exchange', False)
+
+        context_map[context['id']] = created.id
+
+    return context_map
+
+
+def db_import_user_profiles(session, tid, user_profiles, context_map):
+    """
+    Recreate on an imported object the user profiles it was composed with
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the imported object
+    :param user_profiles: The user profiles of the object
+    :param context_map: The ids the channels are imported under
+    """
+    for profile in user_profiles:
+        request = {key: value for key, value in profile.items()
+                   if key not in ['id', 'tid']}
+
+        request['contexts'] = [context_map[context_id]
+                               for context_id in profile.get('contexts', [])
+                               if context_id in context_map]
+
+        db_create_user_profile(session, tid, request, sync_users=False)
+
+
+@transact
+def import_tenant_content(session, tid, content):
+    """
+    Compose an imported object with what it was composed of elsewhere
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the imported object
+    :param content: What the object was composed of
+    """
+    config_vars = content.get('config_vars', {})
+
+    config_data = [{'tid': tid,
+                    'var_name': config['var_name'],
+                    'value': config['value']}
+                   for config in config_vars.get('configs', [])
+                   if config['var_name'] != 'uuid']
+
+    config_lang_data = [{'tid': tid,
+                         'lang': lang.get('lang'),
+                         'var_name': lang.get('var_name'),
+                         'value': lang.get('value')}
+                        for lang in config_vars.get('config_langs', [])]
+
+    db_add_or_update_configs(session, models.Config, config_data)
+    db_add_or_update_configs(session, models.ConfigL10N, config_lang_data)
+
+    questionnaire_map = {}
+    for questionnaire in content.get('questionnaires', []):
+        old_id, new_id = db_import_questionnaire(session, tid, questionnaire)
+        questionnaire_map[old_id] = new_id
+
+    context_map = db_import_contexts(session, tid, content.get('contexts', []),
+                                     questionnaire_map)
+
+    db_import_user_profiles(session, tid, content.get('user_profiles', []),
+                            context_map)
+
+    # A profile is a template and the sites using it hold what it carries: the
+    # channels it gained are derived on each of them
+    if tid >= DEFAULT_PROFILE_ID:
+        for context in session.query(models.Context).filter(models.Context.tid == tid):
+            db_sync_derived_contexts(session, context)
+
+
+def db_detach_from_profile(session, tid, user_id=None):
+    """
+    The site takes upon itself what the profile handed it, and stops naming it
+
+    A site naming a profile reads part of what it shows from the rows of the profile: the
+    configuration, the texts, the questionnaires its channels use and the user profiles its
+    accounts belong to. Detaching writes all of that on the site, so that nothing changes for
+    whoever looks at it and only the place it comes from does. It goes one way alone: a site that
+    took everything upon itself is an ordinary site, and naming a profile again would be a change
+    of profile in disguise.
+
+    What it does not carry over are the exchanges: a site is reached also by the UUID of its
+    profile, and an exchange addressed to the profile stops reaching a site that no longer names
+    it. Whoever detaches a site is told so before it happens.
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the site
+    :param user_id: The id of whoever asked for it
+    """
+    pid = db_get_pid(session, tid)
+    if pid is None or pid == DEFAULT_PROFILE_ID:
+        raise errors.ForbiddenOperation
+
+    # The configuration and the texts: what the site does not own is written on it with the value
+    # it was reading. It is the exact inverse of giving a variable back to the profile.
+    for var_name in ConfigDescriptor:
+        if var_name in ('profile', 'unlocked_keys'):
+            continue
+
+        if session.query(models.Config).filter(models.Config.tid == tid,
+                                               models.Config.var_name == var_name).one_or_none():
+            continue
+
+        session.add(models.Config({'tid': tid, 'var_name': var_name,
+                                   'value': config.ConfigFactory(session, tid).get_val(var_name)}))
+
+    own = {(t.lang, t.var_name) for t in session.query(models.ConfigL10N)
+                                                .filter(models.ConfigL10N.tid == tid)}
+    for text in session.query(models.ConfigL10N).filter(models.ConfigL10N.tid == pid):
+        if (text.lang, text.var_name) not in own:
+            session.add(models.ConfigL10N({'tid': tid, 'lang': text.lang,
+                                           'var_name': text.var_name, 'value': text.value}))
+
+    langs = {t.lang for t in session.query(models.CustomTexts)
+                                    .filter(models.CustomTexts.tid == tid)}
+    for texts in session.query(models.CustomTexts).filter(models.CustomTexts.tid == pid):
+        if texts.lang not in langs:
+            session.add(models.CustomTexts({'tid': tid, 'lang': texts.lang, 'texts': texts.texts}))
+
+    # The questionnaires the channels of the site use are the ones of the profile: they are
+    # imported here, and what named them by id is made to name the copies
+    # the ones the profile owns, and not the ones of the platform, which the site reads anyway
+    questionnaire_map = {}
+    for questionnaire in session.query(models.Questionnaire).filter(models.Questionnaire.tid == pid):
+        old_id, new_id = db_import_questionnaire(
+            session, tid, serialize_questionnaire(session, pid, questionnaire, None))
+        questionnaire_map[old_id] = new_id
+
+    contexts = session.query(models.Context).filter(models.Context.tid == tid).all()
+    for context in contexts:
+        context.questionnaire_id = questionnaire_map.get(context.questionnaire_id,
+                                                         context.questionnaire_id)
+        context.additional_questionnaire_id = questionnaire_map.get(context.additional_questionnaire_id,
+                                                                    context.additional_questionnaire_id)
+
+    default_questionnaire = db_get_config_variable(session, tid, 'default_questionnaire')
+    if default_questionnaire in questionnaire_map:
+        db_set_config_variable(session, tid, 'default_questionnaire',
+                               questionnaire_map[default_questionnaire])
+
+    # The accounts of the site belong to user profiles of the profile: those too are imported, and
+    # the channels they name are the ones the site derived from the channels of the profile
+    context_map = {context.template_id: context.id for context in contexts if context.template_id}
+
+    profile_map = {}
+    for user_profile in session.query(models.UserProfile).filter(models.UserProfile.tid == pid):
+        old_id = user_profile.id
+        request = {key: value for key, value in serialize_user_profile(session, user_profile).items()
+                   if key not in ['id', 'tid']}
+        request['contexts'] = [context_map[c] for c in request.get('contexts', []) if c in context_map]
+        profile_map[old_id] = db_create_user_profile(session, tid, request, sync_users=False)['id']
+
+    for user in session.query(models.User).filter(models.User.tid == tid,
+                                                  models.User.profile_id.in_(profile_map)):
+        user.profile_id = profile_map[user.profile_id]
+
+    default_user_profile = db_get_config_variable(session, tid, 'default_user_profile')
+    if default_user_profile in profile_map:
+        db_set_config_variable(session, tid, 'default_user_profile', profile_map[default_user_profile])
+
+    # The channels are rows of the site already: they only stop naming the ones they came from
+    for context in contexts:
+        context.template_id = ''
+
+    db_set_config_variable(session, tid, 'profile', 'default')
+
+    db_log(session, tid=tid, type='detach_from_profile', user_id=user_id)
 
 
 class TenantCollection(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_sites'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -427,7 +809,7 @@ class TenantCollection(BaseHandler):
         """
         Return the list of registered tenants
         """
-        return get_tenant_list()
+        return get_tenant_list(self.request.language)
 
     @inlineCallbacks
     def post(self):
@@ -439,51 +821,36 @@ class TenantCollection(BaseHandler):
         tenant_profile = content.get('tenant')
 
         if tenant_profile:
-            is_profile = True
             request = self.validate_request(tenant_profile, requests.AdminTenantDesc)
-            t = yield create_and_initialize(request, is_profile=is_profile)
+            t = yield create_and_initialize(request, is_profile=True)
 
             if t:
-                config_vars = content.get('config_vars', {})
-                user_profiles = content.get('user_profiles', [])
-                configs = config_vars.get('configs', [])
-                config_langs = config_vars.get('config_langs', [])
-                questionnaires = content.get('questionnaires', [])
+                yield import_tenant_content(t['id'], content)
 
-                config_data = [
-                    {"tid": t["id"], "var_name": config["var_name"], "value": config["value"]}
-                    for config in configs if config["var_name"] != "uuid"
-                ]
-
-                config_lang_data = [{'tid': t['id'],'lang': lang.get("lang"),'var_name': lang.get("var_name"),'value': lang.get("value")}
-                     for lang in config_langs]
-
-                user_profiles_data = [{**{k: v for k, v in user_profile.items() if k not in ["id", "tid"]}, "tid": t["id"]}
-                    for user_profile in user_profiles
-                ]
-
-                if config_data:
-                    yield add_or_update_configs(models.Config, config_data)
-
-                if config_lang_data:
-                    yield add_or_update_configs(models.ConfigL10N, config_lang_data)
-
-                if user_profiles_data:
-                    yield add_user_profiles(models.UserProfile, user_profiles_data)
-
-                if questionnaires:
-                    # Duplicate each questionnaire for the new tenant
-                    for q in questionnaires:
-                        yield import_questionnaires(t['id'], q)
-
-        else:
-            request = self.validate_request(raw_content, requests.AdminTenantDesc)
-            is_profile = content.get('is_profile', False)
-            t = yield create_and_initialize(request, is_profile=is_profile)
             return t
+
+        request = self.validate_request(raw_content, requests.AdminTenantDesc)
+        is_profile = content.get('is_profile', False)
+        t = yield create_and_initialize(request, is_profile=is_profile)
+        return t
+
+
+class TenantDetach(BaseHandler):
+    """
+    The fleet administrator frees a site from the profile it names
+    """
+    check_roles = 'admin'
+    require_permission = 'can_manage_sites'
+    root_tenant_only = True
+    invalidate_cache = True
+
+    def put(self, tid):
+        return tw(db_detach_from_profile, int(tid), self.session.user_id)
+
 
 class TenantInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_sites'
     root_tenant_only = True
     invalidate_cache = True
 
@@ -504,6 +871,8 @@ class TenantInstance(BaseHandler):
         """
         Delete the specified tenant.
         """
+        self.check_confirmation()
+
         profile_mapped_status = yield is_profile_mapped(tid)
         if profile_mapped_status:
             raise errors.ForbiddenOperation
@@ -542,7 +911,10 @@ def db_delete_tenant(session, request_tid, user_session, tid, check):
         )
 
         if stats_changed:
-            raise errors.ForbiddenOperation
+            raise errors.OperationConflict
+
+    # The exchanges the object was a side of depart with it
+    stats['exchanges'] = db_forget_exchanges(session, [tid])
 
     db_del(session, models.Tenant, models.Tenant.id == tid)
 
@@ -551,6 +923,7 @@ def db_delete_tenant(session, request_tid, user_session, tid, check):
 
 class TenantStats(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_sites'
     root_tenant_only = True
 
     def get(self, tid):

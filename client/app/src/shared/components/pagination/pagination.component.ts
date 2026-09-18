@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {Component, computed, input, model, ChangeDetectionStrategy} from '@angular/core';
+import {TranslatePipe} from "@ngx-translate/core";
 import {
   NgbPagination,
   NgbPaginationPrevious,
@@ -8,42 +8,36 @@ import {
   NgbPaginationLast,
   NgbTooltipModule,
 } from '@ng-bootstrap/ng-bootstrap';
-import { TranslatorPipe } from '@app/shared/pipes/translate';
 
 @Component({
+    changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pagination',
   standalone: true,
   templateUrl: './pagination.component.html',
-  imports: [
-    CommonModule,
+  imports: [TranslatePipe, 
     NgbPagination,
     NgbPaginationPrevious,
     NgbPaginationNext,
     NgbPaginationFirst,
     NgbPaginationLast,
-    NgbTooltipModule,
-    TranslatorPipe
+    NgbTooltipModule
   ],
 })
 export class PaginationComponent {
   /** Required: list of items to paginate */
-  @Input() items: any[] = [];
+  readonly items = input<any[]>([]);
 
   /** Current page (two-way bound) */
-  @Input() currentPage = 1;
-  @Output() currentPageChange = new EventEmitter<number>();
+  readonly currentPage = model(1);
 
   /** Items per page (default 20) */
-  @Input() itemsPerPage = 20;
-  @Input() collectionSize?: number;
+  readonly itemsPerPage = input(20);
 
-  get itemCount(): number {
-    return this.collectionSize ?? this.items.length;
-  }
+  readonly collectionSize = input<number>();
+  readonly itemCount = computed(() => this.collectionSize() ?? this.items().length);
 
   /** Emits when page changes */
   onPageChange(page: number) {
-    this.currentPage = page;
-    this.currentPageChange.emit(page);
+    this.currentPage.set(page);
   }
 }

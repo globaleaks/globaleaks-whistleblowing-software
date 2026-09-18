@@ -1,8 +1,13 @@
+
 from globaleaks import models
+from globaleaks import db
+from globaleaks.handlers.admin import tenant
 from globaleaks.handlers.admin.operation import AdminOperationHandler
+from globaleaks.handlers.base import BaseHandler
 from globaleaks.jobs import delivery
-from globaleaks.models.config import ConfigFactory
-from globaleaks.orm import transact
+from globaleaks.models import config
+from globaleaks.models.config import db_get_config_variable, db_get_unlocked_keys, db_set_config_variable, ConfigFactory
+from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
 
@@ -70,17 +75,42 @@ class TestAdminResetSubmissions(helpers.TestHandlerWithPopulatedDB):
         yield self.test_model_count(models.Comment, 0)
         yield self.test_model_count(models.Mail, 0)
 
+    def test_put_on_secondary_tenant_is_forbidden(self):
+        # Resetting the submissions is restricted to root tenant administrators
+        # (or root administrators acting through a management session).
+        data_request = {
+            'operation': 'reset_submissions',
+            'args': {}
+        }
+
+        handler = self.request(data_request, role='admin', tid=2)
+
+        self.assertRaises(errors.ForbiddenOperation, handler.put)
+
+    def test_put_on_secondary_tenant_with_management_session(self):
+        # A root administrator operating on a secondary tenant through a
+        # management session is allowed to reset its submissions.
+        data_request = {
+            'operation': 'reset_submissions',
+            'args': {}
+        }
+
+        handler = self.request(data_request, role='admin', tid=2,
+                               properties={'management_session': True})
+
+        return handler.put()
+
 
 class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
     _handler = AdminOperationHandler
 
-    def _test_operation_handler(self, operation, args={}, tid=1):
+    def _test_operation_handler(self, operation, args=None, tid=1, properties=None, headers=None):
         data_request = {
             'operation': operation,
-            'args': args
+            'args': args if args is not None else {}
         }
 
-        handler = self.request(data_request, role='admin', tid=tid)
+        handler = self.request(data_request, role='admin', tid=tid, properties=properties, headers=headers)
 
         return handler.put()
 
@@ -92,6 +122,22 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         return self.assertFailure(self._test_operation_handler('set_hostname',
                                                                {'value': 'www.gov.il'}),
                                   errors.InputValidationError),
+
+    def test_admin_set_hostname_invalid_because_subdomain_of_other_tenant(self):
+        # The hostname derived from the subdomain of tenant 2 is reserved
+        return self.assertFailure(self._test_operation_handler('set_hostname',
+                                                               {'value': 'tenant-2.example.org'}),
+                                  errors.InputValidationError)
+
+    @defer.inlineCallbacks
+    def test_admin_set_hostname_valid_subdomain_of_root_tenant_hostname(self):
+        yield self._test_operation_handler('set_hostname',
+                                           {'value': 'sub.www.state.gov'},
+                                           tid=2,
+                                           properties={'management_session': True})
+
+        value = yield tw(db_get_config_variable, 2, 'hostname')
+        self.assertEqual(value, 'sub.www.state.gov')
 
     def test_admin_set_hostname_invalid_because_onion(self):
         return self.assertFailure(self._test_operation_handler('set_hostname',
@@ -107,31 +153,65 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         return self._test_operation_handler('test_mail')
 
     def test_admin_set_user_password(self):
+        # Setting a user's password is a sensitive operation that requires the
+        # operator to confirm with their own credential (password or 2FA).
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        confirmation = helpers.VALID_CONFIRMATION
+
         return self._test_operation_handler('set_user_password',
-                                           {'user_id': self.dummyReceiver_1['id'],
-                                            'password': helpers.VALID_KEY})
+                                           {'user_id': self.dummy_receiver_1['id'],
+                                            'password': helpers.VALID_KEY},
+                                           headers={'x-confirmation': confirmation})
+
+    def test_admin_set_user_password_requires_confirmation(self):
+        # Without a valid confirmation of the operator's credential the
+        # operation must be rejected.
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        self.assertRaises(errors.InvalidAuthentication,
+                          self._test_operation_handler,
+                          'set_user_password',
+                          {'user_id': self.dummy_receiver_1['id'],
+                           'password': helpers.VALID_KEY})
 
     def test_admin_disable_2fa(self):
         return self._test_operation_handler('disable_2fa',
-                                           {'value': self.dummyReceiver_1['id']})
+                                           {'value': self.dummy_receiver_1['id']})
 
     def test_admin_send_password_reset_email(self):
+        # Issuing a password reset link is a sensitive operation that requires
+        # the operator to confirm with their own credential (password or 2FA).
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
+
+        confirmation = helpers.VALID_CONFIRMATION
+
         return self._test_operation_handler('send_password_reset_email',
-                                           {'value': self.dummyReceiver_1['id']})
+                                           {'value': self.dummy_receiver_1['id']},
+                                           headers={'x-confirmation': confirmation})
 
-    @defer.inlineCallbacks
-    def test_admin_reset_idp_binding(self):
-        yield set_idp_id(self.dummyReceiver_1['id'], 'subject1')
+    def test_admin_send_password_reset_email_requires_confirmation(self):
+        # Without a valid confirmation of the operator's credential the
+        # operation must be rejected.
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
 
-        yield self._test_operation_handler('reset_idp_binding',
-                                           {'value': self.dummyReceiver_1['id']})
+        self.assertRaises(errors.InvalidAuthentication,
+                          self._test_operation_handler,
+                          'send_password_reset_email',
+                          {'value': self.dummy_receiver_1['id']})
 
-        # The account is bound again on its next authentication
-        idp_id = yield get_idp_id(self.dummyReceiver_1['id'])
-        self.assertEqual(idp_id, '')
+    def test_admin_send_password_reset_email_skips_confirmation_in_management_session(self):
+        # A root administrator operating on a secondary tenant through a
+        # management session is exempted from step-up confirmation when issuing
+        # a password reset link: the operation succeeds without any
+        # x-confirmation header.
+        self.patch(BaseHandler, 'check_confirmation', BaseHandler.real_check_confirmation)
 
-    def test_admin_reset_smtp_settings(self):
-        return self._test_operation_handler('reset_smtp_settings')
+        return self._test_operation_handler('send_password_reset_email',
+                                           {'value': self.dummy_receiver_1['id']},
+                                           tid=2,
+                                           properties={'management_session': True})
+
 
     def test_admin_enable_encryption(self):
         return self._test_operation_handler('enable_encryption')
@@ -151,12 +231,12 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
     @defer.inlineCallbacks
     def test_admin_toggle_user_escrow_on_a_user(self):
         # double toggle is needed to test disabling and enabling
-        yield self._test_operation_handler('toggle_user_escrow', {'value': self.dummyReceiver_1['id']})
-        yield self._test_operation_handler('toggle_user_escrow', {'value': self.dummyReceiver_1['id']})
+        yield self._test_operation_handler('toggle_user_escrow', {'value': self.dummy_receiver_1['id']})
+        yield self._test_operation_handler('toggle_user_escrow', {'value': self.dummy_receiver_1['id']})
 
     def test_admin_toggle_user_escrow_prevents_auto_revocation(self):
         return self.assertFailure(self._test_operation_handler('toggle_user_escrow',
-                                                               {'value': self.dummyAdmin['id']}),
+                                                               {'value': self.dummy_admin['id']}),
                                   errors.InputValidationError)
 
     def test_admin_reset_templates(self):
@@ -168,25 +248,141 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
     def test_admin_enable_user_permission_file_upload(self):
         return self._test_operation_handler('enable_user_permission_file_upload')
 
+
+class TestAdminProtectedUsers(helpers.TestHandlerWithPopulatedDB):
+    # A freshly initialized database is required so that the protected_users
+    # config row (added after the archived test database was generated) is
+    # present and can be set.
+    initialize_test_database_using_archived_db = False
+
+    _handler = AdminOperationHandler
+
+    def _test_operation_handler(self, operation, args=None):
+        data_request = {
+            'operation': operation,
+            'args': args if args is not None else {}
+        }
+
+        handler = self.request(data_request, role='admin')
+
+        return handler.put()
+
     @defer.inlineCallbacks
-    def test_admin_reset_backups(self):
-        yield set_backup_config(1, {
-            'backup_enabled': True,
-            'backup_time': '10:00',
-            'backup_period': 12,
-            'backup_retention': 30
-        })
+    def test_set_user_password_forbidden_for_protected_user(self):
+        # Setting the password of a protected user must be forbidden
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummy_receiver_1['id']])
 
-        yield self._test_operation_handler('reset_backups')
+        yield self.assertFailure(self._test_operation_handler('set_user_password',
+                                                             {'user_id': self.dummy_receiver_1['id'],
+                                                              'password': helpers.VALID_KEY}),
+                                 errors.ForbiddenOperation)
 
-        config = yield get_backup_config(1)
-        self.assertEqual(config, {
-            'backup_enabled': False,
-            'backup_time': '02:00',
-            'backup_period': 24,
-            'backup_retention': 7
-        })
+    @defer.inlineCallbacks
+    def test_send_password_reset_email_forbidden_for_protected_user(self):
+        # Issuing a password reset link to a protected user must be forbidden
+        yield tw(db_set_config_variable, 1, 'protected_users', [self.dummy_receiver_1['id']])
 
-    def test_admin_reset_backups_forbidden_on_secondary_tenant(self):
-        return self.assertFailure(self._test_operation_handler('reset_backups', tid=2),
+        yield self.assertFailure(self._test_operation_handler('send_password_reset_email',
+                                                             {'value': self.dummy_receiver_1['id']}),
+                                 errors.ForbiddenOperation)
+
+
+class OperationCase(helpers.TestHandlerWithPopulatedDB):
+    """
+    A case that asks the handler of the administrative operations to carry one out
+    """
+    _handler = AdminOperationHandler
+
+    def _test_operation_handler(self, operation, args, tid):
+        handler = self.request({'operation': operation, 'args': args}, role='admin', tid=tid)
+
+        return handler.put()
+
+
+class TestUnlockKey(OperationCase):
+    """
+    A profile names the variables it leaves free to the sites naming it
+    """
+
+    @defer.inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+
+        profile = yield tenant.create({'name': 'A profile',
+                                       'active': True,
+                                       'subdomain': '',
+                                       'profile': 'default'}, is_profile=True)
+
+        self.pid = profile['id']
+
+        # the handler reads the tenant from the cache, and the profile has just been created
+        yield db.refresh_tenant_cache()
+
+    @transact
+    def unlocked_keys(self, session, tid):
+        return db_get_unlocked_keys(session, tid)
+
+    @defer.inlineCallbacks
+    def test_a_profile_unlocks_and_locks_a_variable(self):
+        yield self._test_operation_handler('unlock_key', {'value': 'footer'}, tid=self.pid)
+        self.assertEqual((yield self.unlocked_keys(self.pid)), ['footer'])
+
+        yield self._test_operation_handler('lock_key', {'value': 'footer'}, tid=self.pid)
+        self.assertEqual((yield self.unlocked_keys(self.pid)), [])
+
+    def test_a_variable_the_application_never_unlocks_is_refused(self):
+        return self.assertFailure(self._test_operation_handler('unlock_key',
+                                                               {'value': 'encryption'},
+                                                               tid=self.pid),
+                                  errors.InputValidationError)
+
+    def test_a_site_unlocks_nothing(self):
+        # only a profile hands variables to other sites, and so only a profile withholds them
+        return self.assertFailure(self._test_operation_handler('unlock_key',
+                                                               {'value': 'footer'},
+                                                               tid=1),
                                   errors.ForbiddenOperation)
+
+    def test_the_default_profile_unlocks_nothing(self):
+        # what a site inherits from the default profile it may write in any case: unlocking there
+        # would say something the platform does not read
+        return self.assertFailure(self._test_operation_handler('unlock_key',
+                                                               {'value': 'footer'},
+                                                               tid=config.DEFAULT_PROFILE_ID),
+                                  errors.ForbiddenOperation)
+
+
+class TestResetKey(OperationCase):
+    """
+    A site gives up a value of its own and reads again what its profile hands it
+    """
+
+    @transact
+    def held_keys(self, session, tid):
+        return config.db_get_held_keys(session, tid)
+
+    @transact
+    def write(self, session, tid, var_name, value):
+        config.ConfigFactory(session, tid).update('node', {var_name: value})
+
+    @defer.inlineCallbacks
+    def test_a_value_of_its_own_is_given_up(self):
+        yield self.write(2, 'allow_indexing', False)
+        self.assertIn('allow_indexing', (yield self.held_keys(2)))
+
+        yield self._test_operation_handler('reset_key', {'value': 'allow_indexing'}, tid=2)
+
+        self.assertNotIn('allow_indexing', (yield self.held_keys(2)))
+
+    def test_a_variable_the_site_owns_in_any_case_is_refused(self):
+        # there is no other value for the name of a site to go back to
+        return self.assertFailure(self._test_operation_handler('reset_key',
+                                                               {'value': 'name'},
+                                                               tid=2),
+                                  errors.InputValidationError)
+
+    def test_a_variable_no_form_configures_is_refused(self):
+        return self.assertFailure(self._test_operation_handler('reset_key',
+                                                               {'value': 'a_variable_that_is_not'},
+                                                               tid=2),
+                                  errors.InputValidationError)

@@ -7,10 +7,12 @@ from globaleaks.handlers.admin.context import admin_serialize_context
 from globaleaks.handlers.admin.node import db_admin_serialize_node
 from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.handlers.user import serialize_user
+from globaleaks.handlers.public import db_get_submission_statuses
+from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
-from globaleaks.orm import transact
+from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests
+from globaleaks.state import State
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now
@@ -20,13 +22,15 @@ from globaleaks.utils.utility import datetime_now
 def get_identityaccessrequest_list(session, tid, user_id, user_key):
     ret = []
 
-    for iarc, iar in session.query(models.IdentityAccessRequestCustodian, models.IdentityAccessRequest) \
+    for iarc, iar, itip in session.query(models.IdentityAccessRequestCustodian, models.IdentityAccessRequest, models.InternalTip) \
                             .filter(models.IdentityAccessRequestCustodian.identityaccessrequest_id == models.IdentityAccessRequest.id,
                                     models.IdentityAccessRequestCustodian.custodian_id == user_id,
                                     models.IdentityAccessRequest.internaltip_id == models.InternalTip.id,
                                     models.InternalTip.tid == tid) \
                             .order_by(models.IdentityAccessRequest.request_date.desc()):
         elem = serializers.serialize_identityaccessrequest(session, iar)
+        elem['submission_progressive'] = itip.progressive
+        elem['submission_date'] = itip.creation_date
 
         if iarc.crypto_tip_prv_key:
             crypto_tip_prv_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(iarc.crypto_tip_prv_key))
@@ -49,9 +53,14 @@ def db_create_identity_access_reply_notifications(session, itip, iar):
     :param itip: A itip ID of the tip involved in the request
     :param iar: A identity access request model
     """
+    notif = State.tenants[itip.tid].cache.notification
+    if notif and not notif.enable_receiver_notification_emails:
+        return
+
     for user, rtip in session.query(models.User, models.ReceiverTip) \
                              .filter(models.User.id == models.ReceiverTip.receiver_id,
                                      models.ReceiverTip.internaltip_id == itip.id,
+                                     models.ReceiverTip.enable_notifications.is_(True),
                                      models.User.notification.is_(True)):
         context = session.query(models.Context).filter(models.Context.id == itip.context_id).one()
 
@@ -59,13 +68,15 @@ def db_create_identity_access_reply_notifications(session, itip, iar):
             'type': 'identity_access_authorized' if iar.reply == 'authorized' else 'identity_access_denied'
         }
 
-        data['user'] = serialize_user(session, user, user.language)
+        data['user'] = user_serialize_user(session, user, user.language)
         data['tip'] = serializers.serialize_rtip(session, itip, rtip, user.language)
         data['context'] = admin_serialize_context(session, context, user.language)
         data['iar'] = serializers.serialize_identityaccessrequest(session, iar)
         data['node'] = db_admin_serialize_node(session, user.tid, user.language)
 
         data['notification'] = db_get_notification(session, user.tid, user.language)
+
+        data['submission_statuses'] = db_get_submission_statuses(session, user.tid, user.language)
 
         subject, body = Templating().get_mail_subject_and_body(data)
 
@@ -84,7 +95,8 @@ def update_identityaccessrequest(session, tid, user_id, identityaccessrequest_id
                              .filter(models.IdentityAccessRequest.id == identityaccessrequest_id,
                                      models.IdentityAccessRequestCustodian.identityaccessrequest_id == models.IdentityAccessRequest.id,
                                      models.IdentityAccessRequestCustodian.custodian_id == user_id,
-                                     models.InternalTip.id == models.IdentityAccessRequest.internaltip_id).one()
+                                     models.InternalTip.id == models.IdentityAccessRequest.internaltip_id,
+                                     models.InternalTip.tid == tid).one()
 
     if request['reply_motivation'] and itip.crypto_tip_pub_key:
         request['reply_motivation'] = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, request['reply_motivation']))
@@ -94,6 +106,11 @@ def update_identityaccessrequest(session, tid, user_id, identityaccessrequest_id
         iar.reply_user_id = user_id
         iar.reply = request['reply']
         iar.reply_motivation = request['reply_motivation']
+
+        if request['reply'] == 'authorized':
+            db_log(session, tid=tid, type='authorize_identity_access', user_id=user_id, object_id=itip.id)
+        elif request['reply'] == 'denied':
+            db_log(session, tid=tid, type='deny_identity_access', user_id=user_id, object_id=itip.id)
 
         db_create_identity_access_reply_notifications(session, itip, iar)
 

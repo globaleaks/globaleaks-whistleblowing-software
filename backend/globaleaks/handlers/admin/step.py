@@ -20,10 +20,16 @@ def db_create_step(session, tid, request, language):
     """
     fill_localized_keys(request, models.Step.localized_keys, language)
 
+    # Authorize: the questionnaire must belong to the requesting tenant
+    db_get(session,
+           models.Questionnaire,
+           (models.Questionnaire.id == request['questionnaire_id'],
+            models.Questionnaire.tid == tid))
+
     step = db_add(session, models.Step, request)
 
     for trigger in request.get('triggered_by_options', []):
-        db_create_option_trigger(session, trigger['option'], 'step', step.id, trigger.get('sufficient', True))
+        db_create_option_trigger(session, tid, trigger['option'], 'step', step.id, trigger.get('sufficient', True))
 
     for c in request['children']:
         c['tid'] = tid
@@ -44,6 +50,12 @@ def db_update_step(session, tid, step_id, request, language):
     :param language: the language of the step definition dict
     :return: a serialization of the object
     """
+    # Authorize: the target questionnaire must belong to the requesting tenant
+    db_get(session,
+           models.Questionnaire,
+           (models.Questionnaire.id == request['questionnaire_id'],
+            models.Questionnaire.tid == tid))
+
     step = db_get(session,
                          models.Step,
                          (models.Step.id == step_id,
@@ -60,7 +72,7 @@ def db_update_step(session, tid, step_id, request, language):
     db_reset_option_triggers(session, 'step', step.id)
 
     for trigger in request.get('triggered_by_options', []):
-        db_create_option_trigger(session, trigger['option'], 'step', step.id, trigger.get('sufficient', True))
+        db_create_option_trigger(session, tid, trigger['option'], 'step', step.id, trigger.get('sufficient', True))
 
     return serialize_step(session, tid, step, language)
 
@@ -95,6 +107,7 @@ def order_elements(session, handler, req_args, *args, **kwargs):
 
 class StepCollection(OperationHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def post(self):
@@ -111,6 +124,7 @@ class StepCollection(OperationHandler):
 
 class StepInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_questionnaires'
     invalidate_cache = True
 
     def put(self, step_id):

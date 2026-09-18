@@ -7,23 +7,18 @@ from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.tempdict import TempDict
 from globaleaks.utils.utility import uuid4
 
-user_permissions = [
-    'can_edit_general_settings',
-    'can_delete_submission',
-    'can_postpone_expiration',
-    'can_grant_access_to_reports',
-    'can_redact_information',
-    'can_mask_information',
-    'can_transfer_access_to_reports'
-]
-
 
 class Session(dict):
-    def __init__(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None, permissions=None):
+    def __init__(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None,
+                 permissions=None, sk=''):
+        if isinstance(sk, bytes):
+            sk = sk.decode()
+
         dict.__init__(self, {
           'id': nacl_random(32).hex(),
           'cc': cc,
           'ek': ek,
+          'sk': sk,
           'expireCall': None
         })
 
@@ -34,10 +29,14 @@ class Session(dict):
             'username': user_username,
             'role': user_role,
             'idp_id': '',
+            'roles': roles or [],
             'files': [],
             'token': State.tokens.new(tid),
             'properties': {},
-            'permissions': ObjectDict()
+            'permissions': ObjectDict(),
+            # RFC 9449 DPoP binding: thumbprint (jkt) of the client public key
+            # bound to this session.
+            'dpop_jkt': ''
         }
 
         if permissions:
@@ -63,14 +62,16 @@ class Session(dict):
         session.id = sha256(self.id)
         session.cc = GCE.symmetric_encrypt(key, self.cc)
         session.ek = GCE.symmetric_encrypt(key, self.ek)
+        session.sk = GCE.symmetric_encrypt(key, self.sk)
         return session
 
     def decrypt(self, key):
         key = bytes.fromhex(key)
         self.cc = GCE.symmetric_decrypt(key, self.cc)
         self.ek = GCE.symmetric_decrypt(key, self.ek)
+        self.sk = GCE.symmetric_decrypt(key, self.sk).decode()
 
-    def getTime(self):
+    def get_time(self):
         return self.expireCall.getTime() if self.expireCall else 0
 
     def has_permission(self, permission):
@@ -82,7 +83,7 @@ class Session(dict):
             'user_id': self.user_id,
             'username': self.username,
             'role': self.role,
-            'session_expiration': self.getTime(),
+            'session_expiration': self.get_time(),
             'properties': self.properties,
             'permissions': self.permissions,
             'token': self.token.serialize()
@@ -101,21 +102,36 @@ class SessionsFactory(TempDict):
             decrypted_copy.decrypt(key)
             return decrypted_copy
 
+        return None
+
     def revoke(self, tid, user_id):
         for k, v in list(self.items()):
             if v.tid == tid and v.user_id == user_id:
                 del self[k]
 
-    def new(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None, permissions=None):
+    def revoke_user(self, user_tid, user_id):
+        for k, v in list(self.items()):
+            if v.user_tid == user_tid and v.user_id == user_id:
+                del self[k]
+
+    def new(self, tid, user_id, user_tid, user_username, user_role, cc='', ek='', roles=None,
+            permissions=None, sk='', dpop_jkt=''):
         self.revoke(tid, user_id)
-        session = Session(tid, user_id, user_tid, user_username, user_role, cc, ek, roles, permissions)
+        session = Session(tid, user_id, user_tid, user_username, user_role,
+                          cc, ek, roles, permissions, sk)
+        session.dpop_jkt = dpop_jkt
         encrypted_session = session.encrypt()
         self[encrypted_session.id] = encrypted_session
         return session
 
-    def regenerate(self, session):
+    def regenerate(self, session, dpop_jkt=None):
         del self[session.id]
         session.id = nacl_random(32).hex()
+        # A regenerated session (e.g. cross-tenant handoff) is presented by a
+        # freshly loaded client with a new key pair: rebind the thumbprint so
+        # the handoff is bound to the new key.
+        if dpop_jkt is not None:
+            session.dpop_jkt = dpop_jkt
         encrypted_session = session.encrypt()
         self[encrypted_session.id] = encrypted_session
         return session
@@ -124,6 +140,6 @@ class SessionsFactory(TempDict):
 Sessions = SessionsFactory(timeout=Settings.authentication_lifetime)
 
 
-def initialize_submission_session(tid):
+def initialize_submission_session(tid, dpop_jkt=''):
     prv_key, pub_key = GCE.generate_keypair()
-    return Sessions.new(tid, uuid4(), tid, 'whistleblower', 'whistleblower', prv_key)
+    return Sessions.new(tid, uuid4(), tid, 'whistleblower', 'whistleblower', prv_key, dpop_jkt=dpop_jkt)

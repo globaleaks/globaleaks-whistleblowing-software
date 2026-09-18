@@ -8,7 +8,7 @@ import {AppDataService} from "@app/app-data.service";
 import {ErrorCodes} from "@app/models/app/error-code";
 import {Session} from "@app/models/authentication/session";
 import {TitleService} from "@app/shared/services/title.service";
-import {HttpClient, HttpErrorResponse, HttpHeaders} from "@angular/common/http";
+import {HttpErrorResponse, HttpHeaders} from "@angular/common/http";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {OtkcAccessComponent} from "@app/shared/modals/otkc-access/otkc-access.component";
 import {DomSanitizer} from '@angular/platform-browser';
@@ -20,35 +20,23 @@ import {IdpService} from "@app/services/root/idp.service";
   providedIn: "root"
 })
 export class AuthenticationService {
-  private http = inject(HttpClient);
-  private modalService = inject(NgbModal);
-  private titleService = inject(TitleService);
-  private activatedRoute = inject(ActivatedRoute);
-  private httpService = inject(HttpService);
-  private appDataService = inject(AppDataService);
-  private router = inject(Router);
-  private sanitizer = inject(DomSanitizer);
-  private cryptoService = inject(CryptoService);
-  private oauthService = inject(OAuthService);
-  private idpService = inject(IdpService);
+  private readonly modalService = inject(NgbModal);
+  private readonly titleService = inject(TitleService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly router = inject(Router);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly oauthService = inject(OAuthService);
+  private readonly idpService = inject(IdpService);
 
-  public session: any = undefined;
+  public session: Session | null = null;
   permissions: { can_upload_files: boolean }
   loginInProgress = false;
   requireAuthCode = false;
   requireUsername = false;
   loginData: LoginDataRef = new LoginDataRef();
-
-  constructor() {
-    this.init();
-  }
-
-  init() {
-    this.session = window.sessionStorage.getItem(this.getTenantSessionKey());
-    if (typeof this.session === "string") {
-      this.session = JSON.parse(this.session);
-    }
-  }
 
   public reset() {
     this.loginInProgress = false;
@@ -64,27 +52,54 @@ export class AuthenticationService {
    * The account bound to the identity is resolved by the backend and presented
    * to its user, that is asked for its password alone; an identity not bound to
    * any account yet requires instead the user to identify the account that the
-   * identity is going to be bound to on this first authentication.
+   * identity is going to be bound to on this first authentication, or is
+   * provisioned an account of its own when the site is configured to do so.
    */
   async checkIdpBinding() {
-    if (!this.appDataService.public.node.idp || !this.oauthService.hasValidAccessToken()) {
+    if (!this.appDataService.public.node.idp || !this.oauthService.hasValidIdToken()) {
       return;
     }
 
     try {
       const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({"username": ""}), this.getHeader()));
+
+      // An identity for which an account is provisioned is authenticated by the
+      // identity provider alone; its user is then required to set a password
+      if (res.type === "provisioning") {
+        this.requireUsername = false;
+        this.loginData.loginUsername = "";
+        await this.login(0, "", "", "");
+        return;
+      }
+
       this.requireUsername = res.type === "binding";
       this.loginData.loginUsername = res.username || "";
-    } catch (_) {
+    } catch {
       this.requireUsername = true;
     }
   }
 
+  /**
+   * True when the identity authenticated on the identity provider is bound to
+   * an account of the platform.
+   *
+   * The account is resolved by the backend from the identity itself, so a
+   * request carrying the token of that identity is attributed to it even
+   * before the password completes the login. An identity still to be bound
+   * identifies no account, and whoever presents it is anybody.
+   */
+  get idpIdentityBound(): boolean {
+    return !!this.appDataService.public.node.idp &&
+      this.oauthService.hasValidIdToken() &&
+      !this.requireUsername;
+  }
+
   deleteSession() {
     const role = this.session ? this.session.role : 'recipient';
+    if (this.session) {
+      window.sessionStorage.removeItem(`report-search-tab:${this.getTenantBasePath() || "root"}:${this.session.user_id}`);
+    }
     this.session = null;
-    window.sessionStorage.removeItem(this.getTenantSessionKey());
-    window.sessionStorage.removeItem("session");
     if (role === "whistleblower") {
       window.location.replace("about:blank");
     } else {
@@ -92,19 +107,15 @@ export class AuthenticationService {
     }
   };
 
-  private getTenantBasePath(): string {
+  getTenantBasePath(): string {
     const path = window.location.pathname || "";
     const match = path.match(/^\/t\/[^/]+/);
     return match ? match[0] : "";
   }
 
-  private getTenantSessionKey(): string {
-    return `session:${this.getTenantBasePath() || "root"}`;
-  }
-
   private performLogout() {
     if (this.appDataService.public.node.idp) {
-      this.idpService.restartLogin();
+      void this.idpService.restartLogin();
       return;
     }
     const tenantBasePath = this.getTenantBasePath();
@@ -114,8 +125,7 @@ export class AuthenticationService {
 
   setSession(response: Session) {
     this.session = response;
-    window.sessionStorage.setItem(this.getTenantSessionKey(), JSON.stringify(this.session));
-    if (this.appDataService.public.node.idp && this.oauthService.hasValidAccessToken()) {
+    if (this.appDataService.public.node.idp && this.oauthService.hasValidIdToken()) {
       this.idpService.setupAutomaticRefresh();
     }
   }
@@ -125,7 +135,7 @@ export class AuthenticationService {
     this.httpService.requestResetLogin(param).subscribe(
       {
         next: () => {
-          this.router.navigate(["/login/passwordreset/requested"]).then();
+          void this.router.navigate(["/login/passwordreset/requested"]);
         }
       }
     );
@@ -149,10 +159,8 @@ export class AuthenticationService {
               password = password.replace(/\D/g, "");
             }
 
-            // An account already bound to the identity authenticated on the
-            // identity provider is resolved by the backend via the identity
-            // itself; the username is submitted only to bind an identity that
-            // is not bound to any account yet
+            // An account bound to the identity is resolved by the backend via the identity; the
+            // username only binds an unbound one
             if (this.appDataService.public.node.idp && username !== "whistleblower" && !this.requireUsername) {
               username = "";
             }
@@ -182,22 +190,22 @@ export class AuthenticationService {
             if (response.redirect) {
               response.redirect = this.sanitizer.sanitize(SecurityContext.URL, response.redirect) || '';
               if (response.redirect) {
-                this.router.navigate([response.redirect]).then();
+                void this.router.navigate([response.redirect]);
               }
             }
 
             if (response.role === "whistleblower") {
               response.homepage = "/";
             } else {
-               const role = response.role === "receiver" ? "recipient" : response.role;
+               const role = ["receiver", "transmitter"].includes(response.role) ? "recipient" : response.role;
                response.homepage = "/" + role + "/home";
                response.preferencespage = "/" + role + "/preferences";
             }
 
             this.setSession(response);
 
-            if (response && response && response.properties && response.properties.new_receipt) {
-              const receipt = response.properties.new_receipt;
+            if (response && response.properties && response.properties.receipt_change_needed) {
+              const receipt = this.cryptoService.generateReceipt();
               const formattedReceipt = this.formatReceipt(receipt);
 
               const modalRef = this.modalService.open(OtkcAccessComponent,{backdrop: 'static', keyboard: false});
@@ -205,10 +213,17 @@ export class AuthenticationService {
                 receipt: receipt,
                 formatted_receipt: formattedReceipt
               };
-              modalRef.componentInstance.confirmFunction = () => {
-                this.http.put('api/whistleblower/operations', {
+              modalRef.componentInstance.confirmFunction = async () => {
+                const res = await firstValueFrom(this.httpService.requestAuthType(JSON.stringify({'username': ''})));
+                let newReceipt: string;
+                if (res.type === 'key') {
+                  newReceipt = await this.cryptoService.hashArgon2(receipt, res.salt);
+                } else {
+                  newReceipt = receipt;
+                }
+                this.httpService.requestWhistleblowerOperations({
                   operation: 'change_receipt',
-                  args: {}
+                  args: {receipt: newReceipt}
                   }).subscribe(() => {
                   this.titleService.setPage('tippage');
                   modalRef.close();
@@ -217,33 +232,44 @@ export class AuthenticationService {
               return;
             }
 
-            if (this.session.role === "whistleblower") {
+            if (response.role === "whistleblower") {
               if (password) {
-                this.appDataService.receipt = password;
+                // A receipt was provided: a report exists and is the page to
+                // reach
                 this.titleService.setPage("tippage");
-              } else if (this.session.properties.operator_session) {
-                this.router.navigate(['/']);
+                void this.router.navigate(['/']);
               }
             } else {
               if (!callback) {
                 this.reset();
 
-                let redirect = this.activatedRoute.snapshot.queryParams['redirect'] || undefined;
-                redirect = this.activatedRoute.snapshot.queryParams['redirect'] || '/';
+                if (response.properties.password_change_needed) {
+                  // A confined session must reach the forced page directly: the
+                  // role landing route runs sibling resolvers that the backend
+                  // now rejects, which would otherwise tear down the session.
+                  void this.router.navigate(['/action/forcedpasswordchange']);
+                } else if (response.properties.require_two_factor) {
+                  void this.router.navigate(['/action/forcedtwofactor']);
+                } else {
+                let redirect = this.activatedRoute.snapshot.queryParams['redirect'] || '/';
                 redirect = decodeURIComponent(redirect);
 
 	        if (redirect !== "/") {
                   redirect = this.sanitizer.sanitize(SecurityContext.URL, redirect) || '';
 
-                  // Honor only local redirects
-                  if (redirect.startsWith("/")) {
-                    this.router.navigate([redirect]);
+                  // Honor only local redirects; a protocol relative one names
+                  // another host and is not local
+                  if (redirect.startsWith("/") && !redirect.startsWith("//")) {
+                    // The destination may carry its own query string: it is
+                    // navigated as a url and not as a single path segment
+                    void this.router.navigateByUrl(redirect);
                   }
                 } else {
-                this.router.navigate([this.session.homepage], {
+                void this.router.navigate([response.homepage], {
                     queryParams: this.activatedRoute.snapshot.queryParams,
                     queryParamsHandling: "merge"
                   }).then();
+                }
                 }
               }
             }
@@ -271,7 +297,7 @@ export class AuthenticationService {
       );
 
       return requestObservable;
-    } catch (error) {
+    } catch {
       this.appDataService.updateShowLoadingPanel(false);
       return of('Failure');
     }
@@ -293,8 +319,10 @@ export class AuthenticationService {
   public getHeader(confirmation?: string): HttpHeaders {
     let headers = new HttpHeaders();
 
-    if (this.oauthService.hasValidAccessToken()) {
-      const token = this.oauthService.getAccessToken();
+    // The identity is attested by the ID token; the access token is a credential towards the APIs of
+    // the IdP
+    if (this.oauthService.hasValidIdToken()) {
+      const token = this.oauthService.getIdToken();
       headers = headers.set('Authorization', `Bearer ${token}`);
     }
 
@@ -326,11 +354,4 @@ export class AuthenticationService {
     );
   };
 
-  loginRedirect() {
-    const source_path = location.pathname;
-
-    if (source_path !== "/login") {
-      this.router.navigateByUrl("/login").then();
-    }
-  };
 }

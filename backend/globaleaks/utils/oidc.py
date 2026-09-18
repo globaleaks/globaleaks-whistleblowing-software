@@ -1,14 +1,20 @@
 import base64
 import json
 import time
-from urllib.parse import urlparse
+from io import BytesIO
+from urllib.parse import urlencode, urlparse
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred, inlineCallbacks, returnValue
 from twisted.internet.protocol import Protocol
+from twisted.web.client import FileBodyProducer
 from twisted.web.http_headers import Headers
+
+
+class OIDCError(Exception):
+    """Raised when the IdP or a token does not satisfy the OIDC checks"""
 
 
 # Timeout applied to every request performed towards an identity provider
@@ -22,10 +28,6 @@ def validate_endpoint(url):
     """
     Validate an endpoint published by an identity provider
 
-    OpenID Connect Discovery 1.0 requires the published endpoints to be HTTPS;
-    plain HTTP is accepted only towards the loopback interface, so that a local
-    identity provider can still be used on development and testing setups.
-
     :param url: The URL of the endpoint
     """
     parsed = urlparse(url)
@@ -36,14 +38,12 @@ def validate_endpoint(url):
     if parsed.scheme == 'http' and parsed.hostname in ['127.0.0.1', '::1', 'localhost']:
         return
 
-    raise Exception("The endpoints of the IdP are required to be reached via HTTPS")
+    raise OIDCError("The endpoints of the IdP are required to be reached via HTTPS")
 
 
 class BoundedBodyProtocol(Protocol):
     """
     Protocol collecting a response body up to a maximum size, dropping the
-    connection when the limit is exceeded or when the caller gives up, so that
-    an identity provider cannot exhaust the resources of the platform
     """
     def __init__(self, max_size):
         self.max_size = max_size
@@ -69,7 +69,7 @@ class BoundedBodyProtocol(Protocol):
             return
 
         if self.size > self.max_size:
-            self.finished.errback(Exception("The document published by the IdP is too big"))
+            self.finished.errback(OIDCError("The document published by the IdP is too big"))
         else:
             self.finished.callback(b''.join(self.chunks))
 
@@ -77,8 +77,6 @@ class BoundedBodyProtocol(Protocol):
 def b64d(data):
     """
     Decode a base64url encoded JWS/JWK value; the padding stripped as per
-    RFC 7515 Appendix C is restored and any character outside the alphabet
-    is rejected rather than silently ignored.
     """
     if isinstance(data, str):
         data = data.encode('utf-8')
@@ -88,14 +86,15 @@ def b64d(data):
 
 def extract_bearer_token(request):
     """
-    Extract the OIDC access token carried by the Authorization header
+    Extract the OIDC ID token carried by the Authorization header
     """
     try:
         auth_header = request.getHeader('Authorization')
-        if auth_header and auth_header.startswith('Bearer '):
-            return auth_header[len('Bearer '):].strip()
-    except:
-        pass
+    except Exception:
+        return None
+
+    if auth_header and auth_header.startswith('Bearer '):
+        return auth_header[len('Bearer '):].strip()
 
     return None
 
@@ -105,7 +104,7 @@ def rsa_public_key(key):
     Build an RSA public key from its JWK representation (RFC 7518 Section 6.3).
     """
     if key.get('kty') != 'RSA':
-        raise Exception("Unsupported key type in JWKS")
+        raise OIDCError("Unsupported key type in JWKS")
 
     n = int.from_bytes(b64d(key['n']), 'big')
     e = int.from_bytes(b64d(key['e']), 'big')
@@ -113,9 +112,9 @@ def rsa_public_key(key):
     return rsa.RSAPublicNumbers(e, n).public_key()
 
 
-class OIDCAuth(object):
+class OIDCAuth:
     """
-    Verifier for OIDC access tokens issued by the IdP configured on each tenant
+    Verifier for the OIDC ID tokens issued by the IdP configured on each tenant
     """
     check_roles = 'any'
 
@@ -134,18 +133,13 @@ class OIDCAuth(object):
         """
         Fetch a JSON document published by an identity provider
 
-        The request is performed with the agent of the platform, so that the
-        configured anonymization of the outgoing connections is honored, and is
-        bounded in time and in size, so that an unresponsive or malicious
-        identity provider cannot exhaust the resources of the platform.
-
         :param url: The URL of the document
         :return: The fetched document
         """
         validate_endpoint(url)
 
         # Imported here as the state imports this module at load time
-        from globaleaks.state import State
+        from globaleaks.state import State  # noqa: PLC0415
 
         headers = {'User-Agent': ['Twisted Web Client']}
 
@@ -164,11 +158,43 @@ class OIDCAuth(object):
         returnValue(json.loads(body.decode('utf-8')))
 
     @inlineCallbacks
+    def post_form(self, url, form):
+        """
+        Post a form towards an endpoint published by an identity provider
+
+        :param url: The URL of the endpoint
+        :param form: The form to be posted
+        :return: The response document
+        """
+        validate_endpoint(url)
+
+        # Imported here as the state imports this module at load time
+        from globaleaks.state import State  # noqa: PLC0415
+
+        headers = {'User-Agent': ['Twisted Web Client'],
+                   'Content-Type': ['application/x-www-form-urlencoded']}
+
+        body = FileBodyProducer(BytesIO(urlencode(form).encode('utf-8')))
+
+        response = yield State.get_agent().request(b'POST',
+                                                   url.encode('utf-8'),
+                                                   Headers(headers),
+                                                   body).addTimeout(REQUEST_TIMEOUT, reactor)
+
+        protocol = BoundedBodyProtocol(MAX_RESPONSE_SIZE)
+        response.deliverBody(protocol)
+
+        body = yield protocol.finished.addTimeout(REQUEST_TIMEOUT, reactor)
+
+        try:
+            returnValue(json.loads(body.decode('utf-8')))
+        except Exception:
+            returnValue({})
+
+    @inlineCallbacks
     def fetch_metadata(self, issuer):
         """
         Resolve the endpoints of an issuer via OIDC Discovery, so that any
-        standard-compliant IdP is supported and not only those exposing the
-        endpoints at a vendor specific path.
 
         :param issuer: The issuer to be resolved
         :return: The metadata published by the issuer
@@ -182,7 +208,7 @@ class OIDCAuth(object):
         # OpenID Connect Discovery 1.0 requires the issuer advertised in the
         # metadata to match the one the document has been retrieved for.
         if metadata.get('issuer', '').rstrip('/') != issuer.rstrip('/'):
-            raise Exception("The issuer advertised by the IdP does not match the configured one")
+            raise OIDCError("The issuer advertised by the IdP does not match the configured one")
 
         self.metadata[issuer] = metadata
 
@@ -198,7 +224,7 @@ class OIDCAuth(object):
 
             jwks_uri = metadata.get('jwks_uri')
             if not jwks_uri:
-                raise Exception("The configured issuer does not advertise a JWKS endpoint")
+                raise OIDCError("The configured issuer does not advertise a JWKS endpoint")
 
             self.jwks[issuer] = yield self.fetch_json(jwks_uri)
         except Exception:
@@ -211,28 +237,46 @@ class OIDCAuth(object):
     def validate_issuer(self, issuer):
         """
         Validate an issuer server-side by fetching its JWKS; this both verifies
-        that the IdP is reachable/usable and warms the cache so that tokens can
-        be verified immediately without waiting for the periodic refresh.
         """
         if not issuer:
-            raise Exception("No IdP issuer configured")
+            raise OIDCError("No IdP issuer configured")
 
         yield self.fetch_jwks(issuer)
 
         if not self.jwks.get(issuer, {}).get('keys'):
-            raise Exception("The configured issuer did not return a valid JWKS")
+            raise OIDCError("The configured issuer did not return a valid JWKS")
 
-    def verify_token(self, token, issuer, client_id):
-        if not issuer:
-            raise Exception("No IdP issuer configured")
-
+    @inlineCallbacks
+    def validate_client(self, issuer, client_id):
+        """
+        Validate that the configured client exists on the identity provider
+        """
         if not client_id:
-            raise Exception("No IdP client identifier configured")
+            raise OIDCError("No IdP client identifier configured")
 
-        jwks = self.jwks.get(issuer)
-        if not jwks:
-            raise Exception("JWKS not available for the configured issuer")
+        metadata = yield self.fetch_metadata(issuer)
 
+        token_endpoint = metadata.get('token_endpoint')
+        if not token_endpoint:
+            raise OIDCError("The configured issuer does not advertise a token endpoint")
+
+        response = yield self.post_form(token_endpoint, {
+            'grant_type': 'authorization_code',
+            'client_id': client_id,
+            'code': 'invalid',
+            'redirect_uri': 'https://invalid.invalid'
+        })
+
+        # unauthorized_client identifies a client that exists but is not
+        # allowed to use the authorization code grant required by the login
+        if response.get('error') in ('invalid_client', 'unauthorized_client'):
+            raise OIDCError("The configured client is not enabled on the IdP")
+
+    @staticmethod
+    def decode_token(token):
+        """
+        Split a token in its signed input, headers, claims and signature
+        """
         try:
             signing_input, encoded_signature = token.rsplit('.', 1)
             encoded_headers, encoded_claims = signing_input.split('.')
@@ -240,21 +284,88 @@ class OIDCAuth(object):
             claims = json.loads(b64d(encoded_claims))
             signature = b64d(encoded_signature)
         except Exception:
-            raise Exception("The token is malformed")
+            raise OIDCError("The token is malformed")
 
+        return signing_input, headers, claims, signature
+
+    @staticmethod
+    def check_token_headers(headers):
         # The signature algorithm is pinned to RS256 and never taken from the
         # token header, to avoid algorithm-confusion attacks.
         if headers.get('alg') != 'RS256':
-            raise Exception("The token is not signed with the expected algorithm")
+            raise OIDCError("The token is not signed with the expected algorithm")
 
-        key = None
+        # An access token is not an identity: a token typed as an OAuth access
+        # token (RFC 9068), or as anything else than a plain JWT, is refused,
+        # so that a token minted for a resource cannot stand in for the ID
+        # token that attests the authentication
+        typ = headers.get('typ')
+        if typ is not None and typ.lower() not in ('jwt', 'application/jwt'):
+            raise OIDCError("The token is not an ID token")
+
+    @staticmethod
+    def signing_key(jwks, kid):
+        """
+        Return the key of the JWKS the token names, refusing a token naming none
+        """
         for jwk_key in jwks.get('keys', []):
-            if jwk_key.get('kid') == headers.get('kid'):
-                key = jwk_key
-                break
+            if jwk_key.get('kid') == kid:
+                return jwk_key
 
-        if key is None:
-            raise Exception("Public key not found in JWKS")
+        raise OIDCError("Public key not found in JWKS")
+
+    @staticmethod
+    def check_token_validity(claims, now):
+        # A token carrying no expiration would be valid forever and is
+        # therefore rejected even though RFC 7519 makes the claim optional.
+        try:
+            if float(claims['exp']) <= now:
+                raise OIDCError("The token is expired")
+        except (KeyError, TypeError, ValueError):
+            raise OIDCError("The token does not declare a valid expiration")
+
+        if 'nbf' not in claims:
+            return
+
+        try:
+            if float(claims['nbf']) > now:
+                raise OIDCError("The token is not valid yet")
+        except (TypeError, ValueError):
+            raise OIDCError("The token does not declare a valid validity start")
+
+    @staticmethod
+    def check_token_audience(claims, client_id):
+        # OpenID Connect requires the ID token to be audienced to the client:
+        # a token of the same issuer minted for another client - or an access
+        # token, audienced to a resource - is refused; when the token also
+        # names the party it has been issued to, that party has to be the
+        # configured client as well
+        aud = claims.get('aud', [])
+        if not isinstance(aud, list):
+            aud = [aud]
+
+        if client_id not in aud:
+            raise OIDCError("The token has not been issued for the configured client")
+
+        if 'azp' in claims and claims['azp'] != client_id:
+            raise OIDCError("The token has not been issued for the configured client")
+
+    def verify_token(self, token, issuer, client_id):
+        if not issuer:
+            raise OIDCError("No IdP issuer configured")
+
+        if not client_id:
+            raise OIDCError("No IdP client identifier configured")
+
+        jwks = self.jwks.get(issuer)
+        if not jwks:
+            raise OIDCError("JWKS not available for the configured issuer")
+
+        signing_input, headers, claims, signature = self.decode_token(token)
+
+        self.check_token_headers(headers)
+
+        key = self.signing_key(jwks, headers.get('kid'))
 
         try:
             rsa_public_key(key).verify(signature,
@@ -262,39 +373,13 @@ class OIDCAuth(object):
                                        padding.PKCS1v15(),
                                        hashes.SHA256())
         except InvalidSignature:
-            raise Exception("The token signature is not valid")
+            raise OIDCError("The token signature is not valid")
 
         if claims.get('iss') != issuer:
-            raise Exception("The token has not been issued by the configured issuer")
+            raise OIDCError("The token has not been issued by the configured issuer")
 
-        now = time.time()
+        self.check_token_validity(claims, time.time())
 
-        # A token carrying no expiration would be valid forever and is
-        # therefore rejected even though RFC 7519 makes the claim optional.
-        try:
-            if float(claims['exp']) <= now:
-                raise Exception("The token is expired")
-        except (KeyError, TypeError, ValueError):
-            raise Exception("The token does not declare a valid expiration")
-
-        if 'nbf' in claims:
-            try:
-                if float(claims['nbf']) > now:
-                    raise Exception("The token is not valid yet")
-            except (TypeError, ValueError):
-                raise Exception("The token does not declare a valid validity start")
-
-        # The audience of an access token varies across IdPs: some issue it to
-        # the client identifier, others (Keycloak by default) issue it to a
-        # generic resource and carry the client identifier in 'azp'. Accepting
-        # either, but requiring one of the two to match the configured client,
-        # prevents tokens issued to a different client of the same issuer from
-        # being replayed against GlobaLeaks.
-        aud = claims.get('aud', [])
-        if not isinstance(aud, list):
-            aud = [aud]
-
-        if client_id not in aud and claims.get('azp') != client_id:
-            raise Exception("The token has not been issued for the configured client")
+        self.check_token_audience(claims, client_id)
 
         return claims

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, inject} from "@angular/core";
+import {Component, OnInit, inject, input} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
 import {NgForm, FormsModule} from "@angular/forms";
@@ -6,7 +6,6 @@ import {AppDataService} from "@app/app-data.service";
 
 import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "app-simple-login",
@@ -16,20 +15,21 @@ import {TranslatorPipe} from "@app/shared/pipes/translate";
     FormsModule,
     NgSelectComponent,
     NgOptionComponent,
-    TranslateModule,
-    TranslatorPipe
+    TranslateModule
 ],
 })
 export class SimpleLoginComponent implements OnInit {
   protected authentication = inject(AuthenticationService);
   protected appDataService = inject(AppDataService);
 
-  @Input() loginData: LoginDataRef;
-  @Input() loginValidator: NgForm;
+  readonly loginData = input<LoginDataRef>();
+  readonly loginValidator = input.required<NgForm>();
 
   ngOnInit() {
-    if (this.appDataService.public.receivers.length === 1) {
-      this.authentication.loginData.loginUsername = this.appDataService.public.receivers[0].id;
+    const receivers = this.appDataService.public.receivers;
+    const only = receivers[0];
+    if (receivers.length === 1 && only) {
+      this.authentication.loginData.loginUsername = only.id;
     }
   }
 }

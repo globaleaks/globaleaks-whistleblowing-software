@@ -1,4 +1,5 @@
 import {Component, OnInit, inject} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {AppDataService} from "@app/app-data.service";
 import {TlsConfig} from "@app/models/component-model/tls-confiq";
 import {Constants} from "@app/shared/constants/constants";
@@ -6,22 +7,20 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
-import {NgClass} from "@angular/common";
 import {HttpsStatusComponent} from "../https-status/https-status.component";
 import {HttpsSetupComponent} from "../https-setup/https-setup.component";
 import {HttpsFilesComponent} from "../https-files/https-files.component";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 
 @Component({
     selector: "src-https",
     templateUrl: "./https.component.html",
     standalone: true,
-    imports: [FormsModule, NgClass, HttpsStatusComponent, HttpsSetupComponent, HttpsFilesComponent, TranslatorPipe]
+    imports: [TranslatePipe, FormsModule, HttpsStatusComponent, HttpsSetupComponent, HttpsFilesComponent]
 })
 export class HttpsComponent implements OnInit {
   protected nodeResolver = inject(NodeResolver);
-  private httpService = inject(HttpService);
-  private utilsService = inject(UtilsService);
+  private readonly httpService = inject(HttpService);
+  private readonly utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
 
   protected readonly Constants = Constants;
@@ -89,7 +88,7 @@ export class HttpsComponent implements OnInit {
     this.menuState = choice;
   }
 
-  onUpdate(data: string) {
+  onUpdate(data: string | void) {
     if (data) {
       this.menuState = data;
     }

@@ -1,117 +1,185 @@
-import {HttpClient} from "@angular/common/http";
-import {Component, EventEmitter, Input, OnInit, Output, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, computed, inject, input, output} from "@angular/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NgForm, FormsModule} from "@angular/forms";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
+import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
-import {UsersResolver} from "@app/shared/resolvers/users.resolver";
+import {SelectablesResolver} from "@app/shared/resolvers/selectables.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {Observable} from "rxjs";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
-import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
-import {User} from "@app/models/resolvers/user-resolver-model";
+import {SelectableEntry} from "@app/models/app/selectables";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
-import {NgClass} from "@angular/common";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
-import {FilterPipe} from "@app/shared/pipes/filter.pipe";
+import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
+import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/selection-editor/selection-editor.component";
+import {exchangeType, exchangeTypeLabels} from "@app/models/admin/exchange";
 
 @Component({
     selector: "src-context-editor",
     templateUrl: "./context-editor.component.html",
     standalone: true,
-    imports: [ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, NgClass, TranslatorPipe, FilterPipe]
+    imports: [TranslatePipe, ImageUploadDirective, FormsModule, NgbTooltipModule, NgSelectComponent, NgOptionTemplateDirective, ListItemComponent, SelectionEditorComponent]
 })
 export class ContextEditorComponent implements OnInit {
-  private http = inject(HttpClient);
-  private modalService = inject(NgbModal);
+  private readonly modalService = inject(NgbModal);
+  private readonly elementRef = inject(ElementRef);
+  private readonly authenticationService = inject(AuthenticationService);
   protected nodeResolver = inject(NodeResolver);
-  private usersResolver = inject(UsersResolver);
-  private questionnairesResolver = inject(QuestionnairesResolver);
-  private utilsService = inject(UtilsService);
+  private readonly selectablesResolver = inject(SelectablesResolver);
+  private readonly utilsService = inject(UtilsService);
 
-  @Input() contextsData: contextResolverModel[];
-  @Input() contextResolver: contextResolverModel;
-  @Input() index: number;
-  @Input() editContext: NgForm;
-  @Output() deleted = new EventEmitter<string>();
+  readonly contextsData = input.required<contextResolverModel[]>();
+  readonly contextResolver = input.required<contextResolverModel>();
+  readonly index = input.required<number>();
+  readonly editContext = input.required<NgForm>();
+  // A link pointing at this channel opens its card and brings it into view
+  readonly expanded = input(false);
+  readonly deleted = output<string>();
+  readonly reorder = output<{
+    index: number;
+    direction: number;
+}>();
   editing = false;
   showAdvancedSettings = false;
   showSelect = false;
-  questionnairesData: questionnaireResolverModel[] = [];
-  usersData: User[] = [];
+
+  /**
+   * A channel of the exchanges receives what the other sites of the platform
+   * file on this one: it carries the name the exchanges are known by on this
+   * side, the recipients that take part in them, the questionnaire composing
+   * what lives here and how long it lasts, while what a channel configures
+   * for the reporting people has no part in it, since they neither reach it
+   * nor are offered it.
+   */
+  isExchangeChannel(): boolean {
+    return !!this.contextResolver().exchange;
+  }
+
+  // The kinds of exchange running through the channel, in a word
+  exchangeTypes(): string[] {
+    return this.contextResolver().exchange_types || [];
+  }
+
+  exchangeTypeLabel(type: string): string {
+    return exchangeTypeLabels[type as exchangeType] || type;
+  }
+
+  /**
+   * A channel of the exchanges is configured by the administrators of the
+   * platform, that established the exchanges running through it and enter the
+   * site holding it to configure it. The administrators of the site read it
+   * where it lives but do not write it.
+   */
+  canConfigure(): boolean {
+    return !this.isExchangeChannel() ||
+           this.nodeResolver.dataModel.root_tenant ||
+           !!this.authenticationService.session?.properties.management_session;
+  }
+
+  readonly questionnairesData = computed(() => this.selectablesResolver.dataModel.questionnaires);
+
+  // Users receive through their profile: a shared one carries all its accounts, a personal one its
+  // account
+  readonly profilesData = computed<SelectableEntry[]>(() => this.selectablesResolver.dataModel.user_profiles);
+  readonly profilesById = computed<Record<string, SelectableEntry>>(() => this.utilsService.array_to_map(this.profilesData()));
   nodeData: nodeResolverModel;
   selected = {value: []};
-  adminReceiversById: { [userId: string]: User } = {};
 
   ngOnInit(): void {
-    this.questionnairesData = this.questionnairesResolver.dataModel;
-    this.usersData = this.usersResolver.dataModel;
     this.nodeData = this.nodeResolver.dataModel;
-    this.adminReceiversById = this.utilsService.array_to_map(this.usersResolver.dataModel);
-  }
 
-  toggleEditing(): void {
-    this.editing = !this.editing;
-  }
-
-  swap($event: Event, index: number, n: number): void {
-    $event.stopPropagation();
-
-    const target = index + n;
-    if (target < 0 || target >= this.contextsData.length) {
-      return;
+    if (this.expanded()) {
+      this.editing = true;
+      // The card is reached from elsewhere: it is brought into view once the
+      // list holding it has been laid out
+      setTimeout(() => this.elementRef.nativeElement.scrollIntoView({behavior: "smooth", block: "start"}));
     }
-
-    [this.contextsData[index], this.contextsData[target]] =
-      [this.contextsData[target], this.contextsData[index]];
-
-    this.http.put("api/admin/contexts", {
-      operation: "order_elements",
-      args: {ids: this.contextsData.map(c => c.id)},
-    }).subscribe();
   }
 
   moveUp(e: Event, idx: number): void {
-    this.swap(e, idx, -1);
+    e.stopPropagation();
+    this.reorder.emit({ index: idx, direction: -1 });
   }
 
   moveDown(e: Event, idx: number): void {
-    this.swap(e, idx, 1);
+    e.stopPropagation();
+    this.reorder.emit({ index: idx, direction: 1 });
   }
 
-  swapReceiver(index: number, n: number): void {
-    const target = index + n;
-    if (target > -1 && target < this.contextResolver.receivers.length) {
-      const tmp = this.contextResolver.receivers[target];
-      this.contextResolver.receivers[target] = this.contextResolver.receivers[index];
-      this.contextResolver.receivers[index] = tmp;
+  profileNotSelectedFilter(item: SelectableEntry): boolean {
+    return this.namedProfiles().indexOf(item.id) === -1;
+  }
+
+  namedProfiles(): string[] {
+    const context = this.contextResolver();
+
+    if (!context.profiles) {
+      context.profiles = [];
     }
-  }
 
-  receiverNotSelectedFilter(item: User): boolean {
-    return this.contextResolver.receivers.indexOf(item.id) === -1;
-  }
-
-  moveUpReceiver(index: number): void {
-    this.swapReceiver(index, -1);
-  }
-
-  moveDownReceiver(index: number): void {
-    this.swapReceiver(index, 1);
+    return context.profiles;
   }
 
   toggleSelect(): void {
     this.showSelect = true;
   }
 
-  moveReceiver(rec: User): void {
-    if (rec && this.contextResolver.receivers.indexOf(rec.id) === -1) {
-      this.contextResolver.receivers.push(rec.id);
+  addProfile(profile: SelectableEntry): void {
+    if (profile && this.namedProfiles().indexOf(profile.id) === -1) {
+      this.namedProfiles().push(profile.id);
       this.showSelect = false;
     }
+  }
+
+  removeProfile(index: number): void {
+    this.namedProfiles().splice(index, 1);
+  }
+
+  /**
+   * A channel names the additional questionnaires it can ask of its reports,
+   * and elects one of them as the automatic one: the elected questionnaire is
+   * asked of every report filed on the channel by the channel itself, while
+   * the others are asked of a single report by its recipients. A channel that
+   * elects none asks nothing by itself and leaves the whole decision to them.
+   */
+  namedAdditionalQuestionnaires(): string[] {
+    const context = this.contextResolver();
+
+    if (!context.additional_questionnaires) {
+      context.additional_questionnaires = [];
+    }
+
+    return context.additional_questionnaires;
+  }
+
+  additionalQuestionnaires(): SelectionEntry[] {
+    const questionnaires = this.utilsService.array_to_map(this.questionnairesData());
+
+    return this.namedAdditionalQuestionnaires()
+               .map(id => ({id: id, label: questionnaires[id] ? questionnaires[id].name : id}));
+  }
+
+  // The questionnaire composing the reports of the channel is not among the
+  // ones it can additionally ask: it is already asked of every one of them
+  additionalQuestionnaireOptions(): SelectionEntry[] {
+    const named = this.namedAdditionalQuestionnaires();
+
+    return this.questionnairesData()
+               .filter(item => item.id !== this.contextResolver().questionnaire_id && named.indexOf(item.id) === -1)
+               .map(item => ({id: item.id, label: item.name}));
+  }
+
+  addAdditionalQuestionnaire(id: string): void {
+    if (id && this.namedAdditionalQuestionnaires().indexOf(id) === -1) {
+      this.namedAdditionalQuestionnaires().push(id);
+    }
+  }
+
+  removeAdditionalQuestionnaire(index: number): void {
+    this.namedAdditionalQuestionnaires().splice(index, 1);
   }
 
   deleteContext(context: contextResolverModel): void {
@@ -126,7 +194,7 @@ export class ContextEditorComponent implements OnInit {
       modalRef.componentInstance.scope = scope;
       modalRef.componentInstance.confirmFunction = () => {
         observer.complete()
-        return this.utilsService.deleteAdminContext(arg.id).subscribe(_ => {
+        return this.utilsService.deleteAdminContext(arg.id).subscribe(() => {
 	  this.deleted.emit(arg.id);
         });
       };
@@ -134,10 +202,8 @@ export class ContextEditorComponent implements OnInit {
   }
 
   saveContext(context: contextResolverModel) {
-    if (context.additional_questionnaire_id === null) {
-      context.additional_questionnaire_id = "";
-    }
-    this.utilsService.updateAdminContext(context, context.id).subscribe(_ => {
+    this.utilsService.updateAdminContext(context, context.id).subscribe(updatedContext => {
+      Object.assign(context, updatedContext);
     });
   }
 

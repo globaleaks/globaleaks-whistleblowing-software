@@ -333,14 +333,11 @@ module.exports = function(grunt) {
       build: {
         command: "npx ng build --configuration=production"
       },
-      build_for_testing: {
-        command: "npx ng build --configuration=testing"
-      },
       instrument: {
         command: "nyc instrument dist --in-place"
       },
       brotli_compress: {
-        command: 'find . -type f -not -name \'index.html\' -not -path \'./data/*\' -not -path \'./fonts/*\' -not -path \'./images/*\' -exec brotli -q 11 {} --output={}.br \\;',
+        command: 'find . -type f -not -name \'index.html\' -not -name \'*.br\' -not -path \'./data/*\' -not -path \'./fonts/*\' -not -path \'./images/*\' -exec brotli -f -q 11 {} --output={}.br \\;',
         options: {
           execOptions: {
             cwd: './build'
@@ -681,6 +678,18 @@ module.exports = function(grunt) {
           templates = appdata["templates"],
           templates_sources = {};
 
+      // The subject of the notifications that announce an object is the object
+      // and the state it is in. It is composed here, from the two words, so
+      // that the catalogue carries the words and not one sentence for every
+      // notification: the panel keeps asking for a title and receives one.
+      let composed_titles = {
+        "tip_mail_title": ["Report", "New"],
+        "tip_update_mail_title": ["Report", "Updated"],
+        "transmission_mail_title": ["Transmission", "New"],
+        "transmission_request_mail_title": ["Transmission request", "New"],
+        "communication_mail_title": ["Communication", "New"]
+      };
+
       let translate_object = function(object, keys) {
         for (let k in keys) {
           if (object[keys[k]]["en"] === "")
@@ -773,6 +782,23 @@ module.exports = function(grunt) {
           });
 
           templates[template_name][lang_code] = tmp.trim();
+        }
+
+        for (let template_name in composed_titles) {
+          let object_word = composed_titles[template_name][0],
+              status_word = composed_titles[template_name][1];
+
+          if (!(template_name in templates)) {
+            templates[template_name] = {};
+          }
+
+          // The object leads and is what gives the subject its direction; the
+          // state is isolated (U+2068 .. U+2069), so that a word still
+          // untranslated does not drag the parentheses to the wrong side of a
+          // right to left script
+          templates[template_name][lang_code] =
+            str_unescape(gt.gettext(str_escape(object_word))) +
+            " (\u2068" + str_unescape(gt.gettext(str_escape(status_word))) + "\u2069)";
         }
       });
 
@@ -909,8 +935,6 @@ module.exports = function(grunt) {
     grunt.file.mkdir("app/assets/data/l10n");
 
     supported_languages.forEach(function(lang_code) {
-      if (lang_code === "en") return;
-
       const poPath = `app/assets/data_src/pot/${lang_code}.po`;
       if (!fs.existsSync(poPath)) return;
 
@@ -970,7 +994,7 @@ module.exports = function(grunt) {
       });
 
       let langs = Object.keys(langsSet)
-        .sort()
+        .sort(function(a, b) { return a.localeCompare(b); })
         .filter(function(c) { return c !== weblateSourceLang; });
 
       if (!langs.length) {
@@ -1005,7 +1029,5 @@ module.exports = function(grunt) {
 
   grunt.registerTask("build", ["clean", "shell:build", "package", "shell:brotli_compress", "clean:tmp"]);
 
-  grunt.registerTask("build_for_testing", ["clean", "shell:build_for_testing", "package", "shell:brotli_compress", "clean:tmp"]);
-
-  grunt.registerTask("build_for_testing_and_instrument", ["clean", "shell:build_for_testing", "shell:instrument", "package", "shell:brotli_compress", "clean:tmp"]);
+  grunt.registerTask("build_and_instrument", ["clean", "shell:build", "shell:instrument", "package", "shell:brotli_compress", "clean:tmp"]);
 };

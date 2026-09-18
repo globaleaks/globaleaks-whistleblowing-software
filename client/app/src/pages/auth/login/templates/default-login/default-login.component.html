@@ -30,13 +30,24 @@
         <input id="default-login-password" class="form-control" name="password" [attr.aria-label]="'Password' | translate" placeholder="{{'Password' | translate}}" [(ngModel)]="authentication.loginData.loginPassword" type="password" required />
       </div>
     </div>
-    <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator.invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
+    <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator().invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
       <i class="fas fa-right-to-bracket"></i>
       <span>{{'Log in'| translate}}</span>
     </button>
     <span id="forgot-button">
       <a class="btn btn-outline-secondary" id="passwordreset" href="#/login/passwordreset">{{'Forgot password?'|translate}}</a>
     </span>
+    <!--
+      The support is offered where the password is asked to an user already
+      identified by the identity provider: the account is known, so the request
+      reaches the administrators as one of that account and they can answer it
+      by sending it a reset link.
+    -->
+    @if (authentication.idpIdentityBound) {
+      <a class="btn" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate">
+        <i class="fas fa-life-ring"></i>
+      </a>
+    }
   </div>
 }
 @if (authentication.requireAuthCode) {
@@ -46,13 +57,13 @@
     </div>
     <label for="default-login-2fa" class="visually-hidden">{{ 'Two factor authentication code' | translate }}</label>
     <div class="input-group">
-      <input id="default-login-2fa" name="input-2fa" class="form-control" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginAuthCode" type="text" size="6" maxlength="6" required />
-      <div class="input-group-btn">
-        <button id="login-button" class="btn btn-primary rounded-start-0 m-0" [disabled]="authentication.loginInProgress  || loginValidator.invalid || authentication.loginData.loginAuthCode.length !== 6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
+      <input id="default-login-2fa" name="input-2fa" class="form-control" [ngModelOptions]="{standalone: true}" [(ngModel)]="authentication.loginData.loginAuthCode" type="password" size="6" maxlength="6" required />
+      <div>
+        <button id="login-button" class="btn btn-primary rounded-start-0 m-0" [disabled]="authentication.loginInProgress  || loginValidator().invalid || authentication.loginData.loginAuthCode.length !== 6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
           <i class="fas fa-right-to-bracket"></i>
           <span>{{'Log in'|translate}}</span>
         </button>
-        <a class="btn" href="#" (click)="utilsService.openSupportModal()" ngbTooltip="{{'Request support' | translate}}">
+        <a class="btn" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}" (keydown.enter)="utilsService.openSupportModal($event)">
           <i class="fas fa-life-ring"></i>
         </a>
       </div>

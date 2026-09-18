@@ -1,4 +1,5 @@
-import {Component, Input, inject} from "@angular/core";
+import {CollapsiblePanelComponent} from "@app/shared/components/collapsible-panel/collapsible-panel.component";
+import {Component, inject, input} from "@angular/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -9,7 +10,6 @@ import {WbFile} from "@app/models/app/shared-public-model";
 import {DatePipe} from "@angular/common";
 import {RFileUploadButtonComponent} from "../rfile-upload-button/r-file-upload-button.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -19,26 +19,24 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-files-whistleblower",
     templateUrl: "./tip-files-whistleblower.component.html",
     standalone: true,
-    imports: [RFileUploadButtonComponent, DatePipe, TranslateModule, TranslatorPipe, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
+    imports: [CollapsiblePanelComponent, RFileUploadButtonComponent, DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
 })
 export class TipFilesWhistleblowerComponent {
-  private appDataService = inject(AppDataService);
-  private cryptoService = inject(CryptoService);
-  private httpService = inject(HttpService);
+  private readonly appDataService = inject(AppDataService);
+  private readonly cryptoService = inject(CryptoService);
+  private readonly httpService = inject(HttpService);
   protected authenticationService = inject(AuthenticationService);
   protected utilsService = inject(UtilsService);
   protected wbTipService = inject(WbtipService);
 
-  @Input() fileUploadUrl: string;
+  readonly fileUploadUrl = input<string>();
   collapsed = false;
 
   downloadWBFile(wbFile: WbFile) {
 
     const param = JSON.stringify({});
-    this.httpService.requestToken(param).subscribe
-    (
-      {
-        next: async token => {
+    this.httpService.requestToken(param).subscribe({
+        next: token => {
           this.cryptoService.proofOfWork(token).subscribe(
               (ans) => {
                 window.open("api/whistleblower/wbtip/wbfiles/" + wbFile.id + "?token=" + token.id + ":" + ans);

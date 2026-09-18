@@ -17,7 +17,10 @@ export class nodeResolverModel {
   enable_scoring_system: boolean;
   enable_signup: boolean;
   signup_invite_only: boolean;
-  signup_request_organization: boolean;
+  signup_request_location: boolean;
+  signup_request_phone: boolean;
+  signup_request_tax_code: boolean;
+  signup_request_vat_code: boolean;
   signup_request_subdomain: boolean;
   signup_auto_authorize: boolean;
   signup_profile: string;
@@ -38,6 +41,7 @@ export class nodeResolverModel {
   signup_tos2_enable: boolean;
   simplified_login: boolean;
   subdomain: string;
+  support_escalation: string;
   threshold_free_disk_megabytes_high: number;
   threshold_free_disk_megabytes_low: number;
   threshold_free_disk_percentage_high: number;
@@ -74,6 +78,7 @@ export class nodeResolverModel {
   signup_tos2_text: string;
   signup_tos2_title: string;
   whistleblowing_button: string;
+  whistleblowing_destination: string;
   whistleblowing_question: string;
   css: string[];
   favicon: string[];
@@ -82,8 +87,12 @@ export class nodeResolverModel {
   onionservice: string;
   user_privacy_policy_url: string;
   can_postpone_expiration: boolean;
-  profile:boolean;
+  profile:string;
   is_profile:boolean;
+  writable_keys: string[] | null;
+  unlocked_keys: string[];
+  unlockable_keys: string[];
+  held_keys: string[];
   antivirus_enabled:boolean;
   antivirus_clamd_ip: string;
   antivirus_clamd_port: number;
@@ -96,8 +105,10 @@ export class nodeResolverModel {
   idp:boolean;
   idp_issuer: string;
   idp_client_id: string;
+  idp_provisioning: boolean;
   default_user_profile: string;
   auth_type: string;
   enable2FA: boolean;
   enforce2FA: boolean;
+  support: boolean;
 }

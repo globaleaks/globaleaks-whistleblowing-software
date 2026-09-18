@@ -1,4 +1,4 @@
-from twisted.internet.defer import inlineCallbacks, returnValue
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
@@ -107,6 +107,12 @@ def db_create_submission_substatus(session, tid, status_id, request, language):
     :param language: The language of the request
     :return: The serialized descriptor of the created submission status
     """
+    # Authorize: the parent status must belong to the requesting tenant
+    db_get(session,
+           models.SubmissionStatus,
+           (models.SubmissionStatus.id == status_id,
+            models.SubmissionStatus.tid == tid))
+
     substatus_obj = models.SubmissionSubStatus()
     substatus_obj.tid = tid
     substatus_obj.submissionstatus_id = status_id
@@ -150,6 +156,7 @@ def order_substatus_elements(session, handler, req_args, *args, **kwargs):
 
 class SubmissionStatusCollection(OperationHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_case_management'
     invalidate_cache = True
 
     def get(self):
@@ -169,6 +176,7 @@ class SubmissionStatusCollection(OperationHandler):
 
 class SubmissionStatusInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_case_management'
     invalidate_cache = True
 
     def put(self, status_id):
@@ -187,6 +195,7 @@ class SubmissionStatusInstance(BaseHandler):
 class SubmissionSubStatusCollection(OperationHandler):
     """Manages substatuses for a given status"""
     check_roles = 'admin'
+    require_permission = 'can_manage_case_management'
     invalidate_cache = True
 
     @inlineCallbacks
@@ -196,7 +205,7 @@ class SubmissionSubStatusCollection(OperationHandler):
                                      status_id,
                                      self.request.language)
 
-        returnValue(submission_status['substatuses'])
+        return submission_status['substatuses']
 
     def post(self, status_id):
         request = self.validate_request(self.request.content.read(),
@@ -215,6 +224,7 @@ class SubmissionSubStatusCollection(OperationHandler):
 
 class SubmissionSubStatusInstance(BaseHandler):
     check_roles = 'admin'
+    require_permission = 'can_manage_case_management'
     invalidate_cache = True
 
     def put(self, status_id, substatus_id):

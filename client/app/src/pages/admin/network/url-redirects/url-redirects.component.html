@@ -1,56 +1,55 @@
-<div class="row">
-  <div class="col-md-12">
-    <form name="redirectAddForm" #redirectAddForm="ngForm" class="form-inline">
-      <div class="form-group d-inline-flex align-items-center">
-        <div class="input-group">
-          <span class="input-group-prepend">
-            <span class="input-group-text rounded-0 rounded-start">{{ 'From' | translate }}</span>
-          </span>
-          <label for="redirect-path-from" class="visually-hidden">{{ 'From path' | translate }}</label>
-          <input id="redirect-path-from" type="text" class="form-control" name="path1" [(ngModel)]="new_redirect.path1" />
+<app-paginated-interface [mode]="'table'" [items]="redirectData" [orderBy]="'path1'">
+  <ng-template #toolbar>
+    <button type="button" class="btn btn-primary show-add-redirect-btn" (click)="toggleAddRedirect()">
+      <i class="fas fa-plus"></i>
+      <span>{{ 'Add' | translate }}</span>
+    </button>
+  </ng-template>
+  <ng-template #addForm>
+    @if (showAddRedirect) {
+      <div class="row config-section">
+        <div ngForm="newRedirect" #newRedirect="ngForm" class="addRedirect col-md-6">
+          <div class="form-group">
+            <label for="redirect-path-from">{{ 'From' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <input id="redirect-path-from" class="form-control" name="path1" [(ngModel)]="new_redirect.path1" type="text" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="redirect-path-to">{{ 'To' | translate }}</label>
+            <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+            <div>
+              <input id="redirect-path-to" class="form-control" name="path2" [(ngModel)]="new_redirect.path2" type="text" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <button id="add_redirect" class="btn btn-primary" [disabled]="newRedirect.invalid" (click)="addRedirect(); toggleAddRedirect()" type="submit">
+              <i class="fas fa-plus"></i>
+              <span>{{ 'Add' | translate }}</span>
+            </button>
+          </div>
         </div>
       </div>
-      <div class="form-group d-inline-flex align-items-center ms-2">
-        <span class="input-group">
-          <span class="input-group-prepend">
-            <span class="input-group-text rounded-0 rounded-start">{{ 'To' | translate }}</span>
-          </span>
-          <label for="redirect-path-to" class="visually-hidden">{{ 'To path' | translate }}</label>
-          <input id="redirect-path-to" type="text" class="form-control" name="path2" [(ngModel)]="new_redirect.path2" />
-        </span>
-      </div>
-      <button type="submit" id="add_redirect" class="btn btn-primary ms-2 mb-1" [disabled]="redirectAddForm.invalid" (click)="addRedirect()">
-        <i class="fas fa-plus"></i>
-        <span>{{ 'Add' | translate }}</span>
-      </button>
-    </form>
-  </div>
-</div>
-<br />
-<div class="row">
-  <div class="col-md-12">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>{{ 'From' | translate }}</th>
-          <th>{{ 'To' | translate }}</th>
-          <th><span class="visually-hidden">{{ 'Actions' | translate }}</span></th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (redirect of redirectData | orderBy:'path1'; track redirect) {
-          <tr>
-            <td>{{redirectPath(redirect, 1)}}</td>
-            <td>{{redirectPath(redirect, 2)}}</td>
-            <td>
-              <button class="btn btn-sm btn-danger" id="delete_redirect" (click)="deleteRedirect(redirect)">
-                <i class="fas fa-trash"></i>
-                <span>{{ 'Delete' | translate }}</span>
-              </button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-  </div>
-</div>
+    }
+  </ng-template>
+  <ng-template #header>
+    <tr>
+      <th scope="col">{{ 'From' | translate }}</th>
+      <th scope="col">{{ 'To' | translate }}</th>
+      <th scope="col"><span class="visually-hidden">{{ 'Actions' | translate }}</span></th>
+    </tr>
+  </ng-template>
+  <ng-template #content let-item="item">
+    <tr>
+      <td>{{ item.path1 }}</td>
+      <td>{{ item.path2 }}</td>
+      <td>
+        <button class="btn btn-sm btn-danger" id="delete_redirect" (click)="deleteRedirect(item)">
+          <i class="fas fa-trash"></i>
+          <span>{{ 'Delete' | translate }}</span>
+        </button>
+      </td>
+    </tr>
+  </ng-template>
+</app-paginated-interface>

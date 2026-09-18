@@ -6,18 +6,16 @@
   </div>
 }
 <div id="SubmissionStepContext" class="row">
-  @for (context of (selectable_contexts| orderBy:contextsOrderPredicate); track context; let index = $index) {
-    <div id="context-{{index}}" (click)="selectContext.emit(context)" [class]="utilsService.getCardSize(selectable_contexts.length)">
+  @for (context of (selectable_contexts()| orderBy:contextsOrderPredicate()); track context; let index = $index) {
+    <div id="context-{{index}}" (click)="selectContext.emit(context)" [class]="utilsService.getCardSize(selectable_contexts().length)" (keydown.enter)="selectContext.emit(context)" tabindex="0" role="button">
       <div class="select-card">
         <div class="row">
           <div class="col-md-12 title">{{context.name}}</div>
         </div>
         @if (context.picture) {
           <div class="row">
-            <div class="col-md-4">
-              @if (context.picture) {
-                <img class="context-image" alt="context picture" src="/s/{{context.id}}"/>
-              }
+            <div class="col-md-12">
+              <img class="context-image" alt="context picture" src="/s/{{context.id}}"/>
             </div>
           </div>
         }

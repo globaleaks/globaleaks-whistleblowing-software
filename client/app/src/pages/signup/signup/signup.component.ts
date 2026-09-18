@@ -1,4 +1,4 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {ChangeDetectorRef, Component, OnInit, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -10,29 +10,32 @@ import {IdpService} from "@app/services/root/idp.service";
 
 import {SignupdefaultComponent} from "../templates/signupdefault/signupdefault.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {TranslatorPipe} from "@app/shared/pipes/translate";
+import {ErrorCodes} from "@app/models/app/error-code";
 
 @Component({
     selector: "src-signup",
     templateUrl: "./signup.component.html",
     standalone: true,
-    imports: [SignupdefaultComponent, TranslateModule, TranslatorPipe]
+    imports: [SignupdefaultComponent, TranslateModule]
 })
 export class SignupComponent implements OnInit {
   protected appDataService = inject(AppDataService);
-  private httpService = inject(HttpService);
-  private appConfig = inject(AppConfigService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private oauthService = inject(OAuthService);
-  private idpService = inject(IdpService);
+  private readonly httpService = inject(HttpService);
+  private readonly appConfig = inject(AppConfigService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly oauthService = inject(OAuthService);
+  private readonly idpService = inject(IdpService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   hostname = "";
   completed = false;
+  show = false;
   step = 1;
   idpRequired = false;
   idpAuthenticated = false;
-  idpFields = {name: false, surname: false, email: false};
+  idpFields = {name: false, surname: false};
+  idpEmail = "";
   signup: Signup = {
     "subdomain": "",
     "name": "",
@@ -55,10 +58,8 @@ export class SignupComponent implements OnInit {
     this.appConfig.routeChangeListener();
     const queryParams = this.route.snapshot.queryParams;
 
-    // The data compiled before the identification are restored, so that the
-    // round trip towards the identity provider does not lose them; they are
-    // kept in the session of the browser and never submitted until the
-    // registration is completed
+    // Data compiled before the identification are restored after the round trip to the identity
+    // provider
     this.restoreSignup();
 
     this.signup.token = "token" in queryParams ? queryParams["token"] : this.signup.token;
@@ -69,14 +70,37 @@ export class SignupComponent implements OnInit {
     this.idpRequired = !!config.signup_idp;
     this.setIdpClaims();
     if (this.idpRequired) {
-      this.idpService.initialize("signup").then(() => this.setIdpClaims());
+      void this.idpService.initialize("signup").then(() => this.setIdpClaims());
       this.oauthService.events.subscribe(() => this.setIdpClaims());
     }
 
-    if (this.signup.token) {
-      this.httpService.requestSignupInvite(this.signup.token).subscribe(invite => {
-        this.signup.organization_name = invite.organization_name;
-        this.signup.organization_email = invite.organization_email;
+    // A registration reachable by invitation only presents a completely blank
+    // page when no invitation is carried or when the carried one is not valid
+    if (!this.signup.token) {
+      if (config.signup_invite_only) {
+        window.location.replace("about:blank");
+        return;
+      }
+
+      this.show = true;
+    } else {
+      this.httpService.requestSignupInvite(this.signup.token).subscribe({
+        next: invite => {
+          this.signup.organization_name = invite.organization_name;
+          this.signup.organization_email = invite.organization_email;
+          this.show = true;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          if (config.signup_invite_only) {
+            this.appDataService.errorCodes = new ErrorCodes();
+            window.location.replace("about:blank");
+            return;
+          }
+
+          this.show = true;
+          this.cdr.markForCheck();
+        }
       });
     }
   }
@@ -99,7 +123,7 @@ export class SignupComponent implements OnInit {
 
     try {
       this.signup = {...this.signup, ...JSON.parse(stored)};
-    } catch (_) {
+    } catch {
       window.sessionStorage.removeItem(this.getStorageKey());
     }
   }
@@ -108,20 +132,13 @@ export class SignupComponent implements OnInit {
     window.sessionStorage.removeItem(this.getStorageKey());
   }
 
-  updateSubdomain() {
-    this.signup.subdomain = "";
-    if (this.signup.organization_name) {
-      this.signup.subdomain = this.signup.organization_name.replace(/[^\w]/gi, "").toLowerCase().slice(0, 40);
-    }
-  }
-
   authenticateWithIDP() {
     this.storeSignup();
-    this.idpService.startLogin(this.router.url, "signup");
+    void this.idpService.startLogin(this.router.url, "signup");
   }
 
   setIdpClaims() {
-    if (!this.idpRequired || !this.oauthService.hasValidAccessToken()) {
+    if (!this.idpRequired || !this.oauthService.hasValidIdToken()) {
       return;
     }
 
@@ -130,12 +147,22 @@ export class SignupComponent implements OnInit {
 
     // The data attested by the identity provider are presented to the user and
     // are not editable; the ones it does not publish are asked for as usual
-    for (const [claim, key] of [["given_name", "name"], ["family_name", "surname"], ["email", "email"]] as const) {
+    for (const [claim, key] of [["given_name", "name"], ["family_name", "surname"]] as const) {
       if (claims[claim]) {
         this.signup[key] = claims[claim];
         this.idpFields[key] = true;
       }
     }
+
+    // The email published by the identity provider only prefills the form:
+    // the user is free to be notified on a different address
+    if (typeof claims["email"] === "string") {
+      this.idpEmail = claims["email"];
+    }
+
+    // The claims land outside change detection (zoneless): request a refresh
+    // so the unlocked form and the prefilled fields are rendered
+    this.cdr.markForCheck();
   }
 
   complete() {
@@ -146,10 +173,10 @@ export class SignupComponent implements OnInit {
 
     // The session of the IdP used for the signup is restored before submitting,
     // as the site may be authenticated by a different identity provider
-    this.idpService.initialize("signup").then(() => {
+    void this.idpService.initialize("signup").then(() => {
       this.setIdpClaims();
 
-      if (!this.idpAuthenticated || !this.oauthService.hasValidAccessToken()) {
+      if (!this.idpAuthenticated || !this.oauthService.hasValidIdToken()) {
         this.authenticateWithIDP();
         return;
       }
@@ -160,12 +187,11 @@ export class SignupComponent implements OnInit {
 
   private submit() {
     const param = JSON.stringify(this.signup);
-    const accessToken = this.oauthService.getAccessToken();
-    const headers = accessToken ? new HttpHeaders({Authorization: `Bearer ${accessToken}`}) : undefined;
-    this.httpService.requestSignup(param, headers).subscribe
-    (
+    const idToken = this.oauthService.getIdToken();
+    const headers = idToken ? new HttpHeaders({Authorization: `Bearer ${idToken}`}) : undefined;
+    this.httpService.requestSignup(param, headers).subscribe(
       {
-        next: _ => {
+        next: () => {
           this.clearSignup();
           this.step += 1;
         }

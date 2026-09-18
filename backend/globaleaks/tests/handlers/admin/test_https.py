@@ -1,4 +1,5 @@
-from OpenSSL import crypto, SSL
+from cryptography import x509
+from cryptography.x509.oid import NameOID
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers.admin import https
@@ -22,7 +23,7 @@ class TestFileHandler(helpers.TestHandler):
 
     @inlineCallbacks
     def setUp(self):
-        yield super(TestFileHandler, self).setUp()
+        yield super().setUp()
         yield set_init_params()
 
     @inlineCallbacks
@@ -188,12 +189,14 @@ class TestCSRHandler(helpers.TestHandler):
         handler = self.request(body, role='admin')
         response = yield handler.post()
 
-        pem_csr = crypto.load_certificate_request(SSL.FILETYPE_PEM, response)
+        csr = x509.load_pem_x509_csr(response if isinstance(response, bytes) else response.encode())
 
-        comps = pem_csr.get_subject().get_components()
-        self.assertIn((b'CN', b'notreal.ns.com'), comps)
-        self.assertIn((b'C', b'IT'), comps)
-        self.assertIn((b'L', b'citta'), comps)
+        def subject_value(oid):
+            return csr.subject.get_attributes_for_oid(oid)[0].value
+
+        self.assertEqual(subject_value(NameOID.COMMON_NAME), 'notreal.ns.com')
+        self.assertEqual(subject_value(NameOID.COUNTRY_NAME), 'IT')
+        self.assertEqual(subject_value(NameOID.LOCALITY_NAME), 'citta')
 
 
 class TestAcmeChallengeHandler(helpers.TestHandler):
@@ -203,7 +206,7 @@ class TestAcmeChallengeHandler(helpers.TestHandler):
     def test_get(self):
         # tmp_chall_dict pollutes scope
         tok = 'yT-RDI9dU7dJPxaTYOgY_YnYYByT4CVAVCC7W3zUDIw'
-        v = '{}.5vh2ZRCJGmNUKEEBn-SN6esbMnSl1w8ZT0LDUwexTAM'.format(tok)
+        v = f'{tok}.5vh2ZRCJGmNUKEEBn-SN6esbMnSl1w8ZT0LDUwexTAM'
         ct = ChallTok(v)
 
         State.tenants[1].acme_tmp_chall_dict[tok] = ct

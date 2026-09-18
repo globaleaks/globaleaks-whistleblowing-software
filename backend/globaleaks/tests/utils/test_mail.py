@@ -1,17 +1,17 @@
 from email import message_from_bytes
 from twisted.internet.defer import Deferred, fail, succeed
-from twisted.test.proto_helpers import MemoryReactorClock
+from twisted.internet.testing import MemoryReactorClock
 from twisted.trial import unittest
 from twisted.mail.smtp import ESMTPSenderFactory
 from unittest.mock import patch
 
-from globaleaks.utils.mail import MIME_mail_build, sendmail
+from globaleaks.utils.mail import mime_mail_build, sendmail
 
 
 class TestMailUtils(unittest.TestCase):
     def test_mime_mail_build(self):
-        """Test that MIME_mail_build constructs a valid email."""
-        mail = MIME_mail_build("Sender", "sender@example.com", "Receiver", "receiver@example.com", "Test Subject", "Test Body")
+        """Test that mime_mail_build constructs a valid email."""
+        mail = mime_mail_build("Sender", "sender@example.com", "Receiver", "receiver@example.com", "Test Subject", "Test Body")
         mail_content = message_from_bytes(mail.getvalue())
 
         self.assertEqual(mail_content["From"], "=?utf-8?q?Sender?= <sender@example.com>")
@@ -20,8 +20,8 @@ class TestMailUtils(unittest.TestCase):
         self.assertEqual(mail_content.get_payload()[0].get_payload(decode=True).decode(), "Test Body")
 
     def test_mime_mail_build_non_ascii(self):
-        """Test that MIME_mail_build correctly encodes non-ASCII characters."""
-        mail = MIME_mail_build("Sènder", "sender@example.com", "Réceiver", "receiver@example.com", "Tëst Subject", "Bødÿ")
+        """Test that mime_mail_build correctly encodes non-ASCII characters."""
+        mail = mime_mail_build("Sènder", "sender@example.com", "Réceiver", "receiver@example.com", "Tëst Subject", "Bødÿ")
         mail_content = message_from_bytes(mail.getvalue())
 
         self.assertIn("=?utf-8?", mail_content["From"])
@@ -29,18 +29,18 @@ class TestMailUtils(unittest.TestCase):
         self.assertIn("=?utf-8?", mail_content["Subject"])
         self.assertEqual(mail_content.get_payload()[0].get_payload(decode=True).decode(), "Bødÿ")
 
-    @patch("globaleaks.utils.mail.reactor", new_callable=lambda: MemoryReactorClock())
+    @patch("globaleaks.utils.mail.reactor", new_callable=MemoryReactorClock)
     @patch("globaleaks.utils.mail.TCP4ClientEndpoint.connect", return_value=succeed(None))
     @patch("globaleaks.utils.mail.ESMTPSenderFactory")
     def test_sendmail_success(self, mock_factory, mock_connect, mock_reactor):
         """Test that sendmail initiates an SMTP connection correctly and handles success."""
 
         mock_factory.return_value = ESMTPSenderFactory(
-            username="user".encode(),
-            password="pass".encode(),
+            username=b"user",
+            password=b"pass",
             fromEmail="sender@example.com",
             toEmail=["receiver@example.com"],  # Should be a list
-            file=MIME_mail_build("Sender", "sender@example.com", "Receiver", "receiver@example.com", "Test Subject", "Test Body"),
+            file=mime_mail_build("Sender", "sender@example.com", "Receiver", "receiver@example.com", "Test Subject", "Test Body"),
             deferred=Deferred()
         )
 
@@ -61,7 +61,7 @@ class TestMailUtils(unittest.TestCase):
         self.assertIsInstance(d, Deferred)
         self.assertEqual(mock_connect.call_count, 1)
 
-    @patch("globaleaks.utils.mail.reactor", new_callable=lambda: MemoryReactorClock())
+    @patch("globaleaks.utils.mail.reactor", new_callable=MemoryReactorClock)
     @patch("globaleaks.utils.mail.TCP4ClientEndpoint.connect", side_effect=lambda *args, **kwargs: fail(Exception("Connection Failed")))
     def test_sendmail_failure(self, mock_connect, mock_reactor):
         """Test that sendmail handles failures correctly."""
@@ -86,7 +86,7 @@ class TestMailUtils(unittest.TestCase):
         d.addCallback(callback)
         self.assertEqual(mock_connect.call_count, 1)
 
-    @patch("globaleaks.utils.mail.reactor", new_callable=lambda: MemoryReactorClock())
+    @patch("globaleaks.utils.mail.reactor", new_callable=MemoryReactorClock)
     @patch("globaleaks.utils.mail.TCP4ClientEndpoint.connect", return_value=succeed(None))
     @patch("globaleaks.utils.mail.tls.TLSMemoryBIOFactory")
     def test_sendmail_ssl_security(self, mock_tls, mock_connect, mock_reactor):
@@ -108,7 +108,7 @@ class TestMailUtils(unittest.TestCase):
         self.assertIsInstance(d, Deferred)
         self.assertEqual(mock_tls.call_count, 1)
 
-    @patch("globaleaks.utils.mail.reactor", new_callable=lambda: MemoryReactorClock())
+    @patch("globaleaks.utils.mail.reactor", new_callable=MemoryReactorClock)
     @patch("globaleaks.utils.mail.SOCKS5ClientEndpoint.connect", return_value=succeed(None))
     def test_sendmail_anonymized(self, mock_socks_connect, mock_reactor):
         """Test sendmail with anonymized SOCKS5 proxy connection."""

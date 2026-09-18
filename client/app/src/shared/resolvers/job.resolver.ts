@@ -1,29 +1,22 @@
 import {Injectable, inject} from "@angular/core";
-import {Observable, of} from "rxjs";
-import {map} from "rxjs/operators";
-import {HttpService} from "@app/shared/services/http.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
+import {auditLogArea} from "@app/shared/partials/auditlog/auditlog-area";
 import {jobResolverModel} from "@app/models/resolvers/job-resolver-model";
+import {ResourceResolver} from "@app/shared/resolvers/resource-resolver";
 
 @Injectable({
   providedIn: "root"
 })
-export class JobResolver {
-  private httpService = inject(HttpService);
-  private authenticationService = inject(AuthenticationService);
+export class JobResolver extends ResourceResolver<jobResolverModel[]> {
+  private readonly authenticationService = inject(AuthenticationService);
 
-  dataModel: jobResolverModel = new jobResolverModel();
-
-  resolve(): Observable<boolean> {
-    if (this.authenticationService.session.role === "admin") {
-      return this.httpService.requestJobResource().pipe(
-        map((response: jobResolverModel) => {
-          this.dataModel = response;
-          return true;
-        })
-      );
-    }
-    return of(true);
+  constructor() {
+    // The jobs are read on the area of the role in session: the administrator
+    // and the auditor reach the same implementation, each on its own path
+    super(`api/${auditLogArea(inject(AuthenticationService).session?.role ?? "")}/auditlog/jobs`, []);
   }
 
+  protected allowed(): boolean {
+    return !!auditLogArea(this.authenticationService.session?.role ?? "");
+  }
 }
