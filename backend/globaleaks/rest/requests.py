@@ -258,6 +258,7 @@ AdminNodeDesc = {
     'whistleblowing_question': str,
     'whistleblowing_button': str,
     'whistleblowing_destination': whistleblowing_destination_regexp,
+    'enable_receipt_login': bool,
     'languages_enabled': [str],
     'languages_supported': list,
     'default_language': str,
@@ -531,6 +532,7 @@ NodeDesc = {
     'support': bool,
     'whistleblowing_button': str,
     'whistleblowing_destination': str,
+    'enable_receipt_login': bool,
     'whistleblowing_question': str,
     'user_privacy_policy_text': str,
     'user_privacy_policy_url': str
