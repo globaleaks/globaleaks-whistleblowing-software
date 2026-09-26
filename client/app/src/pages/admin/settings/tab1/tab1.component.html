@@ -49,6 +49,12 @@
           </select>
         </div>
       </div>
+      <div class="form-group">
+        <label>
+          <input id="enable-receipt-login" class="form-check-input" name="nodeResolver.dataModel.enable_receipt_login" [(ngModel)]="nodeResolver.dataModel.enable_receipt_login" srcHeldByProfile="enable_receipt_login" type="checkbox" />
+          <span>{{ 'Enable login by access code' | translate }}</span>
+        </label>
+      </div>
     }
     <div class="form-group">
       <label for="node-disclaimer-text">{{ 'Disclaimer' | translate }}</label>
