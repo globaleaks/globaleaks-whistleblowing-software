@@ -50,6 +50,43 @@ describe("admin enable submissions", () => {
   });
 });
 
+describe("admin disable and enable the access code", () => {
+  it("should hide the access code from the homepage and show it again", () => {
+    cy.login_admin();
+    cy.visit("/#/admin/settings");
+    cy.get("form[name='contentForm']").should("be.visible");
+    cy.get("#enable-receipt-login").should("be.checked").click();
+    cy.get("#save_settings").click();
+
+    cy.logout();
+    cy.waitForUrl("/#/login");
+
+    cy.visit("/#/");
+    cy.get("#WhistleblowingButton").should("be.visible");
+    cy.get("#WhistleblowerLoginBox").should("not.exist");
+
+    cy.visit("/#/submission");
+    cy.get("#SubmissionForm").should("be.visible");
+    cy.get("#WhistleblowerLoginBox").should("not.exist");
+
+    cy.login_admin();
+    cy.visit("/#/admin/settings");
+    cy.get("form[name='contentForm']").should("be.visible");
+    cy.get("#enable-receipt-login").should("not.be.checked").click();
+    cy.get("#save_settings").click();
+
+    cy.logout();
+    cy.waitForUrl("/#/login");
+
+    cy.visit("/#/");
+    cy.get("#WhistleblowerLoginBox").should("be.visible");
+
+    cy.visit("/#/submission");
+    cy.get("#SubmissionForm").should("be.visible");
+    cy.get("#WhistleblowerLoginBox").should("be.visible");
+  });
+});
+
 describe("admin enable antivirus", () => {
   it("should enable antivirus", () => {
     cy.login_admin();

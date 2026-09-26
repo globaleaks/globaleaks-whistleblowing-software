@@ -80,6 +80,7 @@ export class nodeResolverModel {
   signup_tos2_title: string;
   whistleblowing_button: string;
   whistleblowing_destination: string;
+  enable_receipt_login: boolean;
   whistleblowing_question: string;
   css: string[];
   favicon: string[];

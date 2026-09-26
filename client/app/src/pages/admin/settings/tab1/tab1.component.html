@@ -1,8 +1,35 @@
 <div class="row">
   <div class="col-md-6">
-    <div class="form-group">
+    <!-- The logo of each theme in a tab: the sun and the moon together while one logo serves both,
+         the moon dim; once the dark theme has a logo of its own the sun and the moon part, until
+         that logo is deleted -->
+    <div class="form-group logo-themes">
       <span class="form-label">{{ 'Logo' | translate }}</span>
-      <div appImageUpload [imageUploadModel]="nodeResolver.dataModel" [imageUploadModelAttr]="'logo'" [imageUploadId]="'logo'"></div>
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button type="button" class="nav-link" role="tab" id="logo-tab-light" aria-controls="logo-panel-light"
+                  [class.active]="logoTab === 'light'" [attr.aria-selected]="logoTab === 'light'" (click)="logoTab = 'light'"
+                  [attr.aria-label]="(nodeResolver.dataModel.logo_dark ? 'Light theme' : 'Light and dark theme') | translate">
+            <i class="fa-solid fa-sun" aria-hidden="true"></i>
+            @if (!nodeResolver.dataModel.logo_dark) {
+              <i class="fa-solid fa-moon" aria-hidden="true"></i>
+            }
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button type="button" class="nav-link" role="tab" id="logo-tab-dark" aria-controls="logo-panel-dark"
+                  [class.active]="logoTab === 'dark'" [class.logo-tab-unset]="!nodeResolver.dataModel.logo_dark" [attr.aria-selected]="logoTab === 'dark'" (click)="logoTab = 'dark'"
+                  [attr.aria-label]="'Dark theme' | translate">
+            <i class="fa-solid fa-moon" aria-hidden="true"></i>
+          </button>
+        </li>
+      </ul>
+      <div id="logo-panel-light" role="tabpanel" aria-labelledby="logo-tab-light" [class.d-none]="logoTab !== 'light'">
+        <div appImageUpload [imageUploadModel]="nodeResolver.dataModel" [imageUploadModelAttr]="'logo'" [imageUploadId]="'logo'"></div>
+      </div>
+      <div id="logo-panel-dark" class="logo-dark-upload" role="tabpanel" aria-labelledby="logo-tab-dark" [class.d-none]="logoTab !== 'dark'">
+        <div appImageUpload [imageUploadModel]="nodeResolver.dataModel" [imageUploadModelAttr]="'logo_dark'" [imageUploadId]="'logo-dark'"></div>
+      </div>
     </div>
     @if (authenticationService.session?.role === 'admin') {
       <src-colors></src-colors>
@@ -51,6 +78,12 @@
             <option value="/login">/login</option>
           </select>
         </div>
+      </div>
+      <div class="form-group">
+        <label>
+          <input id="enable-receipt-login" class="form-check-input" name="nodeResolver.dataModel.enable_receipt_login" [(ngModel)]="nodeResolver.dataModel.enable_receipt_login" srcHeldByProfile="enable_receipt_login" type="checkbox" />
+          <span>{{ 'Enable login by access code' | translate }}</span>
+        </label>
       </div>
     }
     <div class="form-group">

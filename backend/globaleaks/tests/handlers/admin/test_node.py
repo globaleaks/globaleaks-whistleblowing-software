@@ -94,6 +94,18 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertIn('custom_support_url', response['held_keys'])
 
     @inlineCallbacks
+    def test_put_update_node_access_code(self):
+        self.dummy_node['enable_receipt_login'] = False
+
+        handler = self.request(self.dummy_node, role='admin')
+        response = yield handler.put()
+        self.assertFalse(response['enable_receipt_login'])
+
+        handler = self.request(role='admin')
+        response = yield handler.get()
+        self.assertFalse(response['enable_receipt_login'])
+
+    @inlineCallbacks
     def test_put_update_node_invalid_lang(self):
         self.dummy_node['languages_enabled'] = ["en", "shit"]
         handler = self.request(self.dummy_node, role='admin')
