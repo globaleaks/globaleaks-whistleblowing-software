@@ -677,6 +677,22 @@ class TestReceiptAuth(helpers.TestHandlerWithPopulatedDB):
         self.assertTrue(Sessions.get(first_id) is None)
         self.assertTrue(Sessions.get(second_id) is not None)
 
+    @inlineCallbacks
+    def test_a_site_without_the_access_code_refuses_the_login_by_receipt(self):
+        yield self.perform_full_submission_actions()
+        State.tenants[1].cache['enable_receipt_login'] = False
+        handler = self.request({'receipt': self.dummy_submission['receipt']})
+        handler.request.client_using_tor = True
+        yield self.assertFailure(handler.post(), errors.ForbiddenOperation)
+
+    @inlineCallbacks
+    def test_a_site_without_the_access_code_still_opens_a_submission(self):
+        State.tenants[1].cache['enable_receipt_login'] = False
+        handler = self.request({'receipt': ''})
+        handler.request.client_using_tor = True
+        response = yield handler.post()
+        self.assertTrue('id' in response)
+
 
 class TestSessionHandler(helpers.TestHandlerWithPopulatedDB):
     @inlineCallbacks

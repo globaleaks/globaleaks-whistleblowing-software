@@ -28,7 +28,7 @@
       </div>
     }
     <div>
-      @if (appDataService.public.node.https_whistleblower || appDataService.connection.tor) {
+      @if (appDataService.public.node.enable_receipt_login && (appDataService.public.node.https_whistleblower || appDataService.connection.tor)) {
         <div id="WhistleblowerLoginBox">
           <src-receipt></src-receipt>
         </div>

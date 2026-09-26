@@ -637,6 +637,9 @@ class ReceiptAuthHandler(BaseHandler):
         dpop_jkt = self.get_dpop_thumbprint()
 
         if request['receipt']:
+            if not self.state.tenants[self.request.tid].cache['enable_receipt_login']:
+                raise errors.ForbiddenOperation
+
             session = yield login_whistleblower(self.request.tid, request['receipt'],
                                                 self.request.client_using_tor,
                                                 dpop_jkt=dpop_jkt)
