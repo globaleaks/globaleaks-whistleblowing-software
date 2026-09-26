@@ -699,3 +699,4 @@ Configuration
 Detach
 Customizable
 Not customizable
+Enable login by access code

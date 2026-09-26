@@ -291,8 +291,9 @@ export class UtilsService {
   }
 
   showWBLoginBox() {
-    return this.appDataService.public.node.homepage === '/submission' ||
-        this.router.url.startsWith("/submission");
+    return this.appDataService.public.node.enable_receipt_login &&
+        (this.appDataService.public.node.homepage === '/submission' ||
+        this.router.url.startsWith("/submission"));
   }
 
   showUserStatusBox() {
