@@ -2223,6 +2223,9 @@ msgstr "Customizable"
 msgid "Not customizable"
 msgstr "Not customizable"
 
+msgid "Enable login by access code"
+msgstr "Enable login by access code"
+
 msgid "Select a reporting channel:"
 msgstr "Select a reporting channel:"
 
