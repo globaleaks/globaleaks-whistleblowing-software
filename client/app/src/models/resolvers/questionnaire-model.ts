@@ -23,7 +23,6 @@ export interface Step {
   fieldgroup_id: string;
   multi_entry: boolean;
   required: boolean;
-  preview: boolean;
   attrs: Attrs;
   x: number;
   y: number;
