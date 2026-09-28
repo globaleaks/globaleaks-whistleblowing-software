@@ -9,7 +9,6 @@ export class NewField {
   placeholder = "";
   multi_entry = false;
   required = false;
-  preview = false;
   attrs = {};
   options = [];
   x = 0;

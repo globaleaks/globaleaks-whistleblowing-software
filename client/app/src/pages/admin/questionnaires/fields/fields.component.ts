@@ -54,7 +54,6 @@ export class FieldsComponent implements OnInit {
   showAddQuestionFromTemplate = false;
   showAddQuestion = false;
   fieldIsMarkableSubjectToStats: boolean;
-  fieldIsMarkableSubjectToPreview: boolean;
   fieldTemplatesData: fieldtemplatesResolverModel[];
   children: Children[] | Step[] | Field[];
   new_trigger: { field: string; option: string; sufficient: boolean } = {
@@ -71,7 +70,6 @@ export class FieldsComponent implements OnInit {
       this.fieldTemplatesData = [this.fieldTemplates.dataModel];
     }
     this.fieldIsMarkableSubjectToStats = this.isMarkableSubjectToStats(this.field());
-    this.fieldIsMarkableSubjectToPreview = this.isMarkableSubjectToPreview(this.field());
     this.children = this.field().children;
   }
 
@@ -156,10 +154,6 @@ export class FieldsComponent implements OnInit {
 
   isMarkableSubjectToStats(field: Step | Field): boolean {
     return ["inputbox", "textarea", "fieldgroup"].indexOf(field.type) === -1;
-  }
-
-  isMarkableSubjectToPreview(field: Step | Field): boolean {
-    return ["fieldgroup", "fileupload"].indexOf(field.type) === -1;
   }
 
   toggleMinDate() {

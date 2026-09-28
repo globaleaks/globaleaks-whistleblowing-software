@@ -14,7 +14,6 @@ export class TipFieldComponent {
   readonly fields = input<any>();
   readonly index = input<number>();
   readonly fieldAnswers = input<any>();
-  readonly preview = input(false);
   readonly redactMode = input<boolean>();
   readonly redactOperationTitle = input<string>();
 
