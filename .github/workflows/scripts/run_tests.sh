@@ -16,7 +16,7 @@ npm ci
 ./node_modules/grunt/bin/grunt build_and_instrument
 
 cd $GITHUB_WORKSPACE/backend && coverage run -m twisted.trial globaleaks.tests
-cd $GITHUB_WORKSPACE/backend && coverage run --append ./bin/globaleaks -z -n &
+cd $GITHUB_WORKSPACE/backend && coverage run --append ./bin/globaleaks -z -k -n &
 
 sleep 3
 

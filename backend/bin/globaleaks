@@ -67,6 +67,10 @@ parser.add_option("-z", "--devel-mode", action='store_true',
     help="set development mode [default: False]",
     dest="devel_mode", default=False)
 
+parser.add_option("-k", "--test-kdf", action='store_true',
+    help="derive passwords and receipts at a minimal cost, for tests only [default: False]",
+    dest="test_kdf", default=False)
+
 parser.add_option("-m", "--migrate-only", action='store_true',
     help="run only db and data migration scripts [default: False]",
     dest="migrate_only", default=False)

@@ -80,9 +80,13 @@ To run GlobaLeaks from sources within the development environment you should iss
 
   cd globaleaks-whistleblowing-software/backend
   source env/bin/activate
-  bin/globaleaks -z -n
+  bin/globaleaks -z -k -n
 
 GlobaLeaks will start and be reachable at the following address https://127.0.0.1:8443
+
+The option -k derives passwords and receipts at a minimal cost, sparing the tests the wait of the real
+key derivation. The cost is stored with every password and receipt: a database created with -k opens
+only with -k, and a production database only without it.
 
 Building the docs
 =================

@@ -146,6 +146,7 @@ class FakeThreadPool:
 
 def init_state():
     Settings.set_devel_mode()
+    Settings.set_test_kdf()
     Settings.disable_notifications = True
     Settings.working_path = os.path.abspath('./working_path')
 
