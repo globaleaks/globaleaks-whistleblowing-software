@@ -537,7 +537,7 @@ msgid "Filename"
 msgstr "Nome do ficheiro"
 
 msgid "Files"
-msgstr "Ficheiros"
+msgstr "Arquivos"
 
 msgid "Files attached by recipients"
 msgstr "Ficheiros anexados por destinatários"

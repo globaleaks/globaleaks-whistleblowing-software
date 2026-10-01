@@ -504,7 +504,7 @@ msgid "Filename"
 msgstr "Nаziv dаtоtеkе"
 
 msgid "Files"
-msgstr "Dаtоtеkе"
+msgstr "Datoteke"
 
 msgid "Files attached by recipients"
 msgstr "Datoteke koje su priložili primaoci"

@@ -519,7 +519,7 @@ msgid "Filename"
 msgstr "Nome del file"
 
 msgid "Files"
-msgstr "Allegati"
+msgstr "File"
 
 msgid "Files attached by recipients"
 msgstr "File allegati dai riceventi"
