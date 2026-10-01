@@ -276,6 +276,7 @@ AdminNodeDesc = {
     'demo': bool,
     'signup_invite_only': bool,
     'signup_auto_authorize': bool,
+    'signup_demo': bool,
     'signup_profile': profile_regexp,
     'signup_request_location': bool,
     'signup_request_phone': bool,
