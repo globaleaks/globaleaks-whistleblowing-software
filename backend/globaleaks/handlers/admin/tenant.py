@@ -222,8 +222,7 @@ def create_and_initialize(session, desc, *args, **kwargs):
         'node_name': desc['name'],
         'profile': 'default',
         'skip_admin_account_creation': True,
-        'skip_recipient_account_creation': True,
-        'enable_developers_exception_notification': True
+        'skip_recipient_account_creation': True
     }
 
     db_wizard(session, t.id, '', wizard)
@@ -478,7 +477,10 @@ def db_wizard(session, tid, hostname, request):
     node.set_val('name', request['node_name'])
     node.set_val('default_language', language)
     node.set_val('wizard_done', True)
-    node.set_val('enable_developers_exception_notification', request['enable_developers_exception_notification'])
+    # The developers are notified of the problems of the whole platform by the decision of the root
+    # tenant alone: no other tenant keeps it
+    if tid == 1:
+        node.set_val('enable_developers_exception_notification', request['enable_developers_exception_notification'])
 
     if tid == 1 and not is_ip_address(hostname):
        node.set_val('hostname', hostname)
