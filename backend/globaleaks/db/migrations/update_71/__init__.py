@@ -446,6 +446,20 @@ class MigrationScript(MigrationBase):
             if automatic and len(filled) < 2 and itip.status != 'closed':
                 itip.additional_questionnaire_id = automatic
 
+    def migrate_demo(self):
+        """
+        The demo mode became a variable of its own
+
+        A site in the demo mode is a demo site, deleted some time after its creation. The root
+        tenant in the demo mode was not deleted: the mode made demo sites of the platforms the
+        registration created, which is now said by a variable of the registration.
+        """
+        config = self.model_from['Config']
+
+        for tid, in self.session_old.query(config.tid).filter(config.var_name == 'mode',
+                                                               config.value == 'demo'):
+            db_set_config_variable(self.session_new, tid, 'signup_demo' if tid == 1 else 'demo', True)
+
     def epilogue(self):
         tenant.db_create(self.session_new, {'active': False, 'mode': 'default', 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''}, False)
         self.entries_count['SubmissionStatus'] += 3
@@ -458,5 +472,7 @@ class MigrationScript(MigrationBase):
         max_tid = self.session_new.query(func.max(self.model_to['Tenant'].id)) \
                                   .filter(self.model_to['Tenant'].id < tenant.DEFAULT_PROFILE_ID).scalar()
         db_set_config_variable(self.session_new, 1, 'counter_tenants', max_tid or 1)
+
+        self.migrate_demo()
 
         self.migrate_additional_questionnaires()
