@@ -174,6 +174,11 @@ def signup(session, request, language, bearer_token=None):
 
         session.add(signup)
 
+    # A registration made while the demo is on creates a demo site, deleted some time after its
+    # creation as every demo site is
+    if config.get_val('signup_demo'):
+        db_set_config_variable(session, tenant.id, 'demo', True)
+
     session.flush()
 
     # Logged on the root tenant, which holds the events of the accreditation

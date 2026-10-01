@@ -23,6 +23,7 @@ export class nodeResolverModel {
   signup_request_vat_code: boolean;
   signup_request_subdomain: boolean;
   signup_auto_authorize: boolean;
+  signup_demo: boolean;
   signup_profile: string;
   encryption: boolean;
   escrow: boolean;

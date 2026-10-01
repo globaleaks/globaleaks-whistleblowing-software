@@ -431,6 +431,7 @@ class MockDict:
             'enable_scoring_system': False,
             'enable_signup': True,
             'signup_auto_authorize': True,
+            'signup_demo': False,
             'signup_invite_only': False,
             'signup_profile': 'default',
             'signup_tos1_enable': False,
