@@ -113,13 +113,15 @@
       <label for="default-tip-timetolive">{{ 'Data retention policy' | translate }} ({{ 'days' | translate }})</label>
       <input id="default-tip-timetolive" name="default_tip_timetolive" class="form-control" [(ngModel)]="nodeResolver.dataModel.default_tip_timetolive" srcHeldByProfile="default_tip_timetolive" type="number" min="0" />
     </div>
-    <div class="form-group">
-      <label>
-        <input class="form-check-input" name="demo" [(ngModel)]="nodeResolver.dataModel.demo" srcHeldByProfile="demo" type="checkbox" />
-        <span>{{ 'Enable demo mode' | translate }}</span>
-      </label>
-      <div>{{ 'The sites created with this setting enabled are automatically deleted 90 days after their creation.' | translate }}</div>
-    </div>
+    @if (!nodeResolver.dataModel.root_tenant) {
+      <div class="form-group">
+        <label>
+          <input class="form-check-input" name="demo" [(ngModel)]="nodeResolver.dataModel.demo" srcHeldByProfile="demo" type="checkbox" />
+          <span>{{ 'Enable demo mode' | translate }}</span>
+        </label>
+        <div>{{ 'The sites created with this setting enabled are automatically deleted 90 days after their creation.' | translate }}</div>
+      </div>
+    }
     <div class="form-group">
       <label>
         <input class="form-check-input" name="enable_onion" [(ngModel)]="nodeResolver.dataModel.enable_onion" srcHeldByProfile="enable_onion" type="checkbox" />
