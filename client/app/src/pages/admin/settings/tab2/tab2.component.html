@@ -26,29 +26,29 @@
             </span>
           </div>
         </div>
-        <div class="table-responsive">
-          <table class="table table-striped" id="fileList">
-            <tbody id="fileListBody">
-              @for (file of files | orderBy:'name'; track file) {
-                @if (special_files_names.indexOf(file.name) === -1) {
-                <tr>
-                  <td class="fileName">{{file.name}}</td>
-                  <td>
-                    <a class="btn btn-sm btn-primary" [href]="'s/' + file.name" [download]="file.name">
-                      <i class="fas fa-download"></i>
-                      <span>{{ 'Download' | translate }}</span>
-                    </a>
-                    <button type="button" class="btn btn-sm btn-danger" (click)="deleteFile('api/admin/files/' + file.id)">
-                      <i class="fas fa-trash"></i>
-                      <span>{{ 'Delete' | translate }}</span>
-                    </button>
-                  </td>
-                </tr>
+        @if (customFiles.length) {
+          <div class="table-responsive">
+            <table class="table table-striped" id="fileList">
+              <tbody id="fileListBody">
+                @for (file of customFiles | orderBy:'name'; track file) {
+                  <tr>
+                    <td class="fileName">{{file.name}}</td>
+                    <td>
+                      <a class="btn btn-sm btn-primary" [href]="'s/' + file.name" [download]="file.name">
+                        <i class="fas fa-download"></i>
+                        <span>{{ 'Download' | translate }}</span>
+                      </a>
+                      <button type="button" class="btn btn-sm btn-danger" (click)="deleteFile('api/admin/files/' + file.id)">
+                        <i class="fas fa-trash"></i>
+                        <span>{{ 'Delete' | translate }}</span>
+                      </button>
+                    </td>
+                  </tr>
                 }
-              }
-            </tbody>
-          </table>
-        </div>
+              </tbody>
+            </table>
+          </div>
+        }
       </div>
     </div>
   </div>
