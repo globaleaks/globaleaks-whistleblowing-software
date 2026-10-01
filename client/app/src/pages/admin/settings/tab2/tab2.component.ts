@@ -35,6 +35,12 @@ export class Tab2Component implements OnInit {
   files: FlowFile[] = [];
   files_names: string[] = [];
   special_files_names = ['css', 'favicon', 'logo', 'script'];
+
+  // The table lists the files uploaded beside the special ones, which have a place of their own
+  // above it: with none of them there is nothing to list, and no table either
+  get customFiles(): FlowFile[] {
+    return this.files.filter(file => this.special_files_names.indexOf(file.name) === -1);
+  }
   flow: FlowConfig;
   preferenceData: preferenceResolverModel;
   authenticationData: AuthenticationService;
