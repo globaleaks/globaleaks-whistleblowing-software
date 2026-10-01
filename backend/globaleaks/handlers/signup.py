@@ -302,8 +302,7 @@ def db_signup_provision(session, signup, language, username, password, idp_claim
         'profile': 'default',
         'skip_admin_account_creation': skip_admin_account_creation,
         'skip_recipient_account_creation': skip_recipient_account_creation,
-        'skip_default_account_creation': skip_default_account_creation,
-        'enable_developers_exception_notification': True
+        'skip_default_account_creation': skip_default_account_creation
     }
 
     db_wizard(session, signup.tid, '', wizard)

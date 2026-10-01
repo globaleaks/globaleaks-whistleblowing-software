@@ -25,11 +25,18 @@ configurable_keys = {k for keys in ConfigFilters.values() for k in keys} | \
 inherited_keys = ["languages_enabled", "languages_supported"]
 
 
+# The variables the root tenant decides for the whole platform: they are read on the root tenant
+# alone, and a value held by any other tenant is never read. A profile has nothing to decide of
+# them, and no other tenant keeps them.
+platform_keys = ["enable_developers_exception_notification"]
+
+
 # The variables a profile is allowed to leave to the sites naming it: every variable a form
-# configures, less the keys by which a site is recognized or protected and the ones a site takes
-# from its profile in any case. A profile leaves free none of them until it says so, one by one:
-# the ceiling says what it may decide, not what it has decided.
-unlockable_keys = sorted(configurable_keys - set(protected_keys) - set(inherited_keys))
+# configures, less the keys by which a site is recognized or protected, the ones a site takes
+# from its profile in any case and the ones the root tenant decides for everybody. A profile
+# leaves free none of them until it says so, one by one: the ceiling says what it may decide,
+# not what it has decided.
+unlockable_keys = sorted(configurable_keys - set(protected_keys) - set(inherited_keys) - set(platform_keys))
 
 
 DEFAULT_PROFILE_ID = 1000001
@@ -744,6 +751,11 @@ def load_defaults(session, appdata):
 
     l10n_keys = list({key for keys in ConfigL10NFilters.values() for key in keys})
     session.query(ConfigL10N).filter(ConfigL10N.var_name.notin_(l10n_keys)).delete(synchronize_session=False)
+
+    # What the root tenant decides for the platform is read on it alone: a value another tenant
+    # holds is never read, and would only show as a customization nobody made
+    session.query(Config).filter(Config.tid != 1,
+                                 Config.var_name.in_(platform_keys)).delete(synchronize_session=False)
 
     session.query(Config).filter(Config.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
     session.query(ConfigL10N).filter(ConfigL10N.tid == DEFAULT_PROFILE_ID).delete(synchronize_session=False)
