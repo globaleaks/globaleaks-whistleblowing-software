@@ -1322,12 +1322,15 @@ def update_redaction(session, tid, user_id, redaction_id, redaction_data, tip_da
 
                 db_log(session, tid=tid, type='update_redaction', user_id=user_id, object_id=redaction.id, data=log_data)
 
+                file_id = redaction.reference_id
                 if session.query(models.ReceiverFile) \
-                          .filter(models.ReceiverFile.id == redaction.reference_id).count():
-                    db_delete_rfile(session, tid, user_id, redaction.reference_id)
+                          .filter(models.ReceiverFile.id == file_id).count():
+                    db_delete_rfile(session, tid, user_id, file_id)
                 else:
-                    delete_wbfile(session, tid, user_id, redaction.reference_id)
+                    delete_wbfile(session, tid, user_id, file_id)
 
+                db_log(session, tid=tid, type='delete_file', user_id=user_id,
+                       object_id=file_id, data={'internaltip_id': itip.id})
                 session.delete(redaction)
         elif content_type == 'whistleblower_identity':
             db_redact_whistleblower_identity(session, tid, user_id, itip, redaction, redaction_data, tip_data)
