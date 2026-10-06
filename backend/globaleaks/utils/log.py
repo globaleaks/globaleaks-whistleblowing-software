@@ -3,6 +3,7 @@ import os
 import sys
 import traceback
 from datetime import datetime
+from threading import RLock
 
 from twisted.python import log as txlog, logfile as txlogfile
 from twisted.python import util, failure
@@ -109,6 +110,7 @@ class Logger:
     Customized LogPublisher
     """
     loglevel = logging.INFO
+    _tenant_log_lock = RLock()
 
     _verbosity_dict = {
         'DEBUG': logging.DEBUG,
@@ -119,15 +121,46 @@ class Logger:
     def setloglevel(self, loglevel):
         self.loglevel = self._verbosity_dict[loglevel]
 
+    def write_tenant_log(self, tid, message):
+        """
+        Write a message to the rotating log of a tenant
+
+        :param tid: The tenant ID
+        :param message: An escaped log message
+        """
+        from globaleaks.rest.errors import DirectoryTraversalError
+        from globaleaks.settings import Settings
+        from globaleaks.utils.fs import get_storage_path
+
+        if not hasattr(Settings, 'tenants_path'):
+            return
+
+        try:
+            with self._tenant_log_lock:
+                path = get_storage_path(tid, 'log', 'globaleaks.log', create=True)
+                stream = txlogfile.LogFile.fromFullPath(
+                    path, rotateLength=Settings.log_file_size,
+                    maxRotatedFiles=int(Settings.num_log_files), defaultMode=0o600)
+                try:
+                    timestamp = datetime.now().astimezone().isoformat(timespec='seconds')
+                    stream.write(f'{timestamp} {message}\n')
+                    stream.flush()
+                finally:
+                    stream.close()
+        except (OSError, DirectoryTraversalError) as error:
+            print('[E] Unable to write tenant log:', escape_string(error))
+
     def print(self, prefix, msg, *args, **kwargs):
         msg = (msg % args) if args else msg
 
         msg = escape_string(msg)
 
         tid = kwargs.get('tid')
-        p = f'[{prefix}]' if tid is None else f'[{prefix}] [{tid}]'
+        p = f'[{prefix}]' if tid is None else f'[{prefix}] [{escape_string(tid)}]'
 
         print(p, msg)
+        if tid is not None:
+            self.write_tenant_log(tid, f'{p} {msg}')
 
     def debug(self, msg, *args, **kwargs):
         if self.loglevel and self.loglevel <= logging.DEBUG:

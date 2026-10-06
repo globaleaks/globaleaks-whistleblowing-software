@@ -5,6 +5,7 @@ from twisted.internet.defer import inlineCallbacks
 from globaleaks.handlers.whistleblower import attachment
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
+from globaleaks.utils.fs import get_storage_path
 
 
 class TestSubmissionAttachment(helpers.TestHandlerWithPopulatedDB):
@@ -25,7 +26,7 @@ class TestSubmissionAttachment(helpers.TestHandlerWithPopulatedDB):
         self.state.tokens.reactor.advance(1)
 
         for f in handler.session.files:
-            path = os.path.abspath(os.path.join(self.state.settings.attachments_path, f['filename']))
+            path = os.path.abspath(os.path.join(get_storage_path(1, 'attachments', create=True), f['filename']))
             yield self.assertFalse(os.path.exists(path))
 
     @inlineCallbacks

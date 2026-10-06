@@ -122,21 +122,34 @@ def update_db():
     return DATABASE_VERSION
 
 
-def db_get_tracked_files(session):
+def db_get_tracked_files(session, tid=None):
     """
     Transaction for retrieving the list of files tracked by the application database
     :param session: An ORM session
     :return: The list of filenames of the files
     """
-    return [x[0] for x in session.query(models.File.id)]
+    query = session.query(models.File.id)
+    if tid is not None:
+        query = query.filter(models.File.tid == tid)
+    return [x[0] for x in query]
 
 
-def db_get_tracked_attachments(session):
+def db_get_tracked_attachments(session, tid=None):
     """
     Transaction for retrieving the list of attachment files tracked by the application database
     :param session: An ORM session
     :return: The list of filenames of the attachment files
     """
+    if tid is not None:
+        ifiles = session.query(models.InternalFile.id).filter(
+            models.InternalFile.internaltip_id == models.InternalTip.id, models.InternalTip.tid == tid)
+        rfiles = session.query(models.ReceiverFile.id).filter(
+            models.ReceiverFile.internaltip_id == models.InternalTip.id, models.InternalTip.tid == tid)
+        wbfiles = session.query(models.WhistleblowerFile.id).filter(
+            models.WhistleblowerFile.internalfile_id == models.InternalFile.id,
+            models.InternalFile.internaltip_id == models.InternalTip.id, models.InternalTip.tid == tid)
+        return [x[0] for query in (ifiles, wbfiles, rfiles) for x in query]
+
     ifiles = session.query(models.InternalFile.id).all()
     wbfiles = session.query(models.WhistleblowerFile.id).all()
     rfiles = session.query(models.ReceiverFile.id).all()
@@ -150,15 +163,16 @@ def sync_clean_untracked_files(session):
     Transaction for removing files that are not tracked by the application database
     :param session: An ORM session
     """
-    tracked_files = db_get_tracked_attachments(session)
-    for filesystem_file in os.listdir(Settings.attachments_path):
-        if filesystem_file not in tracked_files:
-            file_to_remove = os.path.join(Settings.attachments_path, filesystem_file)
-            log.debug('Removing untracked file: %s', file_to_remove)
-            try:
+    for tid, in session.query(models.Tenant.id):
+        path = fs.get_storage_path(tid, 'attachments')
+        if not os.path.isdir(path):
+            continue
+        tracked_files = set(db_get_tracked_attachments(session, tid))
+        for filename in os.listdir(path):
+            if filename not in tracked_files:
+                file_to_remove = fs.get_storage_path(tid, 'attachments', filename)
+                log.debug('Removing untracked file: %s', file_to_remove)
                 fs.srm(file_to_remove)
-            except OSError:
-                log.err('Failed to remove untracked file', file_to_remove)
 
 
 def db_fix_receipt_auth_downgrade(session):

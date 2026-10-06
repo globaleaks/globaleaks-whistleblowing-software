@@ -27,7 +27,7 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
-from globaleaks.utils.fs import directory_traversal_check
+from globaleaks.utils.fs import get_storage_path
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null
@@ -327,8 +327,7 @@ class WhistleblowerFileDownload(BaseHandler):
             _tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
             enqueue_antivirus_scan(ifile_id, _tip_prv_key)
 
-        file_path = os.path.join(self.state.settings.attachments_path, ifile_id)
-        directory_traversal_check(self.state.settings.attachments_path, file_path)
+        file_path = get_storage_path(self.request.tid, 'attachments', ifile_id)
         self.check_file_presence(file_path)
 
         files = []
@@ -401,8 +400,7 @@ class ReceiverFileDownload(BaseHandler):
             _tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, tip_prv_key)
             enqueue_antivirus_scan(filelocation, _tip_prv_key)
 
-        file_path = os.path.join(self.state.settings.attachments_path, filelocation)
-        directory_traversal_check(self.state.settings.attachments_path, file_path)
+        file_path = get_storage_path(self.request.tid, 'attachments', filelocation)
 
         files = []
         if tip_prv_key:

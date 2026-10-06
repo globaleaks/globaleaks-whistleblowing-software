@@ -13,7 +13,7 @@ from globaleaks.jobs.job import DailyJob
 from globaleaks.models.config import DEFAULT_PROFILE_ID
 from globaleaks.models.enums import EnumSubscriberStatus
 from globaleaks.orm import db_del, db_log, transact, tw
-from globaleaks.utils.fs import srm
+from globaleaks.utils.fs import srm, get_storage_path
 from globaleaks.utils.utility import datetime_never, datetime_now, is_expired
 
 
@@ -83,11 +83,16 @@ class Cleaning(DailyJob):
 
     def perform_secure_deletion_of_files(self, path, valid_files):
         # Delete the customization files not associated to the database
+        if not os.path.isdir(path):
+            return
         for f in os.listdir(path):
             if f in valid_files:
                 continue
 
             filepath = os.path.join(path, f)
+            if os.path.islink(filepath):
+                os.unlink(filepath)
+                continue
             timestamp = datetime.fromtimestamp(os.path.getmtime(filepath))
             if is_expired(timestamp, days=1):
                 srm(filepath)
@@ -138,11 +143,14 @@ class Cleaning(DailyJob):
 
         yield self.clean()
 
-        valid_files = yield tw(db_get_tracked_files)
-        self.perform_secure_deletion_of_files(self.state.settings.files_path, valid_files)
-
-        valid_files = yield tw(db_get_tracked_attachments)
-        self.perform_secure_deletion_of_files(self.state.settings.attachments_path, valid_files)
+        for tenant in os.listdir(self.state.settings.tenants_path):
+            if not tenant.isdigit() or int(tenant) < 1:
+                continue
+            tid = int(tenant)
+            for kind, query in (('files', db_get_tracked_files),
+                                ('attachments', db_get_tracked_attachments)):
+                valid_files = yield tw(query, tid)
+                self.perform_secure_deletion_of_files(get_storage_path(tid, kind), valid_files)
 
         self.perform_secure_deletion_of_temporary_files()
 

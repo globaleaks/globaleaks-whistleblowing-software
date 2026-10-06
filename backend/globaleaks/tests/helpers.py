@@ -57,6 +57,7 @@ from cryptography.hazmat.primitives.asymmetric.utils import decode_dss_signature
 from globaleaks.utils import dpop as dpop_utils
 from globaleaks.utils import tempdict
 from globaleaks.utils.crypto import GCE, generateRandomKey, sha256, sha512
+from globaleaks.utils.fs import get_storage_path
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.utility import datetime_now, uuid4
 from globaleaks.utils.log import log
@@ -776,7 +777,7 @@ class TestGL(unittest.TestCase):
 
         self.dummy_node = dummy_stuff.dummy_node
 
-        self.assertEqual(os.listdir(Settings.attachments_path), [])
+        self.assertEqual(os.listdir(get_storage_path(1, 'attachments', create=True)), [])
         self.assertEqual(os.listdir(Settings.tmp_path), [])
 
     def get_dummy_user(self, role, username):

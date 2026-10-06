@@ -1,17 +1,21 @@
+import os
+from datetime import datetime, timezone
+from io import BytesIO
+
+from twisted.internet.defer import inlineCallbacks
+
+from globaleaks import models
 from globaleaks.jobs.job import LoopingJob
-from globaleaks.settings import Settings
-from globaleaks.utils.crypto import GCE
+from globaleaks.models.config import db_get_config_variable
+from globaleaks.models.enums import EnumStateFile
+from globaleaks.orm import transact
 from globaleaks.state import State
 from globaleaks.utils.antivirus import FileAnalysis, SizedReader
-from globaleaks.models.enums import EnumStateFile
-from globaleaks.models.config import db_get_config_variable
-from globaleaks import models
-from globaleaks.orm import transact
-from twisted.internet.defer import inlineCallbacks
-from datetime import datetime, timezone
-import os
+from globaleaks.utils.crypto import GCE
+from globaleaks.utils.fs import get_storage_path
 
 BUFFER_SIZE = 8192
+
 
 def verdict_to_state(result):
     # A file the scanner has not judged stays pending: only a verdict it did
@@ -60,6 +64,15 @@ def update_verification_status(session, file_id, result):
         file_obj.verification_date = None if state == EnumStateFile.pending.name \
                                      else datetime.now(timezone.utc)
 
+@transact
+def get_attachment_tenant(session, file_id):
+    for model in (models.InternalFile, models.ReceiverFile):
+        tid = session.query(models.InternalTip.tid).filter(
+            model.id == file_id, model.internaltip_id == models.InternalTip.id).scalar()
+        if tid is not None:
+            return tid
+
+
 class AntivirusDecryptor(LoopingJob):
     interval = 3
     scanner_factory = FileAnalysis
@@ -74,7 +87,10 @@ class AntivirusDecryptor(LoopingJob):
         if not tip_prv_key:
             return
 
-        encrypted_path = os.path.join(Settings.attachments_path, name)
+        tid = yield get_attachment_tenant(name)
+        if tid is None:
+            return
+        encrypted_path = get_storage_path(tid, 'attachments', name)
         if not os.path.exists(encrypted_path):
             return
 

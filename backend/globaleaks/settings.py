@@ -81,6 +81,7 @@ class SettingsClass(metaclass=Singleton):
         self.enable_api_cache = True
 
     def eval_paths(self):
+        self.tenants_path = os.path.abspath(os.path.join(self.working_path, 'tenants'))
         self.files_path = os.path.abspath(os.path.join(self.working_path, 'files'))
         self.attachments_path = os.path.abspath(os.path.join(self.working_path, 'attachments'))
         self.tmp_path = os.path.abspath(os.path.join(self.working_path, 'tmp'))

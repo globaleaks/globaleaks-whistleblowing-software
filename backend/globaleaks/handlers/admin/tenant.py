@@ -28,6 +28,7 @@ from globaleaks.models.config import db_get_configs, db_get_pid, db_get_pid_by_p
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
+from globaleaks.utils.fs import get_storage_path
 from globaleaks.utils.log import log
 from globaleaks.utils.sock import is_ip_address
 from globaleaks.utils.tls import gen_selfsigned_certificate
@@ -92,6 +93,8 @@ def db_create(session, desc, is_tenant = True, **kwargs):
 
     t = models.Tenant()
     t.id = tenant_id
+    for kind in ('files', 'attachments', 'log'):
+        get_storage_path(tenant_id, kind, create=True)
     t.active = desc['active']
 
     session.add(t)

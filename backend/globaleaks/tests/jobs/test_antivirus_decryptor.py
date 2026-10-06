@@ -17,6 +17,7 @@ from globaleaks.settings import Settings
 from globaleaks.state import State
 from globaleaks.tests import helpers
 from globaleaks.utils.crypto import GCE
+from globaleaks.utils.fs import get_storage_path
 
 CONTENT = b'the content of a file attached to a report'
 
@@ -107,7 +108,12 @@ class TestQueue(unittest.TestCase):
         self.attachments = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.attachments, True)
 
-        attachments = patch.object(Settings, 'attachments_path', self.attachments)
+        attachments = patch('globaleaks.jobs.antivirus_decryptor.get_storage_path',
+                            side_effect=lambda tid, kind, name: os.path.join(self.attachments, name))
+        tenant = patch('globaleaks.jobs.antivirus_decryptor.get_attachment_tenant',
+                       return_value=succeed(1))
+        tenant.start()
+        self.addCleanup(tenant.stop)
         attachments.start()
         self.addCleanup(attachments.stop)
 
@@ -191,7 +197,7 @@ class TestAntivirusDecryptor(helpers.TestGLWithPopulatedDB):
 
     @inlineCallbacks
     def scan(self, verdict):
-        key = encrypt(os.path.join(Settings.attachments_path, self.file_id))
+        key = encrypt(os.path.join(get_storage_path(1, 'attachments', create=True), self.file_id))
         State.antivirus_files.append((self.file_id, key))
         State.antivirus_file_ids.add(self.file_id)
 
