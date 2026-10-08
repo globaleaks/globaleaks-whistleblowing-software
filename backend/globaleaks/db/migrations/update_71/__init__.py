@@ -23,6 +23,8 @@ them, feature by feature:
 - Hashing of the evidences, support requests, statistical reports, channel
   slug, secondary SMTP, backup, antivirus: the new columns and tables take
   their defaults.
+- Question types: the questions of the types email and number, that no client
+  ever rendered, become inputboxes validated as an email address or a number.
 """
 from sqlalchemy import func
 
@@ -460,6 +462,47 @@ class MigrationScript(MigrationBase):
                                                                config.value == 'demo'):
             db_set_config_variable(self.session_new, tid, 'signup_demo' if tid == 1 else 'demo', True)
 
+    # The types email and number were accepted by the API but never had a
+    # descriptor nor a rendering of their own: the questions holding them are
+    # single-line text inputs validated as an email address or a number.
+    LEGACY_FIELD_TYPES = ['email', 'number']
+
+    INPUTBOX_ATTRS = {
+        'min_len': ('int', '0'),
+        'max_len': ('int', '100'),
+        'input_validation': ('unicode', 'none'),
+        'regexp': ('unicode', '')
+    }
+
+    def migrate_legacy_field_types(self):
+        """
+        Turn the questions of type email and number into inputboxes validating the same input
+        """
+        field_attr = self.model_to['FieldAttr']
+
+        fields = self.session_new.query(self.model_to['Field']) \
+                                 .filter(self.model_to['Field'].type.in_(self.LEGACY_FIELD_TYPES))
+
+        for field in fields:
+            validation = field.type
+            field.type = 'inputbox'
+
+            present = {name for name, in self.session_new.query(field_attr.name).filter(field_attr.field_id == field.id)}
+
+            for name, (attr_type, value) in self.INPUTBOX_ATTRS.items():
+                if name == 'input_validation':
+                    value = validation
+
+                if name in present:
+                    continue
+
+                attr = field_attr()
+                attr.field_id = field.id
+                attr.name = name
+                attr.type = attr_type
+                attr.value = value
+                self.add_entry('FieldAttr', attr)
+
     def epilogue(self):
         tenant.db_create(self.session_new, {'active': False, 'mode': 'default', 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''}, False)
         self.entries_count['SubmissionStatus'] += 3
@@ -474,5 +517,7 @@ class MigrationScript(MigrationBase):
         db_set_config_variable(self.session_new, 1, 'counter_tenants', max_tid or 1)
 
         self.migrate_demo()
+
+        self.migrate_legacy_field_types()
 
         self.migrate_additional_questionnaires()
