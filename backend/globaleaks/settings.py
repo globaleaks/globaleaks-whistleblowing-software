@@ -78,6 +78,11 @@ class SettingsClass(metaclass=Singleton):
 
         self.acme_directory_url = 'https://acme-v02.api.letsencrypt.org/directory'
 
+        # The certificate served on every HTTPS connection, when the public TLS is
+        # terminated by a proxy in front of the platform
+        self.tls_cert_file = None
+        self.tls_key_file = None
+
         self.enable_api_cache = True
 
     def eval_paths(self):
@@ -153,6 +158,9 @@ class SettingsClass(metaclass=Singleton):
 
         if options.working_path:
             self.working_path = options.working_path
+
+        self.tls_cert_file = options.tls_cert
+        self.tls_key_file = options.tls_key
 
 
 # Settings is a singleton class exported once

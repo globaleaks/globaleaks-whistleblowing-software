@@ -79,11 +79,22 @@ parser.add_option("-o", "--orm-debug", action='store_true',
     help="enable ORM debugging [default: False]",
     dest="orm_debug", default=False)
 
+parser.add_option("--tls-cert", type="string",
+    help="serve every HTTPS connection with the certificate in this file, followed by its chain, for a platform behind a proxy terminating the public TLS",
+    dest="tls_cert", default=None)
+
+parser.add_option("--tls-key", type="string",
+    help="the private key of the certificate given with --tls-cert",
+    dest="tls_key", default=None)
+
 parser.add_option("-v", "--version", action='store_true',
     help="show the version of the software")
 
 # here the options are parsed, because sys.argv array is whack below
 (options, args) = parser.parse_args()
+
+if bool(options.tls_cert) != bool(options.tls_key):
+    parser.error("--tls-cert and --tls-key must be given together")
 
 if options.version:
     print("GlobaLeaks version:", __version__)
@@ -97,6 +108,16 @@ if os.geteuid() == 0:
 
 
 Settings.load_cmdline_options(options)
+
+
+# A certificate that cannot be served stops the start: falling back on the
+# self-signed one would have the proxy in front refuse every connection
+if Settings.tls_cert_file:
+    try:
+        State.snimap.load_files(Settings.tls_cert_file, Settings.tls_key_file)
+    except Exception as excep:
+        print("Unable to load the TLS certificate: %s" % excep)
+        sys.exit(1)
 
 
 State.bind_tcp_ports()
