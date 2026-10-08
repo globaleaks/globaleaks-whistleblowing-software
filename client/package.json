@@ -1,6 +1,6 @@
 {
   "name": "globaleaks",
-  "version": "5.0.99",
+  "version": "5.1.0",
   "scripts": {
     "test": "npx cypress run --browser=chromium",
     "test:verify": "npx cypress run --browser=chromium --env takeScreenshots=false",
