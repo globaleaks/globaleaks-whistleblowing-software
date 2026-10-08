@@ -288,6 +288,12 @@ def db_create_field(session, tid, request, language):
         request['statistical'] = False
 
     if not request.get('template_id'):
+        # The fields of an imported questionnaire reach here without the
+        # validation of the request format: a type the clients cannot render
+        # would make the questionnaire unusable
+        if request.get('type') not in models.field_types:
+            raise errors.InputValidationError("Unsupported field type")
+
         field = db_add(session, models.Field, request)
 
         attrs = request.get('attrs')
