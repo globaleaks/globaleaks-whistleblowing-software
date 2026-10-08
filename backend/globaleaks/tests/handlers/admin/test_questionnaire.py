@@ -25,7 +25,8 @@ class TestQuestionnairesCollection(helpers.TestCollectionHandler):
         self.test_data_dir = os.path.join(helpers.DATA_DIR, 'questionnaires')
 
         invalid_test_cases = [
-            ('cyclic_groupid.json', errors.InputValidationError)
+            ('cyclic_groupid.json', errors.InputValidationError),
+            ('unsupported_type.json', errors.InputValidationError)
         ]
 
         for fname, err in invalid_test_cases:
