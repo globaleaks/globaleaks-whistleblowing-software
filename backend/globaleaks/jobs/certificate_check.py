@@ -62,6 +62,20 @@ class CertificateCheck(DailyJob):
 
         return db_load_tls_config(session, tid)
 
+    def reload_tls_files(self):
+        # Who provides the files renews them: they are read again every day, and a
+        # read that fails keeps serving the certificate in use
+        try:
+            cert = self.state.snimap.load_files(self.state.settings.tls_cert_file,
+                                                self.state.settings.tls_key_file)
+        except Exception as e:
+            log.err('Unable to reload the TLS certificate (%s)', e)
+            return
+
+        if cert is not None:
+            log.info('The TLS certificate was renewed, valid until %s',
+                     letsencrypt.convert_asn1_date(cert.get_notAfter()))
+
     @inlineCallbacks
     def operation(self):
         # Randomize the execution of certificates checks and renewals
@@ -70,6 +84,9 @@ class CertificateCheck(DailyJob):
 
         # Update start time in relation to delayed daily random start
         self.start_time = int(time.time() * 1000)
+
+        if self.state.settings.tls_cert_file:
+            self.reload_tls_files()
 
         now = datetime.now()
 
