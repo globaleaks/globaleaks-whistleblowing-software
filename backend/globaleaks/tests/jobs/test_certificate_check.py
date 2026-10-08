@@ -170,3 +170,45 @@ class TestCertificateCheck(helpers.TestGLWithPopulatedDB):
             tls_config = yield self.job.renew_certificate(1)
 
         self.assertFalse(tls_config)
+
+    @inlineCallbacks
+    def test_the_certificate_given_in_files_is_read_again_every_day(self):
+        with patch.object(self.state.settings, 'tls_cert_file', 'tls.crt'), \
+             patch.object(self.state.settings, 'tls_key_file', 'tls.key'), \
+             patch.object(self.state.snimap, 'load_files', return_value=None) as load_files, \
+             patch.object(certificate_check.log, 'info') as info:
+            yield self.check(30)
+
+        load_files.assert_called_once_with('tls.crt', 'tls.key')
+        # files equal to the ones in use are no news
+        info.assert_not_called()
+
+    @inlineCallbacks
+    def test_a_renewed_certificate_in_files_is_logged(self):
+        cert = load_certificate(FILETYPE_PEM, helpers.HTTPS_DATA['cert'])
+
+        with patch.object(self.state.settings, 'tls_cert_file', 'tls.crt'), \
+             patch.object(self.state.settings, 'tls_key_file', 'tls.key'), \
+             patch.object(self.state.snimap, 'load_files', return_value=cert), \
+             patch.object(certificate_check.log, 'info') as info:
+            yield self.check(30)
+
+        info.assert_called_once()
+        self.assertEqual(info.call_args[0][1], EXPIRATION)
+
+    @inlineCallbacks
+    def test_a_certificate_in_files_that_cannot_be_read_again_is_logged(self):
+        with patch.object(self.state.settings, 'tls_cert_file', 'tls.crt'), \
+             patch.object(self.state.settings, 'tls_key_file', 'tls.key'), \
+             patch.object(self.state.snimap, 'load_files', side_effect=OSError('missing')), \
+             patch.object(certificate_check.log, 'err') as err:
+            yield self.check(30)
+
+        err.assert_called_once()
+
+    @inlineCallbacks
+    def test_without_a_certificate_in_files_nothing_is_read(self):
+        with patch.object(self.state.snimap, 'load_files') as load_files:
+            yield self.check(30)
+
+        load_files.assert_not_called()
