@@ -20,14 +20,19 @@
                 <td>{{file.name}}</td>
                 @if (wbTipService.tip.enable_whistleblower_download) {
                   <td>
-                    <button class="btn btn-sm btn-primary tip-action-download-file"
-                      [disabled]="file.error"
-                      ngbTooltip="{{'Download' | translate}}"
-                      [attr.aria-label]="'Download' | translate"
-                      (click)="downloadWBFile(file)"
-                      type="button">
-                      <i class="fas fa-download"></i>
-                    </button>
+                    <!-- The content of a file masked by the recipients is refused to the whistleblower -->
+                    @if (file.masked) {
+                      <span class="btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
+                    } @else {
+                      <button class="btn btn-sm btn-primary tip-action-download-file"
+                        [disabled]="file.error"
+                        ngbTooltip="{{'Download' | translate}}"
+                        [attr.aria-label]="'Download' | translate"
+                        (click)="downloadWBFile(file)"
+                        type="button">
+                        <i class="fas fa-download"></i>
+                      </button>
+                    }
                   </td>
                 }
                 <td>{{file.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
