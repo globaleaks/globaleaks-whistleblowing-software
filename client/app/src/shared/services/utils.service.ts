@@ -160,12 +160,15 @@ export class UtilsService {
       return false;
     };
 
-    const currentUrl = this.router.url + "?";
+    // The page is left for an address differing by an empty parameter and reached again. Both are
+    // full addresses: given as a single path segment, an address carrying a query was a route of
+    // no page, and the reload landed on the home
+    const currentUrl = this.router.url;
 
-    this.router.navigateByUrl(currentUrl)
+    this.router.navigateByUrl(currentUrl + (currentUrl.includes("?") ? "&" : "?"))
       .then(() => {
         this.router.navigated = false;
-        this.router.navigate([this.router.url]).then();
+        this.router.navigateByUrl(currentUrl).then();
       });
   }
 
