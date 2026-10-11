@@ -299,7 +299,7 @@ def db_update_temporary_redaction(session, tid, user_id, redaction, redaction_da
     new_temporary_redaction = get_new_temporary_redaction(redaction_data['temporary_redaction'], redaction.permanent_redaction)
 
     log_data = {
-        'old_remporary_redaction': redaction.temporary_redaction,
+        'old_temporary_redaction': redaction.temporary_redaction,
         'new_temporary_redaction': new_temporary_redaction
     }
 
