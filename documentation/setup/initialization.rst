@@ -2,9 +2,13 @@ Initialization
 ==============
 After installing GlobaLeaks, you can proceed with the platform wizard.
 
-Open a browser at port 443 on your remote or local IP, respectively.
++Open a browser and navigate to port 443 on your server's address: use its
++local IP if you are connecting from the same machine or network, or its
++public/remote IP if you are connecting from elsewhere. For better
++anonymity, we recommend connecting via the Tor onion address provided at
++the end of the installation, or via ``localhost`` over a VPN.
 
-We recommend accessing using either the Tor address provided at the end of the installation or on localhost via a VPN.
+
 
 Choose the primary language for your site
 -----------------------------------------
