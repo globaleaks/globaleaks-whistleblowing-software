@@ -811,5 +811,14 @@
   "Change report labels": "Cambia le etichette delle segnalazioni",
   "Recovery key": "Chiave di recupero",
   "Communication": "Comunicazione",
-  "Invite": "Invita"
+  "Invite": "Invita",
+  "Support request reply": "Support request reply",
+  "A reply to your support request is available. Log in to read it.": "A reply to your support request is available. Log in to read it.",
+  "Not in use": "Not in use",
+  "Enable login by access code": "Enable login by access code",
+  "Upload completed successfully.": "Upload completed successfully.",
+  "A support request has been received or updated. Log in to read it.": "A support request has been received or updated. Log in to read it.",
+  "Support request": "Support request",
+  "Request": "Request",
+  "Average messages per report": "Average messages per report"
 }
