@@ -140,7 +140,7 @@ describe("admin add, configure, and delete users", () => {
     cy.get(".userList").should("have.length.greaterThan", 2);
     cy.get(".userList").eq(2).find("[data-action='edit']").click();
     cy.get(".userList").eq(2).find("#user-description").should("have.value", "Reads the reports of the second channel");
-    cy.get(".userList").eq(2).find("[data-action='cancel']").click();
+    cy.get(".userList").eq(2).find("[data-action='edit']").click();
 
     cy.logout();
   });

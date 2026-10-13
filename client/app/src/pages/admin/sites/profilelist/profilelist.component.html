@@ -33,6 +33,9 @@
   </ng-container>
   <ng-container cardActions>
     @if (tenant.id !== 1) {
+          @if (editing) {
+            <button type="button" id="action-tenant-profile-save" class="btn btn-sm btn-primary" name="save_tenant" (click)="saveTenant()">{{'Save'|translate}}</button>
+          }
           @if (tenant.active) {
             <button type="button" id="action-tenant-profile-configure" class="btn btn-sm btn-primary" name="configure_tenant" (click)="configureTenant($event, tenant.id)">{{'Configure'|translate}}</button>
           }
@@ -40,9 +43,6 @@
             <i class="fa-solid fa-file-export"></i>
             <span>{{ 'Export' | translate }}</span>
           </button>
-          @if (editing) {
-            <button type="button" id="action-tenant-profile-save" class="btn btn-sm btn-primary" name="save_tenant" (click)="saveTenant()">{{'Save'|translate}}</button>
-          }
           @if (isRemovableTenant()) {
             <button type="button" id="action-tenant-profile-delete" class="btn btn-sm btn-danger" name="delete_tenant" [disabled]="tenant.in_use" (click)="deleteTenant($event, tenant)">{{'Delete'|translate}}</button>
           }

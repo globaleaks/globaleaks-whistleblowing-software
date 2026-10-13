@@ -70,22 +70,22 @@
       </button>
     }
   </ng-container>
-  <ng-container move>
+  <ng-container reorder>
     @if (field().editable && (field().step_id || field().fieldgroup_id)) {
       <span class="btn-group btn-move-pad" role="group">
         <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-left" (click)="moveLeftAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move left' | translate}}">
-          <i class="fa-solid fa-chevron-left"></i>
+          <i class="fa-solid fa-arrow-left"></i>
         </button>
         <span class="btn-group-vertical btn-move" role="group">
           <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-up" (click)="moveUpAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
-            <i class="fa-solid fa-chevron-up"></i>
+            <i class="fa-solid fa-arrow-up"></i>
           </button>
           <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-down" (click)="moveDownAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
-            <i class="fa-solid fa-chevron-down"></i>
+            <i class="fa-solid fa-arrow-down"></i>
           </button>
         </span>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-right" (click)="moveRightAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move right' | translate}}">
-          <i class="fa-solid fa-chevron-right"></i>
+          <i class="fa-solid fa-arrow-right"></i>
         </button>
       </span>
     }
@@ -499,10 +499,10 @@
                     </button>
                     <span class="btn-group-vertical btn-move" role="group">
                       <button [disabled]="i === 0" class="btn btn-sm btn-outline-secondary" (click)="moveOptionUp(i);" ngbTooltip="{{'Move up' | translate}}">
-                        <i class="fa-solid fa-chevron-up"></i>
+                        <i class="fa-solid fa-arrow-up"></i>
                       </button>
                       <button [disabled]="i === field().options.length - 1" class="btn btn-sm btn-outline-secondary" (click)="moveOptionDown(i);" ngbTooltip="{{'Move down' | translate}}">
-                        <i class="fa-solid fa-chevron-down"></i>
+                        <i class="fa-solid fa-arrow-down"></i>
                       </button>
                     </span>
                   </div>
