@@ -1,4 +1,5 @@
 import {Component, input, output} from "@angular/core";
+import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {TranslateModule} from "@ngx-translate/core";
 
 /**
@@ -14,7 +15,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-collapsible-card",
     templateUrl: "./collapsible-card.component.html",
     standalone: true,
-    imports: [TranslateModule]
+    imports: [NgbTooltip, TranslateModule]
 })
 export class CollapsibleCardComponent {
   readonly expanded = input(false);
