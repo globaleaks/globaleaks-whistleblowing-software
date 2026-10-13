@@ -161,8 +161,8 @@ describe("admin add, configure and delete questionnaires", () => {
       cy.get("button[name='addOption']").click();
       cy.get("input[name='option.label']").eq(0).type("Second");
       cy.get("input[name='option.label']").eq(1).type("First");
-      cy.get(".field-option").eq(1).find(".fa-chevron-up").click();
-      cy.get(".field-option").eq(0).find(".fa-chevron-down").click();
+      cy.get(".field-option").eq(1).find(".fa-arrow-up").click();
+      cy.get(".field-option").eq(0).find(".fa-arrow-down").click();
       cy.get("input[name='option.label']").eq(0).should("have.value", "Second");
     });
 

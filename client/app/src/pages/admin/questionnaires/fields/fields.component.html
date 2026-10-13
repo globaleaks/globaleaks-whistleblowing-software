@@ -68,20 +68,22 @@
         <i class="fas fa-file-export"></i>
         <span>{{ 'Export' | translate }}</span>
       </button>
-      @if (field().step_id || field().fieldgroup_id) {
-        <button type="button" class="btn btn-sm btn-primary" data-action="move-left" (click)="moveLeftAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move left' | translate}}">
-          <i class="fas fa-chevron-left"></i>
-        </button>
-        <button type="button" class="btn btn-sm btn-primary" data-action="move-right" (click)="moveRightAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move right' | translate}}">
-          <i class="fas fa-chevron-right"></i>
-        </button>
-        <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveUpAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
-          <i class="fas fa-chevron-up"></i>
-        </button>
-        <button type="button" class="btn btn-sm btn-primary" data-action="move-down" (click)="moveDownAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
-          <i class="fas fa-chevron-down"></i>
-        </button>
-      }
+    }
+  </ng-container>
+  <ng-container reorder>
+    @if (field().editable && (field().step_id || field().fieldgroup_id)) {
+      <button type="button" class="btn btn-sm btn-primary" data-action="move-left" (click)="moveLeftAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move left' | translate}}">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <button type="button" class="btn btn-sm btn-primary" data-action="move-right" (click)="moveRightAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move right' | translate}}">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveUpAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
+        <i class="fas fa-arrow-up"></i>
+      </button>
+      <button type="button" class="btn btn-sm btn-primary" data-action="move-down" (click)="moveDownAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
+        <i class="fas fa-arrow-down"></i>
+      </button>
     }
   </ng-container>
   <ng-template #body>
@@ -484,10 +486,10 @@
                       <i class="fas fa-xmark"></i>
                     </button>
                     <button [disabled]="i === 0" class="btn btn-sm btn-primary" (click)="moveOptionUp(i);" ngbTooltip="{{'Move up' | translate}}">
-                      <i class="fas fa-chevron-up"></i>
+                      <i class="fas fa-arrow-up"></i>
                     </button>
                     <button [disabled]="i === field().options.length - 1" class="btn btn-sm btn-primary" (click)="moveOptionDown(i);" ngbTooltip="{{'Move down' | translate}}">
-                      <i class="fas fa-chevron-down"></i>
+                      <i class="fas fa-arrow-down"></i>
                     </button>
                   </div>
                 </div>

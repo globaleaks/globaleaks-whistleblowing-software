@@ -46,12 +46,12 @@
           <ng-container title>
             <span class="substatusLabel">{{substatus.label}}</span>
           </ng-container>
-          <ng-container actions>
+          <ng-container reorder>
             <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveSsUp($event, index)" ngbTooltip="{{'Move up' | translate}}" [disabled]="first">
-              <i class="fas fa-chevron-up"></i>
+              <i class="fas fa-arrow-up"></i>
             </button>
             <button type="button" class="btn btn-sm btn-primary" data-action="move-down" (click)="moveSsDown($event, index)" ngbTooltip="{{'Move down' | translate}}" [disabled]="last">
-              <i class="fas fa-chevron-down"></i>
+              <i class="fas fa-arrow-down"></i>
             </button>
           </ng-container>
           <ng-template #body>

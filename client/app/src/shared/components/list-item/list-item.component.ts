@@ -1,15 +1,18 @@
 import {ChangeDetectionStrategy, Component, contentChild, input, model, output, TemplateRef} from "@angular/core";
 import {NgTemplateOutlet} from "@angular/common";
+import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
 import {TranslatePipe} from "@ngx-translate/core";
 
 /**
  * Expandable item of an administrative list.
  *
  * The header shows the projected [title] on the left and the action buttons
- * on the right: Edit, Save and Cancel follow the editing state, Delete is
- * shown when the item is deletable, and any projected [actions] come last. A
- * readOnly item is opened and read but not written: it carries no button of
- * its own, and what it displays is left to the editor it holds.
+ * on the right: Save while editing, the projected [leading] buttons, the
+ * projected [actions], Delete when the item is deletable, the projected
+ * [reorder] arrows and, at the far right, the button that opens and closes
+ * the item: there is no Cancel, since closing is all it did. A readOnly item
+ * is opened and read but not written: it carries no Save or Delete, and what
+ * it displays is left to the editor it holds.
  * The editor declared as <ng-template #body> is instantiated only while the
  * item is being edited, so the form controls of the closed items never exist.
  *
@@ -19,7 +22,7 @@ import {TranslatePipe} from "@ngx-translate/core";
 @Component({
   selector: "src-list-item",
   standalone: true,
-  imports: [NgTemplateOutlet, TranslatePipe],
+  imports: [NgTemplateOutlet, NgbTooltip, TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="config-item">
@@ -29,25 +32,28 @@ import {TranslatePipe} from "@ngx-translate/core";
         </span>
         <span class="col-md-{{ 12 - titleColumns() }} clearfix">
           <span class="float-end">
-            @if (canEdit() && !readOnly() && !editing()) {
-              <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit" (click)="toggle()">
-                <span>{{ 'Edit' | translate }}</span>
-              </button>
-            }
             @if (editing() && !readOnly()) {
               <button type="button" class="btn btn-sm btn-primary" data-action="save" [disabled]="saveDisabled()" (click)="onSave()">
                 <span>{{ 'Save' | translate }}</span>
               </button>
-              <button type="button" class="btn btn-sm btn-outline-secondary" data-action="cancel" (click)="onCancel()">
-                <span>{{ 'Cancel' | translate }}</span>
-              </button>
             }
+            <ng-content select="[leading]"></ng-content>
+            <ng-content select="[actions]"></ng-content>
             @if (canDelete()) {
               <button type="button" class="btn btn-sm btn-danger" data-action="delete" (click)="deleted.emit()">
                 <span>{{ 'Delete' | translate }}</span>
               </button>
             }
-            <ng-content select="[actions]"></ng-content>
+            <ng-content select="[reorder]"></ng-content>
+            @if (canEdit() || readOnly() || editing()) {
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit" [attr.aria-expanded]="editing()" [attr.aria-label]="(editing() ? 'Close' : 'Open') | translate" ngbTooltip="{{ (editing() ? 'Close' : 'Open') | translate }}" (click)="toggle()">
+                @if (editing()) {
+                  <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                } @else {
+                  <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                }
+              </button>
+            }
           </span>
         </span>
       </div>
@@ -73,7 +79,6 @@ export class ListItemComponent {
   readonly titleColumns = input(7);
 
   readonly save = output<void>();
-  readonly cancelled = output<void>();
   readonly deleted = output<void>();
 
   readonly body = contentChild<TemplateRef<unknown>>("body");
@@ -86,11 +91,6 @@ export class ListItemComponent {
 
   protected onSave(): void {
     this.save.emit();
-    this.editing.set(false);
-  }
-
-  protected onCancel(): void {
-    this.cancelled.emit();
     this.editing.set(false);
   }
 }

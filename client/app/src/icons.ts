@@ -8,8 +8,10 @@ config.autoReplaceSvg = 'nest';
 
 // Collect the icons you actually want
 const icons = [
+  solidIcons.faArrowDown,
   solidIcons.faArrowLeft,
   solidIcons.faArrowRight,
+  solidIcons.faArrowUp,
   solidIcons.faArrowsRotate,
   solidIcons.faAsterisk,
   solidIcons.faBackward,
