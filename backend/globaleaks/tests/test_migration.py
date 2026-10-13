@@ -1,9 +1,11 @@
 """
-Test database migrations.
+Test the migrations of the working directory.
 
-for each version one an empty and a populated db must be sessiond in directories:
- - db/empty
- - db/populated
+For each version an empty and a populated working directory are stored in
+data/workingdirs/empty/<version> and data/workingdirs/populated/<version>:
+each holds the globaleaks.db of that version and whatever else of a working
+directory (attachments, files, logs, ...) the migration to test needs, and
+it is migrated whole.
 """
 import os
 import shutil
@@ -20,9 +22,7 @@ from globaleaks.tests import helpers
 class TestMigrationRoutines(unittest.TestCase):
     def _test(self, path, version):
         helpers.init_state()
-        srcpath = os.path.join(path, f'globaleaks-{version}.db')
-        dstpath = os.path.join(Settings.working_path, 'globaleaks.db')
-        shutil.copyfile(srcpath, dstpath)
+        shutil.copytree(os.path.join(path, str(version)), Settings.working_path, dirs_exist_ok=True)
 
         # TESTS PRECONDITIONS
         # Run preconditions if they exist, otherwise, run a no-op function
@@ -80,7 +80,7 @@ def test(path, version):
     return lambda self: self._test(path, version)
 
 
-path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'db', 'populated')
+path = os.path.join(helpers.DATA_DIR, 'workingdirs', 'populated')
 
 
 for i in range(FIRST_DATABASE_VERSION_SUPPORTED, DATABASE_VERSION + 1):
