@@ -4,12 +4,12 @@
       <ng-container title>
         <span id="status-{{submissionsStatus().id}}">{{ submissionsStatus().label ? (submissionsStatus().label | translate) : '' }}</span>
       </ng-container>
-      <ng-container actions>
+      <ng-container reorder>
         <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveUp($event, index())" ngbTooltip="{{'Move up' | translate}}" [attr.aria-label]="'Move up' | translate" [disabled]="first() || submissionsStatus().id === 'closed'">
-          <i class="fas fa-chevron-up"></i>
+          <i class="fas fa-arrow-up"></i>
         </button>
         <button type="button" class="btn btn-sm btn-primary" data-action="move-down" (click)="moveDown($event, index())" ngbTooltip="{{'Move down' | translate}}" [attr.aria-label]="'Move down' | translate" [disabled]="last() || ['new', 'opened'].indexOf(submissionsStatus().id) === -1">
-          <i class="fas fa-chevron-down"></i>
+          <i class="fas fa-arrow-down"></i>
         </button>
       </ng-container>
       <ng-template #body>
