@@ -717,7 +717,7 @@ class TestGL(unittest.TestCase):
 
         if self.initialize_test_database_using_archived_db:
             shutil.copy(
-                os.path.join(TEST_DIR, 'db', 'empty', f'globaleaks-{DATABASE_VERSION}.db'),
+                os.path.join(DATA_DIR, 'workingdirs', 'empty', str(DATABASE_VERSION), 'globaleaks.db'),
                 os.path.join(Settings.db_file_path)
             )
         elif os.path.exists(EMPTY_DATABASE_TEMPLATE):
