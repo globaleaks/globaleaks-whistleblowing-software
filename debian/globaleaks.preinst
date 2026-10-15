@@ -10,4 +10,13 @@ systemctl stop tor 2>/dev/null || true
 
 if [ "$1" = "upgrade" ]; then
   service globaleaks stop || true
+
+  # Drop the link of an alias of the unit to itself, that shadows the unit
+  # shipped by the package
+  link=/etc/systemd/system/globaleaks.service
+  if [ -L "$link" ]; then
+    case "$(readlink "$link")" in
+      */globaleaks.service) rm -f "$link" ;;
+    esac
+  fi
 fi
