@@ -287,6 +287,7 @@ def db_serialize_node(session, tid, language):
     ret = node.serialize('public_node')
 
     ret['start_time'] = State.start_time
+    ret['secret_loaded'] = bool(State.secret_key)
     ret['root_tenant'] = tid == 1
     # The cost of the key derivation the client has to match
     ret['kdf_opslimit'] = GCE.options['OPSLIMIT']

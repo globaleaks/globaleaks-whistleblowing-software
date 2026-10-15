@@ -65,6 +65,7 @@ ROUTES_OPEN_TO_ANYONE = {
     "redirect.SpecialRedirectHandler",
     "report.ReportHandler",
     "robots.RobotstxtHandler",
+    "secret.Secret",
     "security.SecuritytxtHandler",
     "signup.Signup",
     "signup.SignupActivation",

@@ -14,7 +14,7 @@ from globaleaks.utils.utility import deferred_sleep
 
 
 USERS_ROLES = {'any', 'admin', 'analyst', 'auditor', 'custodian', 'receiver', 'transmitter'}
-BYPASS_PATHS = {b"/api/auth/token", b"/api/auth/type", b"/api/report"}
+BYPASS_PATHS = {b"/api/auth/token", b"/api/auth/type", b"/api/report", b"/api/secret"}
 
 # CSP violation reports are accepted unauthenticated (browsers post them without
 # credentials); these thresholds bound a flood so it cannot evict genuine

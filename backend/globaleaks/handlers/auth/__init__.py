@@ -1,4 +1,5 @@
 # Handlers dealing with platform authentication
+import hashlib
 import json
 from datetime import timedelta
 from sqlalchemy import exists, func, or_, and_
@@ -27,9 +28,16 @@ from globaleaks.db import refresh_tenant_cache
 
 
 def db_receipt_auth_is_legacy(session, tid):
-    # Legacy server-hashed mode while any pre-key receipt_hash (length < 64) remains.
+    # Legacy server-hashed mode while any receipt_hash not derived by the client
+    # (length != 64) remains: the pre-key ones and the ones imported from the
+    # platform used until 2023, whose login needs the receipt itself.
     return session.query(exists().where(and_(InternalTip.tid == tid,
-                                              func.length(InternalTip.receipt_hash) < 64))).scalar()
+                                              func.length(InternalTip.receipt_hash) != 64))).scalar()
+
+
+def receipt_hash_2023(receipt, salt):
+    # Hash of the receipts of the reports imported from the platform used until 2023
+    return hashlib.scrypt(receipt.encode(), salt=salt.encode(), n=1 << 14, r=8, p=1, dklen=64).hex()
 
 
 def db_bind_idp_identity(session, tid, user, subject):
@@ -221,6 +229,15 @@ def login_whistleblower(session, tid, receipt, client_using_tor, dpop_jkt=''):
     if itip is None and legacy:
         itip = db_recover_receipt(session, tid, [(key, hash), (client_key, client_hash)])
 
+    # A report imported from the platform used until 2023 is reached, once the
+    # secret is loaded, by the hash of that platform
+    imported = False
+    if itip is None and legacy and State.secret_key:
+        itip = session.query(InternalTip) \
+                      .filter(InternalTip.tid == tid,
+                              InternalTip.receipt_hash == receipt_hash_2023(receipt, salt)).one_or_none()
+        imported = itip is not None
+
     if itip is None:
         db_login_failure(session, tid, 1)
 
@@ -230,9 +247,20 @@ def login_whistleblower(session, tid, receipt, client_using_tor, dpop_jkt=''):
     itip.wb_last_access = datetime_now()
     itip.tor = itip.tor and client_using_tor
 
+    if imported:
+        itip.receipt_hash = hash
+
     crypto_prv_key = ''
     if itip.crypto_pub_key:
-        crypto_prv_key = GCE.symmetric_decrypt(key, Base64Encoder.decode(itip.crypto_prv_key))
+        if imported:
+            # Its private key is encrypted with the secret: it is re-encrypted with the receipt
+            secret_key = Base64Encoder.decode(GCE.argon2id(State.secret_key, salt,
+                                                           GCE.options['OPSLIMIT'] + 1,
+                                                           1 << GCE.options['MEMLIMIT']))
+            crypto_prv_key = GCE.symmetric_decrypt(secret_key, Base64Encoder.decode(itip.crypto_prv_key))
+            itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, crypto_prv_key))
+        else:
+            crypto_prv_key = GCE.symmetric_decrypt(key, Base64Encoder.decode(itip.crypto_prv_key))
 
     itip.access_count += 1
 

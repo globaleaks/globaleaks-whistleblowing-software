@@ -35,6 +35,7 @@ from globaleaks.handlers import admin, \
                                 redirect, \
                                 report, \
                                 robots, \
+                                secret, \
                                 security, \
                                 signup, \
                                 sitemap, \
@@ -66,6 +67,7 @@ api_spec = [
     ('/api/public', public.PublicResource),
     ('/api/public/contexts', public.ContextInstance, r'/api/public/contexts/' + uuid_regexp),
     ('/api/report', report.ReportHandler),
+    ('/api/secret', secret.Secret),
     ('/api/support', support.SupportHandler),
     ('/api/wizard', wizard.Wizard),
 
@@ -756,6 +758,16 @@ class APIResourceWrapper(Resource):
                               b"trusted-types angular angular#bundler dompurify default;"
                               b"require-trusted-types-for 'script';"
                               b"report-to csp-endpoint")
+
+        # CSP Policy for the page loading the secret
+        elif request.path == b'/secret.html':
+            request.setHeader(b'Content-Security-Policy',
+                              b"base-uri 'none';"
+                              b"connect-src 'self';"
+                              b"default-src 'none';"
+                              b"font-src 'self' data:;"
+                              b"form-action 'self';"
+                              b"frame-ancestors 'none';")
 
         # CSP Policy for the crypto worker with reporting of any violation
         elif request.path == b'/workers/crypto.worker.js':
