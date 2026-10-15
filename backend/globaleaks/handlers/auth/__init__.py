@@ -40,10 +40,33 @@ def db_set_receipt_hash(session, tid, itip, receipt):
 
         itip.receipt_hash = sha256(key).decode()
     else:
+        # The server derives the client key from the receipt, so that the tenant
+        # switches to key mode once its server-hashed reports expire.
         salt = ConfigFactory(session, tid).get_val('receipt_salt')
-        key, itip.receipt_hash = GCE.calculate_key_and_hash(receipt, salt)
+        key = Base64Encoder.decode(GCE.derive_key(receipt, salt))
+        itip.receipt_hash = sha256(key).decode()
 
     return key
+
+
+# Marks the receipts invalidated by 5.0.96-5.0.99 (see db/migrations/recover_receipts.py)
+RECOVERY_PREFIX = 'recovery'
+
+
+def db_recover_receipt(session, tid, candidates):
+    # The receipt is proven by decrypting the private key of a marked report,
+    # whose original hash is then restored
+    for itip in session.query(InternalTip) \
+                       .filter(InternalTip.tid == tid,
+                               func.substr(InternalTip.receipt_hash, 1, len(RECOVERY_PREFIX)) == RECOVERY_PREFIX):
+        for key, hash in candidates:
+            try:
+                GCE.symmetric_decrypt(key, Base64Encoder.decode(itip.crypto_prv_key))
+            except Exception:
+                continue
+
+            itip.receipt_hash = hash
+            return itip
 
 
 def db_login_failure(session, tid, whistleblower=False, user_id=None):
@@ -71,22 +94,35 @@ def login_whistleblower(session, tid, receipt, client_using_tor, dpop_jkt=''):
     :param receipt: A provided receipt
     :return: Returns a user session in case of success
     """
+    legacy = db_receipt_auth_is_legacy(session, tid)
     try:
-        if not db_receipt_auth_is_legacy(session, tid):
+        if not legacy:
             key = Base64Encoder.decode(receipt.encode())
             hash = sha256(key).decode()
         else:
             salt = ConfigFactory(session, tid).get_val('receipt_salt')
             key, hash = GCE.calculate_key_and_hash(receipt, salt)
+
+            # The client-derived key, for tenants holding both formats
+            client_key = Base64Encoder.decode(hash)
+            client_hash = sha256(client_key).decode()
     except Exception:
         db_login_failure(session, tid, 0)
 
+    hashes = [hash, client_hash] if legacy else [hash]
+
     itip = session.query(InternalTip) \
                   .filter(InternalTip.tid == tid,
-                          InternalTip.receipt_hash == hash).one_or_none()
+                          InternalTip.receipt_hash.in_(hashes)).one_or_none()
+
+    if itip is None and legacy:
+        itip = db_recover_receipt(session, tid, [(key, hash), (client_key, client_hash)])
 
     if itip is None:
         db_login_failure(session, tid, 1)
+
+    if legacy and itip.receipt_hash == client_hash:
+        key = client_key
 
     itip.wb_last_access = datetime_now()
     itip.tor = itip.tor and client_using_tor

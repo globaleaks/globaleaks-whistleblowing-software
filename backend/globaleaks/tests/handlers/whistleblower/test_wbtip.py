@@ -178,6 +178,12 @@ class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):
     def setUp(self):
         yield helpers.TestHandlerWithPopulatedDB.setUp(self)
         yield self.perform_full_submission_actions()
+        self.wbtip_desc = (yield self.get_wbtips())[0]
+
+        # Reports created in server-hashed mode use the client-derived format:
+        # keep the tenant in server-hashed mode with a legacy report
+        if self.wb_legacy_receipt_seed:
+            yield self.mock_whistleblower_legacy_receipt_mode()
 
     @inlineCallbacks
     def test_put(self):
@@ -209,8 +215,7 @@ class TestOperationChangeReceipt(helpers.TestHandlerWithPopulatedDB):
           }
         }
 
-        wbtip_desc = (yield self.get_wbtips())[0]
-        handler = self.request(body, role='whistleblower', user_id=wbtip_desc['id'])
+        handler = self.request(body, role='whistleblower', user_id=self.wbtip_desc['id'])
         yield handler.put()
 
         # 3. Verify the new receipt works

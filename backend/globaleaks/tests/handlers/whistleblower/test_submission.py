@@ -4,7 +4,6 @@ from twisted.internet.defer import inlineCallbacks
 from twisted.trial import unittest
 
 from globaleaks import models
-from globaleaks.db import db_fix_receipt_auth_downgrade
 from globaleaks.handlers import auth
 from globaleaks.handlers.whistleblower import submission, wbtip
 from globaleaks.jobs import delivery
@@ -24,17 +23,6 @@ def inject_legacy_receipt_report(session, context_id):
     session.add(itip)
     session.flush()
     return itip.id
-
-
-@transact
-def run_fix_receipt_auth_downgrade(session):
-    db_fix_receipt_auth_downgrade(session)
-
-
-@transact
-def get_receipt_hash(session, itip_id):
-    return session.query(models.InternalTip.receipt_hash) \
-                  .filter(models.InternalTip.id == itip_id).one()[0]
 
 
 @transact
@@ -926,26 +914,19 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'key')
 
     @inlineCallbacks
-    def test_fix_receipt_auth_downgrade_restores_key_mode(self):
+    def test_tenant_holding_both_formats_keeps_access_to_every_report(self):
         if not self.clientside_hashing:
             return
 
         yield self.perform_full_submission_actions()
-        receipt = self.dummySubmission['receipt']
 
         # A legacy-format report switches the tenant to password mode
-        malicious_id = yield inject_legacy_receipt_report(self.dummyContext['id'])
+        yield inject_legacy_receipt_report(self.dummyContext['id'])
         self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'password')
-        yield self.assertFailure(auth.login_whistleblower(1, receipt, True),
-                                 errors.InvalidAuthentication)
 
-        yield run_fix_receipt_auth_downgrade()
-
-        # The fix restores key mode and access to the existing report
-        self.assertEqual((yield auth.get_auth_type(1, ''))['type'], 'key')
-        session = yield auth.login_whistleblower(1, receipt, True)
-        self.assertTrue(session is not None)
-        self.assertEqual(len((yield get_receipt_hash(malicious_id))), 64)
+        # The client sends the receipt itself and both formats are accessible
+        self.assertTrue((yield auth.login_whistleblower(1, self.dummyReceipt, True)) is not None)
+        self.assertTrue((yield auth.login_whistleblower(1, '1234123412341234', True)) is not None)
 
 
 class TestSubmissionServersideHashing(TestSubmission):
