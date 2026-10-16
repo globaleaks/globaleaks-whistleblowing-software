@@ -3,7 +3,7 @@ import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {AppDataService} from "@app/app-data.service";
 import {Node} from "@app/models/app/public-model";
 import {MarkdownComponent} from "ngx-markdown";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 
 @Component({
@@ -12,7 +12,7 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
     standalone: true,
     imports: [
         MarkdownComponent,
-        TranslateModule,
+        TranslatePipe,
         StripHtmlPipe,
     ],
 })

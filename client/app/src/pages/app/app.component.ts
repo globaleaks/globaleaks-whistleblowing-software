@@ -5,7 +5,7 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {TrustedTypesService} from "@app/services/helper/trusted-types.service";
-import {TranslateService, TranslateModule} from "@ngx-translate/core";
+import {TranslateService, TranslatePipe} from "@ngx-translate/core";
 import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
 import {BrowserCheckService} from "@app/shared/services/browser-check.service";
 import {DOCUMENT} from "@angular/common";
@@ -45,7 +45,7 @@ window.GL = {
     selector: "app-root",
     templateUrl: "./app.component.html",
     standalone: true,
-    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslateModule]
+    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslatePipe]
 })
 export class AppComponent implements AfterViewInit, OnInit {
   private renderScheduler = inject(RenderSchedulerService);
@@ -75,7 +75,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   watchLanguage() {
     this.translate.onLangChange.subscribe(() => {
-      document.getElementsByTagName("html")[0].setAttribute("lang", localeToBcp47(this.translate.currentLang));
+      document.getElementsByTagName("html")[0].setAttribute("lang", localeToBcp47(this.translate.getCurrentLang() ?? ""));
     });
   }
 

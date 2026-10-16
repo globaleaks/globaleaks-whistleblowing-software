@@ -13,7 +13,7 @@ import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpClient} from "@angular/common/http";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {firstValueFrom} from "rxjs";
 
 /** A channel of the site a report may be entered on */
@@ -34,7 +34,7 @@ interface InsertionChannel {
   selector: "src-insert-report",
   templateUrl: "./insert-report.component.html",
   standalone: true,
-  imports: [FormsModule, NgClass, NgFormChangeDirective, FormComponent, ReceiptComponent, TranslateModule, OrderByPipe]
+  imports: [FormsModule, NgClass, NgFormChangeDirective, FormComponent, ReceiptComponent, TranslatePipe, OrderByPipe]
 })
 export class InsertReportComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);

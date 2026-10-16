@@ -10,13 +10,13 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {Observable} from "rxjs";
 import {DatePipe} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-siteslist",
     templateUrl: "./siteslist.component.html",
     standalone: true,
-    imports: [FormsModule, DatePipe, TranslateModule, ListItemComponent]
+    imports: [FormsModule, DatePipe, TranslatePipe, ListItemComponent]
 })
 export class SiteslistComponent {
   protected nodeResolver = inject(NodeResolver);

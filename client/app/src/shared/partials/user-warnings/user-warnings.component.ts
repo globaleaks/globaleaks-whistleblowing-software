@@ -3,13 +3,13 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-user-warnings",
     templateUrl: "./user-warnings.component.html",
     standalone: true,
-    imports: [TranslateModule]
+    imports: [TranslatePipe]
 })
 export class UserWarningsComponent {
   protected authentication = inject(AuthenticationService);

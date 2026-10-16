@@ -20,13 +20,13 @@ import {WhistleblowerIdentityComponent} from "@app/shared/partials/whistleblower
 import {TipFilesWhistleblowerComponent} from "@app/shared/partials/tip-files-whistleblower/tip-files-whistleblower.component";
 import {WidgetWbFilesComponent} from "@app/shared/partials/widget-wbfiles/widget-wb-files.component";
 import {TipCommentsComponent} from "@app/shared/partials/tip-comments/tip-comments.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-tippage",
     templateUrl: "./tippage.component.html",
     standalone: true,
-    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslateModule]
+    imports: [TipAdditionalQuestionnaireInviteComponent, TipInfoComponent, TipReceiverListComponent, NgbTooltipModule, TipQuestionnaireAnswersComponent, WhistleblowerIdentityComponent, TipFilesWhistleblowerComponent, WidgetWbFilesComponent, TipCommentsComponent, TranslatePipe]
 })
 export class TippageComponent implements OnInit {
   private renderScheduler = inject(RenderSchedulerService);

@@ -2,7 +2,7 @@ import {Component, computed, inject, ChangeDetectionStrategy} from "@angular/cor
 import {JobResolver} from "@app/shared/resolvers/job.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {DatePipe} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 
@@ -11,7 +11,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-auditlog-tab4",
     templateUrl: "./audit-log-tab4.component.html",
     standalone: true,
-    imports: [DatePipe, PaginatedInterfaceComponent, TranslateModule]
+    imports: [DatePipe, PaginatedInterfaceComponent, TranslatePipe]
 })
 export class AuditLogTab4Component {
   private utilsService = inject(UtilsService);

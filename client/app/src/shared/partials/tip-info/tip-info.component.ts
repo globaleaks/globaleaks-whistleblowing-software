@@ -6,7 +6,7 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
 
@@ -14,7 +14,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-info",
     templateUrl: "./tip-info.component.html",
     standalone: true,
-    imports: [FormsModule, DatePipe, NgbTooltipModule, TranslateModule]
+    imports: [FormsModule, DatePipe, NgbTooltipModule, TranslatePipe]
 })
 export class TipInfoComponent {
   protected authenticationService = inject(AuthenticationService);

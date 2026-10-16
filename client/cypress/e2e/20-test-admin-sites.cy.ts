@@ -18,7 +18,7 @@ describe("admin configure, add, configure and delete tenants", () => {
 
     cy.get(".tenant [data-action='delete']").last().click();
     cy.get("#modal-action-ok").click();
-    cy.get(".modal [type='password']").type(Cypress.env("user_password"));
+    cy.get(".modal [type='password']").type(Cypress.expose("user_password"));
     cy.get(".modal .btn-primary").click();
 
     cy.get(".tenant [data-action='configure']").last().click();
