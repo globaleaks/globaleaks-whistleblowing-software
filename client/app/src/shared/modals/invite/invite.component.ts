@@ -26,7 +26,7 @@ export class InviteComponent implements OnInit {
   confirmFunction: (invite: {organization_name: string, email: string, mail_template: string}) => void;
 
   ngOnInit(): void {
-    this.httpService.requestNotificationsResource().subscribe(notification => {
+    this.httpService.requestNotificationTemplatesResource().subscribe(notification => {
       this.invite.mail_template = notification.signup_invite_mail_template;
       // The response lands outside change detection (zoneless): request a
       // refresh so the prefilled template is rendered.

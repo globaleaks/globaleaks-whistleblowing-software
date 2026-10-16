@@ -24,7 +24,7 @@ from globaleaks.utils.agent import get_tor_agent, get_web_agent
 from globaleaks.utils.crypto import sha256, totpVerify
 from globaleaks.utils.fs import read_json_file
 from globaleaks.utils.log import log, open_log_file
-from globaleaks.utils.mail import sendmail
+from globaleaks.utils.mail import sendmail, smtp_prefix
 from globaleaks.utils.objectdict import ObjectDict
 from globaleaks.utils.oidc import OIDCAuth
 from globaleaks.utils.pgp import PGPContext
@@ -268,33 +268,21 @@ class StateClass(ObjectDict, metaclass=Singleton):
             return succeed(True)
         notification = self.tenants[tid].cache.notification
 
-        if notification.smtp2_enabled and use_smtp2:
-            smtp_server = notification.smtp2_server
-            smtp_port = notification.smtp2_port
-            smtp_security = notification.smtp2_security
-            smtp_authentication = notification.smtp2_authentication
-            smtp_username = notification.smtp2_username
-            smtp_password = notification.smtp2_password
-            smtp_source_email = notification.smtp2_source_email
-        else:
-            smtp_server = notification.smtp_server
-            smtp_port = notification.smtp_port
-            smtp_security = notification.smtp_security
-            smtp_authentication = notification.smtp_authentication
-            smtp_username = notification.smtp_username
-            smtp_password = notification.smtp_password
-            smtp_source_email = notification.smtp_source_email
+        # A mail no server is on to carry is dropped, as it is when the notifications are off
+        prefix = smtp_prefix(notification, use_smtp2)
+        if prefix is None:
+            return succeed(True)
 
         return sendmail(
             tid,
-            smtp_server,
-            smtp_port,
-            smtp_security,
-            smtp_authentication,
-            smtp_username,
-            smtp_password,
+            notification[prefix + 'server'],
+            notification[prefix + 'port'],
+            notification[prefix + 'security'],
+            notification[prefix + 'authentication'],
+            notification[prefix + 'username'],
+            notification[prefix + 'password'],
             self.tenants[tid].cache.name,
-            smtp_source_email,
+            notification[prefix + 'source_email'],
             to_address,
             self.tenants[tid].cache.name + ' - ' + subject,
             body,

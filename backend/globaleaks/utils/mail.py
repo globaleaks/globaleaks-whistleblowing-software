@@ -39,6 +39,26 @@ def mime_mail_build(src_name, src_mail, dest_name, dest_mail, mail_subject, mail
     return BytesIO(multipart.as_bytes())  # pylint: disable=no-member
 
 
+def smtp_prefix(notification, use_smtp2):
+    """
+    Return the prefix of the variables of the server a mail is sent through, or None
+
+    A mail chosen for the secondary server goes through it while it is on, and through the main
+    one otherwise; with the main server off, what it would carry is not sent at all.
+
+    :param notification: The notification configuration, either the tenant cache or its
+                         serialization
+    :param use_smtp2: Whether the mail is one of those chosen for the secondary server
+    """
+    if use_smtp2 and notification.get('smtp2_enabled', False):
+        return 'smtp2_'
+
+    if notification.get('smtp_enabled', True):
+        return 'smtp_'
+
+    return None
+
+
 def sendmail(tid, smtp_host, smtp_port, security, authentication, username, password, from_name, from_address, to_address, subject, body, anonymize=True, socks_socket=None):
     """
     Send an email using SMTPS/SMTP+TLS and maybe torify the connection.

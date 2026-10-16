@@ -4,7 +4,12 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UsersResolver} from "@app/shared/resolvers/users.resolver";
 import {QuestionnairesResolver} from "@app/shared/resolvers/questionnaires.resolver";
 import {ContextsResolver} from "@app/shared/resolvers/contexts.resolver";
-import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
+import {
+  NotificationSettingsResolver,
+  NotificationTemplatesResolver,
+  SMTP1Resolver,
+  SMTP2Resolver
+} from "@app/shared/resolvers/notifications.resolver";
 import {StatisticalTemplatesResolver} from "@app/shared/resolvers/statistical-templates.resolver";
 import {StatisticalMetricsResolver} from "@app/shared/resolvers/statistical-metrics.resolver";
 import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
@@ -130,7 +135,7 @@ export const adminRoutes: Routes = [
     path: "notifications",
     loadComponent: () => import('@app/pages/admin/notifications/notifications.component').then(m => m.NotificationsComponent),
     resolve: {
-      NodeResolver, PreferenceResolver, NotificationsResolver
+      NodeResolver, PreferenceResolver, NotificationSettingsResolver, NotificationTemplatesResolver, SMTP1Resolver, SMTP2Resolver
     },
     pathMatch: "full",
     data: {sidebar: "admin-sidebar", pageTitle: "Notifications"},
