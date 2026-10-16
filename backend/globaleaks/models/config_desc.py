@@ -141,6 +141,8 @@ ConfigDescriptor = {
     'signup_tos2_enable': Bool(default=False),
     'simplified_login': Bool(default=False),
     'smtp_authentication': Bool(default=True),
+    # On by default: the sites that knew no switch for the main server find it on
+    'smtp_enabled': Bool(default=True),
     'smtp_password': Unicode(default='globaleaks'),
     'smtp_port': Int(default=587),
     'smtp_security': Unicode(default='TLS'),
@@ -478,28 +480,33 @@ ConfigFilters = {
         'enable_receipt_login',
         'whistleblowing_question',
     ],
-    'notification': [
+    'notification_settings': [
         'enable_admin_notification_emails',
         'enable_analyst_notification_emails',
         'enable_custodian_notification_emails',
         'enable_receiver_notification_emails',
+        'tip_expiration_threshold'
+    ],
+    'smtp1': [
         'smtp_authentication',
+        'smtp_enabled',
         'smtp_password',
         'smtp_port',
         'smtp_security',
         'smtp_server',
         'smtp_source_email',
-        'smtp_username',
-        'tip_expiration_threshold',
+        'smtp_username'
+    ],
+    'smtp2': [
+        'smtp2_authentication',
         'smtp2_enabled',
         'smtp2_password',
         'smtp2_port',
         'smtp2_security',
         'smtp2_server',
-        'smtp2_template_types',
         'smtp2_source_email',
-        'smtp2_username',
-        'smtp2_authentication'
+        'smtp2_template_types',
+        'smtp2_username'
     ],
     'public_node': [
         'adminonly',
@@ -563,6 +570,11 @@ ConfigFilters = {
 
     ]
 }
+
+
+# The administration writes the settings and each of the two servers on its own; the tenant cache
+# and the mails read them together
+ConfigFilters['notification'] = ConfigFilters['notification_settings'] + ConfigFilters['smtp1'] + ConfigFilters['smtp2']
 
 
 ConfigL10NFilters = {

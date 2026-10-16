@@ -3,7 +3,12 @@ import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
-import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
+import {
+  NotificationSettingsResolver,
+  NotificationTemplatesResolver,
+  SMTP1Resolver,
+  SMTP2Resolver
+} from "@app/shared/resolvers/notifications.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
 
@@ -30,7 +35,12 @@ import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmatio
 export class FieldActionsComponent {
   private readonly nodeResolver = inject(NodeResolver);
   private readonly networkResolver = inject(NetworkResolver);
-  private readonly notificationsResolver = inject(NotificationsResolver);
+  private readonly notificationResolvers = [
+    inject(NotificationSettingsResolver),
+    inject(NotificationTemplatesResolver),
+    inject(SMTP1Resolver),
+    inject(SMTP2Resolver)
+  ];
   private readonly utilsService = inject(UtilsService);
   private readonly modalService = inject(NgbModal);
 
@@ -83,8 +93,8 @@ export class FieldActionsComponent {
   }
 
   // The panels that configure a site are read again on the spot: the value the profile hands
-  // reaches the field without a navigation. The variable belongs to one of the three, and which
-  // one is not worth asking: rereading is cheap and giving up a value is rare.
+  // reaches the field without a navigation. The variable belongs to one of them, and which one
+  // is not worth asking: rereading is cheap and giving up a value is rare.
   reset(): void {
     if (!this.held) {
       return;
@@ -94,7 +104,7 @@ export class FieldActionsComponent {
       .subscribe(() => {
         this.nodeResolver.reload();
         this.networkResolver.reload();
-        this.notificationsResolver.reload();
+        this.notificationResolvers.forEach(resolver => resolver.reload());
       });
   }
 }

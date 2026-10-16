@@ -17,7 +17,11 @@ import {NewUser, NewUserProfile} from "@app/models/admin/new-user";
 import {User,UserProfile } from "@app/models/resolvers/user-resolver-model";
 import {NewContext} from "@app/models/admin/new-context";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
-import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
+import {
+  notificationSettingsResolverModel,
+  notificationTemplatesResolverModel,
+  smtpResolverModel
+} from "@app/models/resolvers/notification-resolver-model";
 import {questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {Option} from "@app/models/whistleblower/wb-tip-data";
@@ -721,8 +725,21 @@ export class UtilsService {
     return this.httpService.requestUpdateAdminContext(context, id);
   }
 
-  updateAdminNotification(notification: notificationResolverModel) {
-    return this.httpService.requestUpdateAdminNotification(notification);
+  updateAdminNotificationSettings(settings: notificationSettingsResolverModel) {
+    return this.httpService.requestUpdateAdminNotificationSettings(settings);
+  }
+
+  updateAdminNotificationTemplates(templates: notificationTemplatesResolverModel) {
+    return this.httpService.requestUpdateAdminNotificationTemplates(templates);
+  }
+
+  // An empty password leaves the one the server holds, and no authentication drops it
+  updateAdminSMTP(name: "smtp1" | "smtp2", smtp: smtpResolverModel) {
+    return this.httpService.requestUpdateAdminSMTP(name, {...smtp, password: smtp.password || ""});
+  }
+
+  resetAdminSMTP(name: "smtp1" | "smtp2") {
+    return this.httpService.requestResetAdminSMTP(name);
   }
 
   readFileAsText(file: File): Observable<string> {

@@ -23,7 +23,11 @@ import {Backup} from "@app/models/admin/backup";
 import {Field, fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {Root, Status, Substatus} from "@app/models/app/public-model";
-import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
+import {
+  notificationSettingsResolverModel,
+  notificationTemplatesResolverModel,
+  smtpResolverModel
+} from "@app/models/resolvers/notification-resolver-model";
 import {Session, SessionRefresh} from "@app/models/authentication/session";
 import {Comment} from "@app/models/app/shared-public-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
@@ -270,8 +274,8 @@ export class HttpService {
     return this.httpClient.get<tipsResolverModel>(`api/${area}/auditlog/tips`);
   }
 
-  requestNotificationsResource(): Observable<notificationResolverModel> {
-    return this.httpClient.get<notificationResolverModel>("api/admin/notification");
+  requestNotificationTemplatesResource(): Observable<notificationTemplatesResolverModel> {
+    return this.httpClient.get<notificationTemplatesResolverModel>("api/admin/notification/templates");
   }
 
   requestNetworkResource(): Observable<networkResolverModel> {
@@ -600,8 +604,20 @@ export class HttpService {
     return this.httpClient.put<Status>(url, param, {headers});
   }
 
-  requestUpdateAdminNotification(notification: notificationResolverModel): Observable<notificationResolverModel> {
-    return this.httpClient.put<notificationResolverModel>("api/admin/notification", notification);
+  requestUpdateAdminNotificationSettings(settings: notificationSettingsResolverModel): Observable<notificationSettingsResolverModel> {
+    return this.httpClient.put<notificationSettingsResolverModel>("api/admin/notification/settings", settings);
+  }
+
+  requestUpdateAdminNotificationTemplates(templates: notificationTemplatesResolverModel): Observable<notificationTemplatesResolverModel> {
+    return this.httpClient.put<notificationTemplatesResolverModel>("api/admin/notification/templates", templates);
+  }
+
+  requestUpdateAdminSMTP(name: "smtp1" | "smtp2", smtp: smtpResolverModel): Observable<smtpResolverModel> {
+    return this.httpClient.put<smtpResolverModel>(`api/admin/notification/${name}`, smtp);
+  }
+
+  requestResetAdminSMTP(name: "smtp1" | "smtp2"): Observable<smtpResolverModel> {
+    return this.httpClient.delete<smtpResolverModel>(`api/admin/notification/${name}`);
   }
 
   requestCreateRedaction(content:RedactionData): Observable<RedactionData> {

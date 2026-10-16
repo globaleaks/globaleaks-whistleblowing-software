@@ -1,8 +1,8 @@
 import {Component, computed, inject, input} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {NgForm, FormsModule} from "@angular/forms";
-import {notificationResolverModel} from "@app/models/resolvers/notification-resolver-model";
-import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
+import {notificationTemplatesResolverModel} from "@app/models/resolvers/notification-resolver-model";
+import {NotificationTemplatesResolver} from "@app/shared/resolvers/notifications.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
@@ -14,15 +14,15 @@ import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.dire
     imports: [HeldByProfileDirective, TranslatePipe, FormsModule]
 })
 export class NotificationTab2Component {
-  private readonly notificationResolver = inject(NotificationsResolver);
+  private readonly notificationResolver = inject(NotificationTemplatesResolver);
   private readonly utilsService = inject(UtilsService);
 
   readonly notificationForm = input.required<NgForm>();
   template: string;
   protected readonly notificationData = computed(() => this.notificationResolver.resource.value());
 
-  updateNotification(notification: notificationResolverModel) {
-    this.utilsService.updateAdminNotification(notification).subscribe();
+  updateNotification(templates: notificationTemplatesResolverModel) {
+    this.utilsService.updateAdminNotificationTemplates(templates).subscribe();
   }
 
   resetTemplates() {
