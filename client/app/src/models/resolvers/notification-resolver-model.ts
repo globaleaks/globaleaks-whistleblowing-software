@@ -5,6 +5,7 @@ export class notificationResolverModel {
   enable_analyst_notification_emails: boolean;
   smtp_authentication: boolean;
   smtp_password: string;
+  smtp_password_set: boolean;
   smtp_port: number;
   smtp_security: string;
   smtp_server: string;

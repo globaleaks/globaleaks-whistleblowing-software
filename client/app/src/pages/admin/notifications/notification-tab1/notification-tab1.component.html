@@ -45,7 +45,7 @@
         </div>
         <div class="form-group">
           <label for="smtp-password">{{ 'Password' | translate }}</label>
-          <input id="smtp-password" class="form-control" name="notification.dataModel.smtp_password" [(ngModel)]="notificationResolver.dataModel.smtp_password" type="password" placeholder="*****************" />
+          <input id="smtp-password" class="form-control" name="notification.dataModel.smtp_password" [(ngModel)]="notificationResolver.dataModel.smtp_password" type="password" autocomplete="new-password" [required]="!notificationResolver.dataModel.smtp_password_set" [placeholder]="notificationResolver.dataModel.smtp_password_set ? '*****************' : ''" />
         </div>
       </div>
     }
