@@ -190,6 +190,12 @@ def db_update_node(session, tid, user_session, request, language):
     antivirus_was_enabled = config.get_val('antivirus_enabled')
     idp_issuer_was = config.get_val('idp_issuer')
 
+    # The identity provider of the primary tenant is how its users log in: while it stays enabled
+    # its configuration is kept, and it changes only once it has been disabled
+    if tid == 1 and config.get_val('idp') and request.get('idp', True):
+        for var in ['idp_issuer', 'idp_client_id', 'idp_provisioning']:
+            request.pop(var, None)
+
     config.update('node', request)
 
     # Accounts provisioned on the first authentication take the default profile of the tenant, which
