@@ -49,8 +49,10 @@ export class Tab5Component implements OnInit {
     return !!this.idpIssuer && !!this.idpClientId;
   }
 
+  // The identity provider of the primary tenant is how its users log in: while enabled it is not
+  // reconfigured, only disabled or reset
   isLocked(key: string) {
-    return this.heldByProfile(key);
+    return this.heldByProfile(key) || (this.nodeData.root_tenant && this.nodeData.idp);
   }
 
   // Saving writes the three variables of the configuration: there is nothing to save when the

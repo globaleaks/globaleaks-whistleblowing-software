@@ -137,6 +137,33 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
 
         self.assertNotEqual('version', resp['version'])
 
+    @inlineCallbacks
+    def test_the_identity_provider_of_the_primary_tenant_is_not_changed_while_enabled(self):
+        yield tw(db_set_config_variable, 1, 'idp', True)
+        yield tw(db_set_config_variable, 1, 'idp_issuer', 'https://idp.example.org')
+
+        self.dummy_node.update({'idp': True, 'idp_issuer': 'https://other.example.org'})
+        handler = self.request(self.dummy_node, role='admin')
+        response = yield handler.put()
+        self.assertEqual(response['idp_issuer'], 'https://idp.example.org')
+
+        # disabled, it is configured again
+        self.dummy_node.update({'idp': False, 'idp_issuer': ''})
+        handler = self.request(self.dummy_node, role='admin')
+        response = yield handler.put()
+        self.assertFalse(response['idp'])
+        self.assertEqual(response['idp_issuer'], '')
+
+    @inlineCallbacks
+    def test_the_identity_provider_of_another_tenant_is_changed_while_enabled(self):
+        yield tw(db_set_config_variable, 2, 'idp', True)
+        yield tw(db_set_config_variable, 2, 'idp_issuer', 'https://idp.example.org')
+
+        self.dummy_node.update({'idp': True, 'idp_issuer': 'https://other.example.org'})
+        handler = self.request(self.dummy_node, role='admin', tid=2)
+        response = yield handler.put()
+        self.assertEqual(response['idp_issuer'], 'https://other.example.org')
+
 
 @transact
 def languages_of(session, tid):
