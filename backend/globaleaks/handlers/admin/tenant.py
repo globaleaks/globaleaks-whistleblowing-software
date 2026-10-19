@@ -3,6 +3,7 @@ import json
 from nacl.encoding import Base64Encoder
 from sqlalchemy import and_, func, or_
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.threads import deferToThread
 
 from globaleaks import LANGUAGES_SUPPORTED_CODES, models
 from globaleaks.db.appdata import load_appdata, db_load_defaults
@@ -28,6 +29,7 @@ from globaleaks.models.config import db_get_configs, db_get_pid, db_get_pid_by_p
 from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
+from globaleaks.utils.fs import delete_tenant_storage, get_storage_path
 from globaleaks.utils.log import log
 from globaleaks.utils.sock import is_ip_address
 from globaleaks.utils.tls import gen_selfsigned_certificate
@@ -92,6 +94,8 @@ def db_create(session, desc, is_tenant = True, **kwargs):
 
     t = models.Tenant()
     t.id = tenant_id
+    for kind in ('files', 'attachments'):
+        get_storage_path(tenant_id, kind, create=True)
     t.active = desc['active']
 
     session.add(t)
@@ -918,6 +922,8 @@ class TenantInstance(BaseHandler):
                  self.session,
                  tid,
                  check)
+
+        yield deferToThread(delete_tenant_storage, tid)
 
 
 def db_delete_tenant(session, request_tid, user_session, tid, check):

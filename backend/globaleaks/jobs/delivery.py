@@ -1,5 +1,5 @@
-import os
 from datetime import datetime
+
 from twisted.internet import abstract
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.threads import deferToThread
@@ -7,12 +7,12 @@ from twisted.internet.threads import deferToThread
 from globaleaks import models
 from globaleaks.jobs.job import LoopingJob
 from globaleaks.models.config import db_get_config_variable
-from globaleaks.orm import transact
-from globaleaks.settings import Settings
-from globaleaks.utils.crypto import GCE
-from globaleaks.utils.log import log
-from globaleaks.utils.antivirus import FileAnalysis
 from globaleaks.models.enums import EnumStateFile
+from globaleaks.orm import transact
+from globaleaks.utils.antivirus import FileAnalysis
+from globaleaks.utils.crypto import GCE
+from globaleaks.utils.fs import get_storage_path
+from globaleaks.utils.log import log
 
 
 __all__ = ['Delivery']
@@ -54,7 +54,7 @@ def file_delivery(session):
         files_map[ifile.id] = {
             'key': itip.crypto_tip_pub_key,
             'src': ifile.id,
-            'dst': os.path.abspath(os.path.join(Settings.attachments_path, ifile.id)),
+            'dst': get_storage_path(itip.tid, 'attachments', ifile.id, create=True),
             'scan': db_get_config_variable(session, itip.tid, 'antivirus_enabled'),
             'type': 'internal'
         }
@@ -82,7 +82,7 @@ def file_delivery(session):
         files_map[rfile.id] = {
             'key': itip.crypto_tip_pub_key,
             'src': rfile.id,
-            'dst': os.path.abspath(os.path.join(Settings.attachments_path, rfile.id)),
+            'dst': get_storage_path(itip.tid, 'attachments', rfile.id, create=True),
             'scan': db_get_config_variable(session, itip.tid, 'antivirus_enabled'),
             'type': 'receiver'
         }

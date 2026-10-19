@@ -20,6 +20,8 @@ class File_v_53(Model):
 
 class MigrationScript(MigrationBase):
     def migrate_file(self):
+        os.makedirs(State.settings.files_path, exist_ok=True)
+
         for old_obj in self.session_old.query(self.model_from['File']):
             new_obj = self.copy('File', old_obj)
 

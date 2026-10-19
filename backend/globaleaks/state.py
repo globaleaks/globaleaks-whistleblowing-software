@@ -189,8 +189,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
         Creates directories tree for the software data dir
         """
         for dirpath in [self.settings.working_path,
-                        self.settings.files_path,
-                        self.settings.attachments_path,
+                        self.settings.tenants_path,
                         self.settings.ramdisk_path,
                         self.settings.tmp_path,
                         self.settings.backups_path,

@@ -82,6 +82,9 @@ def db_delete_expired_invites(session):
 
         db_forget_exchanges(session, tids)
         db_del(session, models.Tenant, models.Tenant.id.in_(tids))
+        return tids
+
+    return []
 
 
 @transact

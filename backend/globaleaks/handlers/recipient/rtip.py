@@ -31,7 +31,7 @@ from globaleaks.rest import errors, requests
 from globaleaks.state import State
 from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
-from globaleaks.utils.fs import directory_traversal_check
+from globaleaks.utils.fs import get_storage_path
 from globaleaks.utils.templating import Templating, mail_uses_smtp2
 from globaleaks.utils.utility import datetime_now, datetime_null, datetime_never, get_expiration
 from globaleaks.utils.json import JSONEncoder
@@ -1906,12 +1906,14 @@ class WhistleblowerFileDownload(BaseHandler):
 
     @transact
     def download_wbfile(self, session, tid, user_id, file_id):
-        user, ifile, wbfile, rtip = db_get(session,
+        user, ifile, wbfile, rtip, itip = db_get(session,
                                            (models.User,
                                             models.InternalFile,
                                             models.WhistleblowerFile,
-                                            models.ReceiverTip),
-                                           (models.User.id == user_id,
+                                            models.ReceiverTip,
+                                            models.InternalTip),
+                                           (models.InternalTip.id == models.InternalFile.internaltip_id,
+                                            models.User.id == user_id,
                                             models.User.tid == tid,
                                             models.ReceiverTip.receiver_id == models.User.id,
                                             models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
@@ -1938,23 +1940,22 @@ class WhistleblowerFileDownload(BaseHandler):
 
         return (ifile.name, ifile.id, wbfile.id, rtip.crypto_tip_prv_key,
                 rtip.deprecated_crypto_files_prv_key, user.pgp_key_public,
-                ifile.state, antivirus_enabled, recheck_needed, ifile.size)
+                ifile.state, antivirus_enabled, recheck_needed, ifile.size, itip.tid)
 
     @inlineCallbacks
     def get(self, wbfile_id):
         (name, ifile_id, wbfile_id, tip_prv_key, tip_prv_key2, pgp_key,
-         state, antivirus_enabled, recheck_needed, size) = yield self.download_wbfile(
+         state, antivirus_enabled, recheck_needed, size, storage_tid) = yield self.download_wbfile(
             self.request.tid, self.session.user_id, wbfile_id)
 
         if recheck_needed and tip_prv_key:
             _tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
             enqueue_antivirus_scan(ifile_id, _tip_prv_key)
 
-        filelocation = os.path.join(self.state.settings.attachments_path, wbfile_id)
+        filelocation = get_storage_path(storage_tid, 'attachments', wbfile_id)
         if not os.path.exists(filelocation):
-            filelocation = os.path.join(self.state.settings.attachments_path, ifile_id)
+            filelocation = get_storage_path(storage_tid, 'attachments', ifile_id)
 
-        directory_traversal_check(self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
 
         files = []
@@ -2036,11 +2037,13 @@ class ReceiverFileDownload(BaseHandler):
         author = aliased(models.User)
 
         try:
-            user, rfile, rtip = db_get(session,
+            user, rfile, rtip, itip = db_get(session,
                                        (models.User,
                                         models.ReceiverFile,
-                                        models.ReceiverTip),
-                                       (models.User.id == user_id,
+                                        models.ReceiverTip,
+                                        models.InternalTip),
+                                       (models.InternalTip.id == models.ReceiverFile.internaltip_id,
+                                        models.User.id == user_id,
                                         models.User.id == models.ReceiverTip.receiver_id,
                                         models.User.tid == tid,
                                         models.ReceiverFile.id == file_id,
@@ -2067,24 +2070,21 @@ class ReceiverFileDownload(BaseHandler):
         db_log(session, tid=tid, type='access_file', user_id=user_id, object_id=rfile.id, data={'internaltip_id': rfile.internaltip_id})
 
         return (rfile.name, rfile.id, rtip.crypto_tip_prv_key, user.pgp_key_public,
-                rfile.state, recheck_needed, rfile.size)
+                rfile.state, recheck_needed, rfile.size, itip.tid)
 
 
     @inlineCallbacks
     def get(self, rfile_id):
         (name, filename, tip_prv_key, pgp_key,
-         state, recheck_needed, size) = yield self.download_rfile(
+         state, recheck_needed, size, storage_tid) = yield self.download_rfile(
             self.request.tid, self.session.user_id, rfile_id)
 
         if recheck_needed and tip_prv_key:
             _tip_prv_key = GCE.asymmetric_decrypt(self.session.cc, Base64Encoder.decode(tip_prv_key))
             enqueue_antivirus_scan(filename, _tip_prv_key)
 
-        filelocation = os.path.join(self.state.settings.attachments_path, filename)
-        if not os.path.exists(filelocation):
-            filelocation = os.path.join(self.state.settings.attachments_path, filename)
+        filelocation = get_storage_path(storage_tid, 'attachments', filename)
 
-        directory_traversal_check(self.state.settings.attachments_path, filelocation)
         self.check_file_presence(filelocation)
 
         files = []

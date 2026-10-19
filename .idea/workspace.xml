@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="27fe374c-42c2-46e9-85e9-b17cb56ea900" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/backend/bin/globaleaks" beforeDir="false" afterPath="$PROJECT_DIR$/backend/bin/globaleaks" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_54/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_54/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_71/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_71/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_72/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/db/migrations/update_72/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/context.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/context.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/exchange.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/exchange.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/field.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/field.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/invite.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/invite.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/tenant.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/tenant.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/user_profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/admin/user_profile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/analyst/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/analyst/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/handlers/recipient/rtip.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/handlers/recipient/rtip.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/jobs/antivirus_decryptor.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/jobs/antivirus_decryptor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/jobs/certificate_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/jobs/certificate_check.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/jobs/cleaning.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/jobs/cleaning.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/models/config_desc.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/models/config_desc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/rest/requests.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/rest/requests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-52.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-53.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-54.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-55.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-56.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-57.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-58.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-59.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-60.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-61.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-62.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-63.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-64.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-65.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-66.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-67.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-68.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-69.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-70.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/empty/globaleaks-71.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-52.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-53.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-54.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-55.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-56.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-57.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-58.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-59.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-60.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-61.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-62.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-63.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-64.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-65.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-66.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-67.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-68.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-69.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-70.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/db/populated/globaleaks-71.db" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_context.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_context.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_exchange.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_exchange.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_field.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_field.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_questionnaire.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_questionnaire.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_tenant.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/handlers/admin/test_tenant.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/helpers.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/helpers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/jobs/test_antivirus_decryptor.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/jobs/test_antivirus_decryptor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/jobs/test_certificate_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/jobs/test_certificate_check.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/tests/test_migration.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/tests/test_migration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/utils/fs.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/utils/fs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/utils/log.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/utils/log.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/globaleaks/utils/sni.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend/globaleaks/utils/sni.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/am.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/am.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ar.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ar.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/az.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/az.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ba.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ba.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/be.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/be.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/bg.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/bg.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/bn.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/bn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/bo.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/bo.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/bs.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/bs.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ca.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ca.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ca@valencia.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ca@valencia.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ce.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ce.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/crh.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/crh.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/cs.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/cs.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/da.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/da.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/de.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/de.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/dv.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/dv.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/el.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/el.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/en.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/es.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/es.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/et.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/et.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/eu.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/eu.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/fa.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/fa.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/fa_AF.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/fa_AF.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/fi.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/fi.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/fr.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/fr.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/gl.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/gl.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/he.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/he.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/hr_HR.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/hr_HR.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/hu_HU.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/hu_HU.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/hy.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/hy.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/id.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/id.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/it.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/it.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ja.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ja.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ka.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ka.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/kk.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/kk.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/kl.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/kl.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/km.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/km.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ko.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ko.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ky.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ky.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/lo.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/lo.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/lt.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/lt.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/lv.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/lv.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/mg.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/mg.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/mk.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/mk.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/mn.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/mn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ms.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ms.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/my.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/my.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/nb_NO.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/nb_NO.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/nl.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/nl.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/pl.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/pl.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ps.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/pt_BR.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/pt_BR.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/pt_PT.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/pt_PT.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ro.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ro.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ru.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ru.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/sk.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/sk.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/sl_SI.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/sl_SI.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/sq.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/sq.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/sr_ME.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/sr_ME.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/sr_ME@latin.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/sr_ME@latin.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/sr_RS.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/sr_RS.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/sr_RS@latin.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/sr_RS@latin.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/sv.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/sv.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/sw.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/sw.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ta.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ta.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/tg.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/tg.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/th.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/th.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/tk.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/tk.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/tr.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/tr.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/tt.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/tt.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ug.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ug.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ug@Cyrl.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ug@Cyrl.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ug@Latin.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ug@Latin.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/uk.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/uk.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/ur.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/ur.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/uz.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/uz.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/vi.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/vi.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/zh_CN.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/zh_CN.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/zh_HK.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/zh_HK.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data/l10n/zh_TW.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data/l10n/zh_TW.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data_src/pot/en.po" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data_src/pot/en.po" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/assets/data_src/texts.txt" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/assets/data_src/texts.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/icons.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/icons.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/models/resolvers/tenant-resolver-model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/models/resolvers/tenant-resolver-model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/models/resolvers/user-resolver-model.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/models/resolvers/user-resolver-model.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/casemanagement/substatuses/sub-status.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/casemanagement/substatuses/sub-status.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/casemanagement/substatusmanager/sub-status-manager.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/casemanagement/substatusmanager/sub-status-manager.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/contexts/context-editor/context-editor.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/contexts/context-editor/context-editor.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/questionnaires/fields/fields.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/questionnaires/fields/fields.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/questionnaires/steps-list/steps-list.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/questionnaires/steps-list/steps-list.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/settings/tab5/tab5.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/settings/tab5/tab5.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/settings/tab5/tab5.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/settings/tab5/tab5.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/sites/profilelist/profilelist.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/sites/profilelist/profilelist.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/sites/sites-tab5/sites-tab5.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/sites/sites-tab5/sites-tab5.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/sites/siteslist/siteslist.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/sites/siteslist/siteslist.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/sites/siteslist/siteslist.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/sites/siteslist/siteslist.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/admin/users/profile-editor/profile-editor.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/admin/users/profile-editor/profile-editor.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/analyst/statistics/statistical-report-editor/statistical-report-editor.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/analyst/statistics/statistical-report-editor/statistical-report-editor.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/pages/analyst/statistics/statistical-template-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/pages/analyst/statistics/statistical-template-service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/services/helper/authentication.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/services/helper/authentication.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/components/collapsible-card/collapsible-card.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/components/collapsible-card/collapsible-card.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/components/collapsible-card/collapsible-card.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/components/collapsible-card/collapsible-card.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/components/list-item/list-item.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/components/list-item/list-item.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/modals/add-metric-modal/add-metric-modal.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/modals/add-metric-modal/add-metric-modal.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/modals/add-metric-modal/add-metric-modal.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/modals/add-metric-modal/add-metric-modal.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/modals/confirmation-with-password/confirmation-with-password.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/modals/confirmation-with-password/confirmation-with-password.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/modals/confirmation-with-password/confirmation-with-password.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/modals/confirmation-with-password/confirmation-with-password.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/modals/confirmation-with2fa/confirmation-with2fa.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/modals/confirmation-with2fa/confirmation-with2fa.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/modals/confirmation-with2fa/confirmation-with2fa.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/modals/confirmation-with2fa/confirmation-with2fa.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/modals/manage-metric-modal/manage-metric-modal.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/modals/manage-metric-modal/manage-metric-modal.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/modals/manage-metric-modal/manage-metric-modal.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/modals/manage-metric-modal/manage-metric-modal.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/partials/tip-files-whistleblower/tip-files-whistleblower.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/partials/tip-files-whistleblower/tip-files-whistleblower.component.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/services/http.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/services/http.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/app/src/shared/services/utils.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/app/src/shared/services/utils.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/cypress/e2e/07-test-admin-configure-users.cy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/cypress/e2e/07-test-admin-configure-users.cy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/cypress/e2e/18-test-admin-questionnaires.cy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/cypress/e2e/18-test-admin-questionnaires.cy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/cypress/e2e/19-test-globaleaks-process.cy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/cypress/e2e/19-test-globaleaks-process.cy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/cypress/e2e/20-test-analyst-statistics.cy.ts" beforeDir="false" afterPath="$PROJECT_DIR$/client/cypress/e2e/20-test-analyst-statistics.cy.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/npm-shrinkwrap.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/npm-shrinkwrap.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package.json" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "customColor": "",
+  "associatedIndex": 2
+}]]></component>
+  <component name="ProjectId" id="3KuFamJ3twgxcrS7MM4FMu0FuNa" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-73a66231627c-5bd6d13a2a75-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-262.10968.92" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="27fe374c-42c2-46e9-85e9-b17cb56ea900" name="Changes" comment="" />
+      <created>1792399612354</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1792399612354</updated>
+      <workItem from="1792399613378" duration="306000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

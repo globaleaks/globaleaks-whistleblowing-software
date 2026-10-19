@@ -20,7 +20,7 @@ from globaleaks.rest import errors
 from globaleaks.settings import Settings
 from globaleaks.utils.antivirus import get_av_result, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE
-from globaleaks.utils.fs import directory_traversal_check
+from globaleaks.utils.fs import get_storage_path
 from globaleaks.utils.securetempfile import SecureTemporaryFile
 from globaleaks.utils.templating import Templating
 from globaleaks.utils.utility import datetime_now, datetime_null, msdos_encode
@@ -86,6 +86,7 @@ def serialize_rtip_export(session, user, itip, rtip, context, language):
 
     return {
         'type': 'export_template',
+        'storage_tid': itip.tid,
         'node': db_admin_serialize_node(session, user.tid, language),
         'notification': db_get_notification(session, user.tid, language),
         'tip': rtip_dict,
@@ -166,18 +167,16 @@ def _attach_file_keys(user_session, tip_export):
         else:
             files_prv_key = GCE.asymmetric_decrypt(user_session.cc, tip_export['crypto_tip_prv_key'])
 
-        filelocation = os.path.join(Settings.attachments_path, file_dict['id'])
+        filelocation = get_storage_path(tip_export['storage_tid'], 'attachments', file_dict['id'])
         if not os.path.exists(filelocation):
-            filelocation = os.path.join(Settings.attachments_path, file_dict['ifile_id'])
+            filelocation = get_storage_path(tip_export['storage_tid'], 'attachments', file_dict['ifile_id'])
 
-        directory_traversal_check(Settings.attachments_path, filelocation)
         file_dict['key'] = files_prv_key
         file_dict['path'] = filelocation
 
     for file_dict in tip_export['tip']['rfiles']:
         tip_prv_key = GCE.asymmetric_decrypt(user_session.cc, tip_export['crypto_tip_prv_key'])
-        filelocation = os.path.join(Settings.attachments_path, file_dict['id'])
-        directory_traversal_check(Settings.attachments_path, filelocation)
+        filelocation = get_storage_path(tip_export['storage_tid'], 'attachments', file_dict['id'])
         file_dict['key'] = tip_prv_key
         file_dict['path'] = filelocation
 
