@@ -8,8 +8,7 @@ from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors, requests
-from globaleaks.state import State
-from globaleaks.utils.fs import directory_traversal_check
+from globaleaks.utils.fs import get_storage_path
 from globaleaks.utils.utility import uuid4, is_uuid4
 
 
@@ -82,8 +81,7 @@ def delete_file_if_existing(session, tid, id_or_name):
     if not file_obj:
         return None
 
-    path = os.path.join(State.settings.files_path, file_obj.id)
-    directory_traversal_check(State.settings.files_path, path)
+    path = get_storage_path(tid, 'files', file_obj.id)
     if os.path.exists(path):
         os.remove(path)
 
@@ -142,7 +140,7 @@ class FileInstance(BaseHandler):
 
         id = uuid4()
 
-        path = os.path.join(self.state.settings.files_path, id)
+        path = get_storage_path(self.request.tid, 'files', id, create=True)
 
         yield delete_file_if_existing(self.request.tid, name)
 

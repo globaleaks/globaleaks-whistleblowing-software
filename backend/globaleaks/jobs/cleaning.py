@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import not_
 
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.threads import deferToThread
 
 from globaleaks import models
 from globaleaks.db import compact_db, db_get_tracked_attachments, db_get_tracked_files, db_refresh_tenant_cache
@@ -13,7 +14,8 @@ from globaleaks.jobs.job import DailyJob
 from globaleaks.models.config import DEFAULT_PROFILE_ID
 from globaleaks.models.enums import EnumSubscriberStatus
 from globaleaks.orm import db_del, db_log, transact, tw
-from globaleaks.utils.fs import srm
+from globaleaks.utils.fs import delete_tenant_storage, get_storage_path, srm
+from globaleaks.utils.log import log
 from globaleaks.utils.utility import datetime_never, datetime_now, is_expired
 
 
@@ -65,7 +67,7 @@ class Cleaning(DailyJob):
         ).all()]
         db_del(session, models.Tenant, models.Tenant.id.in_(tids))
 
-        db_delete_expired_invites(session)
+        tids.extend(db_delete_expired_invites(session))
 
         # delete expired audit logs older than 5 years and not pertaining any report
         itip_ids = [itip_id for (itip_id,) in session.query(models.InternalTip.id).all()]
@@ -81,13 +83,26 @@ class Cleaning(DailyJob):
                         models.User.change_email_token: None,
                         models.User.change_email_address: ''})
 
-    def perform_secure_deletion_of_files(self, path, valid_files):
-        # Delete the customization files not associated to the database
+        return tids
+
+    def perform_secure_deletion_of_files(self, tid, kind, valid_files, tracked_files):
+        valid_files = set(valid_files)
+        path = get_storage_path(tid, kind)
+        if not os.path.isdir(path):
+            return
         for f in os.listdir(path):
             if f in valid_files:
                 continue
 
             filepath = os.path.join(path, f)
+            if f in tracked_files:
+                log.err("File found under the wrong tenant: %s", filepath)
+            else:
+                log.debug("Found untracked file: %s", filepath)
+
+            if os.path.islink(filepath):
+                os.unlink(filepath)
+                continue
             timestamp = datetime.fromtimestamp(os.path.getmtime(filepath))
             if is_expired(timestamp, days=1):
                 srm(filepath)
@@ -126,23 +141,44 @@ class Cleaning(DailyJob):
                 to_delete.add(tid)
 
         if not to_delete:
-            return
+            return set()
 
         db_del(session, models.Tenant, models.Tenant.id.in_(to_delete))
         db_refresh_tenant_cache(session)
+        return to_delete
 
+    @transact
+    def get_tenant_ids(self, session):
+        return {tid for tid, in session.query(models.Tenant.id)}
 
     @inlineCallbacks
     def operation(self):
-        yield self.delete_expired_demo_platforms()
+        deleted_tenants = yield self.delete_expired_demo_platforms()
+        deleted_tenants.update((yield self.clean()))
 
-        yield self.clean()
+        for tid in deleted_tenants:
+            yield deferToThread(delete_tenant_storage, tid)
 
-        valid_files = yield tw(db_get_tracked_files)
-        self.perform_secure_deletion_of_files(self.state.settings.files_path, valid_files)
+        tenant_ids = yield self.get_tenant_ids()
+        tracked = {
+            'files': set((yield tw(db_get_tracked_files))),
+            'attachments': set((yield tw(db_get_tracked_attachments)))
+        }
 
-        valid_files = yield tw(db_get_tracked_attachments)
-        self.perform_secure_deletion_of_files(self.state.settings.attachments_path, valid_files)
+        for tenant in os.listdir(self.state.settings.tenants_path):
+            if not tenant.isdigit() or int(tenant) < 1:
+                log.err("Unexpected entry under tenant storage: %s", tenant)
+                continue
+            tid = int(tenant)
+            if tid not in tenant_ids:
+                log.err("Removing storage directory for missing tenant: %d", tid)
+                yield deferToThread(delete_tenant_storage, tid)
+                continue
+
+            for kind, query in (('files', db_get_tracked_files),
+                                ('attachments', db_get_tracked_attachments)):
+                valid_files = yield tw(query, tid)
+                self.perform_secure_deletion_of_files(tid, kind, valid_files, tracked[kind])
 
         self.perform_secure_deletion_of_temporary_files()
 

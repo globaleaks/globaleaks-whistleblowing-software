@@ -10,6 +10,7 @@ from globaleaks import models
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
 from globaleaks.state import State
+from globaleaks.utils.fs import get_storage_path
 from globaleaks.utils.utility import datetime_never, datetime_null
 from globaleaks.handlers.public import serialize_questionnaire
 
@@ -137,7 +138,8 @@ def compute_status(file_obj):
 
 
 def serialize_ifile(session, ifile):
-    error = not os.path.exists(os.path.join(State.settings.attachments_path, ifile.id))
+    tid = session.query(models.InternalTip.tid).filter_by(id=ifile.internaltip_id).scalar()
+    error = not os.path.exists(get_storage_path(tid, 'attachments', ifile.id))
     status = compute_status(ifile)
 
     # A whistleblower's file is considered downloaded as soon as at least one
@@ -165,8 +167,9 @@ def serialize_ifile(session, ifile):
 
 
 def serialize_wbfile(session, ifile, wbfile):
-    error = not os.path.exists(os.path.join(State.settings.attachments_path, ifile.id)) and \
-        not os.path.exists(os.path.join(State.settings.attachments_path, wbfile.id))
+    tid = session.query(models.InternalTip.tid).filter_by(id=ifile.internaltip_id).scalar()
+    error = not os.path.exists(get_storage_path(tid, 'attachments', ifile.id)) and \
+        not os.path.exists(get_storage_path(tid, 'attachments', wbfile.id))
 
     status = compute_status(ifile)
 
@@ -188,7 +191,8 @@ def serialize_wbfile(session, ifile, wbfile):
     }
 
 def serialize_rfile(session, rfile):
-    error = not os.path.exists(os.path.join(State.settings.attachments_path, rfile.id))
+    tid = session.query(models.InternalTip.tid).filter_by(id=rfile.internaltip_id).scalar()
+    error = not os.path.exists(get_storage_path(tid, 'attachments', rfile.id))
     status = compute_status(rfile)
 
     return {

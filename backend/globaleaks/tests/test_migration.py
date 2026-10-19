@@ -76,6 +76,21 @@ class TestMigrationRoutines(unittest.TestCase):
         self.assertFalse(statistical['statistical-text'])
         self.assertTrue(statistical['statistical-choice'])
 
+    def postconditions_71(self):
+        for kind, tid, file_id in (
+                ('files', 1, 'c42c7dc4-ece2-4f5c-af30-d18ca31c1811'),
+                ('attachments', 1, '42508b85-c5e4-48f7-9e77-dcce276f4ccf'),
+                ('attachments', 1, 'b2e4eed5-02de-4dc8-bfe6-553df77ae9b8'),
+                ('attachments', 1, '3c920bce-e2cc-4426-a6ac-cef47aff9079')):
+            source_root = Settings.files_path if kind == 'files' else Settings.attachments_path
+            source = os.path.join(source_root, file_id)
+            destination = os.path.join(Settings.tenants_path, str(tid), kind, file_id)
+            self.assertFalse(os.path.exists(source))
+            self.assertTrue(os.path.isfile(destination))
+            with open(destination, 'rb') as f:
+                self.assertEqual(f.read(), b'migration-72')
+
+
 def test(path, version):
     return lambda self: self._test(path, version)
 

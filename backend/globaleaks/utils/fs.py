@@ -3,6 +3,7 @@ import os
 import secrets
 
 from globaleaks.rest import errors
+from globaleaks.settings import Settings
 from globaleaks.utils.log import log
 
 
@@ -106,3 +107,70 @@ def read_json_file(p):
     except (ValueError, TypeError):
         # ValueError covers json.JSONDecodeError (its parent class).
         return {}
+
+
+def get_storage_path(tid, kind, file_id=None, create=False):
+    """
+    Resolve a path inside a tenant's storage
+
+    :param tid: The tenant ID
+    :param kind: The storage directory
+    :param file_id: An optional file ID
+    :param create: Whether to create the storage directory
+    :return: The validated storage path
+    """
+    if isinstance(tid, bool) or not str(tid).isdigit() or int(tid) < 1:
+        raise errors.DirectoryTraversalError
+    if kind not in ('files', 'attachments'):
+        raise errors.DirectoryTraversalError
+
+    tenant_root = os.path.join(Settings.tenants_path, str(int(tid)))
+    if os.path.islink(tenant_root):
+        raise errors.DirectoryTraversalError
+    directory_traversal_check(Settings.tenants_path, tenant_root)
+    root = os.path.join(tenant_root, kind)
+    directory_traversal_check(tenant_root, root)
+    path = root if file_id is None else os.path.join(root, file_id)
+    if file_id is not None and (not file_id or os.path.basename(file_id) != file_id or file_id in ('.', '..')):
+        raise errors.DirectoryTraversalError
+    directory_traversal_check(root, path)
+    if create:
+        os.makedirs(tenant_root, mode=0o700, exist_ok=True)
+        os.makedirs(root, mode=0o700, exist_ok=True)
+    return path
+
+
+def delete_tenant_storage(tid):
+    """
+    Securely delete the storage directory of a tenant
+
+    :param tid: The tenant ID
+    """
+    if isinstance(tid, bool) or not str(tid).isdigit() or int(tid) < 1:
+        raise errors.DirectoryTraversalError
+
+    tenant_root = os.path.join(Settings.tenants_path, str(int(tid)))
+    if os.path.islink(tenant_root):
+        os.unlink(tenant_root)
+        return
+
+    directory_traversal_check(Settings.tenants_path, tenant_root)
+    if not os.path.isdir(tenant_root):
+        return
+
+    for root, directories, files in os.walk(tenant_root, topdown=False, followlinks=False):
+        for filename in files:
+            path = os.path.join(root, filename)
+            if os.path.islink(path):
+                os.unlink(path)
+            else:
+                srm(path)
+
+        for directory in directories:
+            path = os.path.join(root, directory)
+            if os.path.islink(path):
+                os.unlink(path)
+            else:
+                os.rmdir(path)
+
+    os.rmdir(tenant_root)

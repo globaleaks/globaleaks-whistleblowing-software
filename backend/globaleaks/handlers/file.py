@@ -6,7 +6,7 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers.admin.file import get_file_id_by_name
 from globaleaks.handlers.base import BaseHandler
-from globaleaks.utils.fs import directory_traversal_check
+from globaleaks.utils.fs import directory_traversal_check, get_storage_path
 
 
 appfiles = {
@@ -43,17 +43,18 @@ class FileHandler(BaseHandler):
 
     @inlineCallbacks
     def get(self, name):
-        path = os.path.abspath(os.path.join(self.state.settings.files_path, 'not-existent-file'))
+        path = get_storage_path(self.request.tid, 'files', 'not-existent-file')
 
         name = urllib.parse.unquote(name)
 
-        id = yield get_file_id_by_name(self.request.tid, name)
+        tid = self.request.tid
+        id = yield get_file_id_by_name(tid, name)
         if not id and self.request.tid != 1:
-            id = yield get_file_id_by_name(1, name)
+            tid = 1
+            id = yield get_file_id_by_name(tid, name)
 
         if id:
-            path = os.path.abspath(os.path.join(self.state.settings.files_path, id))
-            directory_traversal_check(self.state.settings.files_path, path)
+            path = get_storage_path(tid, 'files', id)
         elif name in appfiles:
             path = os.path.abspath(os.path.join(self.state.settings.client_path, appfiles[name][2]))
             directory_traversal_check(self.state.settings.client_path, path)

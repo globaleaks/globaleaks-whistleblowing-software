@@ -10,13 +10,14 @@ from globaleaks.orm import transact
 from globaleaks.sessions import Sessions
 from globaleaks.settings import Settings
 from globaleaks.tests import helpers
+from globaleaks.utils.fs import get_storage_path
 from globaleaks.utils.utility import datetime_now
 
 
 class TestCleaning(helpers.TestGLWithPopulatedDB):
     @transact
     def check0(self, session):
-        self.assertEqual(len(os.listdir(Settings.attachments_path)), 0)
+        self.assertEqual(len(os.listdir(get_storage_path(1, 'attachments', create=True))), 0)
         self.assertEqual(len(os.listdir(Settings.tmp_path)), 0)
 
         self.db_test_model_count(session, models.InternalTip, 0)
@@ -28,7 +29,7 @@ class TestCleaning(helpers.TestGLWithPopulatedDB):
 
     @transact
     def check1(self, session):
-        self.assertEqual(len(os.listdir(Settings.attachments_path)), self.population_of_submissions * self.population_of_attachments)
+        self.assertEqual(len(os.listdir(get_storage_path(1, 'attachments', create=True))), self.population_of_submissions * self.population_of_attachments)
 
         self.db_test_model_count(session, models.InternalTip, self.population_of_submissions)
         self.db_test_model_count(session, models.ReceiverTip, self.population_of_recipients * self.population_of_submissions)
@@ -39,7 +40,7 @@ class TestCleaning(helpers.TestGLWithPopulatedDB):
 
     @transact
     def check2(self, session):
-        self.assertEqual(len(os.listdir(Settings.attachments_path)), 0)
+        self.assertEqual(len(os.listdir(get_storage_path(1, 'attachments', create=True))), 0)
 
         self.db_test_model_count(session, models.InternalTip, 0)
         self.db_test_model_count(session, models.ReceiverTip, 0)
@@ -61,8 +62,8 @@ class TestCleaning(helpers.TestGLWithPopulatedDB):
         yield self.check1()
 
         # mark files as uploaded on timestamp 0
-        for f in os.listdir(Settings.attachments_path):
-            path = os.path.join(Settings.attachments_path, f)
+        for f in os.listdir(get_storage_path(1, 'attachments', create=True)):
+            path = os.path.join(get_storage_path(1, 'attachments', create=True), f)
             os.utime(path, (0, 0))
 
         yield cleaning.Cleaning().run()
