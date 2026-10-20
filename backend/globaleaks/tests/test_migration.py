@@ -90,6 +90,9 @@ class TestMigrationRoutines(unittest.TestCase):
             with open(destination, 'rb') as f:
                 self.assertEqual(f.read(), b'migration-72')
 
+        self.assertFalse(os.path.exists(Settings.files_path))
+        self.assertFalse(os.path.exists(Settings.attachments_path))
+
 
 def test(path, version):
     return lambda self: self._test(path, version)

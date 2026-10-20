@@ -1,9 +1,10 @@
 """Migration 71 -> 72: move flat filesystem storage into tenant directories."""
 import os
+import shutil
 
 from globaleaks.db.migrations.update import MigrationBase
 from globaleaks.settings import Settings
-from globaleaks.utils.fs import directory_traversal_check, get_storage_path
+from globaleaks.utils.fs import directory_traversal_check, get_storage_path, srm
 
 
 class MigrationScript(MigrationBase):
@@ -33,6 +34,30 @@ class MigrationScript(MigrationBase):
 
         os.rename(source, destination)
 
+    def remove_flat_storage(self, path):
+        """
+        Remove a flat storage directory with the untracked files left in it,
+        that no job looks for anymore
+
+        :param path: The storage directory
+        """
+        if os.path.islink(path):
+            os.unlink(path)
+            return
+        if not os.path.isdir(path):
+            return
+
+        for filename in os.listdir(path):
+            filepath = os.path.join(path, filename)
+            if os.path.islink(filepath):
+                os.unlink(filepath)
+            elif os.path.isdir(filepath):
+                shutil.rmtree(filepath)
+            else:
+                srm(filepath)
+
+        os.rmdir(path)
+
     def epilogue(self):
         tenant_model = self.model_to['Tenant']
         file_model = self.model_to['File']
@@ -58,3 +83,6 @@ class MigrationScript(MigrationBase):
                             ('attachments', rfiles), ('attachments', wbfiles)):
             for tid, file_id in query.yield_per(1000):
                 self.move_storage_file(tid, kind, file_id)
+
+        for path in (Settings.files_path, Settings.attachments_path):
+            self.remove_flat_storage(path)
