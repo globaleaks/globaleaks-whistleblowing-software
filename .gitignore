@@ -1,5 +1,6 @@
 *.pyc
 __pycache__/
+.idea/
 backend/.coverage
 backend/_trial_temp/
 backend/env/
