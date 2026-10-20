@@ -137,8 +137,7 @@ def compute_status(file_obj):
     return EnumStateFile(state).name.upper()
 
 
-def serialize_ifile(session, ifile):
-    tid = session.query(models.InternalTip.tid).filter_by(id=ifile.internaltip_id).scalar()
+def serialize_ifile(session, ifile, tid):
     error = not os.path.exists(get_storage_path(tid, 'attachments', ifile.id))
     status = compute_status(ifile)
 
@@ -166,8 +165,7 @@ def serialize_ifile(session, ifile):
     }
 
 
-def serialize_wbfile(session, ifile, wbfile):
-    tid = session.query(models.InternalTip.tid).filter_by(id=ifile.internaltip_id).scalar()
+def serialize_wbfile(session, ifile, wbfile, tid):
     error = not os.path.exists(get_storage_path(tid, 'attachments', ifile.id)) and \
         not os.path.exists(get_storage_path(tid, 'attachments', wbfile.id))
 
@@ -190,8 +188,7 @@ def serialize_wbfile(session, ifile, wbfile):
         'hash_sha512': ifile.hash_sha512
     }
 
-def serialize_rfile(session, rfile):
-    tid = session.query(models.InternalTip.tid).filter_by(id=rfile.internaltip_id).scalar()
+def serialize_rfile(session, rfile, tid):
     error = not os.path.exists(get_storage_path(tid, 'attachments', rfile.id))
     status = compute_status(rfile)
 
@@ -438,7 +435,7 @@ def _serialize_exchange(session, itip, exchange, user_id, tenant_names):
     }
 
 
-def _serialize_wbfiles(session, ret, rtip):
+def _serialize_wbfiles(session, ret, itip, rtip):
     """
     The files of the whistleblower, less the ones of an identity not granted
     """
@@ -456,7 +453,7 @@ def _serialize_wbfiles(session, ret, rtip):
                                .filter(models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
                                        not_(func.substr(models.InternalFile.reference_id, 1, 36).in_(denied_identity_files)),
                                        models.WhistleblowerFile.receivertip_id == rtip.id):
-        ret['wbfiles'].append(serialize_wbfile(session, ifile, wbfile))
+        ret['wbfiles'].append(serialize_wbfile(session, ifile, wbfile, itip.tid))
 
 
 def _serialize_recipients_content(session, ret, itip, user_id, viewer_tid):
@@ -487,7 +484,7 @@ def _serialize_recipients_content(session, ret, itip, user_id, viewer_tid):
                         .outerjoin(author, author.id == models.ReceiverFile.author_id) \
                         .filter(models.ReceiverFile.internaltip_id == itip.id,
                                 or_(*rfile_clauses)):
-        ret['rfiles'].append(serialize_rfile(session, rfile))
+        ret['rfiles'].append(serialize_rfile(session, rfile, itip.tid))
         if rfile.author_id:
             other_receiver_ids.add(rfile.author_id)
 
@@ -609,7 +606,7 @@ def serialize_rtip(session, itip, rtip, language):
         .distinct()
     active_receiver_ids = set(rid for (rid,) in active_receiver_ids)
 
-    _serialize_wbfiles(session, ret, rtip)
+    _serialize_wbfiles(session, ret, itip, rtip)
 
     other_receiver_ids = _serialize_recipients_content(session, ret, itip, user_id, viewer_tid)
 
@@ -643,12 +640,12 @@ def serialize_wbtip(session, itip, language):
 
     for ifile in session.query(models.InternalFile) \
                         .filter(models.InternalFile.internaltip_id == itip.id):
-        ret['wbfiles'].append(serialize_ifile(session, ifile))
+        ret['wbfiles'].append(serialize_ifile(session, ifile, itip.tid))
 
     for rfile in session.query(models.ReceiverFile) \
                          .filter(models.ReceiverFile.internaltip_id == itip.id,
                                  models.ReceiverFile.visibility == 0):
-        ret['rfiles'].append(serialize_rfile(session, rfile))
+        ret['rfiles'].append(serialize_rfile(session, rfile, itip.tid))
         if rfile.author_id:
             other_receiver_ids.add(rfile.author_id)
 

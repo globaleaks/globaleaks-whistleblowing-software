@@ -52,7 +52,7 @@ def register_ifile_on_db(session, tid, internaltip_id, uploaded_file):
 
     db_log(session, tid=tid, type='whistleblower_upload_file', user_id=internaltip_id, object_id=new_file.id, data={'internaltip_id': internaltip_id})
 
-    return serializers.serialize_ifile(session, new_file)
+    return serializers.serialize_ifile(session, new_file, itip.tid)
 
 
 class SubmissionAttachment(BaseHandler):
