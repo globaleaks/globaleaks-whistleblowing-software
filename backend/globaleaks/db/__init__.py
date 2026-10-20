@@ -169,7 +169,10 @@ def sync_clean_untracked_files(session):
             if filename not in tracked_files:
                 file_to_remove = fs.get_storage_path(tid, 'attachments', filename)
                 log.debug('Removing untracked file: %s', file_to_remove)
-                fs.srm(file_to_remove)
+                try:
+                    fs.srm(file_to_remove)
+                except OSError:
+                    log.err('Failed to remove untracked file', file_to_remove)
 
 
 @transact_sync
