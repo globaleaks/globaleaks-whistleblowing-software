@@ -44,7 +44,7 @@
                 }
                 @if (field().options.length >= 10) {
                   <div class="input-group" [class.d-block]="!entry()['value']">
-                    <ng-select [attr.id]="fieldEntry()" class="w-75" [clearable]="false" [name]="fieldEntry()" [(ngModel)]="entry()['value']" [ariaLabel]="field().label | translate">
+                    <ng-select [attr.id]="fieldEntry()" class="w-75" [clearable]="false" [name]="fieldEntry()" [(ngModel)]="entry()['value']" [required]="entry().required_status" [ariaLabel]="field().label | translate">
                       @for (option of field().options | orderBy:field().attrs.display_alphabetically.value ? 'label' : 'order'; track option) {
                         <ng-option [value]="option.id">{{option.label | translate}}</ng-option>
                       }
