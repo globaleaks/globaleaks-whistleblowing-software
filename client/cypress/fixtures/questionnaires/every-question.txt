@@ -631,6 +631,215 @@
      "placeholder": {
       "en": ""
      }
+    },
+    {
+     "id": "e6c6eaa8-f837-49a6-b3f7-f859ac4271cb",
+     "instance": "instance",
+     "editable": true,
+     "type": "selectbox",
+     "template_id": "",
+     "template_override_id": "",
+     "step_id": "9e6f36b9-1400-45fe-9257-cf73d719f6d3",
+     "fieldgroup_id": "",
+     "multi_entry": false,
+     "required": true,
+     "attrs": {
+      "display_alphabetically": {
+       "type": "bool",
+       "value": false,
+       "name": "display_alphabetically"
+      }
+     },
+     "x": 0,
+     "y": 10,
+     "width": 0,
+     "triggered_by_score": 0,
+     "triggered_by_options": [],
+     "options": [
+      {
+       "id": "ee4dcbb5-9c79-45de-832c-cc6eff0a9626",
+       "order": 0,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 1"
+       }
+      },
+      {
+       "id": "dd63c62c-e583-4682-bc7b-b0449f49c727",
+       "order": 1,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 2"
+       }
+      },
+      {
+       "id": "5bf4bc3b-baac-49bf-8ff2-4a75fe653d11",
+       "order": 2,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 3"
+       }
+      },
+      {
+       "id": "cad88da0-8960-422e-8aea-75e50596b4c2",
+       "order": 3,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 4"
+       }
+      },
+      {
+       "id": "40dc7516-2637-412d-a792-b701eeb39ff4",
+       "order": 4,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 5"
+       }
+      },
+      {
+       "id": "541ea95a-c905-48fe-a093-d5371f60f87d",
+       "order": 5,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 6"
+       }
+      },
+      {
+       "id": "3e9eca38-489a-46e8-b0cf-735f940c70b8",
+       "order": 6,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 7"
+       }
+      },
+      {
+       "id": "ae3990c1-a9f6-4054-a6c5-a2e513a8d4ca",
+       "order": 7,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 8"
+       }
+      },
+      {
+       "id": "34210ff5-41b0-480f-919e-37d0a31edd69",
+       "order": 8,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 9"
+       }
+      },
+      {
+       "id": "dd453ecf-4977-4dd2-ace0-1873d8df1395",
+       "order": 9,
+       "block_submission": false,
+       "score_points": 0,
+       "score_type": "addition",
+       "trigger_receiver": [],
+       "hint1": {
+        "en": ""
+       },
+       "hint2": {
+        "en": ""
+       },
+       "label": {
+        "en": "Item 10"
+       }
+      }
+     ],
+     "children": [],
+     "label": {
+      "en": "One choice from a long list"
+     },
+     "description": {
+      "en": ""
+     },
+     "hint": {
+      "en": ""
+     },
+     "placeholder": {
+      "en": ""
+     }
     }
    ],
    "label": {

@@ -78,6 +78,15 @@ describe("every type of question is asked, answered and read", () => {
 
     cy.get("#step-0-field-9-0-input-0-field-0-0-input-0").type("inside the group");
 
+    // a list of ten options or more is offered as a searchable select: when the question is
+    // mandatory the report is not filed until one of the options is chosen
+    cy.get("ng-select#step-0-field-10-0-input-0").should("have.class", "ng-invalid");
+    cy.get("#SubmitButton").click();
+    cy.contains(t("This field is mandatory")).should("be.visible");
+    cy.get("ng-select#step-0-field-10-0-input-0").click();
+    cy.get(".ng-dropdown-panel .ng-option").contains("Item 10").click();
+    cy.get("ng-select#step-0-field-10-0-input-0").should("have.class", "ng-valid");
+
     cy.takeScreenshot("whistleblower/submission_every_question");
     cy.takeScreenshot("whistleblower/submission_every_question_detail", "#step-0");
 
@@ -103,6 +112,7 @@ describe("every type of question is asked, answered and read", () => {
       // the terms accepted are shown as a ticked box
       cy.get(".fa-square-check").should("exist");
       cy.contains("inside the group");
+      cy.contains("Item 10");
     });
 
     cy.takeScreenshot("recipient/report_every_question");
