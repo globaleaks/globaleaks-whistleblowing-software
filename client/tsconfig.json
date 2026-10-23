@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": true,
@@ -24,7 +23,7 @@
       "dom"
     ],
     "paths": {
-      "@app/*": ["app/src/*"]
+      "@app/*": ["./app/src/*"]
     }
   },
   "angularCompilerOptions": {

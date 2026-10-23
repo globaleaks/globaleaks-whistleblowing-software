@@ -11,13 +11,13 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/selection-editor/selection-editor.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-tab5",
     templateUrl: "./tab5.component.html",
     standalone: true,
-    imports: [FormsModule, SelectionEditorComponent, TranslateModule]
+    imports: [FormsModule, SelectionEditorComponent, TranslatePipe]
 })
 export class Tab5Component {
   protected authenticationService = inject(AuthenticationService);

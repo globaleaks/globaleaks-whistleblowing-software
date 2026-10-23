@@ -41,7 +41,7 @@ function terminalLog(violations) {
 
 Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
   username = username === undefined ? "admin" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
   let finalURL = "";
@@ -70,7 +70,7 @@ Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
 
 Cypress.Commands.add("login_analyst", (username, password, url, firstlogin) => {
   username = username === undefined ? "Analyst" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
   let finalURL = "/actions/forcedpasswordchange";
@@ -95,7 +95,7 @@ Cypress.Commands.add("login_analyst", (username, password, url, firstlogin) => {
 
 Cypress.Commands.add("login_custodian", (username, password, url, firstlogin) => {
   username = username === undefined ? "Custodian" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
   let finalURL = "/actions/forcedpasswordchange";
@@ -119,7 +119,7 @@ Cypress.Commands.add("login_custodian", (username, password, url, firstlogin) =>
 
 Cypress.Commands.add("login_receiver", (username, password, url, firstlogin) => {
   username = username === undefined ? "Recipient" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
   let finalURL = "/actions/forcedpasswordchange";
@@ -160,7 +160,7 @@ Cypress.Commands.add("logout", () => {
 
 Cypress.Commands.add("simple_login_admin", (username, password, url, firstlogin) => {
   username = username === undefined ? "admin" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/admin" : url;
 
   let finalURL = "";
@@ -188,7 +188,7 @@ Cypress.Commands.add("simple_login_admin", (username, password, url, firstlogin)
 
 Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlogin) => {
   username = username === undefined ? "Recipient" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
   let finalURL = "/actions/forcedpasswordchange";
@@ -214,7 +214,7 @@ Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlog
 });
 
 Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
-  if (!Cypress.env("takeScreenshots")) {
+  if (!Cypress.expose("takeScreenshots")) {
     return;
   }
 

@@ -7,14 +7,14 @@ import {SubmissionService} from "@app/services/helper/submission.service";
 
 import {FormComponent} from "../../form/form.component";
 import {FormsModule} from '@angular/forms';
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-whistleblower-identity-field",
     templateUrl: "./whistleblower-identity-field.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [forwardRef(() => FormComponent), FormsModule, TranslateModule]
+    imports: [forwardRef(() => FormComponent), FormsModule, TranslatePipe]
 })
 export class WhistleblowerIdentityFieldComponent implements OnInit {
   readonly submission = input<SubmissionService>();

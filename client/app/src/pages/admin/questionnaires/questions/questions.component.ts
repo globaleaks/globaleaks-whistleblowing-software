@@ -9,7 +9,7 @@ import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionna
 import {AddFieldComponent} from "../add-field/add-field.component";;
 import {FormsModule} from "@angular/forms";
 import {FieldsComponent} from "../fields/fields.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 
@@ -17,7 +17,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-questions",
     templateUrl: "./questions.component.html",
     standalone: true,
-    imports: [AddFieldComponent, FieldsComponent, FormsModule, PaginatedInterfaceComponent, TranslateModule]
+    imports: [AddFieldComponent, FieldsComponent, FormsModule, PaginatedInterfaceComponent, TranslatePipe]
 })
 export class QuestionsComponent implements OnInit {
   private httpService = inject(HttpService);

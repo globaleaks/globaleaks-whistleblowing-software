@@ -2,7 +2,7 @@ import {Component, inject} from "@angular/core";
 import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {MarkdownComponent} from "ngx-markdown";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 
@@ -11,7 +11,7 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
     selector: "src-privacybadge",
     templateUrl: "./privacy-badge.component.html",
     standalone: true,
-    imports: [MarkdownComponent, NgbTooltipModule, TranslateModule, StripHtmlPipe]
+    imports: [MarkdownComponent, NgbTooltipModule, TranslatePipe, StripHtmlPipe]
 })
 export class PrivacyBadgeComponent {
   protected appDataService = inject(AppDataService);

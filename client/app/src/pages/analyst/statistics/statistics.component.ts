@@ -1,6 +1,6 @@
 import {Component, computed, inject} from '@angular/core';
 import {StatisticsResolver} from '@app/shared/resolvers/statistics.resolver';
-import {TranslateService, TranslateModule} from '@ngx-translate/core';
+import {TranslateService, TranslatePipe} from '@ngx-translate/core';
 
 import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-charts';
 
@@ -10,7 +10,7 @@ import {BaseChartDirective, provideCharts, withDefaultRegisterables} from 'ng2-c
     standalone: true,
     imports: [
     BaseChartDirective,
-    TranslateModule
+    TranslatePipe
 ],
     providers: [provideCharts(withDefaultRegisterables())],
 })

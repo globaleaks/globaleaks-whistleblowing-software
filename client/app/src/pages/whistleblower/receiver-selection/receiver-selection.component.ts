@@ -2,7 +2,7 @@ import {Component, inject, input, output} from "@angular/core";
 import {SubmissionService} from "@app/services/helper/submission.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ReceiverCardComponent} from "../receiver-card/receiver-card.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
@@ -10,7 +10,7 @@ import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
     selector: "src-receiver-selection",
     templateUrl: "./receiver-selection.component.html",
     standalone: true,
-    imports: [ReceiverCardComponent, TranslateModule, FilterPipe, OrderByPipe]
+    imports: [ReceiverCardComponent, TranslatePipe, FilterPipe, OrderByPipe]
 })
 export class ReceiverSelectionComponent {
   protected utilsService = inject(UtilsService);

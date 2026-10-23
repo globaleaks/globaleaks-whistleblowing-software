@@ -77,7 +77,7 @@ describe("admin add, configure, and delete users", () => {
     cy.get(".userList").eq(1).find("[data-action='edit']").should("be.visible").click();
     cy.get(".userList").eq(1).find("#send_reset_link").should("be.visible").click();
 
-    cy.get("[name='secret']").should("be.visible").clear().type(Cypress.env("user_password"));
+    cy.get("[name='secret']").should("be.visible").clear().type(Cypress.expose("user_password"));
     cy.get("#confirm").click();
 
     cy.logout();
@@ -109,7 +109,7 @@ describe("admin add, configure, and delete users", () => {
             cy.wrap($row).find("#set_password").should("be.visible").click();
 
             // Confirm the administrative operation with the admin password.
-            cy.get("[name='secret']").should("be.visible").clear().type(Cypress.env("user_password"));
+            cy.get("[name='secret']").should("be.visible").clear().type(Cypress.expose("user_password"));
             cy.get("#confirm").click();
 
             // The generated password is shown but hidden by default.
