@@ -18,7 +18,7 @@ services:
       - no-new-privileges:true
     read_only: true
     tmpfs:
-      - /run/globaleaks:mode=1777
+      - /run/globaleaks:uid=1000,gid=1000,mode=0700
       - /tmp:mode=1777
     volumes:
       - globaleaks:/var/globaleaks:rw
