@@ -90,6 +90,8 @@ export class AppConfigService {
         });
 
         this.translationService.setLanguage(sessionStorage.getItem("language") ||
+                                            this.getUrlLanguage() ||
+                                            this.getBrowserLanguage() ||
                                             this.appDataService.public.node.default_language ||
                                             'en');
 
@@ -101,6 +103,36 @@ export class AppConfigService {
         }
       }
     });
+  }
+
+  // The language requested by the 'lang' parameter of the URL, when enabled
+  private getUrlLanguage(): string | undefined {
+    const query = window.location.hash.split("?")[1] || "";
+    const lang = new URLSearchParams(query).get("lang");
+
+    if (lang && this.appDataService.public.node.languages_enabled.includes(lang)) {
+      return lang;
+    }
+
+    return undefined;
+  }
+
+  // The first browser preference enabled on the node, matched as the backend
+  // matches the Accept-Language header (e.g. 'pt-BR' tries 'pt_BR', then 'pt')
+  private getBrowserLanguage(): string | undefined {
+    const languagesEnabled = this.appDataService.public.node.languages_enabled;
+
+    for (const lang of navigator.languages || []) {
+      const parts = lang.replace(/-/g, "_").split("_");
+      for (let i = parts.length; i > 0; i--) {
+        const candidate = parts.slice(0, i).join("_");
+        if (languagesEnabled.includes(candidate)) {
+          return candidate;
+        }
+      }
+    }
+
+    return undefined;
   }
 
   onValidateInitialConfiguration() {

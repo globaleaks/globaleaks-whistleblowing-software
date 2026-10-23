@@ -45,7 +45,7 @@ export class appInterceptor implements HttpInterceptor {
       if (hashFragment && hashFragment.includes("lang=")) {
         return hashFragment.split("lang=")[1].split("&")[0];
       } else {
-        return "";
+        return navigator.languages ? navigator.languages.join(",") : "";
       }
     }
   }

@@ -47,7 +47,11 @@ export class UserComponent {
       const langParam = params['lang'];
       const languagesEnabled = this.appDataService.public.node.languages_enabled;
 
-      if (langParam && langParam !== storedLang && languagesEnabled.includes(langParam)) {
+      if (langParam && languagesEnabled.includes(langParam)) {
+        // The language of the URL may be already the one in use, as it is
+        // preferred also on the first load: then it is enough to drop it
+        const reload = langParam !== storedLang;
+
         sessionStorage.setItem("language", langParam);
 
         // Get current hash
@@ -67,7 +71,9 @@ export class UserComponent {
         // Rebuild hash
         window.location.hash = newQuery ? `${path}?${newQuery}` : path;
 
-        window.location.reload();
+        if (reload) {
+          window.location.reload();
+        }
       }
     });
   }
