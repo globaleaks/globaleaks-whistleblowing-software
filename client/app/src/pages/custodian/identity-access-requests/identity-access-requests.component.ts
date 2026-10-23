@@ -7,13 +7,13 @@ import {
   TipOperationFileIdentityAccessReplyComponent
 } from "@app/shared/modals/tip-operation-file-identity-access-reply/tip-operation-file-identity-access-reply.component";
 import {DatePipe} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-identity-access-requests",
     templateUrl: "./identity-access-requests.component.html",
     standalone: true,
-    imports: [DatePipe, NgbTooltipModule, TranslateModule]
+    imports: [DatePipe, NgbTooltipModule, TranslatePipe]
 })
 export class IdentityAccessRequestsComponent {
   private modalService = inject(NgbModal);

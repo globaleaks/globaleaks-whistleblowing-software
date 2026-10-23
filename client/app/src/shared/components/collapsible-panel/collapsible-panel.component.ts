@@ -1,6 +1,6 @@
 import {Component, input, output} from "@angular/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 /**
  * The header of a panel of the report opening on its own body.
@@ -21,7 +21,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "div[srcCollapsiblePanel]",
     templateUrl: "./collapsible-panel.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, TranslateModule]
+    imports: [NgbTooltipModule, TranslatePipe]
 })
 export class CollapsiblePanelComponent {
   readonly collapsed = input(false);

@@ -5,13 +5,13 @@ import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-password-reset-response",
     templateUrl: "./password-reset-response.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, TranslatePipe]
 })
 export class PasswordResetResponseComponent implements OnInit {
   private route = inject(ActivatedRoute);

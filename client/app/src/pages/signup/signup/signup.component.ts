@@ -6,13 +6,13 @@ import {Signup} from "@app/models/component-model/signup";
 
 import {SignupdefaultComponent} from "../templates/signupdefault/signupdefault.component";
 import {WbpaComponent} from "../templates/wbpa/wbpa.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-signup",
     templateUrl: "./signup.component.html",
     standalone: true,
-    imports: [SignupdefaultComponent, WbpaComponent, TranslateModule]
+    imports: [SignupdefaultComponent, WbpaComponent, TranslatePipe]
 })
 export class SignupComponent implements OnInit {
   protected appDataService = inject(AppDataService);

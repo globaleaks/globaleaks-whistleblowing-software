@@ -1,13 +1,13 @@
 import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-encryption-recovery-key",
     templateUrl: "./encryption-recovery-key.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, TranslateModule]
+    imports: [NgbTooltipModule, TranslatePipe]
 })
 export class EncryptionRecoveryKeyComponent {
   private activeModal = inject(NgbActiveModal);

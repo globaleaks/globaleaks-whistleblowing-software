@@ -6,7 +6,7 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {DatePipe} from "@angular/common";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 
@@ -14,7 +14,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-auditlog-tab1",
     templateUrl: "./audit-log-tab1.component.html",
     standalone: true,
-    imports: [DatePipe, NgbTooltipModule, PaginatedInterfaceComponent, TranslateModule]
+    imports: [DatePipe, NgbTooltipModule, PaginatedInterfaceComponent, TranslatePipe]
 })
 export class AuditLogTab1Component implements OnInit {
   protected authenticationService = inject(AuthenticationService);

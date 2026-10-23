@@ -7,14 +7,14 @@ import {FormsModule} from "@angular/forms";
 
 import {SimpleLoginComponent} from "./templates/simple-login/simple-login.component";
 import {DefaultLoginComponent} from "./templates/default-login/default-login.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 
 @Component({
     selector: "app-login",
     templateUrl: "./login.component.html",
     standalone: true,
-    imports: [FormsModule, SimpleLoginComponent, DefaultLoginComponent, TranslateModule]
+    imports: [FormsModule, SimpleLoginComponent, DefaultLoginComponent, TranslatePipe]
 })
 export class LoginComponent implements OnInit {
   private authentication = inject(AuthenticationService);

@@ -3,7 +3,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {SiteslistComponent} from "../siteslist/siteslist.component";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
@@ -12,7 +12,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-sites-tab1",
     templateUrl: "./sites-tab1.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, SiteslistComponent, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, SiteslistComponent, TranslatePipe]
 })
 export class SitesTab1Component implements OnInit {
   private httpService = inject(HttpService);

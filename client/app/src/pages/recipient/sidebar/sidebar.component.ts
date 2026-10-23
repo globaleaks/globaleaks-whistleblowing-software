@@ -1,13 +1,13 @@
 import {Component, inject} from "@angular/core";
 import {Router, RouterLink, RouterLinkActive} from "@angular/router";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-receipt-sidebar",
     templateUrl: "./sidebar.component.html",
     standalone: true,
-    imports: [RouterLink, RouterLinkActive, TranslateModule]
+    imports: [RouterLink, RouterLinkActive, TranslatePipe]
 })
 export class ReceiptSidebarComponent {
   private router = inject(Router);

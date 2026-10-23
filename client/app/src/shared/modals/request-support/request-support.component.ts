@@ -5,13 +5,13 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {Constants} from "@app/shared/constants/constants";
 import {FormsModule} from "@angular/forms";
 
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-request-support",
     templateUrl: "./request-support.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule]
+    imports: [FormsModule, TranslatePipe]
 })
 export class RequestSupportComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);

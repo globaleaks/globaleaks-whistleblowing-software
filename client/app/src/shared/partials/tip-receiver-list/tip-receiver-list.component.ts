@@ -4,14 +4,14 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {WbtipService} from "@app/services/helper/wbtip.service";
 import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {FilterPipe} from "@app/shared/pipes/filter.pipe";
 
 @Component({
     selector: "src-tip-receiver-list",
     templateUrl: "./tip-receiver-list.component.html",
     standalone: true,
-    imports: [CollapsiblePanelComponent, FilterPipe, NgbTooltipModule, TranslateModule]
+    imports: [CollapsiblePanelComponent, FilterPipe, NgbTooltipModule, TranslatePipe]
 })
 export class TipReceiverListComponent {
   protected utilsService = inject(UtilsService);

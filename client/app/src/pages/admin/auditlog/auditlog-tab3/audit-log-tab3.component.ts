@@ -5,14 +5,14 @@ import {tipsResolverModel} from "@app/models/resolvers/tips-resolver-model";
 import {AppDataService} from "@app/app-data.service";
 import {DatePipe} from "@angular/common";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
 @Component({
     selector: "src-auditlog-tab3",
     templateUrl: "./audit-log-tab3.component.html",
     standalone: true,
-    imports: [DatePipe, NgbTooltipModule, PaginatedInterfaceComponent, TranslateModule]
+    imports: [DatePipe, NgbTooltipModule, PaginatedInterfaceComponent, TranslatePipe]
 })
 export class AuditLogTab3Component implements OnInit {
   private tipsResolver = inject(TipsResolver);

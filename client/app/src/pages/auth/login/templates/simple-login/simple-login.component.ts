@@ -5,7 +5,7 @@ import {NgForm, FormsModule} from "@angular/forms";
 import {AppDataService} from "@app/app-data.service";
 
 import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "app-simple-login",
@@ -15,7 +15,7 @@ import {TranslateModule} from "@ngx-translate/core";
     FormsModule,
     NgSelectComponent,
     NgOptionComponent,
-    TranslateModule
+    TranslatePipe
 ],
 })
 export class SimpleLoginComponent implements OnInit {
