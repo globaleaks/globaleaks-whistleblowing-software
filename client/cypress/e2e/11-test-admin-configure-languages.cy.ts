@@ -13,15 +13,15 @@ describe("admin configure languages", () => {
       cy.get('ul.selection-list li').should('contain', language);
     };
 
-    if (Cypress.env('language')!=="en") {
+    if (Cypress.expose('language')!=="en") {
       enable('English [en]');
     }
 
-    if (Cypress.env('language')!=="it") {
+    if (Cypress.expose('language')!=="it") {
       enable('Italian [it]');
     }
 
-    if (Cypress.env('language')!=="de") {
+    if (Cypress.expose('language')!=="de") {
       enable('German [de]');
     }
 

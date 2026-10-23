@@ -14,7 +14,7 @@ describe("key escrow assignment and revocation", () => {
 
     });
 
-    cy.get("[name='secret']").type(Cypress.env("user_password"));
+    cy.get("[name='secret']").type(Cypress.expose("user_password"));
     cy.get("#confirm").click();
 
     cy.logout();

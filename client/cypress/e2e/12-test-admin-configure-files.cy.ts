@@ -16,7 +16,7 @@ describe("Admin configure files", () => {
       .should('not.have.value') // Check the input is emptied due to the wrong password
       .and('have.value', '');
 
-    cy.get(".modal [type='password']").clear().type(Cypress.env("user_password"));
+    cy.get(".modal [type='password']").clear().type(Cypress.expose("user_password"));
     cy.get(".modal .btn-primary").click();
 
     cy.get("[name='authenticationData.session.permissions.can_upload_files']").should("be.checked");

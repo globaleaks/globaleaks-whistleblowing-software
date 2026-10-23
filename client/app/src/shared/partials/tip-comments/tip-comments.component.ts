@@ -11,7 +11,7 @@ import {MaskService} from "@app/shared/services/mask.service";
 import {DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {AutoExpandDirective} from "@app/shared/directive/auto-expand.directive";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 
@@ -20,7 +20,7 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
     selector: "src-tip-comments",
     templateUrl: "./tip-comments.component.html",
     standalone: true,
-    imports: [CollapsiblePanelComponent, AutoExpandDirective, DatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, TranslateModule]
+    imports: [CollapsiblePanelComponent, AutoExpandDirective, DatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, TranslatePipe]
 })
 export class TipCommentsComponent {
   private maskService = inject(MaskService);

@@ -3,13 +3,13 @@ import {NgbDateStruct, NgbModal, NgbInputDatepicker} from "@ng-bootstrap/ng-boot
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-tip-operation-postpone",
     templateUrl: "./tip-operation-postpone.component.html",
     standalone: true,
-    imports: [NgbInputDatepicker, FormsModule, TranslateModule]
+    imports: [NgbInputDatepicker, FormsModule, TranslatePipe]
 })
 export class TipOperationPostponeComponent implements OnInit {
   private modalService = inject(NgbModal);

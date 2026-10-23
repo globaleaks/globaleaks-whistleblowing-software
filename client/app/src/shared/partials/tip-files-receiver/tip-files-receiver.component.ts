@@ -11,7 +11,7 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {MaskService} from "@app/shared/services/mask.service";
 import {RedactionData} from "@app/models/component-model/redaction";
 import {DatePipe} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {ByteFmtPipe} from "@app/shared/pipes/byte-fmt.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -21,7 +21,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-files-receiver",
     templateUrl: "./tip-files-receiver.component.html",
     standalone: true,
-    imports: [CollapsiblePanelComponent, DatePipe, TranslateModule, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
+    imports: [CollapsiblePanelComponent, DatePipe, TranslatePipe, ByteFmtPipe, OrderByPipe, NgbTooltipModule]
 })
 export class TipFilesReceiverComponent {
   protected maskService = inject(MaskService);

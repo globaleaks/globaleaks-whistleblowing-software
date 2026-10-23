@@ -3,7 +3,7 @@ import {Receiver} from "@app/models/app/public-model";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {NgSelectComponent, NgLabelTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-transfer-access",
@@ -13,7 +13,7 @@ import {TranslateModule} from "@ngx-translate/core";
         NgSelectComponent,
         FormsModule,
         NgLabelTemplateDirective,
-        TranslateModule,
+        TranslatePipe,
         ],
 })
 export class TransferAccessComponent {

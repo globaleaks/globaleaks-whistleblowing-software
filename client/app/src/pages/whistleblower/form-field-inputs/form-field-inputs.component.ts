@@ -8,7 +8,7 @@ import {Field} from "@app/models/resolvers/field-template-model";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {MarkdownComponent} from "ngx-markdown";
 import {FormFieldInputComponent} from "../form-field-input/form-field-input.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 
 @Component({
@@ -20,7 +20,7 @@ import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
     MarkdownComponent,
     NgbTooltipModule,
     forwardRef(() => FormFieldInputComponent),
-    TranslateModule,
+    TranslatePipe,
     StripHtmlPipe
 ],
 })

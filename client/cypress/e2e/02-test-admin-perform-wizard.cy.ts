@@ -4,9 +4,9 @@ describe("globaLeaks setup wizard", () => {
 
     cy.get("#PageTitle").should("be.visible");
 
-    if (Cypress.env('language')!="en") {
+    if (Cypress.expose('language')!="en") {
       cy.get('#language-picker-select').click();
-      cy.get(`[data-cy="${Cypress.env('language')}"]`).trigger('click');
+      cy.get(`[data-cy="${Cypress.expose('language')}"]`).trigger('click');
     }
 
     cy.takeScreenshot("wizard/1");
@@ -24,8 +24,8 @@ describe("globaLeaks setup wizard", () => {
     cy.get('[name="admin_username"]').type("admin");
     cy.get('[name="admin_name"]').type("Admin");
     cy.get('[name="admin_mail_address"]').type("globaleaks-admin@mailinator.com");
-    cy.get('[name="admin_password"]').type(Cypress.env('user_password'));
-    cy.get('[name="admin_password_check"]').type(Cypress.env('user_password'));
+    cy.get('[name="admin_password"]').type(Cypress.expose('user_password'));
+    cy.get('[name="admin_password_check"]').type(Cypress.expose('user_password'));
 
     cy.get(".ButtonNext").click();
 

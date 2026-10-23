@@ -12,14 +12,14 @@ import {AdminFile} from "@app/models/component-model/admin-file";
 import {AdminFileComponent} from "@app/shared/partials/admin-file/admin-file.component";
 import {SwitchComponent} from "@app/shared/components/switch/switch.component";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
 @Component({
     selector: "src-tab2",
     templateUrl: "./tab2.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, AdminFileComponent, SwitchComponent, OrderByPipe, TranslateModule]
+    imports: [NgbTooltipModule, AdminFileComponent, SwitchComponent, OrderByPipe, TranslatePipe]
 })
 export class Tab2Component implements OnInit {
   private appConfigService = inject(AppConfigService);

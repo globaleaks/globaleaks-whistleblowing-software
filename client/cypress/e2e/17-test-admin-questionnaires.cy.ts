@@ -66,7 +66,7 @@ describe("admin add, configure and delete questionnaires", () => {
     add_step("Step 2");
     add_step("Step 3");
 
-    const fieldTypes = Cypress.env("field_types");
+    const fieldTypes = Cypress.expose("field_types");
     cy.contains("Step 2").should('be.visible').click();
 
     fieldTypes.forEach((questionType: string, index: number) => {
