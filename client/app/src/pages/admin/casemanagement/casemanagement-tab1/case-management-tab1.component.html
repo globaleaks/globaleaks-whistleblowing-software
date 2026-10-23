@@ -26,9 +26,9 @@
       </div>
     </div>
   }
-  @for (submissions_status of appDataServices.submissionStatuses; track submissions_status; let index = $index; let first = $first; let last = $last) {
+  @for (submissions_status of appDataServices.submissionStatuses; track submissions_status; let index = $index) {
     <div>
-      <src-substatusmanager [submissionsStatus]="submissions_status" [submissionStatuses]="appDataServices.submissionStatuses" [index]="index" [first]="first" [last]="last" (deleted)="onDelete($event)"></src-substatusmanager>
+      <src-substatusmanager [submissionsStatus]="submissions_status" [submissionStatuses]="appDataServices.submissionStatuses" [index]="index" (deleted)="onDelete($event)"></src-substatusmanager>
     </div>
   }
 </div>

@@ -35,7 +35,11 @@ export class CaseManagementTab1Component {
 
     this.httpService.addSubmissionStatus(newSubmissionsStatus).subscribe(
       result => {
-        this.appDataService.submissionStatuses.push(result);
+        // The statuses created by the users are listed before the closed one,
+        // as the backend lists them
+        const statuses = this.appDataService.submissionStatuses;
+        const closed = statuses.findIndex(status => status.id === "closed");
+        statuses.splice(closed === -1 ? statuses.length : closed, 0, result);
         this.newSubmissionsStatus.label = "";
       }
     );

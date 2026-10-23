@@ -28,12 +28,17 @@ export class SubStatusManagerComponent {
   readonly submissionsStatus = input.required<Status>();
   readonly submissionStatuses = input<Status[]>();
   readonly index = input.required<number>();
-  readonly first = input<boolean>();
-  readonly last = input<boolean>();
   readonly deleted = output<string>();
 
   isSystemDefined(state: Status): boolean {
     return ["new", "opened", "closed"].indexOf(state.id) !== -1;
+  }
+
+  // The statuses defined by the system keep their place, as the backend lists
+  // them: a status is moved only when the one it swaps with is movable too
+  isMovable(index: number): boolean {
+    const status = this.submissionStatuses()?.[index];
+    return !!status && !this.isSystemDefined(status);
   }
 
   isEditable(submissionsStatus: Status): boolean {
