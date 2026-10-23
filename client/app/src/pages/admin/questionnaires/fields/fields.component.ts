@@ -75,7 +75,12 @@ export class FieldsComponent implements OnInit {
 
   saveField(field: Step | Field) {
     this.utilsService.assignUniqueOrderIndex(field.options);
-    return this.httpService.requestUpdateAdminQuestionnaireField(field.id, field).subscribe();
+    return this.httpService.requestUpdateAdminQuestionnaireField(field.id, field).subscribe((updated: Field) => {
+      // The new options get their id from the backend: without it they could
+      // not be chosen as trigger and a further save would recreate them
+      field.options = updated.options;
+      this.updated.emit();
+    });
   }
 
   minDateFormat(value: { year: number; month: number; day: number } | string): string {
@@ -303,7 +308,7 @@ export class FieldsComponent implements OnInit {
   }
 
   onUpdate() {
-    this.children = [...this.children];
+    this.children = [...this.field().children];
     this.updated.emit();
   }
 }
