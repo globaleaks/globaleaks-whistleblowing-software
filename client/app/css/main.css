@@ -945,6 +945,20 @@ text.axis-worktime {
   cursor: pointer;
 }
 
+/* The row of a report is highlighted while the pointer is over it and while
+   the keyboard focus is on one of its controls, as both open it; the outline
+   takes no room, so the table does not shift */
+.tip-action-open:not(.disabled):hover,
+.tip-action-open:not(.disabled):focus-within {
+  outline: 1px solid var(--bs-secondary);
+  outline-offset: -1px;
+}
+
+.tip-action-open:not(.disabled):hover > td,
+.tip-action-open:not(.disabled):focus-within > td {
+  --bs-table-bg-state: var(--bs-table-hover-bg);
+}
+
 .pointer {
   cursor: pointer;
 }

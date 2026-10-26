@@ -7,7 +7,7 @@ describe("recipient admin tip actions", () => {
     // Filter reports
     cy.get('#search-filter-input').type("your search term");
     cy.get('#search-filter-input').clear();
-    cy.get('th.TipInfoID').click();
+    cy.get('th.TipInfoID button').click();
     cy.get('body').then(($body) => {
       if ($body.find('#tip-action-filter-channel').length) {
         cy.get('#tip-action-filter-channel').click();

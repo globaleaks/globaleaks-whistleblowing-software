@@ -141,6 +141,30 @@ export class TipsComponent implements OnInit {
     return this.selectedTips.indexOf(id) !== -1;
   }
 
+  // The report opens from the link of its row, and from anywhere else on the
+  // row with a click or with Enter, except on the controls the row holds: the
+  // selection box keeps the click for itself and leaves Enter to the row
+  openTip(event: Event, tip: rtipResolverModel): void {
+    const controls = event instanceof KeyboardEvent ? 'a, button' : 'a, button, input';
+
+    if (tip.accessible && !(event.target as HTMLElement).closest(controls)) {
+      this.utils.go('/reports/' + tip.id);
+    }
+  }
+
+  sortBy(key: keyof rtipResolverModel): void {
+    this.sortKey = key;
+    this.sortReverse = !this.sortReverse;
+  }
+
+  ariaSort(key: keyof rtipResolverModel): string {
+    if (this.sortKey !== key) {
+      return 'none';
+    }
+
+    return this.sortReverse ? 'descending' : 'ascending';
+  }
+
   // The report is entered on the site itself: the channel it is filed on is
   // chosen in the modal, which composes the questionnaire of that channel
   enterReport() {
