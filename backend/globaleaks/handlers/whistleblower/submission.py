@@ -833,15 +833,20 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         new_file.creation_date = itip.creation_date
         session.add(new_file)
 
+    operator_id = user_session.properties.get('operator_session', '')
+
     for user in receivers:
         if crypto_is_available:
             _tip_key = GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_tip_prv_key)
         else:
             _tip_key = b''
 
-        db_create_receivertip(session, user, itip, _tip_key)
+        rtip = db_create_receivertip(session, user, itip, _tip_key)
 
-    operator_id = user_session.properties.get('operator_session', '')
+        # the operator that loaded the report is not reminded of it as unread
+        if user.id == operator_id:
+            rtip.last_access = itip.update_date
+
     if operator_id:
         # this is actually an operator which is operating on behalf of a whistleblower
         itip.receipt_change_needed = True
