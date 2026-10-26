@@ -23,7 +23,7 @@ import {NgFormChangeDirective} from "@app/shared/directive/ng-form-change.direct
 import {MarkdownComponent} from "ngx-markdown";
 import {FormComponent} from "../form/form.component";
 import {RFilesUploadStatusComponent} from "@app/shared/partials/rfiles-upload-status/r-files-upload-status.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {HttpService} from "@app/shared/services/http.service";
@@ -35,7 +35,7 @@ import {firstValueFrom} from "rxjs";
     templateUrl: "./submission.component.html",
     providers: [SubmissionService],
     standalone: true,
-    imports: [ContextSelectionComponent, FormsModule, ReceiverSelectionComponent, NgFormChangeDirective, MarkdownComponent, FormComponent, RFilesUploadStatusComponent, TranslateModule, StripHtmlPipe, OrderByPipe]
+    imports: [ContextSelectionComponent, FormsModule, ReceiverSelectionComponent, NgFormChangeDirective, MarkdownComponent, FormComponent, RFilesUploadStatusComponent, TranslatePipe, StripHtmlPipe, OrderByPipe]
 })
 export class SubmissionComponent implements OnInit {
   private readonly renderScheduler = inject(RenderSchedulerService);

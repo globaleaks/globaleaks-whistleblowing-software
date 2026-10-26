@@ -14,7 +14,7 @@ import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dro
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
 import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 /** A report as the table lists it: the fields it is sorted and filtered by */
 interface ReportRow {
@@ -29,7 +29,7 @@ interface ReportRow {
     selector: "src-statistical-reports-tab",
     templateUrl: "./statistical-reports-tab.component.html",
     standalone: true,
-    imports: [StatisticalReportEditorComponent, FormsModule, NgbTooltipModule, NgClass, DatePipe, DateRangeSelectorComponent, NgMultiSelectDropDownModule, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule]
+    imports: [StatisticalReportEditorComponent, FormsModule, NgbTooltipModule, NgClass, DatePipe, DateRangeSelectorComponent, NgMultiSelectDropDownModule, PaginatedInterfaceComponent, TableHeaderComponent, TranslatePipe]
 })
 export class StatisticalReportsTabComponent implements OnInit {
   private readonly httpService = inject(HttpService);

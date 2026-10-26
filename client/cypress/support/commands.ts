@@ -48,7 +48,7 @@ function terminalLog(violations: any[]) {
 
 Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
   username = username === undefined ? "admin" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
   let finalURL: string;
@@ -77,7 +77,7 @@ Cypress.Commands.add("login_admin", (username, password, url, firstlogin) => {
 // The login of every role is the same sequence, written once
 Cypress.Commands.add("login_user", (username, password, url, firstlogin, home) => {
   username = username === undefined ? "" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/login" : url;
   home = home === undefined ? "" : home;
 
@@ -110,7 +110,7 @@ Cypress.Commands.add("login_auditor", (username, password, url, firstlogin) => {
 
 Cypress.Commands.add("login_receiver", (username, password, url, firstlogin) => {
   username = username === undefined ? "Recipient" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
   let finalURL = "/actions/forcedpasswordchange";
@@ -150,7 +150,7 @@ Cypress.Commands.add("logout", () => {
 
 Cypress.Commands.add("simple_login_admin", (username, password, url, firstlogin) => {
   username = username === undefined ? "admin" : username;
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/admin" : url;
 
   let finalURL: string;
@@ -176,7 +176,7 @@ Cypress.Commands.add("simple_login_admin", (username, password, url, firstlogin)
 });
 
 Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlogin) => {
-  password = password === undefined ? Cypress.env("user_password") : password;
+  password = password === undefined ? Cypress.expose("user_password") : password;
   url = url === undefined ? "#/login" : url;
 
   let finalURL = "/actions/forcedpasswordchange";
@@ -200,7 +200,7 @@ Cypress.Commands.add("simple_login_receiver", (username, password, url, firstlog
 });
 
 Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
-  if (!Cypress.env("takeScreenshots")) return;
+  if (!Cypress.expose("takeScreenshots")) return;
 
   const DESKTOP_VIEWPORT = { width: 1920, height: 1080 };
 
@@ -226,13 +226,13 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
     // uses one, and taking it doubled the work of every single capture.
     const viewports: {width: number; height: number; prefix?: string}[] = [
       { width: DESKTOP_VIEWPORT.width, height: documentHeight },
-      ...(Cypress.env("mobileScreenshots")
+      ...(Cypress.expose("mobileScreenshots")
         ? [{ width: 375, height: 667, prefix: "mobile/" }]
         : [])
     ];
 
     // The accessibility scan runs only on request: on every capture it repeated the same findings
-    if (Cypress.env("a11yOnScreenshots")) {
+    if (Cypress.expose("a11yOnScreenshots")) {
       cy.injectAxe();
       cy.checkA11y(undefined, undefined, terminalLog, true);
     }

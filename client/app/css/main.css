@@ -872,12 +872,6 @@ p:last-child {
   margin-bottom: 0.5em;
 }
 
-.field {
-  position: relative;
-  border: 1px solid #c8d1e0;
-  margin-bottom: 0.5em;
-}
-
 .field-option {
   margin-bottom: 0.5em;
 }
@@ -1129,14 +1123,40 @@ input[type="email"] {
   cursor: pointer;
 }
 
+/* The profile a site derives from, and the command that frees it from it: kept inside the card of
+   the site, where it is reached on purpose, rather than among the commands of its row */
+.site-profile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75em;
+}
+
+.site-profile .form-label {
+  margin: 0;
+}
+
 /* The title of a collapsible card is a button, so that it is reached with the
-   keyboard, but it keeps the plain look of the text it wraps */
+   keyboard, but it keeps the plain look of the text it wraps, and sits at the top
+   of its header as the title of a list item does rather than being centered on
+   the height of the commands beside it */
 .editorTitle {
+  align-self: flex-start;
+  padding-top: 0;
+  padding-bottom: 0;
   border: 0;
   background: transparent;
   text-align: left;
   font: inherit;
   color: inherit;
+}
+
+/* A badge in the header of a list is kept apart from the words around it by the
+   same margin, whichever component draws the header; the badges in a row of
+   badges keep their own spacing */
+.editorHeader :not(.badge) + .badge,
+.editorHeader .badge + :not(.badge) {
+  margin-inline-start: .35em;
 }
 
 .input-group-text {

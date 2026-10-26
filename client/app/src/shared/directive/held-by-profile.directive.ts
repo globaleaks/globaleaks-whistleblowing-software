@@ -1,4 +1,4 @@
-import {Directive, DoCheck, ElementRef, HostBinding, OnInit, ViewContainerRef, effect, inject, Injector, input} from "@angular/core";
+import {Directive, DoCheck, ElementRef, OnInit, Renderer2, ViewContainerRef, effect, inject, Injector, input} from "@angular/core";
 import {NgControl} from "@angular/forms";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {FieldActionsComponent} from "@app/shared/partials/field-actions/field-actions.component";
@@ -11,6 +11,7 @@ export class HeldByProfileDirective implements OnInit, DoCheck {
   private readonly nodeResolver = inject(NodeResolver);
   private readonly viewContainerRef = inject(ViewContainerRef);
   private readonly elementRef = inject(ElementRef);
+  private readonly renderer = inject(Renderer2);
   private readonly injector = inject(Injector);
   private readonly ngControl = inject(NgControl, {self: true, optional: true});
 
@@ -29,24 +30,29 @@ export class HeldByProfileDirective implements OnInit, DoCheck {
     return this.nodeResolver.heldByProfile(this.srcHeldByProfile());
   }
 
+  // What the site may write is not a signal, and the variable of a control can change as the
+  // page goes on: the state is compared with the control at every check.
+  //
   // A control bound to a model is disabled through its model alone: written on the element, the
   // state was undone as soon as the form registered the control, which it does a moment after the
-  // page is drawn, and the field stayed writable. The element is written only when no model is
-  // there to undo it.
-  @HostBinding("attr.disabled")
-  get disabledAttribute(): string | null {
-    return !this.ngControl && this.heldByProfile ? "" : null;
-  }
-
-  // What the site may write is not a signal, and the variable of a control can change as the
-  // page goes on: the state is compared with the control at every check
+  // page is drawn. The element is written only when no model is there to undo it, and only when
+  // the state changes: a binding on the attribute removes it whenever it says the field is free,
+  // and that took away the disabled state the model had just written on the element.
   ngDoCheck(): void {
+    const held = this.heldByProfile;
     const control = this.ngControl?.control;
+
     if (!control) {
+      if (held && !this.disabledHere) {
+        this.renderer.setAttribute(this.elementRef.nativeElement, "disabled", "");
+        this.disabledHere = true;
+      } else if (!held && this.disabledHere) {
+        this.renderer.removeAttribute(this.elementRef.nativeElement, "disabled");
+        this.disabledHere = false;
+      }
+
       return;
     }
-
-    const held = this.heldByProfile;
 
     if (held && control.enabled) {
       control.disable({emitEvent: false});

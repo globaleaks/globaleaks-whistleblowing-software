@@ -5,14 +5,14 @@ import {Receiver} from "@app/models/app/public-model";
 import {cancelFun, ConfirmFunFunction} from "@app/shared/constants/types";
 import {NgSelectComponent, NgLabelTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 
 @Component({
     selector: "src-revoke-access",
     templateUrl: "./revoke-access.component.html",
     standalone: true,
-    imports: [NgSelectComponent, FormsModule, NgLabelTemplateDirective, TranslateModule]
+    imports: [NgSelectComponent, FormsModule, NgLabelTemplateDirective, TranslatePipe]
 })
 export class RevokeAccessComponent {
   private readonly modalService = inject(NgbModal);

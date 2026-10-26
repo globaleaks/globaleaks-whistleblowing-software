@@ -3,13 +3,13 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 
 import {UserComponent} from "./template/user/user.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-header",
     templateUrl: "./header.component.html",
     standalone: true,
-    imports: [UserComponent, TranslateModule]
+    imports: [UserComponent, TranslatePipe]
 })
 export class HeaderComponent {
   appConfig = inject(AppConfigService);

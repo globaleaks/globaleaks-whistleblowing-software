@@ -2,7 +2,7 @@ import {Component, OnChanges, input, output} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {NgSelectComponent, NgOptionTemplateDirective} from "@ng-select/ng-select";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 export interface SelectionEntry {
   id: string;
@@ -19,7 +19,7 @@ export interface SelectionEntry {
     selector: "src-selection-editor",
     templateUrl: "./selection-editor.component.html",
     standalone: true,
-    imports: [FormsModule, NgSelectComponent, NgOptionTemplateDirective, NgbTooltipModule, TranslateModule]
+    imports: [FormsModule, NgSelectComponent, NgOptionTemplateDirective, NgbTooltipModule, TranslatePipe]
 })
 export class SelectionEditorComponent implements OnChanges {
   readonly label = input("");

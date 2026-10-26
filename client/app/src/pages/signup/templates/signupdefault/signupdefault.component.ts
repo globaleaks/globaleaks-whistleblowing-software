@@ -8,13 +8,13 @@ import {NgClass} from "@angular/common";
 import {SubdomainValidatorDirective} from "@app/shared/directive/subdomain-validator.directive";
 import {DisableCcpDirective} from "@app/shared/directive/disable-ccp.directive";
 import {TosComponent} from "../tos/tos.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-signupdefault",
     templateUrl: "./signupdefault.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, NgClass, SubdomainValidatorDirective, DisableCcpDirective, TosComponent, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, NgClass, SubdomainValidatorDirective, DisableCcpDirective, TosComponent, TranslatePipe]
 })
 export class SignupdefaultComponent implements OnInit, OnChanges {
   protected appDataService = inject(AppDataService);

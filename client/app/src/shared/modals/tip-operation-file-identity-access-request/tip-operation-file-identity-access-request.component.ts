@@ -4,14 +4,14 @@ import {ReceiverTipService} from "@app/services/helper/receiver-tip.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 
 @Component({
     selector: "src-tip-operation-file-identity-access-request",
     templateUrl: "./tip-operation-file-identity-access-request.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, TranslatePipe]
 })
 export class TipOperationFileIdentityAccessRequestComponent {
   private readonly modalService = inject(NgbModal);

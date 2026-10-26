@@ -12,6 +12,7 @@ from globaleaks import __version__, models, \
     DATABASE_VERSION, FIRST_DATABASE_VERSION_SUPPORTED, LANGUAGES_SUPPORTED_CODES
 from globaleaks.db.appdata import load_appdata, db_load_defaults
 from globaleaks.orm import db_log
+from globaleaks.db.migrations.recover_receipts import db_mark_invalidated_receipts
 
 from globaleaks.orm import get_engine, get_session, make_db_uri
 from globaleaks.models import config, Base, Model
@@ -118,6 +119,8 @@ def perform_data_update(db_file):
     try:
         original_version = config.ConfigFactory(session, 1).get_val('version')
         if original_version != __version__:
+            db_mark_invalidated_receipts(session, original_version)
+
             config.load_defaults(session, appdata)
 
             db_load_defaults(session)

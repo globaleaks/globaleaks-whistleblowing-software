@@ -11,7 +11,7 @@ import {FieldUtilitiesService} from "@app/shared/services/field-utilities.servic
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpClient} from "@angular/common/http";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 /**
  * A way of filing towards another site: the channel the report is filed on
@@ -43,7 +43,7 @@ interface ExchangeTarget {
   selector: "src-exchange-report",
   templateUrl: "./exchange-report.component.html",
   standalone: true,
-  imports: [FormsModule, NgClass, NgFormChangeDirective, FormComponent, TranslateModule, OrderByPipe]
+  imports: [FormsModule, NgClass, NgFormChangeDirective, FormComponent, TranslatePipe, OrderByPipe]
 })
 export class ExchangeReportComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);

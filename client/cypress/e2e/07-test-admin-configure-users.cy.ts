@@ -202,7 +202,7 @@ describe("admin add, configure, and delete users", () => {
     cy.get(".userList").eq(1).find("[data-action='edit']").click();
     cy.get(".userList").eq(1).find("#send_reset_link").click();
 
-    cy.get("[name='secret']").should("be.visible").clear().type(Cypress.env("user_password"));
+    cy.get("[name='secret']").should("be.visible").clear().type(Cypress.expose("user_password"));
     cy.get("#confirm").click();
 
     cy.logout();
@@ -237,7 +237,7 @@ describe("admin add, configure, and delete users", () => {
             cy.get(".userList").eq(i).find("#set_password").click();
 
             // Confirm the administrative operation with the admin password.
-            cy.get("[name='secret']").should("be.visible").clear().type(Cypress.env("user_password"));
+            cy.get("[name='secret']").should("be.visible").clear().type(Cypress.expose("user_password"));
             cy.get("#confirm").click();
 
             // The generated password is shown but hidden by default.
@@ -312,8 +312,8 @@ describe("Multiple role profile", () => {
     cy.task<Record<string, string>>("getUsersPasswords").then((users_passwords) => {
       cy.login_receiver("Multi Role User", users_passwords["Multi Role User"], "#/login", true);
     });
-    cy.get('[name="changePasswordArgs.password"]').should('be.visible').type(Cypress.env("user_password"));
-    cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.env("user_password"));
+    cy.get('[name="changePasswordArgs.password"]').should('be.visible').type(Cypress.expose("user_password"));
+    cy.get('[name="changePasswordArgs.confirm"]').type(Cypress.expose("user_password"));
     cy.get('button[name="submit"]').click();
     cy.url().should("include", "/admin/home");
     cy.logout();

@@ -7,7 +7,7 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 import {FlowOptions} from "@flowjs/flow.js";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 
 
@@ -15,7 +15,7 @@ import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
     selector: "src-image-upload",
     templateUrl: "./image-upload.component.html",
     standalone: true,
-    imports: [FormsModule, NgbTooltipModule, NgxFlowModule, TranslateModule]
+    imports: [FormsModule, NgbTooltipModule, NgxFlowModule, TranslatePipe]
 })
 export class ImageUploadComponent implements AfterViewInit, OnDestroy, OnInit {
   private readonly renderScheduler = inject(RenderSchedulerService);

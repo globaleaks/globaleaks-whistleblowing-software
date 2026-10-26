@@ -13,12 +13,12 @@ import {ProfileEditorComponent} from "../profile-editor/profile-editor.component
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {ADMIN_PERMISSION_KEYS} from "@app/pages/admin/users/permissions";
 import {HttpClient} from "@angular/common/http";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
   selector: 'src-users-tab2',
   standalone: true,
-  imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, ProfileEditorComponent, TranslateModule],
+  imports: [FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, ProfileEditorComponent, TranslatePipe],
   templateUrl: './users-tab2.component.html',
 })
 export class UsersTab2Component implements OnInit {

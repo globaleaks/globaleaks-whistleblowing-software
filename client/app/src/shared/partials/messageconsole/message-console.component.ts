@@ -2,13 +2,13 @@ import {AfterViewChecked, ChangeDetectorRef, Component, inject} from "@angular/c
 import {AppDataService} from "@app/app-data.service";
 import {ErrorCodes} from "@app/models/app/error-code";
 
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-message-console",
     templateUrl: "./message-console.component.html",
     standalone: true,
-    imports: [TranslateModule]
+    imports: [TranslatePipe]
 })
 export class MessageConsoleComponent implements AfterViewChecked {
   private readonly cdr = inject(ChangeDetectorRef);

@@ -2,7 +2,7 @@ import { Component, Input, inject, OnInit } from "@angular/core";
 import { NgbActiveModal } from "@ng-bootstrap/ng-bootstrap";
 import { NgSelectComponent, NgLabelTemplateDirective, NgOptionTemplateDirective } from "@ng-select/ng-select";
 import { FormsModule } from "@angular/forms";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { AuthenticationService } from "@app/services/helper/authentication.service";
 
 @Component({
@@ -14,7 +14,7 @@ import { AuthenticationService } from "@app/services/helper/authentication.servi
     NgLabelTemplateDirective,
     NgOptionTemplateDirective,
     FormsModule,
-    TranslateModule
+    TranslatePipe
   ]
 })
 export class RoleSelectionModalComponent implements OnInit {

@@ -45,7 +45,7 @@ describe("support conversation", () => {
     cy.get("#send_reset_link").click();
 
     // the operation is confirmed with the administrator's own password
-    cy.get("[name='secret']").should("be.visible").clear().type(Cypress.env("user_password"));
+    cy.get("[name='secret']").should("be.visible").clear().type(Cypress.expose("user_password"));
     cy.intercept("PUT", "/api/admin/config").as("sendResetLink");
     cy.get("#confirm").click();
     cy.wait("@sendResetLink").its("response.statusCode").should("be.within", 200, 299);

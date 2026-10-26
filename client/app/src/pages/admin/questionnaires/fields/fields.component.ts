@@ -20,13 +20,13 @@ import {DatePipe} from "@angular/common";
 import {AddFieldComponent} from "../add-field/add-field.component";
 import {AddFieldFromTemplateComponent} from "../add-field-from-template/add-field-from-template.component";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-fields",
     templateUrl: "./fields.component.html",
     standalone: true,
-    imports: [FormsModule, NgbInputDatepicker, NgbTooltipModule, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, OrderByPipe, TranslateModule, ListItemComponent]
+    imports: [FormsModule, NgbInputDatepicker, NgbTooltipModule, AddFieldComponent, AddFieldFromTemplateComponent, DatePipe, OrderByPipe, TranslatePipe, ListItemComponent]
 })
 export class FieldsComponent implements OnInit {
   private readonly authenticationService = inject(AuthenticationService);

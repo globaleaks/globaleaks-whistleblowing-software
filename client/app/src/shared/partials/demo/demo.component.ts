@@ -1,12 +1,12 @@
 import {Component, ChangeDetectionStrategy} from "@angular/core";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "src-demo",
     templateUrl: "./demo.component.html",
     standalone: true,
-    imports: [TranslateModule]
+    imports: [TranslatePipe]
 })
 export class DemoComponent {
 

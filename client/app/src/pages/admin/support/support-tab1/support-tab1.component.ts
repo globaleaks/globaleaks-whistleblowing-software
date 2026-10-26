@@ -13,7 +13,7 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {TranslatePipe, TranslateService} from "@ngx-translate/core";
 
 /**
  * The status is sorted along the lifecycle of the request (new, read,
@@ -28,7 +28,7 @@ interface SupportRequestRow extends SupportRequest {
   selector: "src-support-tab1",
   templateUrl: "./support-tab1.component.html",
   standalone: true,
-  imports: [DatePipe, FormsModule, NgbTooltipModule, NgClass, PaginatedInterfaceComponent, RouterLink, SupportThreadComponent, TableHeaderComponent, TranslateModule]
+  imports: [DatePipe, FormsModule, NgbTooltipModule, NgClass, PaginatedInterfaceComponent, RouterLink, SupportThreadComponent, TableHeaderComponent, TranslatePipe]
 })
 export class SupportTab1Component implements OnInit {
   private readonly httpService = inject(HttpService);

@@ -5,7 +5,7 @@ import {LoginDataRef} from "@app/pages/auth/login/model/login-model";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ControlContainer, NgForm, FormsModule} from "@angular/forms";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "app-default-login",
@@ -15,7 +15,7 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [
     FormsModule,
     NgbTooltipModule,
-    TranslateModule
+    TranslatePipe
 ],
 })
 export class DefaultLoginComponent {

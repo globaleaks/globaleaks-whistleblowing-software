@@ -12,7 +12,7 @@ import {HttpService} from "@app/shared/services/http.service";
 import {
   EncryptionRecoveryKeyComponent
 } from "@app/shared/modals/encryption-recovery-key/encryption-recovery-key.component";
-import {TranslateService, TranslateModule} from "@ngx-translate/core";
+import {TranslateService, TranslatePipe} from "@ngx-translate/core";
 import {ConfirmationWith2faComponent} from "@app/shared/modals/confirmation-with2fa/confirmation-with2fa.component";
 import {
   ConfirmationWithPasswordComponent
@@ -25,7 +25,7 @@ import {NgSelectComponent} from "@ng-select/ng-select";
     selector: "src-preference-tab1",
     templateUrl: "./preference-tab1.component.html",
     standalone: true,
-    imports: [FormsModule, NgSelectComponent, DatePipe, TranslateModule]
+    imports: [FormsModule, NgSelectComponent, DatePipe, TranslatePipe]
 })
 export class PreferenceTab1Component implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);

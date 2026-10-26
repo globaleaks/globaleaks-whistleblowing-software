@@ -1,6 +1,6 @@
 import {Component, input, output} from "@angular/core";
 import {NgbTooltip} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 /**
  * A card of a list opening on its own body.
@@ -15,7 +15,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-collapsible-card",
     templateUrl: "./collapsible-card.component.html",
     standalone: true,
-    imports: [NgbTooltip, TranslateModule]
+    imports: [NgbTooltip, TranslatePipe]
 })
 export class CollapsibleCardComponent {
   readonly expanded = input(false);

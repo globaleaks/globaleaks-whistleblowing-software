@@ -5,7 +5,7 @@ from twisted.trial import unittest
 from twisted.mail.smtp import ESMTPSenderFactory
 from unittest.mock import patch
 
-from globaleaks.utils.mail import mime_mail_build, sendmail
+from globaleaks.utils.mail import mime_mail_build, sendmail, smtp_prefix
 
 
 class TestMailUtils(unittest.TestCase):
@@ -151,3 +151,30 @@ class TestMailUtils(unittest.TestCase):
 
         d.addCallback(callback)
         self.assertEqual(mock_connect.call_count, 1)
+
+
+class TestSMTPPrefix(unittest.TestCase):
+    """
+    The server a mail goes through, among the two a site may turn on
+    """
+
+    def test_the_server_of_a_mail(self):
+        cases = [
+            # smtp_enabled, smtp2_enabled, use_smtp2, expected
+            (True, False, False, 'smtp_'),
+            (True, False, True, 'smtp_'),
+            (True, True, False, 'smtp_'),
+            (True, True, True, 'smtp2_'),
+            (False, True, True, 'smtp2_'),
+            (False, True, False, None),
+            (False, False, True, None),
+            (False, False, False, None),
+        ]
+
+        for smtp_enabled, smtp2_enabled, use_smtp2, expected in cases:
+            notification = {'smtp_enabled': smtp_enabled, 'smtp2_enabled': smtp2_enabled}
+            self.assertEqual(smtp_prefix(notification, use_smtp2), expected,
+                             f"main {smtp_enabled}, secondary {smtp2_enabled}, chosen for the secondary {use_smtp2}")
+
+    def test_a_site_that_knew_no_switch_for_the_main_server_finds_it_on(self):
+        self.assertEqual(smtp_prefix({}, False), 'smtp_')

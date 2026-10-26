@@ -7,7 +7,7 @@ import {ChannelFilterOption, DateFilter, StatisticsFilter, statisticalTemplateRe
 import {StatisticalTemplateViewComponent} from "@app/pages/analyst/statistics/statistical-template-view/statistical-template-view.component";
 import {StatisticsResolver} from "@app/shared/resolvers/statistics.resolver";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 /**
  * A statistical report, as the table of the reports presents it under its row:
@@ -18,7 +18,7 @@ import {TranslateModule} from "@ngx-translate/core";
     selector: "src-statistical-report-editor",
     templateUrl: "./statistical-report-editor.component.html",
     standalone: true,
-    imports: [DatePipe, StatisticalTemplateViewComponent, TranslateModule]
+    imports: [DatePipe, StatisticalTemplateViewComponent, TranslatePipe]
 })
 export class StatisticalReportEditorComponent implements OnInit {
   private readonly httpService = inject(HttpService);

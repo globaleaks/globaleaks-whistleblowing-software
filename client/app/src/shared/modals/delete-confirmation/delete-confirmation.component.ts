@@ -3,7 +3,7 @@ import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {Router} from "@angular/router";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {User} from "@app/models/resolvers/user-resolver-model";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
@@ -14,7 +14,7 @@ import {contextResolverModel} from "@app/models/resolvers/context-resolver-model
     selector: "src-delete-confirmation",
     templateUrl: "./delete-confirmation.component.html",
     standalone: true,
-    imports: [TranslateModule]
+    imports: [TranslatePipe]
 })
 export class DeleteConfirmationComponent implements OnInit {
   private readonly modalService = inject(NgbActiveModal);

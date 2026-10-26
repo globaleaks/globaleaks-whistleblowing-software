@@ -10,14 +10,14 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {Observable} from "rxjs";
 import {CommonModule, DatePipe} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
 @Component({
   selector: "src-profilelist",
   templateUrl: "./profilelist.component.html",
   standalone: true,
-  imports: [CollapsibleCardComponent, CommonModule, FormsModule, DatePipe, TranslateModule]
+  imports: [CollapsibleCardComponent, CommonModule, FormsModule, DatePipe, TranslatePipe]
 })
 export class ProfilelistComponent {
   protected nodeResolver = inject(NodeResolver);

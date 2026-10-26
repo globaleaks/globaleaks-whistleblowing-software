@@ -11,7 +11,7 @@ import {ReportTemplateData} from "@app/models/analyst/report-template.model";
 import {AddMetricModalComponent} from "@app/shared/modals/add-metric-modal/add-metric-modal.component";
 import {ManageMetricModalComponent} from "@app/shared/modals/manage-metric-modal/manage-metric-modal.component";
 import {StatisticalMetricsResolver} from "@app/shared/resolvers/statistical-metrics.resolver";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {provideCharts, withDefaultRegisterables} from "ng2-charts";
 import {StatisticalTemplateViewComponent} from "@app/pages/analyst/statistics/statistical-template-view/statistical-template-view.component";
 import {StatisticalTemplateService} from "@app/pages/analyst/statistics/statistical-template-service";
@@ -25,7 +25,7 @@ import {StatisticalTemplateService} from "@app/pages/analyst/statistics/statisti
     FormsModule,
     NgbTooltipModule,
     CommonModule,
-    TranslateModule,
+    TranslatePipe,
     NgbDropdownModule,
     StatisticalTemplateViewComponent
   ]

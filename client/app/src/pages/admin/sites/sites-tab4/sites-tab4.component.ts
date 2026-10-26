@@ -1,7 +1,7 @@
 import {CollapsibleCardComponent} from "@app/shared/components/collapsible-card/collapsible-card.component";
 import { Component, OnInit, inject } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { TranslatePipe } from "@ngx-translate/core";
 import { NgbModal } from "@ng-bootstrap/ng-bootstrap";
 import { HttpService } from "@app/shared/services/http.service";
 import { InviteComponent } from "@app/shared/modals/invite/invite.component";
@@ -11,7 +11,7 @@ import { PaginatedInterfaceComponent } from "@app/shared/components/paginated-in
 @Component({
   selector: 'src-sites-tab4',
   standalone: true,
-  imports: [CollapsibleCardComponent, CommonModule, PaginatedInterfaceComponent, TranslateModule],
+  imports: [CollapsibleCardComponent, CommonModule, PaginatedInterfaceComponent, TranslatePipe],
   templateUrl: './sites-tab4.component.html'
 })
 export class SitesTab4Component implements OnInit {

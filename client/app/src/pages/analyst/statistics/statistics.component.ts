@@ -5,7 +5,7 @@ import {PreferenceResolver} from '@app/shared/resolvers/preference.resolver';
 import {StatisticsResolver} from '@app/shared/resolvers/statistics.resolver';
 import {StatisticalTemplatesResolver} from '@app/shared/resolvers/statistical-templates.resolver';
 import {statisticalTemplateResolverModel} from '@app/models/resolvers/statistical-template-resolver-model';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 import {TabsComponent} from '@app/shared/components/tabs/tabs.component';
 import {TabDirective} from '@app/shared/components/tabs/tab.directive';
 import {StatisticalReportsTabComponent} from '@app/pages/analyst/statistics/statistical-reports-tab/statistical-reports-tab.component';
@@ -31,7 +31,7 @@ import {StatisticalTemplateViewComponent} from '@app/pages/analyst/statistics/st
     StatisticalReportsTabComponent,
     StatisticalTemplatesTabComponent,
     StatisticalTemplateViewComponent,
-    TranslateModule
+    TranslatePipe
 ],
 })
 export class StatisticsComponent {

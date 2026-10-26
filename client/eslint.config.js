@@ -57,9 +57,6 @@ module.exports = tseslint.config(
       // awaited, and the promise rules would flag every command.
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/no-misused-promises": "off",
-      // Reported, not enforced: the synchronous Cypress.env() reads are
-      // replaced by cy.env() when the suite is reworked for Cypress 15.
-      "@typescript-eslint/no-deprecated": "warn",
     },
   },
   {

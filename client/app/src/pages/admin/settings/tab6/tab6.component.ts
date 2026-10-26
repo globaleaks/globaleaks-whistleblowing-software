@@ -6,13 +6,13 @@ import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
   selector: "src-tab6",
   templateUrl: "./tab6.component.html",
   standalone: true,
-  imports: [FormsModule, DatePipe, TranslateModule]
+  imports: [FormsModule, DatePipe, TranslatePipe]
 })
 export class Tab6Component implements OnInit {
   protected utilsService = inject(UtilsService);

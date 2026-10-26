@@ -12,14 +12,14 @@ import {WhistleblowerSubmissionService} from "@app/pages/whistleblower/whistlebl
 import {NgFormChangeDirective} from "../../directive/ng-form-change.directive";
 import {FormComponent} from "@app/pages/whistleblower/form/form.component";
 import {RFilesUploadStatusComponent} from "../../partials/rfiles-upload-status/r-files-upload-status.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-tip-additional-questionnaire-form",
     templateUrl: "./tip-additional-questionnaire-form.component.html",
     standalone: true,
-    imports: [FormsModule, NgFormChangeDirective, FormComponent, RFilesUploadStatusComponent, TranslateModule, OrderByPipe]
+    imports: [FormsModule, NgFormChangeDirective, FormComponent, RFilesUploadStatusComponent, TranslatePipe, OrderByPipe]
 })
 export class TipAdditionalQuestionnaireFormComponent implements OnInit {
   private readonly renderScheduler = inject(RenderSchedulerService);

@@ -12,7 +12,7 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {DatePipe} from "@angular/common";
 import {TipFieldComponent} from "../tip-field/tip-field.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {SplitPipe} from "@app/shared/pipes/split.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -21,7 +21,7 @@ import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
     selector: "src-tip-field-answer-entry",
     templateUrl: "./tip-field-answer-entry.component.html",
     standalone: true,
-    imports: [forwardRef(() => TipFieldComponent), DatePipe, TranslateModule, SplitPipe, OrderByPipe, NgbTooltipModule]
+    imports: [forwardRef(() => TipFieldComponent), DatePipe, TranslatePipe, SplitPipe, OrderByPipe, NgbTooltipModule]
 })
 export class TipFieldAnswerEntryComponent implements OnInit {
   protected httpService = inject(HttpService);

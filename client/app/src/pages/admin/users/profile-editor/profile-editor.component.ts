@@ -16,13 +16,13 @@ import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 import {NgClass, CommonModule} from "@angular/common";
 import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/selection-editor/selection-editor.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-profile-editor",
     templateUrl: "./profile-editor.component.html",
     standalone: true,
-    imports: [CollapsibleCardComponent, CommonModule, SelectionEditorComponent, FormsModule, NgbTooltipModule, NgClass, TranslateModule]
+    imports: [CollapsibleCardComponent, CommonModule, SelectionEditorComponent, FormsModule, NgbTooltipModule, NgClass, TranslatePipe]
 })
 export class ProfileEditorComponent implements OnInit {
   private readonly modalService = inject(NgbModal);

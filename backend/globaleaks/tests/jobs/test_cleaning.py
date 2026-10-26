@@ -78,6 +78,61 @@ class TestCleaning(helpers.TestGLWithPopulatedDB):
         # verify cascade deletion when tips expire
         yield self.check2()
 
+    @inlineCallbacks
+    def test_job_removes_storage_of_missing_tenant(self):
+        path = get_storage_path(999, 'attachments', 'untracked', create=True)
+        with open(path, 'wb') as f:
+            f.write(b'untracked')
+
+        yield cleaning.Cleaning().run()
+
+        self.assertFalse(os.path.exists(os.path.join(Settings.tenants_path, '999')))
+
+    @inlineCallbacks
+    def test_job_ignores_non_numeric_storage_entries(self):
+        path = os.path.join(Settings.tenants_path, 'unexpected')
+        os.mkdir(path)
+        with open(os.path.join(path, 'file'), 'wb') as f:
+            f.write(b'keep')
+
+        yield cleaning.Cleaning().run()
+
+        with open(os.path.join(path, 'file'), 'rb') as f:
+            self.assertEqual(f.read(), b'keep')
+
+    @inlineCallbacks
+    def test_job_keeps_tracked_file_under_wrong_tenant(self):
+        yield self.perform_full_submission_actions()
+        yield delivery.Delivery().run()
+
+        file_id = os.listdir(get_storage_path(1, 'attachments'))[0]
+        path = get_storage_path(2, 'attachments', file_id, create=True)
+        with open(path, 'wb') as f:
+            f.write(b'misplaced')
+        os.utime(path, (0, 0))
+
+        yield cleaning.Cleaning().run()
+
+        with open(path, 'rb') as f:
+            self.assertEqual(f.read(), b'misplaced')
+
+    @inlineCallbacks
+    def test_job_unlinks_storage_symlinks_without_following_them(self):
+        target = os.path.join(Settings.working_path, 'target')
+        os.mkdir(target)
+        with open(os.path.join(target, 'file'), 'wb') as f:
+            f.write(b'keep')
+        link = get_storage_path(1, 'attachments', 'link', create=True)
+        os.symlink(target, link)
+        os.symlink(target, os.path.join(Settings.tenants_path, '999'))
+
+        yield cleaning.Cleaning().run()
+
+        self.assertFalse(os.path.lexists(link))
+        self.assertFalse(os.path.lexists(os.path.join(Settings.tenants_path, '999')))
+        with open(os.path.join(target, 'file'), 'rb') as f:
+            self.assertEqual(f.read(), b'keep')
+
     @transact
     def age_invites(self, session, days):
         session.query(models.Subscriber) \

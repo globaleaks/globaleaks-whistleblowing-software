@@ -9,13 +9,13 @@ import {AddFieldFromTemplateComponent} from "../add-field-from-template/add-fiel
 import {FormsModule} from "@angular/forms";
 import {FieldsComponent} from "../fields/fields.component";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-step",
     templateUrl: "./step.component.html",
     standalone: true,
-    imports: [AddFieldComponent, AddFieldFromTemplateComponent, FormsModule, FieldsComponent, OrderByPipe, TranslateModule]
+    imports: [AddFieldComponent, AddFieldFromTemplateComponent, FormsModule, FieldsComponent, OrderByPipe, TranslatePipe]
 })
 export class StepComponent implements OnInit {
   protected fieldTemplates = inject(FieldTemplatesResolver);

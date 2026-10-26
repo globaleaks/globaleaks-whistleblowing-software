@@ -1,13 +1,13 @@
 import {Component, Input, OnInit, inject} from "@angular/core";
 import {NgbActiveModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {UtilsService} from "@app/shared/services/utils.service";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-access-code",
     templateUrl: "./access-code.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, TranslateModule]
+    imports: [NgbTooltipModule, TranslatePipe]
 })
 export class AccessCodeComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);

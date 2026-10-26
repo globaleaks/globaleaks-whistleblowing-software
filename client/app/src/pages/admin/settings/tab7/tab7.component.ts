@@ -2,7 +2,7 @@ import {Component, inject, input, OnInit} from "@angular/core";
 import {FormsModule, NgForm} from "@angular/forms";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
 
@@ -10,7 +10,7 @@ import {AppConfigService} from "@app/services/root/app-config.service";
     selector: "src-tab7",
     templateUrl: "./tab7.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule]
+    imports: [FormsModule, TranslatePipe]
 })
 export class Tab7Component implements OnInit {
   readonly contentForm = input.required<NgForm>();

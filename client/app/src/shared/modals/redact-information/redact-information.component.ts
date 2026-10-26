@@ -6,7 +6,7 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {RedactionData} from "@app/models/component-model/redaction";
 
 import {FormsModule} from '@angular/forms';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
     selector: 'src-redact-information',
@@ -14,7 +14,7 @@ import {TranslateModule} from '@ngx-translate/core';
     standalone: true,
     imports: [
     FormsModule,
-    TranslateModule
+    TranslatePipe
 ],
 })
 export class RedactInformationComponent implements OnInit{

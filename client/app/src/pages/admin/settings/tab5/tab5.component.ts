@@ -2,7 +2,7 @@ import {Component, Input, OnInit, inject} from "@angular/core";
 import {FormsModule, NgForm} from "@angular/forms";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -12,7 +12,7 @@ import {AppDataService} from "@app/app-data.service";
     selector: "src-tab5",
     templateUrl: "./tab5.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule]
+    imports: [FormsModule, TranslatePipe]
 })
 export class Tab5Component implements OnInit {
   @Input() contentForm: NgForm;
@@ -49,8 +49,10 @@ export class Tab5Component implements OnInit {
     return !!this.idpIssuer && !!this.idpClientId;
   }
 
+  // The identity provider of the primary tenant is how its users log in: while enabled it is not
+  // reconfigured, only disabled or reset
   isLocked(key: string) {
-    return this.heldByProfile(key);
+    return this.heldByProfile(key) || (this.nodeData.root_tenant && this.nodeData.idp);
   }
 
   // Saving writes the three variables of the configuration: there is nothing to save when the

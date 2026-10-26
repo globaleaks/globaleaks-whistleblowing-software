@@ -1,6 +1,6 @@
 import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {FormsModule} from "@angular/forms";
 import {Constants} from "@app/shared/constants/constants";
 
@@ -8,7 +8,7 @@ import {Constants} from "@app/shared/constants/constants";
   selector: 'src-send-mail',
   templateUrl: './send-mail.component.html',
   standalone: true,
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, TranslatePipe],
 })
 export class SendMailComponent {
   private readonly modalService = inject(NgbModal);

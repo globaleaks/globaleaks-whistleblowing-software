@@ -1,9 +1,14 @@
 import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {NetworkResolver} from "@app/shared/resolvers/network.resolver";
-import {NotificationsResolver} from "@app/shared/resolvers/notifications.resolver";
+import {
+  NotificationSettingsResolver,
+  NotificationTemplatesResolver,
+  SMTP1Resolver,
+  SMTP2Resolver
+} from "@app/shared/resolvers/notifications.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
 import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/selection-editor/selection-editor.component";
@@ -25,7 +30,7 @@ import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/s
   selector: "src-configuration",
   templateUrl: "./configuration.component.html",
   standalone: true,
-  imports: [SelectionEditorComponent, TranslateModule]
+  imports: [SelectionEditorComponent, TranslatePipe]
 })
 export class ConfigurationComponent {
   private readonly activeModal = inject(NgbActiveModal);
@@ -36,7 +41,12 @@ export class ConfigurationComponent {
   private gaveUp = false;
   protected readonly nodeResolver = inject(NodeResolver);
   private readonly networkResolver = inject(NetworkResolver);
-  private readonly notificationsResolver = inject(NotificationsResolver);
+  private readonly notificationResolvers = [
+    inject(NotificationSettingsResolver),
+    inject(NotificationTemplatesResolver),
+    inject(SMTP1Resolver),
+    inject(SMTP2Resolver)
+  ];
 
   get isProfile(): boolean {
     return this.nodeResolver.dataModel.is_profile;
@@ -107,7 +117,7 @@ export class ConfigurationComponent {
     if (this.gaveUp) {
       this.nodeResolver.reload();
       this.networkResolver.reload();
-      this.notificationsResolver.reload();
+      this.notificationResolvers.forEach(resolver => resolver.reload());
     }
   }
 }

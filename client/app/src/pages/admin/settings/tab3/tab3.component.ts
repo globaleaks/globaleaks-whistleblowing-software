@@ -7,13 +7,13 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/selection-editor/selection-editor.component";
 import {LanguagesSupported} from "@app/models/app/public-model";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-tab3",
     templateUrl: "./tab3.component.html",
     standalone: true,
-    imports: [FormsModule, SelectionEditorComponent, TranslateModule]
+    imports: [FormsModule, SelectionEditorComponent, TranslatePipe]
 })
 export class Tab3Component implements OnInit {
   private readonly appConfigService = inject(AppConfigService);

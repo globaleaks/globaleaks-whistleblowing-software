@@ -7,7 +7,7 @@ import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
 import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {TranslatePipe, TranslateService} from "@ngx-translate/core";
 
 /** The entry of the channel dropdown that declares a channel instead of naming one */
 const NEW_CHANNEL = "new";
@@ -35,7 +35,7 @@ interface ExchangeRow {
     selector: "src-sites-tab5",
     templateUrl: "./sites-tab5.component.html",
     standalone: true,
-    imports: [FormsModule, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule]
+    imports: [FormsModule, PaginatedInterfaceComponent, TableHeaderComponent, TranslatePipe]
 })
 export class SitesTab5Component implements OnInit {
   private readonly httpService = inject(HttpService);

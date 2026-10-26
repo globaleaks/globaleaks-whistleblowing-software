@@ -2,7 +2,7 @@ import {Component, Input, inject, OnInit} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {TranslatePipe, TranslateService} from "@ngx-translate/core";
 import {ChartType, MetricCard} from "@app/models/resolvers/statistical-template-resolver-model";
 import {NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirective, NgLabelTemplateDirective} from "@ng-select/ng-select";
 
@@ -10,7 +10,7 @@ import {NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirectiv
   selector: "src-manage-metric-modal",
   templateUrl: "./manage-metric-modal.component.html",
   standalone: true,
-  imports: [FormsModule, CommonModule, TranslateModule, NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirective, NgLabelTemplateDirective]
+  imports: [FormsModule, CommonModule, TranslatePipe, NgSelectComponent, NgOptionTemplateDirective, NgOptgroupTemplateDirective, NgLabelTemplateDirective]
 })
 export class ManageMetricModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);

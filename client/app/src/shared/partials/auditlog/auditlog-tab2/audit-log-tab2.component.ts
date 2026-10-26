@@ -4,7 +4,7 @@ import {AuditLogUsersResolver} from "@app/shared/resolvers/audit-log-users.resol
 import {User} from "@app/models/resolvers/user-resolver-model";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
 import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
@@ -14,7 +14,7 @@ import {TableFilterOption, TableState} from "@app/shared/components/table/table-
     selector: "src-auditlog-tab2",
     templateUrl: "./audit-log-tab2.component.html",
     standalone: true,
-    imports: [DatePipe, NgbTooltipModule, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule]
+    imports: [DatePipe, NgbTooltipModule, PaginatedInterfaceComponent, TableHeaderComponent, TranslatePipe]
 })
 export class AuditLogTab2Component {
   private readonly utilsService = inject(UtilsService);

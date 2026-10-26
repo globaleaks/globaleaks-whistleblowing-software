@@ -38,6 +38,28 @@ class TestFilesystemUtilities(helpers.TestGL):
         self.assertRaises(errors.DirectoryTraversalError,
                           fs.directory_traversal_check, base, evil)
 
+    def test_get_storage_path_rejects_invalid_tenant_ids(self):
+        for tid in (True, 0, -1):
+            self.assertRaises(errors.DirectoryTraversalError, fs.get_storage_path, tid, 'files')
+
+    def test_get_storage_path_rejects_unknown_kind(self):
+        self.assertRaises(errors.DirectoryTraversalError, fs.get_storage_path, 1, 'unknown')
+
+    def test_get_storage_path_rejects_invalid_file_ids(self):
+        for file_id in ('..', '.', 'a/b', '', '/etc/passwd'):
+            self.assertRaises(errors.DirectoryTraversalError, fs.get_storage_path, 1, 'files', file_id)
+
+    def test_get_storage_path_rejects_symlinked_tenant_root(self):
+        os.symlink(Settings.tmp_path, os.path.join(Settings.tenants_path, '3'))
+        self.assertRaises(errors.DirectoryTraversalError, fs.get_storage_path, 3, 'files', create=True)
+        self.assertFalse(os.path.exists(os.path.join(Settings.tmp_path, 'files')))
+
+    def test_get_storage_path_creates_tenant_directories(self):
+        path = fs.get_storage_path(3, 'attachments', 'file-id', create=True)
+        self.assertEqual(path, os.path.join(Settings.tenants_path, '3', 'attachments', 'file-id'))
+        self.assertTrue(os.path.isdir(os.path.dirname(path)))
+        self.assertFalse(os.path.exists(path))
+
     def test_srm(self):
         path = os.path.join(Settings.working_path, "antani.txt")
 

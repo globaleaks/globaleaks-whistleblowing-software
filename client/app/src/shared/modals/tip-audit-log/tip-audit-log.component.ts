@@ -1,7 +1,7 @@
 import {Component, Input, inject, OnInit, ChangeDetectorRef, viewChild} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {DatePipe, NgTemplateOutlet} from "@angular/common";
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {TranslatePipe, TranslateService} from "@ngx-translate/core";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
 import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
@@ -32,7 +32,7 @@ interface GroupedAuditLogEntry extends AuditLogEntry {
   selector: "src-tip-audit-log",
   templateUrl: "./tip-audit-log.component.html",
   standalone: true,
-  imports: [DatePipe, NgTemplateOutlet, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule],
+  imports: [DatePipe, NgTemplateOutlet, PaginatedInterfaceComponent, TableHeaderComponent, TranslatePipe],
   styles: [`
     .table {
       table-layout: fixed;

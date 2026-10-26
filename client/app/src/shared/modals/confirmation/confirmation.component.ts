@@ -1,12 +1,12 @@
 import {Component, inject} from "@angular/core";
 import {NgbActiveModal, NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-confirmation",
     templateUrl: "./confirmation.component.html",
     standalone: true,
-    imports: [TranslateModule]
+    imports: [TranslatePipe]
 })
 export class ConfirmationComponent {
   private readonly modalService = inject(NgbModal);

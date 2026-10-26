@@ -8,13 +8,13 @@ import {
   TipOperationFileIdentityAccessReplyComponent
 } from "@app/shared/modals/tip-operation-file-identity-access-reply/tip-operation-file-identity-access-reply.component";
 import {DatePipe} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-identity-access-requests",
     templateUrl: "./identity-access-requests.component.html",
     standalone: true,
-    imports: [PaginatedInterfaceComponent, DatePipe, NgbTooltipModule, TranslateModule]
+    imports: [PaginatedInterfaceComponent, DatePipe, NgbTooltipModule, TranslatePipe]
 })
 export class IdentityAccessRequestsComponent {
   usersNames: Record<string, string> = {};

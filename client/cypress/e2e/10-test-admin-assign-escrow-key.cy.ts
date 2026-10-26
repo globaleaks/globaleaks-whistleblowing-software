@@ -11,7 +11,7 @@ describe("key escrow assignment", () => {
     cy.get("div.ng-option").contains("Admin2").click();
 
     // the operation is confirmed with the password of the administrator
-    cy.get("[name='secret']").should("be.visible").clear().type(Cypress.env("user_password"));
+    cy.get("[name='secret']").should("be.visible").clear().type(Cypress.expose("user_password"));
     cy.get("#confirm").click();
 
     // the confirmed operation reloads the component and the navigation returns

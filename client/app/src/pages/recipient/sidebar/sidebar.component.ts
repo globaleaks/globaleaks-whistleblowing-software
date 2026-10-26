@@ -1,7 +1,7 @@
 import {Component, inject} from "@angular/core";
 import {RouterLink, RouterLinkActive} from "@angular/router";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
@@ -9,7 +9,7 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
     selector: "src-receipt-sidebar",
     templateUrl: "./sidebar.component.html",
     standalone: true,
-    imports: [RouterLink, RouterLinkActive, TranslateModule]
+    imports: [RouterLink, RouterLinkActive, TranslatePipe]
 })
 export class ReceiptSidebarComponent {
   protected preferenceResolver = inject(PreferenceResolver);

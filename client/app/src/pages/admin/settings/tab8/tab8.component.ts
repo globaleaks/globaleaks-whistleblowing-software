@@ -13,7 +13,7 @@ import {SelectionEditorComponent, SelectionEntry} from "@app/shared/components/s
 import {UserProfile} from "@app/models/resolvers/user-resolver-model";
 import {SelectableEntry, SelectableUser} from "@app/models/app/selectables";
 import {HttpService} from "@app/shared/services/http.service";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 import {ConfigurationComponent} from "@app/shared/modals/configuration/configuration.component";
 
@@ -21,7 +21,7 @@ import {ConfigurationComponent} from "@app/shared/modals/configuration/configura
     selector: "src-tab8",
     templateUrl: "./tab8.component.html",
     standalone: true,
-    imports: [HeldByProfileDirective, FormsModule, SelectionEditorComponent, TranslateModule]
+    imports: [HeldByProfileDirective, FormsModule, SelectionEditorComponent, TranslatePipe]
 })
 export class Tab8Component implements OnInit {
   protected authenticationService = inject(AuthenticationService);

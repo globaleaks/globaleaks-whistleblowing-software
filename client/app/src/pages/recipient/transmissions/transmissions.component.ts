@@ -2,7 +2,7 @@ import {Component, OnInit, inject} from "@angular/core";
 import {DatePipe} from "@angular/common";
 import {RouterLink} from "@angular/router";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {ExchangeReportComponent} from "@app/shared/modals/exchange-report/exchange-report.component";
@@ -29,7 +29,7 @@ interface Transmission {
   selector: "src-transmissions",
   templateUrl: "./transmissions.component.html",
   standalone: true,
-  imports: [DatePipe, RouterLink, NgbTooltipModule, TranslateModule]
+  imports: [DatePipe, RouterLink, NgbTooltipModule, TranslatePipe]
 })
 export class TransmissionsComponent implements OnInit {
   private readonly httpService = inject(HttpService);

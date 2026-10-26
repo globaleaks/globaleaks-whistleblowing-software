@@ -1,14 +1,14 @@
 import {Component, forwardRef, input} from "@angular/core";
 
 import {TipFieldAnswerEntryComponent} from "../tip-field-answer-entry/tip-field-answer-entry.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 
 @Component({
     selector: "src-tip-field",
     templateUrl: "./tip-field.component.html",
     standalone: true,
-    imports: [forwardRef(() => TipFieldAnswerEntryComponent), TranslateModule, OrderByPipe]
+    imports: [forwardRef(() => TipFieldAnswerEntryComponent), TranslatePipe, OrderByPipe]
 })
 export class TipFieldComponent {
   readonly fields = input<any>();

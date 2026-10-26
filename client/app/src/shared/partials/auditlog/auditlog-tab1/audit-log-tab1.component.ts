@@ -6,7 +6,7 @@ import {AppDataService} from "@app/app-data.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {DatePipe} from "@angular/common";
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {TranslatePipe, TranslateService} from "@ngx-translate/core";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
 import {TableHeaderComponent} from "@app/shared/components/table/table-header.component";
 import {TableFilterOption, TableState} from "@app/shared/components/table/table-state";
@@ -25,7 +25,7 @@ interface AuditLogRow extends auditlogResolverModel {
     selector: "src-auditlog-tab1",
     templateUrl: "./audit-log-tab1.component.html",
     standalone: true,
-    imports: [DatePipe, PaginatedInterfaceComponent, TableHeaderComponent, TranslateModule]
+    imports: [DatePipe, PaginatedInterfaceComponent, TableHeaderComponent, TranslatePipe]
 })
 export class AuditLogTab1Component implements OnInit {
   protected authenticationService = inject(AuthenticationService);

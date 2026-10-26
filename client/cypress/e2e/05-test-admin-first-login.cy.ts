@@ -4,7 +4,7 @@ describe("admin login", () => {
 
     cy.visit("#/admin/preferences");
     cy.get("#account_recovery_key").click();
-    cy.get("[name='secret']").type(Cypress.env("user_password"));
+    cy.get("[name='secret']").type(Cypress.expose("user_password"));
     cy.get("#confirm").click();
     cy.get('src-encryption-recovery-key').should('exist');
 

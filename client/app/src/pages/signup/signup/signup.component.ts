@@ -9,14 +9,14 @@ import {OAuthService} from "angular-oauth2-oidc";
 import {IdpService} from "@app/services/root/idp.service";
 
 import {SignupdefaultComponent} from "../templates/signupdefault/signupdefault.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {ErrorCodes} from "@app/models/app/error-code";
 
 @Component({
     selector: "src-signup",
     templateUrl: "./signup.component.html",
     standalone: true,
-    imports: [SignupdefaultComponent, TranslateModule]
+    imports: [SignupdefaultComponent, TranslatePipe]
 })
 export class SignupComponent implements OnInit {
   protected appDataService = inject(AppDataService);

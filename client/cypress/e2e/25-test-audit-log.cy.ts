@@ -113,7 +113,7 @@ describe("deletion protected by the confirmation modal", () => {
     // that request
     cy.intercept("DELETE", "/api/admin/users/*", {statusCode: 409, body: {}}).as("refusedDeletion");
     cy.get("#modal-action-ok").click();
-    cy.get(".modal [type='password']").should("be.visible").type(Cypress.env("user_password"));
+    cy.get(".modal [type='password']").should("be.visible").type(Cypress.expose("user_password"));
     cy.get(".modal .btn-primary").click();
     cy.wait("@refusedDeletion");
 
@@ -143,7 +143,7 @@ describe("deletion protected by the confirmation modal", () => {
 
     cy.intercept("DELETE", "/api/admin/tenants/*", {statusCode: 409, body: {}}).as("refusedTenantDeletion");
     cy.get("#modal-action-ok").click();
-    cy.get(".modal [type='password']").should("be.visible").type(Cypress.env("user_password"));
+    cy.get(".modal [type='password']").should("be.visible").type(Cypress.expose("user_password"));
     cy.get(".modal .btn-primary").click();
     cy.wait("@refusedTenantDeletion");
 

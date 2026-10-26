@@ -1,7 +1,7 @@
 import {Component, inject, ChangeDetectionStrategy} from "@angular/core";
 import {NgbActiveModal, NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -11,7 +11,7 @@ import {TranslateModule} from "@ngx-translate/core";
     imports: [
       FormsModule,
       NgbTooltipModule,
-      TranslateModule
+      TranslatePipe
     ],
 })
 export class ReopenSubmissionComponent {

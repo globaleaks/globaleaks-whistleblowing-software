@@ -2,7 +2,7 @@ import {Component, Input} from "@angular/core";
 import {ControlContainer, NgForm, FormsModule} from "@angular/forms";
 import {nodeResolverModel} from "@app/models/resolvers/node-resolver-model";
 
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 const TOS1_KEYS = {
   enable: "signup_tos1_enable",
@@ -23,7 +23,7 @@ const TOS2_KEYS = {
     templateUrl: "./signup-tos.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [FormsModule, TranslateModule]
+    imports: [FormsModule, TranslatePipe]
 })
 export class SignupTosComponent {
   @Input() node: nodeResolverModel;

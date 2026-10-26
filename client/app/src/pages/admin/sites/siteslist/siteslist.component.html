@@ -40,9 +40,6 @@
       @if (tenant().active) {
         <button type="button" class="btn btn-sm btn-outline-secondary" data-action="view" (click)="viewTenant(tenant())"><span>{{ 'View' | translate }}</span></button>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-action="configure" name="configure_tenant" (click)="configureTenant($event, tenant().id)">{{'Configure'|translate}}</button>
-        @if (profileName) {
-          <button type="button" class="btn btn-sm btn-outline-secondary" data-action="detach" name="detach_tenant" (click)="detachFromProfile($event)">{{'Detach'|translate}}</button>
-        }
       }
     }
   </ng-container>
@@ -57,6 +54,14 @@
             <label for="tenant-subdomain-{{tenant().id}}">{{'Subdomain'|translate}}</label>
             <input id="tenant-subdomain-{{tenant().id}}" name="subdomain" class="form-control" [(ngModel)]="tenant().subdomain" type="text" maxlength="40" required>
           </div>
+          @if (profileName && tenant().active) {
+            <div class="form-group site-profile">
+              <span class="form-label">
+                <span>{{'Profile:'|translate}}</span> {{profileName}}
+              </span>
+              <button type="button" class="btn btn-sm btn-outline-danger" data-action="detach" name="detach_tenant" (click)="detachFromProfile($event)">{{'Detach'|translate}}</button>
+            </div>
+          }
           <div class="form-group">
             <span class="form-label">
               <span>{{'Creation date:'|translate}}</span> {{tenant().creation_date | date:'dd-MM-yyyy'}}

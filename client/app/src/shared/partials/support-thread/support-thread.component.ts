@@ -2,7 +2,7 @@ import {DatePipe} from "@angular/common";
 import {Component, EventEmitter, Input, Output, inject} from "@angular/core";
 import {FormsModule} from "@angular/forms";
 import {SupportMessage, SupportRequest} from "@app/models/app/support";
-import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {TranslatePipe, TranslateService} from "@ngx-translate/core";
 
 /**
  * The conversation of a support request: the messages from the oldest to the
@@ -16,7 +16,7 @@ import {TranslateModule, TranslateService} from "@ngx-translate/core";
   selector: "src-support-thread",
   templateUrl: "./support-thread.component.html",
   standalone: true,
-  imports: [DatePipe, FormsModule, TranslateModule]
+  imports: [DatePipe, FormsModule, TranslatePipe]
 })
 export class SupportThreadComponent {
   private readonly translateService = inject(TranslateService);

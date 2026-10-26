@@ -1,25 +1,31 @@
-export class notificationResolverModel {
+export class notificationSettingsResolverModel {
   enable_admin_notification_emails: boolean;
   enable_custodian_notification_emails: boolean;
   enable_receiver_notification_emails: boolean;
   enable_analyst_notification_emails: boolean;
-  smtp_authentication: boolean;
-  smtp_password: string;
-  smtp_port: number;
-  smtp_security: string;
-  smtp_server: string;
-  smtp_source_email: string;
-  smtp_username: string;
-  smtp2_enabled: boolean;
-  smtp2_authentication: boolean;
-  smtp2_password: string;
-  smtp2_port: number;
-  smtp2_security: string;
-  smtp2_server: string;
-  smtp2_source_email: string;
-  smtp2_template_types: any;
-  smtp2_username: string;
   tip_expiration_threshold: number;
+}
+
+/**
+ * One of the two servers the mails are sent through, with its variables named without the
+ * prefix that tells them apart: the password is written and never read back, and the server says
+ * only whether it holds one. Each server is turned on and off on its own; the secondary one also
+ * says for which notifications it is used.
+ */
+export class smtpResolverModel {
+  server: string;
+  port: number;
+  security: string;
+  authentication: boolean;
+  username: string;
+  password = "";
+  password_set: boolean;
+  source_email: string;
+  enabled: boolean;
+  template_types: string[] = [];
+}
+
+export class notificationTemplatesResolverModel {
   account_activation_mail_template: string;
   account_activation_mail_title: string;
   account_recovery_key_instructions: string;
@@ -74,5 +80,5 @@ export class notificationResolverModel {
   user_credentials: string;
   templates: string[];
 
-  [key: string]: string | boolean | number | string[];
+  [key: string]: string | string[];
 }

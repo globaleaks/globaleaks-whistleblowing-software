@@ -13,13 +13,13 @@ import {AuthenticationService} from "@app/services/helper/authentication.service
 
 import {StepsComponent} from "../steps/steps.component";
 import {ListItemComponent} from "@app/shared/components/list-item/list-item.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-questionnaires-list",
     templateUrl: "./questionnaires-list.component.html",
     standalone: true,
-    imports: [FormsModule, StepsComponent, TranslateModule, ListItemComponent]
+    imports: [FormsModule, StepsComponent, TranslatePipe, ListItemComponent]
 })
 export class QuestionnairesListComponent {
   private readonly authenticationService = inject(AuthenticationService);

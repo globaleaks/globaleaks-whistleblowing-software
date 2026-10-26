@@ -9,14 +9,14 @@ import {HttpService} from "@app/shared/services/http.service";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {DatePipe} from "@angular/common";
 import {TipFieldComponent} from "@app/shared/partials/tip-field/tip-field.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 
 @Component({
     selector: "src-whistleblower-identity-receiver",
     templateUrl: "./whistleblower-identity-receiver.component.html",
     standalone: true,
-    imports: [CollapsiblePanelComponent, TipFieldComponent, NgbTooltipModule, DatePipe, TranslateModule]
+    imports: [CollapsiblePanelComponent, TipFieldComponent, NgbTooltipModule, DatePipe, TranslatePipe]
 })
 export class WhistleBlowerIdentityReceiverComponent {
   protected tipService = inject(ReceiverTipService);

@@ -22,7 +22,7 @@ export class TranslationService {
   public currentDirection: string;
 
   constructor() {
-    this.currentDirection = this.utilsService.getDirection(this.translate.getCurrentLang());
+    this.currentDirection = this.utilsService.getDirection(this.translate.getCurrentLang() ?? "");
   }
 
   setLanguage(language: string) {

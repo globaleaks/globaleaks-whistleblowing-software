@@ -6,7 +6,7 @@ import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {Constants} from "@app/shared/constants/constants";
 import {FormsModule} from "@angular/forms";
 
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {AppDataService} from "@app/app-data.service";
 import {HttpService} from "@app/shared/services/http.service";
@@ -17,7 +17,7 @@ import {SupportThreadComponent} from "@app/shared/partials/support-thread/suppor
     selector: "src-request-support",
     templateUrl: "./request-support.component.html",
     standalone: true,
-    imports: [CollapsibleCardComponent, DatePipe, FormsModule, NgbNavModule, NgClass, NgTemplateOutlet, SupportThreadComponent, TranslateModule]
+    imports: [CollapsibleCardComponent, DatePipe, FormsModule, NgbNavModule, NgClass, NgTemplateOutlet, SupportThreadComponent, TranslatePipe]
 })
 export class RequestSupportComponent implements OnInit {
   protected activeModal = inject(NgbActiveModal);

@@ -13,7 +13,7 @@ import {MarkdownComponent} from "ngx-markdown";
 import {VoiceRecorderComponent} from "@app/shared/partials/voice-recorder/voice-recorder.component";
 import {RFileUploadButtonComponent} from "@app/shared/partials/rfile-upload-button/r-file-upload-button.component";
 import {FormComponent} from "../form/form.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {StripHtmlPipe} from "@app/shared/pipes/strip-html.pipe";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {AutoExpandDirective} from "@app/shared/directive/auto-expand.directive";
@@ -23,7 +23,7 @@ import {AutoExpandDirective} from "@app/shared/directive/auto-expand.directive";
     templateUrl: "./form-field-input.component.html",
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
-    imports: [AutoExpandDirective, FormsModule, forwardRef(() => WhistleblowerIdentityFieldComponent), NgbTooltipModule, NgSelectComponent, NgOptionComponent, NgbInputDatepicker, MarkdownComponent, VoiceRecorderComponent, RFileUploadButtonComponent, forwardRef(() => FormComponent), TranslateModule, StripHtmlPipe, OrderByPipe]
+    imports: [AutoExpandDirective, FormsModule, forwardRef(() => WhistleblowerIdentityFieldComponent), NgbTooltipModule, NgSelectComponent, NgOptionComponent, NgbInputDatepicker, MarkdownComponent, VoiceRecorderComponent, RFileUploadButtonComponent, forwardRef(() => FormComponent), TranslatePipe, StripHtmlPipe, OrderByPipe]
 })
 export class FormFieldInputComponent implements OnInit {
   private readonly fieldUtilitiesService = inject(FieldUtilitiesService);

@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, OnInit, inject} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {FormsModule} from "@angular/forms";
 import {HttpService} from "@app/shared/services/http.service";
 import {Constants} from "@app/shared/constants/constants";
@@ -9,7 +9,7 @@ import {Constants} from "@app/shared/constants/constants";
   selector: 'src-invite',
   templateUrl: './invite.component.html',
   standalone: true,
-  imports: [FormsModule, TranslateModule],
+  imports: [FormsModule, TranslatePipe],
 })
 export class InviteComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
@@ -26,7 +26,7 @@ export class InviteComponent implements OnInit {
   confirmFunction: (invite: {organization_name: string, email: string, mail_template: string}) => void;
 
   ngOnInit(): void {
-    this.httpService.requestNotificationsResource().subscribe(notification => {
+    this.httpService.requestNotificationTemplatesResource().subscribe(notification => {
       this.invite.mail_template = notification.signup_invite_mail_template;
       // The response lands outside change detection (zoneless): request a
       // refresh so the prefilled template is rendered.

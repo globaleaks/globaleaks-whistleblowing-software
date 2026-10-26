@@ -2,7 +2,7 @@ import {Component, inject} from '@angular/core';
 import {UtilsService} from '@app/shared/services/utils.service';
 import {NgbModal, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 import {FormsModule} from '@angular/forms';
-import {TranslateModule} from '@ngx-translate/core';
+import {TranslatePipe} from '@ngx-translate/core';
 
 @Component({
     selector: 'src-otkc-access',
@@ -11,7 +11,7 @@ import {TranslateModule} from '@ngx-translate/core';
     imports: [
         FormsModule,
         NgbTooltipModule,
-        TranslateModule,
+        TranslatePipe,
         ],
 })
 export class OtkcAccessComponent {

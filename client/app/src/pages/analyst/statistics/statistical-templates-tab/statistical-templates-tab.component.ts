@@ -10,13 +10,13 @@ import {StatisticalTemplatesResolver} from "@app/shared/resolvers/statistical-te
 import {NewTemplate, statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {StatisticalTemplateEditorComponent} from "@app/pages/analyst/statistics/statistical-template-editor/statistical-template-editor.component";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-statistical-templates-tab",
     templateUrl: "./statistical-templates-tab.component.html",
     standalone: true,
-    imports: [StatisticalTemplateEditorComponent, FormsModule, NgbTooltipModule, NgClass, PaginatedInterfaceComponent, TranslateModule]
+    imports: [StatisticalTemplateEditorComponent, FormsModule, NgbTooltipModule, NgClass, PaginatedInterfaceComponent, TranslatePipe]
 })
 export class StatisticalTemplatesTabComponent implements OnInit {
   private readonly httpService = inject(HttpService);

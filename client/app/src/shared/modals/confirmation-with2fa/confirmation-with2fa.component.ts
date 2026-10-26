@@ -1,13 +1,13 @@
 import {ChangeDetectorRef, Component, inject} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-confirmation-with2fa",
     templateUrl: "./confirmation-with2fa.component.html",
     standalone: true,
-    imports: [FormsModule, TranslateModule]
+    imports: [FormsModule, TranslatePipe]
 })
 export class ConfirmationWith2faComponent {
   private readonly activeModal = inject(NgbActiveModal);

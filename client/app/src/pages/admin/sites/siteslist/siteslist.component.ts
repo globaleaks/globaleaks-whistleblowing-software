@@ -1,6 +1,7 @@
 import {Component, ElementRef, OnInit, inject, input, output} from "@angular/core";
 import {HttpHeaders} from "@angular/common/http";
 import {AppDataService} from "@app/app-data.service";
+import {ConfirmationComponent} from "@app/shared/modals/confirmation/confirmation.component";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {HttpService} from "@app/shared/services/http.service";
@@ -11,13 +12,13 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {Observable} from "rxjs";
 import {DatePipe} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-siteslist",
     templateUrl: "./siteslist.component.html",
     standalone: true,
-    imports: [FormsModule, DatePipe, TranslateModule, ListItemComponent]
+    imports: [FormsModule, DatePipe, TranslatePipe, ListItemComponent]
 })
 export class SiteslistComponent implements OnInit {
   protected nodeResolver = inject(NodeResolver);
@@ -87,18 +88,21 @@ export class SiteslistComponent implements OnInit {
    *
    * What the profile handed it becomes its own, and nothing changes for whoever looks at the
    * site. It goes one way alone, and the exchanges addressed to the profile no longer reach it:
-   * it is asked for with the credentials of whoever does it, as the deletion of a site.
+   * as the deletion of a site, it is asked first and then with the credentials of whoever does it.
    */
   detachFromProfile($event: Event): void {
     $event.stopPropagation();
 
-    this.utilsService.getConfirmation((secret: string) => {
-      const headers = new HttpHeaders({"X-Confirmation": this.utilsService.encodeString(secret)});
-      return this.httpService.requestDetachTenant(this.tenant().id, headers);
-    }, "Are you sure?").subscribe(() => {
-      this.tenant().profile = "default";
-      this.utilsService.reloadComponent();
-    });
+    const modalRef = this.modalService.open(ConfirmationComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: "modal-title"});
+    modalRef.componentInstance.confirmFunction = () => {
+      this.utilsService.getConfirmation((secret: string) => {
+        const headers = new HttpHeaders({"X-Confirmation": this.utilsService.encodeString(secret)});
+        return this.httpService.requestDetachTenant(this.tenant().id, headers);
+      }).subscribe(() => {
+        this.tenant().profile = "default";
+        this.utilsService.reloadComponent();
+      });
+    };
   }
 
   configureTenant($event: Event, tid: number): void {

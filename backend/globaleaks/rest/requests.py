@@ -345,23 +345,7 @@ AdminNetworkDesc = {
     'ip_filter_transmitter': str
 }
 
-AdminNotificationDesc = {
-    'smtp_server': str,
-    'smtp_port': int,
-    'smtp_security': str,  # 'TLS' or 'SSL' only
-    'smtp_authentication': bool,
-    'smtp_username': str,
-    'smtp_password': str,
-    'smtp_source_email': email_regexp,
-    'smtp2_enabled': bool,
-    'smtp2_template_types': [str],
-    'smtp2_server': str,
-    'smtp2_port': int,
-    'smtp2_security': str,  # 'TLS' or 'SSL' only
-    'smtp2_authentication': bool,
-    'smtp2_username': str,
-    'smtp2_password': str,
-    'smtp2_source_email': email_regexp,
+AdminNotificationSettingsDesc = {
     'enable_admin_notification_emails': bool,
     'enable_analyst_notification_emails': bool,
     'enable_custodian_notification_emails': bool,
@@ -369,7 +353,22 @@ AdminNotificationDesc = {
     'tip_expiration_threshold': int
 }
 
-AdminNotificationDesc.update({k: str for k in ConfigL10NFilters['notification']})
+AdminNotificationTemplatesDesc = {k: str for k in ConfigL10NFilters['notification']}
+
+# An empty password leaves the one the server holds, and no authentication drops it: the password
+# is written and never read back
+AdminSMTPDesc = {
+    'server': str,
+    'port': int,
+    'security': str,  # 'TLS' or 'SSL' only
+    'authentication': bool,
+    'username': str,
+    'password': str,
+    'source_email': email_regexp,
+    'enabled': bool
+}
+
+AdminSMTP2Desc = dict(AdminSMTPDesc, template_types=[str])
 
 AdminFieldOptionDesc = {
     'id': uuid_regexp_or_empty,

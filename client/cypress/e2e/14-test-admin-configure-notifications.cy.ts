@@ -7,25 +7,66 @@ describe("admin configure mail", () => {
     cy.get("#save_notification").click();
 
     cy.get('[data-cy="smtp"]').first().click();
+
+    // the main server is on by default and the secondary one off: a closed card tells which
+    cy.get('[data-cy="smtp1"] .badge.bg-primary').should("be.visible");
+    cy.get('[data-cy="smtp2"] .badge.bg-secondary').should("be.visible");
+
+    cy.get('[data-cy="smtp1"] .editorTitle').click();
     cy.takeScreenshot("admin/notification_settings_smtp1");
+    cy.get('[data-cy="smtp1"] .editorTitle').click();
+
+    cy.get('[data-cy="smtp2"] .editorTitle').click();
 
     cy.get('#smtp2_enabled').click();
     cy.takeScreenshot("admin/notification_settings_smtp2");
 
-    cy.get("#save_notification").click();
+    cy.intercept("PUT", "**/api/admin/notification/smtp2").as("saveSmtp2");
+    cy.get("#save_smtp2").click();
+    cy.wait("@saveSmtp2");
+    cy.get('[data-cy="smtp2"] .badge.bg-primary').should("be.visible");
     cy.logout();
   });
 
+  // each server is saved and reset on its own, and tested only once what it holds is saved;
+  // its password is written and never read back
   it("should configure SMTP1 and SMTP2 and reset configurations", () => {
     cy.login_admin();
     cy.visit("/#/admin/notifications");
     cy.get('[data-cy="smtp"]').first().click();
-    cy.get('#smtp-server-address').clear().type("mail.example.org");
-    cy.get('#smtp2-server-address').clear().type("mail.example.org");
-    cy.get("#save_notification").click();
-    cy.get("#reset_smtp1").click();
-    cy.get("#reset_smtp2").click();
-    cy.get("#save_notification").click();
+    cy.get('[data-cy="smtp1"] .editorTitle').click();
+    cy.get('[data-cy="smtp2"] .editorTitle').click();
+    cy.get('#smtp-password').should("have.value", "");
+
+    for (const [n, field] of [["1", "#smtp-server-address"], ["2", "#smtp2-server-address"]] as const) {
+      cy.get(field).clear().type("mail.example.org");
+      cy.get(`#test_smtp${n}`).should("be.disabled");
+      cy.intercept("PUT", `**/api/admin/notification/smtp${n}`).as(`saveSmtp${n}`);
+      cy.get(`#save_smtp${n}`).click();
+      cy.wait(`@saveSmtp${n}`);
+      cy.get(`#test_smtp${n}`).should("be.enabled");
+
+      cy.intercept("DELETE", `**/api/admin/notification/smtp${n}`).as(`resetSmtp${n}`);
+      cy.get(`#reset_smtp${n}`).click();
+      cy.wait(`@resetSmtp${n}`);
+      cy.get(field).should("have.value", "mail.globaleaks.org");
+    }
+
+    // turned off, the main server shows it on its closed card too
+    cy.intercept("PUT", "**/api/admin/notification/smtp1").as("toggleSmtp1");
+    cy.get("#smtp1_enabled").click();
+    cy.get("#smtp-server-address").should("not.exist");
+    cy.get("#save_smtp1").click();
+    cy.wait("@toggleSmtp1");
+    cy.get('[data-cy="smtp1"] .editorTitle').click();
+    cy.get('[data-cy="smtp1"] .badge.bg-secondary').should("be.visible");
+
+    cy.get('[data-cy="smtp1"] .editorTitle').click();
+    cy.get("#smtp1_enabled").click();
+    cy.get("#save_smtp1").click();
+    cy.wait("@toggleSmtp1");
+    cy.get('[data-cy="smtp1"] .badge.bg-primary').should("be.visible");
+
     cy.logout();
   });
 
@@ -35,6 +76,8 @@ describe("admin configure mail", () => {
     cy.login_admin();
     cy.visit("/#/admin/notifications");
     cy.get('[data-cy="smtp"]').first().click();
+    cy.get('[data-cy="smtp1"] .editorTitle').click();
+    cy.get('[data-cy="smtp2"] .editorTitle').click();
     cy.takeScreenshot("admin/notification_settings_test1_detail", '.form-group:has(#test_smtp1)');
     cy.get('#test_smtp1').click();
     cy.get('input[name="to_mail_address"]').clear().type('test@example.com');

@@ -6,13 +6,13 @@ import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {SignupTosComponent} from "@app/pages/admin/sites/signup-tos/signup-tos.component";
 
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-sites-tab3",
     templateUrl: "./sites-tab3.component.html",
     standalone: true,
-    imports: [FormsModule, SignupTosComponent, TranslateModule]
+    imports: [FormsModule, SignupTosComponent, TranslatePipe]
 })
 export class SitesTab3Component implements OnInit {
   protected nodeResolver = inject(NodeResolver);

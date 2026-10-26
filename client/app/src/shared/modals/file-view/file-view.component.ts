@@ -5,13 +5,13 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {WbFile} from "@app/models/app/shared-public-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-file-view",
     templateUrl: "./file-view.component.html",
     standalone: true,
-    imports: [TranslateModule]
+    imports: [TranslatePipe]
 })
 export class FileViewComponent implements OnInit {
   private readonly authenticationService = inject(AuthenticationService);

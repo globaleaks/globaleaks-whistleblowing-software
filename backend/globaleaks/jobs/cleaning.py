@@ -96,9 +96,11 @@ class Cleaning(DailyJob):
 
             filepath = os.path.join(path, f)
             if f in tracked_files:
+                # A file the database knows is evidence of a misplacement, not garbage
                 log.err("File found under the wrong tenant: %s", filepath)
-            else:
-                log.debug("Found untracked file: %s", filepath)
+                continue
+
+            log.debug("Found untracked file: %s", filepath)
 
             if os.path.islink(filepath):
                 os.unlink(filepath)

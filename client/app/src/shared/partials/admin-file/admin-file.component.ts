@@ -5,14 +5,14 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {AdminFile} from "@app/models/component-model/admin-file";
 import {NgxFlowModule} from "@flowjs/ngx-flow";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     changeDetection: ChangeDetectionStrategy.OnPush,
     selector: "src-admin-file",
     templateUrl: "./admin-file.component.html",
     standalone: true,
-    imports: [NgxFlowModule, TranslateModule]
+    imports: [NgxFlowModule, TranslatePipe]
 })
 export class AdminFileComponent {
   protected node = inject(NodeResolver);

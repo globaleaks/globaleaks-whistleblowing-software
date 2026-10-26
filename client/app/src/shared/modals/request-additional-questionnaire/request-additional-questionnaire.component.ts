@@ -2,7 +2,7 @@ import {Component, OnInit, inject} from "@angular/core";
 import {NgbActiveModal} from "@ng-bootstrap/ng-bootstrap";
 import {NgSelectComponent, NgLabelTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {RequestableQuestionnaire} from "@app/models/receiver/receiver-tip-data";
 
 /**
@@ -16,7 +16,7 @@ import {RequestableQuestionnaire} from "@app/models/receiver/receiver-tip-data";
     selector: "src-request-additional-questionnaire",
     templateUrl: "./request-additional-questionnaire.component.html",
     standalone: true,
-    imports: [NgSelectComponent, FormsModule, NgLabelTemplateDirective, TranslateModule]
+    imports: [NgSelectComponent, FormsModule, NgLabelTemplateDirective, TranslatePipe]
 })
 export class RequestAdditionalQuestionnaireComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);

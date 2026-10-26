@@ -5,7 +5,7 @@ import {AppDataService} from "@app/app-data.service";
 import {preferenceResolverModel} from "@app/models/resolvers/preference-resolver-model";
 
 import {FormsModule} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-accept-agreement",
@@ -13,7 +13,7 @@ import {TranslateModule} from "@ngx-translate/core";
     standalone: true,
     imports: [
     FormsModule,
-    TranslateModule
+    TranslatePipe
 ],
 })
 export class AcceptAgreementComponent implements OnInit {

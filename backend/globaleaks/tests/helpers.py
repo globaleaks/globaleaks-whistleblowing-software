@@ -1183,7 +1183,7 @@ class TestGLWithPopulatedDB(TestGL):
 
     @inlineCallbacks
     def perform_submission_actions(self, session_id):
-        receipt = GCE.generate_receipt()
+        receipt = self.dummy_receipt = GCE.generate_receipt()
         if self.clientside_hashing:
             receipt = GCE.derive_key(receipt, VALID_SALT)
 

@@ -28,7 +28,7 @@ import {ExchangeReport, RecieverTipData} from "@app/models/receiver/receiver-tip
 import {Receiver} from "@app/models/app/public-model";
 import {ReopenSubmissionComponent} from "@app/shared/modals/reopen-submission/reopen-submission.component";
 import {ChangeSubmissionStatusComponent} from "@app/shared/modals/change-submission-status/change-submission-status.component";
-import {TranslateService, TranslateModule} from "@ngx-translate/core";
+import {TranslateService, TranslatePipe} from "@ngx-translate/core";
 import {TipInfoComponent} from "@app/shared/partials/tip-info/tip-info.component";
 import {TipReceiverListComponent} from "@app/shared/partials/tip-receiver-list/tip-receiver-list.component";
 import {TipQuestionnaireAnswersComponent} from "@app/shared/partials/tip-questionnaire-answers/tip-questionnaire-answers.component";
@@ -73,7 +73,7 @@ import {
       RouterLink,
       CollapsiblePanelComponent,
       TipAdditionalQuestionnaireInviteComponent,
-      TranslateModule
+      TranslatePipe
     ],
 })
 export class TipComponent implements OnInit {

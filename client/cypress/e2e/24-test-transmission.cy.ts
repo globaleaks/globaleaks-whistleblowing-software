@@ -75,6 +75,10 @@ describe("recipient exchange workflow", function () {
   const submitCommunication = (platformUrl: string, alias = 'communicatedReport') => {
     cy.intercept("POST", `${platformUrl}/api/recipient/rtips/**/communication*`).as(alias);
     fill_transmit_form();
+    cy.get('#TransmitForm #step-0-field-4-0-input-0').select(1);
+    cy.get('#TransmitForm input[type="file"]').first().selectFile(
+      './cypress/fixtures/files/test.txt', {force: true});
+    cy.get('#TransmitForm #step-0-field-6-0-input-0').type('Attached evidence');
     cy.get("#SubmitTransmitButton").scrollIntoView().click();
 
     // a refusal is a failure, not a silent step
@@ -97,7 +101,7 @@ describe("recipient exchange workflow", function () {
     cy.then(() => {
       pages.WhistleblowerPage.performSubmission(0, `${platformFUrl}/#/`);
 
-      cy.login_receiver("Platform F Recipient", Cypress.env("user_password"), `${platformFUrl}/#/login`);
+      cy.login_receiver("Platform F Recipient", Cypress.expose("user_password"), `${platformFUrl}/#/login`);
       cy.visit(`${platformFUrl}/#/recipient/reports`);
       cy.waitForUrl("/recipient/reports");
       cy.get("#tip-0").first().click();
@@ -131,6 +135,7 @@ describe("recipient exchange workflow", function () {
 
       cy.get("#tip-0").click();
       cy.get("#TipInfoBox").should("be.visible");
+      cy.get("#TipPageFilesInfoBox .tip-action-download-file").should("be.visible").first().click();
 
       cy.logout();
     });
@@ -196,7 +201,7 @@ describe("recipient exchange workflow", function () {
       cy.logout();
 
       // on the other side the communication is a report of the channel it arrived on
-      cy.login_receiver("Platform F Recipient", Cypress.env("user_password"), `${platformFUrl}/#/login`);
+      cy.login_receiver("Platform F Recipient", Cypress.expose("user_password"), `${platformFUrl}/#/login`);
       cy.visit(`${platformFUrl}/#/recipient/reports`);
       cy.waitForUrl("/recipient/reports");
       cy.get("#tip-0").should("be.visible");
@@ -206,6 +211,7 @@ describe("recipient exchange workflow", function () {
 
       cy.get("#tip-0").click();
       cy.get("#TipInfoBox").should("be.visible");
+      cy.get("#TipPageFilesInfoBox .tip-action-download-file").should("be.visible").first().click();
       cy.takeScreenshot("exchanges/communications/access_received");
       cy.takeScreenshot("exchanges/communications/access_received_messages_detail", "#TipCommentsBox");
 
@@ -247,7 +253,7 @@ describe("transmission workflow upon a request", function () {
   };
 
   const login_transmitter = () => {
-    cy.login_receiver("Platform G Recipient", Cypress.env("user_password"),
+    cy.login_receiver("Platform G Recipient", Cypress.expose("user_password"),
                       `${platformGUrl}/#/login`);
   };
 

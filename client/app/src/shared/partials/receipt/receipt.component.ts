@@ -5,13 +5,13 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {FormsModule} from "@angular/forms";
 import {ReceiptValidatorDirective} from "../../directive/receipt-validator.directive";
 
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
     selector: "src-receipt",
     templateUrl: "./receipt.component.html",
     standalone: true,
-    imports: [FormsModule, ReceiptValidatorDirective, TranslateModule]
+    imports: [FormsModule, ReceiptValidatorDirective, TranslatePipe]
 })
 export class ReceiptComponent{
   protected utilsService = inject(UtilsService);

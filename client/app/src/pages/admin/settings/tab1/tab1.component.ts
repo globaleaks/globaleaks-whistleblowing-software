@@ -7,7 +7,7 @@ import {AppConfigService} from "@app/services/root/app-config.service";
 import {Constants} from "@app/shared/constants/constants";
 import {AppDataService} from "@app/app-data.service";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
 
 @Component({
@@ -19,7 +19,7 @@ import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.dire
     HeldByProfileDirective,
     ImageUploadDirective,
     FormsModule,
-    TranslateModule
+    TranslatePipe
 ],
 })
 export class Tab1Component {

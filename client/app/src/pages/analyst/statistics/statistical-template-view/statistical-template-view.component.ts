@@ -4,7 +4,7 @@ import {ChartConfig, MetricCard, statisticalTemplateResolverModel} from "@app/mo
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
 import {StatisticalMetricsResolver} from "@app/shared/resolvers/statistical-metrics.resolver";
 import {provideCharts, withDefaultRegisterables, BaseChartDirective} from "ng2-charts";
-import {TranslateModule} from "@ngx-translate/core";
+import {TranslatePipe} from "@ngx-translate/core";
 import {StatisticalTemplateService} from "@app/pages/analyst/statistics/statistical-template-service";
 import {NgbDropdownModule, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 
@@ -13,7 +13,7 @@ import {NgbDropdownModule, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
   templateUrl: './statistical-template-view.component.html',
   standalone: true,
   providers: [provideCharts(withDefaultRegisterables())],
-  imports: [CommonModule, TranslateModule, BaseChartDirective, NgbDropdownModule, NgbTooltipModule]
+  imports: [CommonModule, TranslatePipe, BaseChartDirective, NgbDropdownModule, NgbTooltipModule]
 })
 export class StatisticalTemplateViewComponent implements OnInit, OnChanges {
   protected readonly metricsResolver = inject(StatisticalMetricsResolver);
