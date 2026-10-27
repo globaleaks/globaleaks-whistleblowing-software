@@ -88,7 +88,9 @@ fi
 git fetch --depth=1 origin "$TAG"
 git checkout FETCH_HEAD
 
-cd client && npm ci -d && ./node_modules/grunt/bin/grunt build
+cd client
+npm ci -d
+./node_modules/grunt/bin/grunt build
 
 cd $ROOTDIR
 
