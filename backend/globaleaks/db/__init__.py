@@ -160,19 +160,30 @@ def sync_clean_untracked_files(session):
     Transaction for removing files that are not tracked by the application database
     :param session: An ORM session
     """
+    tracked_files = set(db_get_tracked_attachments(session))
     for tid, in session.query(models.Tenant.id):
         path = fs.get_storage_path(tid, 'attachments')
         if not os.path.isdir(path):
             continue
-        tracked_files = set(db_get_tracked_attachments(session, tid))
+        valid_files = set(db_get_tracked_attachments(session, tid))
         for filename in os.listdir(path):
-            if filename not in tracked_files:
-                file_to_remove = fs.get_storage_path(tid, 'attachments', filename)
-                log.debug('Removing untracked file: %s', file_to_remove)
-                try:
-                    fs.srm(file_to_remove)
-                except OSError:
-                    log.err('Failed to remove untracked file', file_to_remove)
+            if filename in valid_files:
+                continue
+
+            file_to_remove = os.path.join(path, filename)
+            if filename in tracked_files:
+                # A file the database knows is evidence of a misplacement, not garbage
+                log.err('File found under the wrong tenant: %s', file_to_remove)
+                continue
+
+            log.debug('Removing untracked file: %s', file_to_remove)
+            try:
+                if os.path.islink(file_to_remove):
+                    os.unlink(file_to_remove)
+                else:
+                    fs.srm(fs.get_storage_path(tid, 'attachments', filename))
+            except OSError as exception:
+                log.err('Failed to remove untracked file %s: %s', file_to_remove, exception)
 
 
 @transact_sync

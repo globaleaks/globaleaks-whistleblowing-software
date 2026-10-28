@@ -1,4 +1,5 @@
 import {t} from "../support/i18n";
+import * as pages from "../support/pages";
 describe("admin configure, add, configure and delete tenants", () => {
   // The address of the support: the profile hands one, the site writes its own, and giving up
   // its own gets the profile's back
@@ -187,6 +188,54 @@ describe("admin configure, add, configure and delete tenants", () => {
     complete_recipient_first_login(tenantUrl, recipientName);
   };
 
+  const upload_logo = (tenantUrl = "") => {
+    cy.visit(`${tenantUrl}/#/admin/settings`);
+    cy.intercept("POST", "**/api/admin/files/logo*").as("uploadLogo");
+    cy.get("#projectImageLoader[type='file']").selectFile({
+      contents: Cypress.Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=", "base64"),
+      fileName: "site-logo.png",
+      mimeType: "image/png"
+    }, {force: true});
+    cy.wait("@uploadLogo").its("response.statusCode").should("be.within", 200, 299);
+    cy.get(".logo-image").should("be.visible");
+  };
+
+  const populate_site = (name: string) => {
+    const recipientName = `${name} Storage Recipient`;
+
+    cy.login_admin();
+    cy.visit("/#/admin/sites");
+    cy.get('[data-cy="sites"]').click();
+    cy.intercept("GET", "/api/auth/tenantauthswitch/**").as("tenantAuthSwitch");
+    cy.window().then((win: any) => {
+      if (win.open.restore) {
+        win.open.restore();
+      }
+      cy.stub(win, "open").as("windowOpen");
+    });
+    configure_site_tenant(name);
+    visit_configured_tenant().then((tenantUrl: string) => {
+      upload_logo(tenantUrl);
+      configure_transmitting_recipient(tenantUrl, `${name} Storage Profile`, recipientName);
+
+      pages.WhistleblowerPage.performSubmission(1, `${tenantUrl}/#/`);
+      cy.login_receiver(recipientName, Cypress.expose("user_password"), `${tenantUrl}/#/login`);
+      cy.visit(`${tenantUrl}/#/recipient/reports`);
+      cy.get("#tip-0").first().click();
+      cy.get("#TipQuestionnaireAnswersBox .tip-action-download-file").should("be.visible");
+      cy.get("#TipPageRFileUpload").then(($panel) => {
+        if (!$panel.find(".card-body").length) {
+          cy.get("#TipPageRFileUpload .card-header").click();
+        }
+      });
+      cy.get("#TipPageRFileUpload #upload_description").type(`File from ${name}`);
+      cy.get('#TipPageRFileUpload input[type="file"]').selectFile(
+        "./cypress/fixtures/files/test.txt", {force: true});
+      cy.get("#TipPageRFileUpload .download-button").should("be.visible");
+      cy.logout();
+    });
+  };
+
   it("should add, configure and delete tenant", () => {
     cy.login_admin();
     cy.visit("/#/admin/sites");
@@ -211,6 +260,15 @@ describe("admin configure, add, configure and delete tenants", () => {
     cy.get('[data-cy="options"]').click();
     cy.takeScreenshot("admin/sites_management_options");
     cy.logout();
+  });
+
+  it("should create reports and upload files for multiple sites", () => {
+    cy.login_admin();
+    upload_logo();
+    cy.logout();
+
+    populate_site("Platform A");
+    populate_site("Platform B");
   });
 
   it("should add and configure the profile tenant", () => {

@@ -1,3 +1,5 @@
+import os
+
 
 from twisted.internet.defer import inlineCallbacks
 
@@ -11,6 +13,8 @@ from globaleaks.models.config import ConfigFactory, DEFAULT_PROFILE_ID, db_get_c
 from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.db import refresh_tenant_cache
+from globaleaks.settings import Settings
+from globaleaks.utils.fs import get_storage_path
 from globaleaks.tests import helpers
 
 
@@ -185,6 +189,22 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
         handler = self.request(None, role='admin', headers={'x-confirmation': confirmation})
 
         yield handler.delete(4)
+
+    @inlineCallbacks
+    def test_delete_removes_tenant_storage(self):
+        for tid in (2, 3):
+            for kind in ('files', 'attachments'):
+                path = get_storage_path(tid, kind, 'file-id', create=True)
+                with open(path, 'wb') as f:
+                    f.write(b'tenant storage')
+
+        yield self.request(None, role='admin').delete(3)
+
+        self.assertFalse(os.path.exists(os.path.join(Settings.tenants_path, '3')))
+        for kind in ('files', 'attachments'):
+            with open(get_storage_path(2, kind, 'file-id'), 'rb') as f:
+                self.assertEqual(f.read(), b'tenant storage')
+
 
 @transact
 def db_compose_profile(session, tid):
