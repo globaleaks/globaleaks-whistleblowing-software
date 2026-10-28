@@ -100,8 +100,8 @@ jobs:
           done
           docker exec gl-systemd systemctl is-system-running || true
 
-          # Install the freshly built package (Depends pulled from the distro repos)
-          docker exec gl-systemd bash -c "apt-get update -q && apt-get install -y /opt/globaleaks.deb"
+          # Install the freshly built package as install.sh does (Depends pulled from the distro repos)
+          docker exec gl-systemd bash -c "apt-get update -q && apt-get install -y --no-install-recommends python3-munkres /opt/globaleaks.deb"
 
           # Fail-closed: with the default config (APPARMOR_SANDBOXING=1) but AppArmor
           # not yet available in this container, the daemon must never run unconfined.
