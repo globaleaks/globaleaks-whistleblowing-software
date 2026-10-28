@@ -1,3 +1,23 @@
+Changes in version 5.0.101
+    Implement security enhancements following auditors suggestions:
+    - Never return the SMTP password through the API, keep it when left empty
+      and drop it when the server requires no authentication
+    Allow masking and redacting the messages of recipients, not only those
+      of whistleblowers (#4913)
+    Open the platform in the browser preferred language when enabled (#4914)
+    Make the reports list of recipients navigable from the keyboard (#4916)
+    Allow reordering custom statuses (#4912)
+    Enforce mandatory selection boxes offering ten options or more (#4911)
+    Fix unread reminders on reports already accessed by the recipient (#4720)
+    Fix options and questions added in the questionnaire editor not being
+      available until a reload
+    Mount /run/globaleaks as a private tmpfs in the Docker examples (#4892)
+    Stop the build when client dependencies fail to install
+    Bump client dependencies to their latest stable versions
+
+Changes in version 5.0.100
+    Publishing skipped for internal test purposes.
+
 Changes in version 5.0.99
     Implement security enhancements following auditors suggestions:
     - Exclude disabled recipients from recipient selection and report delivery
