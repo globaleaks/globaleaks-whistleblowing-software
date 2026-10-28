@@ -12,6 +12,6 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: italia/publiccode-parser-action@21086c73ec0563e14c6748787efa1b34b025ad8c # v1.5.1
+      - uses: italia/publiccode-parser-action@f370d239aa3ec57b819909b467ff77679b6dc721 # v1.7.0
         with:
           publiccode: 'publiccode.yml'
