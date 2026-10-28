@@ -198,35 +198,30 @@ jobs:
           lighthouse_results=()
           echo "🔍 Running Lighthouse audits"
           mkdir -p lighthouse-results
-          # Run Lighthouse audits for multiple pages
+          # Run Lighthouse audits for multiple pages, retrying when the trace fails to record (e.g. NO_NAVSTART), up to 3 runs in total
           lighthouse_exit_code=0
-          # Audit home page
-          echo "  Auditing home page..."
-          npx lighthouse https://localhost:8443 \
-            --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
-            --preset=desktop \
-            --output=json \
-            --output=html \
-            --output-path=./lighthouse-results/lighthouse-report-home \
-            --only-categories=performance,accessibility,best-practices,seo || lighthouse_exit_code=$?
-          # Audit submission page
-          echo "  Auditing submission page..."
-          npx lighthouse https://localhost:8443/#/submission \
-            --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
-            --preset=desktop \
-            --output=json \
-            --output=html \
-            --output-path=./lighthouse-results/lighthouse-report-submission \
-            --only-categories=performance,accessibility,best-practices,seo || lighthouse_exit_code=$?
-          # Audit login page
-          echo "  Auditing login page..."
-          npx lighthouse https://localhost:8443/#/login \
-            --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
-            --preset=desktop \
-            --output=json \
-            --output=html \
-            --output-path=./lighthouse-results/lighthouse-report-login \
-            --only-categories=performance,accessibility,best-practices,seo || lighthouse_exit_code=$?
+          run_lighthouse() {
+            local page="$1" url="$2"
+            local report_file="./lighthouse-results/lighthouse-report-${page}.report.json"
+            for attempt in 1 2 3; do
+              echo "  Auditing $page page (run $attempt of 3)..."
+              rm -f "$report_file"
+              npx lighthouse "$url" \
+                --chrome-flags="--headless --no-sandbox --disable-gpu --disable-dev-shm-usage --allow-running-insecure-content --disable-web-security --allow-insecure-localhost --ignore-certificate-errors --ignore-ssl-errors --ignore-certificate-errors-spki-list" \
+                --preset=desktop \
+                --output=json \
+                --output=html \
+                --output-path=./lighthouse-results/lighthouse-report-${page} \
+                --only-categories=performance,accessibility,best-practices,seo || lighthouse_exit_code=$?
+              if [ -f "$report_file" ] && jq -e '.runtimeError == null and ([.categories[].score] | all(. != null))' "$report_file" >/dev/null 2>&1; then
+                return
+              fi
+              echo "  ⚠️ Lighthouse could not measure the $page page"
+            done
+          }
+          run_lighthouse home https://localhost:8443
+          run_lighthouse submission https://localhost:8443/#/submission
+          run_lighthouse login https://localhost:8443/#/login
           # Check Lighthouse results and thresholds for all pages
           all_failed_checks=""
           all_passed_scores=""
