@@ -354,11 +354,19 @@ jobs:
             BRANCH="main"
             TMP_DIR=$(mktemp -d)
 
+            # Authenticate through a header rather than the URL: recent git rewrites the
+            # remote URL after the first request and drops credentials embedded in it
+            AUTH=$(printf 'x-access-token:%s' "$LIGHTHOUSE_REPO_PAT" | base64 -w0)
+            echo "::add-mask::$AUTH"
+            export GIT_CONFIG_COUNT=1
+            export GIT_CONFIG_KEY_0="http.https://github.com/.extraheader"
+            export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic $AUTH"
+
             echo "Cloning repository..."
             # Clone repository, create main branch if it doesn't exist
-            if ! git clone --branch "$BRANCH" "https://$LIGHTHOUSE_REPO_PAT@github.com/globaleaks/globaleaks-lighthouse-audit.git" "$TMP_DIR" 2>/dev/null; then
+            if ! git clone --branch "$BRANCH" "$REPO" "$TMP_DIR"; then
               echo "Main branch doesn't exist, cloning and creating it..."
-              git clone "https://$LIGHTHOUSE_REPO_PAT@github.com/globaleaks/globaleaks-lighthouse-audit.git" "$TMP_DIR"
+              git clone "$REPO" "$TMP_DIR"
               cd "$TMP_DIR"
               git checkout -b "$BRANCH"
               cd -
