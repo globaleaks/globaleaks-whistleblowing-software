@@ -12,6 +12,8 @@ import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {Observable} from "rxjs";
 import {DatePipe} from "@angular/common";
+import {AuthenticationService} from "@app/services/helper/authentication.service";
+import {TenantBackupReportComponent} from "../tenant-backup-report/tenant-backup-report.component";
 import {TranslatePipe} from "@ngx-translate/core";
 
 @Component({
@@ -27,6 +29,7 @@ export class SiteslistComponent implements OnInit {
   private readonly httpService = inject(HttpService);
   private readonly utilsService = inject(UtilsService);
   private readonly elementRef = inject(ElementRef);
+  private readonly authenticationService = inject(AuthenticationService);
 
   readonly tenant = input.required<tenantResolverModel>();
   readonly tenants = input<tenantResolverModel[]>();
@@ -60,6 +63,28 @@ export class SiteslistComponent implements OnInit {
 
     const url = "api/admin/tenants/" + this.tenant().id;
     this.httpService.requestUpdateTenant(url, this.updateRequest()).subscribe();
+  }
+
+  backupTenant(event: Event): void {
+    event.stopPropagation();
+    this.utilsService.saveAs(
+      this.authenticationService,
+      this.tenant().name + "-backup.tar.gz",
+      "api/admin/tenants/" + this.tenant().id + "/backup"
+    );
+  }
+
+  showBackupReport(event: Event): void {
+    event.stopPropagation();
+    this.httpService.requestTenantBackupReport(this.tenant().id).subscribe(response => {
+      const modalRef = this.modalService.open(TenantBackupReportComponent, {
+        backdrop: "static",
+        keyboard: false,
+        size: "xl",
+        ariaLabelledBy: "tenant-backup-report-title"
+      });
+      modalRef.componentInstance.inventory = response;
+    });
   }
 
   isRemovableTenant(): boolean {

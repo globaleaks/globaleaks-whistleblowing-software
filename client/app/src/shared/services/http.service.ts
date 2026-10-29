@@ -20,6 +20,7 @@ import {NewStep} from "@app/models/admin/new-step";
 import {NewField} from "@app/models/admin/new-field";
 import {FieldTemplate} from "@app/models/admin/field-Template";
 import {Backup} from "@app/models/admin/backup";
+import {TenantBackupInventory} from "@app/models/admin/tenant-backup";
 import {Field, fieldtemplatesResolverModel} from "@app/models/resolvers/field-template-model";
 import {contextResolverModel} from "@app/models/resolvers/context-resolver-model";
 import {Root, Status, Substatus} from "@app/models/app/public-model";
@@ -126,6 +127,10 @@ export class HttpService {
 
   requestDetachTenant(tid: number, headers?: HttpHeaders): Observable<void> {
     return this.httpClient.put<void>(`api/admin/tenants/${tid}/detach`, {}, {headers});
+  }
+
+  requestTenantBackupReport(tid: number): Observable<TenantBackupInventory> {
+    return this.httpClient.get<TenantBackupInventory>(`api/admin/tenants/${tid}/backup/report`);
   }
 
   authorizeIdentity(url: string, data: { reply: string, reply_motivation: string }): Observable<{

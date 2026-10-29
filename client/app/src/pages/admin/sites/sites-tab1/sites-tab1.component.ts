@@ -1,9 +1,10 @@
-import {Component, OnInit, inject} from "@angular/core";
+import {Component, ElementRef, OnInit, ViewChild, inject} from "@angular/core";
 import {ActivatedRoute} from "@angular/router";
 import {NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {tenantResolverModel} from "@app/models/resolvers/tenant-resolver-model";
 import {HttpService} from "@app/shared/services/http.service";
 import {FormsModule} from "@angular/forms";
+import {UtilsService} from "@app/shared/services/utils.service";
 import {TranslatePipe} from "@ngx-translate/core";
 import {SiteslistComponent} from "../siteslist/siteslist.component";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
@@ -18,6 +19,8 @@ import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-inte
 export class SitesTab1Component implements OnInit {
   private readonly httpService = inject(HttpService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly utilsService = inject(UtilsService);
+  @ViewChild("tenantBackupInput") tenantBackupInput: ElementRef<HTMLInputElement>;
 
   newTenant: { name: string, active: boolean, profile: string, subdomain: string, is_profile: boolean} = {
     name: "",
@@ -73,6 +76,25 @@ export class SitesTab1Component implements OnInit {
       this.newTenant.name = "";
       this.newTenant.profile = "default";
     });
+  }
+
+  restoreTenant(files: FileList | null) {
+    const file = files?.item(0);
+    if (!file) {
+      return;
+    }
+
+    const flow = this.utilsService.getFlowInstance();
+    flow.opts.target = "api/admin/tenants/backup/import";
+    flow.opts.singleFile = true;
+    flow.on("fileSuccess", () => {
+      this.tenantBackupInput.nativeElement.value = "";
+      this.fetchTenants();
+    });
+    flow.on("fileError", () => {
+      this.tenantBackupInput.nativeElement.value = "";
+    });
+    this.utilsService.onFlowUpload(flow, file);
   }
 
   onDelete(id: number) {

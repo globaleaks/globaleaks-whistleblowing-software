@@ -552,6 +552,7 @@ class AdminOperationHandler(OperationHandler):
         yield reset_backups(1, self.session.user_id)
 
         yield reset_backups_threaded(State.settings.backups_snapshots_path)
+        yield reset_backups_threaded(State.settings.tenant_backups_path)
 
     @inlineCallbacks
     def set_hostname(self, req_args, *args, **kwargs):

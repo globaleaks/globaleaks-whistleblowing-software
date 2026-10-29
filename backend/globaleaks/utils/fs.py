@@ -109,7 +109,7 @@ def read_json_file(p):
         return {}
 
 
-def get_storage_path(tid, kind, file_id=None, create=False):
+def get_storage_path(tid, kind, file_id=None, create=False, tenants_path=None):
     """
     Resolve a path inside a tenant's storage
 
@@ -117,17 +117,19 @@ def get_storage_path(tid, kind, file_id=None, create=False):
     :param kind: The storage directory
     :param file_id: An optional file ID
     :param create: Whether to create the storage directory
+    :param tenants_path: An optional tenant root for backup snapshots
     :return: The validated storage path
     """
     if isinstance(tid, bool) or not str(tid).isdigit() or int(tid) < 1:
         raise errors.DirectoryTraversalError
-    if kind not in ('files', 'attachments'):
+    if kind not in ('files', 'attachments', 'log'):
         raise errors.DirectoryTraversalError
 
-    tenant_root = os.path.join(Settings.tenants_path, str(int(tid)))
+    tenants_path = Settings.tenants_path if tenants_path is None else tenants_path
+    tenant_root = os.path.join(tenants_path, str(int(tid)))
     if os.path.islink(tenant_root):
         raise errors.DirectoryTraversalError
-    directory_traversal_check(Settings.tenants_path, tenant_root)
+    directory_traversal_check(tenants_path, tenant_root)
     root = os.path.join(tenant_root, kind)
     directory_traversal_check(tenant_root, root)
     path = root if file_id is None else os.path.join(root, file_id)

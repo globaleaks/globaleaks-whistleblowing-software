@@ -15,6 +15,7 @@ import globaleaks.handlers.admin.selectables
 import globaleaks.handlers.admin.step
 import globaleaks.handlers.admin.invite
 import globaleaks.handlers.admin.tenant
+import globaleaks.handlers.admin.tenant_backup
 import globaleaks.handlers.admin.user
 import globaleaks.handlers.admin.submission_statuses  # noqa: F401
 

@@ -1,0 +1,93 @@
+<div class="modal-header">
+  <h5 id="tenant-backup-report-title" class="modal-title">
+    {{inventory.tenant_name}} — {{'Backup summary'|translate}}
+  </h5>
+  <button type="button" class="btn-close" (click)="close()" [attr.aria-label]="'Close' | translate">
+    <i class="fa-solid fa-circle-xmark" aria-hidden="true"></i>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row g-3 mb-4 text-center">
+    <div class="col-md-3">
+      <div class="border rounded p-3 h-100">
+        <div class="text-secondary small text-uppercase">{{'Tenants'|translate}}</div>
+        <strong class="fs-4">{{inventory.tenants}}</strong>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="border rounded p-3 h-100">
+        <div class="text-secondary small text-uppercase">{{'Users'|translate}}</div>
+        <strong class="fs-4">{{inventory.total_users}}</strong>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="border rounded p-3 h-100">
+        <div class="text-secondary small text-uppercase">{{'Reports'|translate}}</div>
+        <strong class="fs-4">{{inventory.reports}}</strong>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="border rounded p-3 h-100">
+        <div class="text-secondary small text-uppercase">{{'Files'|translate}}</div>
+        <strong class="fs-4">{{inventory.total_files}}</strong>
+      </div>
+    </div>
+  </div>
+
+  @if (inventory.details; as details) {
+    <h6>{{'Site and access'|translate}}</h6>
+    <div class="bg-light rounded p-3 mb-4 text-break">
+      <div><strong>{{'Website URL'|translate}}:</strong> {{details.url}}</div>
+      <div><strong>{{'Subdomain'|translate}}:</strong> {{details.subdomain}}</div>
+      <div><strong>{{'Site status'|translate}}:</strong> {{details.site_status}}</div>
+    </div>
+
+    <h6>{{'Main settings'|translate}}</h6>
+    <div class="row g-3 mb-2">
+      <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Submissions'|translate}}</span><strong>{{details.submissions}}</strong></div></div>
+      <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Scoring'|translate}}</span><strong>{{details.scoring}}</strong></div></div>
+      <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Default language'|translate}}</span><strong>{{details.language}}</strong></div></div>
+      <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Report retention'|translate}}</span><strong>{{details.retention_days}} {{'days'|translate}}</strong></div></div>
+      <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Maximum file size'|translate}}</span><strong>{{details.maximum_filesize}} MB</strong></div></div>
+    </div>
+    <p class="small text-secondary mb-4">{{'Settings and website address reflect this installation when the backup was created.'|translate}}</p>
+  }
+
+  <h6>{{'People'|translate}}</h6>
+  @if (inventory.details; as details) {
+    <div class="bg-light rounded p-3 mb-2 text-break">
+      <div><strong>{{'First administrator'|translate}}:</strong> {{details.admin_name}} {{details.admin_status}}</div>
+      <div><strong>{{'Enabled users'|translate}}:</strong> {{details.active_users}}</div>
+      <div><strong>{{'Disabled users'|translate}}:</strong> {{details.disabled_users}}</div>
+    </div>
+    <p class="small text-secondary mb-4">{{"Only the administrator's public display name is shown."|translate}}</p>
+  }
+  <div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Administrators'|translate}}</span><strong>{{inventory.administrators}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Recipients'|translate}}</span><strong>{{inventory.recipients}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Custodians'|translate}}</span><strong>{{inventory.custodians}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Analysts'|translate}}</span><strong>{{inventory.analysts}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Auditors'|translate}}</span><strong>{{inventory.auditors}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Transmitters'|translate}}</span><strong>{{inventory.transmitters}}</strong></div></div>
+  </div>
+
+  <h6>{{'Content'|translate}}</h6>
+  <div class="row g-3 mb-4">
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Channels'|translate}}</span><strong>{{inventory.channels}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Questionnaires'|translate}}</span><strong>{{inventory.questionnaires}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Reports'|translate}}</span><strong>{{inventory.reports}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Comments'|translate}}</span><strong>{{inventory.comments}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Uploaded files'|translate}}</span><strong>{{inventory.uploaded_files}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Attachments'|translate}}</span><strong>{{inventory.attachments}}</strong></div></div>
+    <div class="col-md-4"><div class="border rounded p-3 d-flex justify-content-between"><span>{{'Log files'|translate}}</span><strong>{{inventory.logs ?? 0}}</strong></div></div>
+  </div>
+
+  <div class="bg-light rounded p-3">
+    <div><strong>{{'Tenant name'|translate}}:</strong> {{inventory.tenant_name}}</div>
+    <div><strong>{{'Tenant ID'|translate}}:</strong> {{inventory.tenant_id}}</div>
+    <div><strong>{{'Total file size'|translate}}:</strong> {{inventory.total_file_size}}</div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-outline-secondary" (click)="close()">{{'Close'|translate}}</button>
+</div>

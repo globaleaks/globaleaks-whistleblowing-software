@@ -100,6 +100,7 @@ class SettingsClass(metaclass=Singleton):
         self.backups_path = os.path.abspath(os.path.join(self.working_path, 'backups'))
         self.backups_tmp_path = os.path.abspath(os.path.join(self.backups_path, 'tmp'))
         self.backups_snapshots_path = os.path.abspath(os.path.join(self.backups_path, 'snapshots'))
+        self.tenant_backups_path = os.path.abspath(os.path.join(self.backups_path, 'tenants'))
 
         self.db_file_path = os.path.abspath(os.path.join(self.working_path, 'globaleaks.db'))
 

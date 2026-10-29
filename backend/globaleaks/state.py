@@ -195,6 +195,7 @@ class StateClass(ObjectDict, metaclass=Singleton):
                         self.settings.backups_path,
                         self.settings.backups_tmp_path,
                         self.settings.backups_snapshots_path,
+                        self.settings.tenant_backups_path,
                         self.settings.log_path]:
             self.create_directory(dirpath)
 

@@ -271,6 +271,7 @@ describe("admin configure, add, configure and delete tenants", () => {
     populate_site("Platform B");
   });
 
+
   it("should add and configure the profile tenant", () => {
     cy.login_admin();
     cy.visit("/#/admin/sites");
@@ -510,6 +511,107 @@ describe("admin configure, add, configure and delete tenants", () => {
 
     cy.logout();
   });
+  it("should back up and restore a tenant", () => {
+    const tenantName = "Tenant Backup";
+    const footerText = "Tenant backup footer";
+    const backupFilename = `${tenantName}-backup.tar.gz`;
+    const backupPath = `cypress/downloads/${backupFilename}`;
+    let tenantId: number;
+
+    const return_to_root = () => {
+      cy.logout();
+      cy.login_admin();
+      cy.intercept("GET", "/api/admin/tenants").as("rootTenants");
+      cy.then(() => cy.visit(`/#/admin/sites?id=${tenantId}`));
+      cy.wait("@rootTenants").its("response.statusCode").should("eq", 200);
+      cy.get('[data-cy="sites"]').click();
+      cy.contains('form[id^="tenant-"]', tenantName).should("be.visible");
+    };
+
+    const configureTenant = () => {
+      cy.intercept("GET", "/api/auth/tenantauthswitch/**").as("tenantAuthSwitch");
+      cy.window().then(win => {
+        if ((win.open as any).restore) {
+          (win.open as any).restore();
+        }
+        cy.stub(win, "open").as("windowOpen");
+      });
+      enter_tenant(tenantName);
+      return visit_configured_tenant();
+    };
+
+    const deleteTenant = () => {
+      cy.intercept("DELETE", "/api/admin/tenants/*").as("deleteTenant");
+      cy.contains('form[id^="tenant-"]', tenantName).find("[data-action='delete']").click();
+      cy.get("#modal-action-ok").should("not.be.disabled").click();
+      cy.get(".modal [type='password']").should("be.visible").type(Cypress.expose("user_password"));
+      cy.get(".modal .btn-primary").click();
+      cy.wait("@deleteTenant");
+      cy.contains('form[id^="tenant-"]', tenantName).should("not.exist");
+    };
+
+    cy.login_admin();
+    cy.visit("/#/admin/sites");
+    cy.get('[data-cy="sites"]').click();
+    cy.intercept("POST", "/api/admin/tenants").as("createBackupTenant");
+    add_tenant(tenantName);
+    cy.wait("@createBackupTenant").then((interception: any) => {
+      expect(interception.response.statusCode).to.be.within(200, 299);
+      tenantId = interception.response.body.id;
+    });
+
+    configureTenant();
+    cy.intercept("PUT", "**/api/admin/node").as("updateTenantSettings");
+    cy.get("#admin_settings").click();
+    cy.get("#node-footer").clear().type(footerText);
+    cy.get("#save_settings").click();
+    cy.wait("@updateTenantSettings");
+
+    cy.get("[data-cy='advanced']").click();
+    cy.get('input[name="disable_submissions"]').check();
+    cy.get("#scoring_system").check();
+    cy.get("#save").click();
+    cy.wait("@updateTenantSettings");
+
+    return_to_root();
+    cy.intercept("GET", "/api/admin/tenants/*/backup").as("backupTenant");
+    cy.contains('form[id^="tenant-"]', tenantName).find("button[name='backup_tenant']").click();
+    cy.wait("@backupTenant", {timeout: 120000});
+    cy.readFile(backupPath, null, {timeout: 120000}).should("have.length.greaterThan", 0);
+
+    cy.intercept("GET", "/api/admin/tenants/*/backup/report").as("backupReport");
+    cy.contains('form[id^="tenant-"]', tenantName).find("button[name='backup_report']").click();
+    cy.wait("@backupReport");
+    cy.get("#tenant-backup-report-title").should("contain", tenantName);
+    cy.get(".modal-body").should("contain", "Attachments").and("contain", "Reports");
+    cy.get(".modal .btn-close").click();
+
+    deleteTenant();
+
+    cy.intercept("POST", "/api/admin/tenants/backup/import*").as("restoreTenant");
+    cy.readFile(backupPath, null).then(backup => {
+      cy.get("#tenant-backup-import").selectFile({
+        contents: backup,
+        fileName: backupFilename,
+        mimeType: "application/gzip"
+      }, {force: true});
+    });
+    cy.wait("@restoreTenant", {timeout: 120000});
+    cy.get("[data-cy='page-loader-overlay']", {timeout: 120000}).should("not.exist");
+    cy.contains('form[id^="tenant-"]', tenantName, {timeout: 120000}).should("exist");
+
+    configureTenant();
+    cy.get("#admin_settings").click();
+    cy.get("#node-footer").should("have.value", footerText);
+    cy.get("[data-cy='advanced']").click();
+    cy.get('input[name="disable_submissions"]').should("be.checked");
+    cy.get("#scoring_system").should("be.checked");
+
+    return_to_root();
+    deleteTenant();
+    cy.logout();
+  });
+
 });
 
 describe("admin configure exchanges", () => {

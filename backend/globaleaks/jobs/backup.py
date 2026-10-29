@@ -195,13 +195,13 @@ def fsync_path(path):
         log.debug("fsync not available on %s: %s", path, e)
 
 
-def backup_sqlite_database(backup_db_path):
+def backup_sqlite_database(backup_db_path, source_db_path=None):
     # The snapshot is taken onto local disk (backup_db_path lives under
     # backups/tmp, which is always on the local working volume). pages=-1 copies
     # the whole database in a single step: against a fast local target the source
     # read lock is held only briefly, and a single step cannot be starved by the
     # restart-on-external-write behaviour of the incremental backup API.
-    source_conn = sqlite3.connect(Settings.db_file_path)
+    source_conn = sqlite3.connect(source_db_path or Settings.db_file_path)
     dest_conn = sqlite3.connect(backup_db_path)
 
     try:
@@ -213,6 +213,14 @@ def backup_sqlite_database(backup_db_path):
 
 def backup_sqlite_database_threaded(backup_db_path):
     return deferToThreadPool(reactor, get_thread_pool(), backup_sqlite_database, backup_db_path)
+
+
+def backup_tenant_files_threaded(database_path, snapshot_path):
+    from globaleaks.handlers.admin.tenant_backup import create_tenant_backup_files  # noqa: PLC0415
+
+    return deferToThreadPool(reactor, get_thread_pool(), create_tenant_backup_files,
+                             database_path,
+                             source_tenants_path=os.path.join(snapshot_path, 'tenants'))
 
 
 def cleanup_staging(tmp_path):
@@ -397,6 +405,7 @@ def backup_sqlite_database_and_files(backup_path, backup_retention):
         yield backup_sqlite_database_threaded(staging_db)
         yield copy_files(source_path, destination_path, excludes, link_dest)
         yield copy_files(staging_db, os.path.join(incomplete_path, 'globaleaks.db'))
+        yield backup_tenant_files_threaded(staging_db, incomplete_path)
     finally:
         yield remove_staging_database_threaded(staging_db)
 

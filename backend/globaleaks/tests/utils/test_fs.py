@@ -60,6 +60,15 @@ class TestFilesystemUtilities(helpers.TestGL):
         self.assertTrue(os.path.isdir(os.path.dirname(path)))
         self.assertFalse(os.path.exists(path))
 
+    def test_get_storage_path_uses_the_snapshot_tenant_root(self):
+        root = os.path.join(Settings.tmp_path, 'snapshot', 'tenants')
+        path = fs.get_storage_path(2, 'attachments', 'file-id', create=True, tenants_path=root)
+        self.assertEqual(path, os.path.join(root, '2', 'attachments', 'file-id'))
+        self.assertTrue(os.path.isdir(os.path.dirname(path)))
+        os.symlink(Settings.tmp_path, os.path.join(root, '3'))
+        self.assertRaises(errors.DirectoryTraversalError, fs.get_storage_path,
+                          3, 'attachments', 'file-id', tenants_path=root)
+
     def test_srm(self):
         path = os.path.join(Settings.working_path, "antani.txt")
 
