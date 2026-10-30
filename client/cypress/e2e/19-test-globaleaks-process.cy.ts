@@ -124,12 +124,9 @@ describe("globaleaks process", function () {
       const nextDay = new Date(current);
       nextDay.setDate(nextDay.getDate() + 1);
       cy.get('input[name="dp"]').click();
-      let day: number
-      if (nextDay.getDate() < 10) {
-        day = 10
-      } else {
-        day = nextDay.getDate()
-      }
+      // a day every month has, and one the calendar shows only once: a 30 or a 31 may be missing
+      // from the next month, a day below 10 may also be one of the days of the month after it
+      const day = Math.min(Math.max(nextDay.getDate(), 10), 28);
       cy.get('.btn-link[aria-label="Next month"]').click();
       cy.get('.ngb-dp-day').contains(day).click();
     });
