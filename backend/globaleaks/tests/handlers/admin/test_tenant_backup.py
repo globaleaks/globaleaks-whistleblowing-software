@@ -62,6 +62,8 @@ class TestTenantBackup(helpers.TestHandler):
             tenant_backup.validate_database_scope(connection, manifest)
             self.assertEqual(connection.execute('SELECT id FROM tenant').fetchall(), [(2,)])
             self.assertTrue(connection.execute('SELECT COUNT(*) FROM internaltip').fetchone()[0])
+            self.assertTrue(connection.execute('SELECT 1 FROM internaltipanswers a JOIN archivedschema s '
+                                               'ON a.questionnaire_hash = s.hash').fetchone())
         inventory = tenant_backup.read_backup_inventory(self.archive_path)
         self.assertEqual(inventory['tenant_id'], 2)
         self.assertTrue(inventory['uploaded_files'])
@@ -78,6 +80,10 @@ class TestTenantBackup(helpers.TestHandler):
         other = self.storage_contents(3)
         with sqlite3.connect(Settings.db_file_path) as connection:
             users = connection.execute('SELECT id FROM user WHERE tid = 2 ORDER BY id').fetchall()
+            schemas = connection.execute('SELECT DISTINCT s.hash, s.schema FROM archivedschema s '
+                                         'JOIN internaltipanswers a ON s.hash = a.questionnaire_hash '
+                                         'JOIN internaltip t ON a.internaltip_id = t.id WHERE t.tid = 2').fetchall()
+            self.assertTrue(schemas)
         self.create_backup()
         yield self.request(role='admin', handler_cls=tenant.TenantInstance).delete(2)
         self.assertFalse(os.path.exists(os.path.join(Settings.tenants_path, '2')))
@@ -90,6 +96,9 @@ class TestTenantBackup(helpers.TestHandler):
         self.assertEqual(self.storage_contents(3), other)
         with sqlite3.connect(Settings.db_file_path) as connection:
             self.assertEqual(connection.execute('SELECT id FROM user WHERE tid = 2 ORDER BY id').fetchall(), users)
+            self.assertEqual(connection.execute('SELECT DISTINCT s.hash, s.schema FROM archivedschema s '
+                                                'JOIN internaltipanswers a ON s.hash = a.questionnaire_hash '
+                                                'JOIN internaltip t ON a.internaltip_id = t.id WHERE t.tid = 2').fetchall(), schemas)
             self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
 
     def test_restore_rejects_an_existing_tenant(self):
@@ -226,3 +235,52 @@ class TestTenantBackup(helpers.TestHandler):
         tenant_backup.restore_tenant_backup(self.archive_path)
         with sqlite3.connect(Settings.db_file_path) as connection:
             self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
+
+
+    def test_first_export_prepares_all_tenant_archives(self):
+        tenant_backup.ensure_tenant_backup_file(2)
+        with sqlite3.connect(Settings.db_file_path) as connection:
+            tids = [tid for tid, in connection.execute('SELECT id FROM tenant WHERE id > 1 AND id < 1000001')]
+        self.assertEqual(set(os.listdir(Settings.tenant_backups_path)),
+                         {'tenant-%d.tar.gz' % tid for tid in tids})
+
+    def test_export_rejects_a_tracked_symlink(self):
+        file_id = os.listdir(get_storage_path(2, 'files'))[0]
+        source = get_storage_path(2, 'files', file_id)
+        target = source + '.target'
+        os.rename(source, target)
+        os.symlink(target, source)
+        self.assertRaises(errors.InputValidationError, self.create_backup)
+        self.assertTrue(os.path.isfile(target))
+
+    @inlineCallbacks
+    def test_restore_rejects_a_destination_symlink(self):
+        expected = self.storage_contents(3)
+        file_id = os.listdir(get_storage_path(2, 'files'))[0]
+        self.create_backup()
+        yield self.request(role='admin', handler_cls=tenant.TenantInstance).delete(2)
+        destination = get_storage_path(2, 'files', file_id, create=True)
+        target = destination + '.target'
+        with open(target, 'wb') as stream:
+            stream.write(b'keep')
+        os.symlink(target, destination)
+        self.assertRaises(errors.InputValidationError, tenant_backup.restore_tenant_backup, self.archive_path)
+        with open(target, 'rb') as stream:
+            self.assertEqual(stream.read(), b'keep')
+        self.assertEqual(self.storage_contents(3), expected)
+
+
+    @inlineCallbacks
+    def test_restore_rejects_a_conflicting_saved_report_schema(self):
+        self.create_backup()
+        with sqlite3.connect(Settings.db_file_path) as connection:
+            schema_hash = connection.execute('SELECT a.questionnaire_hash FROM internaltipanswers a '
+                                             'JOIN internaltip t ON a.internaltip_id = t.id WHERE t.tid = 2').fetchone()[0]
+        yield self.request(role='admin', handler_cls=tenant.TenantInstance).delete(2)
+        with sqlite3.connect(Settings.db_file_path) as connection:
+            connection.execute("UPDATE archivedschema SET schema = '{}' WHERE hash = ?", (schema_hash,))
+        self.assertRaises(errors.InputValidationError, tenant_backup.restore_tenant_backup, self.archive_path)
+        with sqlite3.connect(Settings.db_file_path) as connection:
+            self.assertIsNone(connection.execute('SELECT id FROM tenant WHERE id = 2').fetchone())
+            self.assertEqual(connection.execute('SELECT schema FROM archivedschema WHERE hash = ?',
+                                                 (schema_hash,)).fetchone()[0], '{}')

@@ -124,6 +124,9 @@ def select_tenant_rows(connection, tid):
                         child_query, tuple(values) + tuple(child_parameters)))
                     changed = changed or len(selected[child]) != before
 
+    selected['archivedschema'].update(row[0] for row in connection.execute(
+        'SELECT s.rowid FROM archivedschema s JOIN internaltipanswers a ON s.hash = a.questionnaire_hash '
+        'JOIN internaltip t ON a.internaltip_id = t.id WHERE t.tid = ?', (tid,)))
     return selected
 
 
@@ -173,6 +176,8 @@ def copy_tracked_files(connection, staging_path, tenants_path=None):
             copied.add(key)
             tid = storage_file_tenant(connection, table, file_id)
             source = get_storage_path(tid, archive_directory, file_id, tenants_path=tenants_path)
+            if os.path.islink(source):
+                raise errors.InputValidationError('Invalid tenant storage file')
             if not os.path.isfile(source):
                 continue
             destination_directory = os.path.join(staging_path, archive_directory)
@@ -577,7 +582,7 @@ def ensure_tenant_backup_file(tid):
         except errors.InputValidationError:
             pass
 
-    create_tenant_backup_file(tid, source_tenants_path=Settings.tenants_path)
+    create_tenant_backup_files(Settings.db_file_path, Settings.tenants_path)
     if not os.path.isfile(archive_path):
         raise errors.ResourceNotFound
     return archive_path
@@ -772,6 +777,8 @@ def restore_tenant_backup(archive_path):
             get_storage_path(tid, item['directory'], create=True)
             destination = get_storage_path(tid, item['directory'], item['id'])
             destinations[(item['directory'], item['id'])] = destination
+            if os.path.islink(destination):
+                raise errors.InputValidationError('Invalid tenant storage file')
             if os.path.exists(destination):
                 if not os.path.isfile(destination) or file_is_tracked(live, item['directory'], item['id']):
                     raise errors.InputValidationError('Backup file already exists: %s' % item['id'])
@@ -792,6 +799,15 @@ def restore_tenant_backup(archive_path):
                 columns.remove('id')
             rows = backup.execute('SELECT %s FROM %s' % (
                 ', '.join(quote_identifier(column) for column in columns), quote_identifier(table))).fetchall()
+            if table == 'archivedschema':
+                missing = []
+                for schema_hash, schema in rows:
+                    existing = live.execute('SELECT schema FROM archivedschema WHERE hash = ?', (schema_hash,)).fetchone()
+                    if existing is None:
+                        missing.append((schema_hash, schema))
+                    elif existing[0] != schema:
+                        raise errors.InputValidationError('Tenant backup report schema conflicts with existing data')
+                rows = missing
             if not rows:
                 continue
             insert = 'INSERT INTO %s (%s) VALUES (%s)' % (

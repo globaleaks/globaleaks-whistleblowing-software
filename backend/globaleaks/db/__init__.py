@@ -162,6 +162,22 @@ def sync_clean_untracked_files(session):
     """
     tracked_files = set(db_get_tracked_attachments(session))
     for tid, in session.query(models.Tenant.id):
+        tenant_root = os.path.join(Settings.tenants_path, str(tid))
+        if os.path.islink(tenant_root):
+            log.err('Removing storage symlink: %s', tenant_root)
+            try:
+                os.unlink(tenant_root)
+            except OSError as exception:
+                log.err('Failed to remove storage symlink %s: %s', tenant_root, exception)
+            continue
+        path = os.path.join(tenant_root, 'attachments')
+        if os.path.islink(path):
+            log.err('Removing storage symlink: %s', path)
+            try:
+                os.unlink(path)
+            except OSError as exception:
+                log.err('Failed to remove storage symlink %s: %s', path, exception)
+            continue
         path = fs.get_storage_path(tid, 'attachments')
         if not os.path.isdir(path):
             continue

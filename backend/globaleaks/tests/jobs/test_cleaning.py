@@ -159,3 +159,21 @@ class TestCleaning(helpers.TestGLWithPopulatedDB):
         yield cleaning.Cleaning().run()
 
         self.assertEqual((yield self.count_invites()), 0)
+
+
+    @inlineCallbacks
+    def test_job_unlinks_storage_directory_symlinks(self):
+        target = get_storage_path(1, 'files', 'keep', create=True)
+        with open(target, 'wb') as stream:
+            stream.write(b'keep')
+        path = get_storage_path(1, 'attachments', create=True)
+        os.rename(path, os.path.join(Settings.tmp_path, 'saved-attachments'))
+        os.symlink(get_storage_path(1, 'files'), path)
+        orphan = get_storage_path(999, 'attachments', 'untracked', create=True)
+        with open(orphan, 'wb') as stream:
+            stream.write(b'remove')
+        yield cleaning.Cleaning().run()
+        self.assertFalse(os.path.lexists(path))
+        self.assertFalse(os.path.exists(os.path.dirname(os.path.dirname(orphan))))
+        with open(target, 'rb') as stream:
+            self.assertEqual(stream.read(), b'keep')

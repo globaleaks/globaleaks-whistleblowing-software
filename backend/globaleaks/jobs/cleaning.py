@@ -87,6 +87,10 @@ class Cleaning(DailyJob):
 
     def perform_secure_deletion_of_files(self, tid, kind, valid_files, tracked_files):
         valid_files = set(valid_files)
+        path = os.path.join(self.state.settings.tenants_path, str(tid), kind)
+        if os.path.islink(path):
+            os.unlink(path)
+            return
         path = get_storage_path(tid, kind)
         if not os.path.isdir(path):
             return
@@ -168,10 +172,14 @@ class Cleaning(DailyJob):
         }
 
         for tenant in os.listdir(self.state.settings.tenants_path):
-            if not tenant.isdigit() or int(tenant) < 1:
+            if not tenant.isdecimal() or int(tenant) < 1:
                 log.err("Unexpected entry under tenant storage: %s", tenant)
                 continue
             tid = int(tenant)
+            path = os.path.join(self.state.settings.tenants_path, tenant)
+            if os.path.islink(path):
+                os.unlink(path)
+                continue
             if tid not in tenant_ids:
                 log.err("Removing storage directory for missing tenant: %d", tid)
                 yield deferToThread(delete_tenant_storage, tid)
