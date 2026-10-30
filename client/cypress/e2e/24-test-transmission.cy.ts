@@ -75,6 +75,10 @@ describe("recipient exchange workflow", function () {
   const submitCommunication = (platformUrl: string, alias = 'communicatedReport') => {
     cy.intercept("POST", `${platformUrl}/api/recipient/rtips/**/communication*`).as(alias);
     fill_transmit_form();
+    cy.get('#TransmitForm #step-0-field-4-0-input-0').select(1);
+    cy.get('#TransmitForm input[type="file"]').first().selectFile(
+      './cypress/fixtures/files/test.txt', {force: true});
+    cy.get('#TransmitForm #step-0-field-6-0-input-0').type('Attached evidence');
     cy.get("#SubmitTransmitButton").scrollIntoView().click();
 
     // a refusal is a failure, not a silent step
@@ -131,6 +135,7 @@ describe("recipient exchange workflow", function () {
 
       cy.get("#tip-0").click();
       cy.get("#TipInfoBox").should("be.visible");
+      cy.get("#TipPageFilesInfoBox .tip-action-download-file").should("be.visible").first().click();
 
       cy.logout();
     });
@@ -206,6 +211,7 @@ describe("recipient exchange workflow", function () {
 
       cy.get("#tip-0").click();
       cy.get("#TipInfoBox").should("be.visible");
+      cy.get("#TipPageFilesInfoBox .tip-action-download-file").should("be.visible").first().click();
       cy.takeScreenshot("exchanges/communications/access_received");
       cy.takeScreenshot("exchanges/communications/access_received_messages_detail", "#TipCommentsBox");
 
