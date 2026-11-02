@@ -34,16 +34,7 @@
         <ng-template #header>
           <tr>
             <th scope="col">
-              @if (selectedTips.length !== RTips.dataModel.length ) {
-                <button type="button" class="icon-action" id="tip-action-select-all" (click)="selectAll()" ngbTooltip="{{'Select all' | translate}}">
-                  <i class="fa-solid fa-square"></i>
-                </button>
-              }
-              @if (selectedTips.length === RTips.dataModel.length) {
-                <button type="button" class="icon-action" id="tip-action-select-all" (click)="deselectAll()" ngbTooltip="{{'Deselect all' | translate}}">
-                  <i class="fa-solid fa-square-check"></i>
-                </button>
-             }
+              <input id="tip-action-select-all" type="checkbox" class="form-check-input" [checked]="selectedTips.length === RTips.dataModel.length" (change)="selectedTips.length === RTips.dataModel.length ? deselectAll() : selectAll()" [attr.aria-label]="'Select all' | translate">
             </th>
             <th scope="col" appTableHeader [state]="table" [label]="'Important' | translate" icon="fa-star" [labelHidden]="true" sortBy="important"></th>
             <th scope="col" appTableHeader [state]="table" [label]="'Reminder date' | translate" icon="fa-bell" [labelHidden]="true" sortBy="reminder_date"></th>
@@ -63,18 +54,9 @@
           </tr>
         </ng-template>
         <ng-template #content let-tip="item" let-index="index">
-          <tr id="tip-{{index}}" [class.tip-action-open]="tip.accessible" [class.fw-bold]="tip.updated" [class.selectedTip]="isSelected(tip.id)" [class.disabled]="!tip.accessible" [class]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]" (click)="tip.accessible && utils.go('/reports/' + tip.id)">
+          <tr id="tip-{{index}}" [class.tip-action-open]="tip.accessible" [class.fw-bold]="tip.updated" [class.selectedTip]="isSelected(tip.id)" [class.disabled]="!tip.accessible" [class]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]" (click)="openTip($event, tip)" (keydown.enter)="openTip($event, tip)">
             <td>
-              @if (isSelected(tip.id)) {
-                <button type="button" class="icon-action" (click)="tipSwitch(tip.id); $event.stopPropagation();">
-                  <i class="fa-solid fa-square-check"></i>
-                </button>
-              }
-              @if (!isSelected(tip.id)) {
-                <button type="button" class="icon-action" (click)="tipSwitch(tip.id); $event.stopPropagation();">
-                  <i class="fa-solid fa-square"></i>
-                </button>
-              }
+              <input type="checkbox" class="form-check-input" [checked]="isSelected(tip.id)" (change)="tipSwitch(tip.id)" [disabled]="!tip.accessible" [attr.aria-label]="('Select' | translate) + ' ' + ('Report' | translate) + ' ' + (tip.slug ? tip.slug + '-' : '') + tip.channel_progressive">
             </td>
             <td>
               @if (tip.important) {
@@ -86,7 +68,13 @@
                 }
               </td>
               <td class="TipInfoContext"><span class="cell-truncated" [ngbTooltip]="tip.context_name">{{tip.context_name}}</span></td>
-              <td class="TipInfoID">{{tip.slug ? tip.slug + '-' : ''}}{{tip.channel_progressive}}</td>
+              <td class="TipInfoID">
+                @if (tip.accessible) {
+                  <a [routerLink]="['/reports', tip.id]" [attr.aria-label]="('Open' | translate) + ' ' + ('Report' | translate) + ' ' + (tip.slug ? tip.slug + '-' : '') + tip.channel_progressive">{{tip.slug ? tip.slug + '-' : ''}}{{tip.channel_progressive}}</a>
+                } @else {
+                  {{tip.slug ? tip.slug + '-' : ''}}{{tip.channel_progressive}}
+                }
+              </td>
               <td class="TipInfoLabel"><span class="cell-truncated" [ngbTooltip]="tip.label">{{tip.label}}</span></td>
               <td class="TipInfoStatus"><span class="cell-truncated" [ngbTooltip]="tip.submissionStatusStr">{{tip.submissionStatusStr}}</span></td>
               <td class="TipInfoSubmissionDate">{{tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>

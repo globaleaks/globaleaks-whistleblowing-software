@@ -290,7 +290,7 @@ describe("globaleaks process", function () {
 
     cy.get('#search-filter-input').type("your search term");
     cy.get('#search-filter-input').clear();
-    cy.get('th.TipInfoID').click();
+    cy.get('th.TipInfoID button').click();
     cy.get('#filter-context_name').click();
     cy.get('.multiselect-item-checkbox').eq(1).click();
     cy.get('.multiselect-item-checkbox').eq(0).click();

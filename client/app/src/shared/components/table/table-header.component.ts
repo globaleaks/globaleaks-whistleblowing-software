@@ -18,7 +18,8 @@ import {IDropdownSettings, NgMultiSelectDropDownModule} from "ng-multiselect-dro
   selector: "th[appTableHeader]",
   templateUrl: "./table-header.component.html",
   standalone: true,
-  imports: [DateRangeSelectorComponent, FormsModule, NgClass, NgMultiSelectDropDownModule, NgTemplateOutlet, TranslatePipe]
+  imports: [DateRangeSelectorComponent, FormsModule, NgClass, NgMultiSelectDropDownModule, NgTemplateOutlet, TranslatePipe],
+  host: {"[attr.aria-sort]": "ariaSort"}
 })
 export class TableHeaderComponent {
   private readonly translateService = inject(TranslateService);
@@ -44,6 +45,19 @@ export class TableHeaderComponent {
     unSelectAllText: this.translateService.instant("Deselect all"),
     searchPlaceholderText: this.translateService.instant("Search")
   };
+
+  /** The order the column applies, as the screen readers announce it; none on a column that does not sort */
+  get ariaSort(): string | null {
+    if (!this.sortBy) {
+      return null;
+    }
+
+    if (this.state.orderBy !== this.sortBy) {
+      return "none";
+    }
+
+    return this.state.orderDesc ? "descending" : "ascending";
+  }
 
   get filterType(): string {
     return this.filter ? this.state.filters[this.filter]?.type ?? "" : "";
