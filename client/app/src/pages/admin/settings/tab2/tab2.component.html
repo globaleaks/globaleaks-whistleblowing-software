@@ -19,10 +19,10 @@
           <div class="uploadfile file-custom">
             <span>
               <input #uploader id="customFile" type="file" [style.display]="'none'" (change)="onFileSelected(uploader.files)" />
-              <label class="btn btn-sm btn-primary" for="customFile">
-                <i class="fas fa-upload"></i>
+              <button type="button" class="btn btn-sm btn-primary" (click)="uploader.click()">
+                <i class="fas fa-upload" aria-hidden="true"></i>
                 <span>{{ 'Upload' | translate }}</span>
-              </label>
+              </button>
             </span>
           </div>
         </div>

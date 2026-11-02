@@ -3,10 +3,10 @@
   <span>
     @if (!present()) {
     <input #uploader [attr.id]="'customFile-' + adminFile().varname" type="file" flowButton [style.display]="'none'" (change)="onFileSelected(uploader.files, adminFile().varname)" />
-    <label [attr.for]="'customFile-' + adminFile().varname" class="btn btn-sm btn-primary">
-      <i class="fas fa-upload"></i>
+    <button type="button" class="btn btn-sm btn-primary" (click)="uploader.click()">
+      <i class="fas fa-upload" aria-hidden="true"></i>
       <span>{{ 'Upload' | translate }}</span>
-    </label>
+    </button>
     }
     @if (present()) {
       <a class="btn btn-sm btn-primary" [href]="'s/' + adminFile().varname" [download]="adminFile().filename">

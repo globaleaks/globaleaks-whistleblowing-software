@@ -1,4 +1,4 @@
-import {AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit, inject, input, viewChild, output} from "@angular/core";
+import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, inject, input, viewChild, output} from "@angular/core";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {FlowConfig, Transfer, NgxFlowModule} from "@flowjs/ngx-flow";
 import {AppDataService} from "@app/app-data.service";
@@ -36,6 +36,7 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
   readonly entry = input<any>();
   readonly notifyFileUpload = output<any>();
   readonly flow = viewChild.required<FlowConfig>("flow");
+  readonly uploader = viewChild.required<ElementRef<HTMLInputElement>>("uploader");
 
   autoUploadSubscription: Subscription;
   fileInput: string;
@@ -109,6 +110,10 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
 
   ngOnDestroy() {
     this.autoUploadSubscription.unsubscribe();
+  }
+
+  selectFile() {
+    this.uploader().nativeElement.click();
   }
 
   onConfirmClick() {

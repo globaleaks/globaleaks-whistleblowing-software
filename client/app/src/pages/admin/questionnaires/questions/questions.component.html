@@ -7,9 +7,9 @@
       </button>
       <span>
         <input id="import-question-file" type="file" hidden #uploadInput (change)="importQuestion(uploadInput.files)" />
-        <label for="import-question-file" class="btn btn-outline-secondary">
-          <i class="fas fa-upload"></i>{{'Import' | translate}}
-        </label>
+        <button type="button" class="btn btn-outline-secondary" (click)="uploadInput.click()">
+          <i class="fas fa-upload" aria-hidden="true"></i>{{'Import' | translate}}
+        </button>
       </span>
     </ng-template>
     <ng-template #addForm>

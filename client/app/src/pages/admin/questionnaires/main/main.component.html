@@ -7,9 +7,9 @@
       </button>
       <span>
         <input id="import-questionnaire-file" type="file" hidden #keyUploadInput (change)="importQuestionnaire(keyUploadInput.files)" />
-        <label for="import-questionnaire-file" id="keyUpload" class="btn btn-outline-secondary">
-          <i class="fas fa-upload"></i>{{'Import' | translate}}
-        </label>
+        <button type="button" id="keyUpload" class="btn btn-outline-secondary" (click)="keyUploadInput.click()">
+          <i class="fas fa-upload" aria-hidden="true"></i>{{'Import' | translate}}
+        </button>
       </span>
     </ng-template>
     <ng-template #addForm>

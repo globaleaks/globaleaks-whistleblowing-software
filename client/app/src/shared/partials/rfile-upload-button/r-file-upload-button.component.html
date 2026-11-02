@@ -3,15 +3,15 @@
   <div class="drag-drop" flowDrop [flow]="flow.flowJs">
     <div>
         @if(!formUploader()){
-          <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" />
+          <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" #uploader type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" />
         }
         @else{
-          <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" [(ngModel)]="fileModel" type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" [required]="entry().required_status"/>
+          <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" [(ngModel)]="fileModel" #uploader type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" [required]="entry().required_status"/>
         }
-        <label [attr.for]="'customFile-' + fileInput" for="customFile-{{fileInput}}" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-upload"></i>
-        <span> {{'Upload'|translate}}</span>
-      </label>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="selectFile()">
+          <i class="fas fa-upload" aria-hidden="true"></i>
+          <span>{{'Upload'|translate}}</span>
+        </button>
       <span class="mx-2">{{'Select a file or drag it here.'|translate}}</span>
     </div>
     @if (showError) {
