@@ -47,7 +47,7 @@ jobs:
           sudo apt install -y build-essential debhelper devscripts
           sudo apt install -y brotli dh-apparmor
           sudo apt install -y dh-python pybuild-plugin-pyproject python3-all python3-setuptools python3-sphinx
-          sudo apt install -y docker-compose
+          sudo apt install -y docker-compose-v2
           # Install Chrome for Cypress
           curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google.gpg
           echo "deb [signed-by=/usr/share/keyrings/google.gpg arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
@@ -141,8 +141,10 @@ jobs:
           # 3) the root-only firewall ran via the privileged ExecStartPre
           docker exec gl-systemd iptables -t nat -S | grep -q globaleaks
           # 4) the daemon is actually confined by the AppArmor profile (fail-closed start)
-          docker exec gl-systemd cat "/proc/$MAINPID/attr/current" | grep -q '^usr.bin.globaleaks'
-          echo "Native unit verified: daemon unprivileged + firewall applied + AppArmor confined ($(docker exec gl-systemd cat /proc/$MAINPID/attr/current))"
+          LABEL=$(docker exec gl-systemd cat "/proc/$MAINPID/attr/apparmor/current")
+          echo "globaleaks AppArmor label: $LABEL"
+          echo "$LABEL" | grep -q '^usr.bin.globaleaks'
+          echo "Native unit verified: daemon unprivileged + firewall applied + AppArmor confined ($LABEL)"
 
           # Verify the admin opt-out: APPARMOR_SANDBOXING=0 lets the daemon start
           # unconfined inside system containers without AppArmor (LXC/LXD/Proxmox).
@@ -151,7 +153,7 @@ jobs:
           sleep 5
           docker exec gl-systemd systemctl is-active --quiet globaleaks
           OPTOUT_PID=$(docker exec gl-systemd systemctl show -p MainPID --value globaleaks)
-          test "$(docker exec gl-systemd cat /proc/$OPTOUT_PID/attr/current | tr -d '\n')" = "unconfined"
+          test "$(docker exec gl-systemd cat /proc/$OPTOUT_PID/attr/apparmor/current | tr -d '\n')" = "unconfined"
           echo "AppArmor opt-out verified: daemon starts unconfined with APPARMOR_SANDBOXING=0"
 
       - name: Cleanup systemd boot test
@@ -166,11 +168,11 @@ jobs:
 
           cd ./docker
 
-          docker-compose up -d --build
+          docker compose up -d --build
           echo "Waiting for service to be ready..."
           timeout 120 bash -c "until curl -k https://localhost:8443 2>/dev/null; do sleep 5; done" || {
             echo "Error: service failed to start"
-            docker-compose logs "globaleaks"
+            docker compose logs "globaleaks"
             exit 1
           }
           echo "✅ service ready"
@@ -421,7 +423,7 @@ jobs:
         if: always()
         run: |
           cd docker
-          docker-compose down || true
+          docker compose down || true
           echo "Cleanup completed"
 
       - name: Upload test and audit artifacts
