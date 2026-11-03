@@ -23,7 +23,7 @@ env:
   TARGET_DISTRIBUTION: ${{ github.event.inputs.target_distribution || 'trixie' }}
 jobs:
   build_and_test:
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-26.04"
     permissions:
       contents: read
     strategy:
