@@ -82,6 +82,7 @@ api_spec = [
     # User Preferences Handler
     ('/api/user/preferences', user.UserInstance),
     ('/api/user/operations', user.operation.UserOperationHandler),
+    ('/api/user/auditlog', user.auditlog.UserAuditLog),
     ('/api/user/support', support.UserSupportRequests),
     ('/api/user/support', support.UserSupportRequest, r'/api/user/support/' + uuid_regexp),
     ('/api/user/support', support.UserSupportMessage, r'/api/user/support/' + uuid_regexp + r'/message'),

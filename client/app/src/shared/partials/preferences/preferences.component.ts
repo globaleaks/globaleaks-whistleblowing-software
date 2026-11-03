@@ -1,6 +1,7 @@
 import {Component} from "@angular/core";
 import {PreferenceTab1Component} from "@app/shared/partials/preference-tabs/preference-tab1/preference-tab1.component";
 import {PreferenceTab2Component} from "@app/shared/partials/preference-tabs/preference-tab2/preference-tab2.component";
+import {PreferenceTab3Component} from "@app/shared/partials/preference-tabs/preference-tab3/preference-tab3.component";
 
 import {PreferenceTab1Component as PreferenceTab1Component_1} from "../preference-tabs/preference-tab1/preference-tab1.component";
 import {PreferenceTab2Component as PreferenceTab2Component_1} from "../preference-tabs/preference-tab2/preference-tab2.component";
@@ -10,7 +11,7 @@ import {TranslatePipe} from "@ngx-translate/core";
     selector: "src-preferences",
     templateUrl: "./preferences.component.html",
     standalone: true,
-    imports: [PreferenceTab1Component_1, PreferenceTab2Component_1, TranslatePipe]
+    imports: [PreferenceTab1Component_1, PreferenceTab2Component_1, PreferenceTab3Component, TranslatePipe]
 })
 export class PreferencesComponent {
   activeTab = "tab1";
@@ -25,6 +26,11 @@ export class PreferencesComponent {
       id: "tab2",
       title: "Password",
       component: PreferenceTab2Component
+    },
+    {
+      id: "tab3",
+      title: "Audit log",
+      component: PreferenceTab3Component
     }
   ];
 }

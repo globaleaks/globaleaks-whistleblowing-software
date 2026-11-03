@@ -6,6 +6,9 @@
     <li id="tab2" class="nav-item" role="presentation">
       <button class="nav-link password" [class.active]="activeTab === 'tab2'" (click)="activeTab = 'tab2'" type="button" role="tab" [attr.aria-selected]="activeTab === 'tab2'" aria-controls="password-panel">{{ 'Password' | translate }}</button>
     </li>
+    <li id="tab3" class="nav-item" role="presentation">
+      <button class="nav-link auditlog" [class.active]="activeTab === 'tab3'" (click)="activeTab = 'tab3'" type="button" role="tab" [attr.aria-selected]="activeTab === 'tab3'" aria-controls="auditlog-panel">{{ 'Audit log' | translate }}</button>
+    </li>
   </ul>
   <br>
     <div>
@@ -17,6 +20,11 @@
       <div id="password-panel" role="tabpanel" [class.d-none]="activeTab !== 'tab2'" aria-labelledby="password-tab">
         @if (activeTab === 'tab2') {
           <src-preference-tab2></src-preference-tab2>
+        }
+      </div>
+      <div id="auditlog-panel" role="tabpanel" [class.d-none]="activeTab !== 'tab3'" aria-labelledby="auditlog-tab">
+        @if (activeTab === 'tab3') {
+          <src-preference-tab3></src-preference-tab3>
         }
       </div>
     </div>

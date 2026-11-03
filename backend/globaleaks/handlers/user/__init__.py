@@ -2,6 +2,7 @@
 from nacl.encoding import Base64Encoder
 from nacl.exceptions import CryptoError
 
+import globaleaks.handlers.user.auditlog
 import globaleaks.handlers.user.validate_email  # noqa: F401
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler

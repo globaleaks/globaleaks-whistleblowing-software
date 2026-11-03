@@ -95,6 +95,25 @@ describe("preferences of the account", () => {
     cy.logout();
   });
 
+  // The account shows its owner what pertains to it: here the access just performed
+  it("should show the recipient the audit log of the account", () => {
+    cy.intercept("GET", "**/api/user/auditlog").as("readAuditLog");
+    cy.login_receiver();
+    cy.visit("/#/recipient/preferences");
+
+    cy.get("button.nav-link.auditlog").click();
+    cy.get("button.nav-link.auditlog").should("have.attr", "aria-selected", "true");
+
+    cy.wait("@readAuditLog").its("response.body").then((body: any) => {
+      expect(body.length).to.be.greaterThan(0);
+    });
+
+    cy.get("src-preference-tab3 tbody tr").should("have.length.greaterThan", 0);
+    cy.contains("src-preference-tab3 tbody td", "login").should("be.visible");
+    cy.takeScreenshot("user/audit_log");
+    cy.logout();
+  });
+
   it("should give the account its name back", () => {
     cy.login_admin();
     cy.visit("/#/admin/preferences");

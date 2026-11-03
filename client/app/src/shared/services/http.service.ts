@@ -388,6 +388,10 @@ export class HttpService {
     return this.httpClient.get<auditlogResolverModel>(`api/${area}/auditlog`);
   }
 
+  requestUserAuditLogResource(): Observable<auditlogResolverModel[]> {
+    return this.httpClient.get<auditlogResolverModel[]>("api/user/auditlog");
+  }
+
   requestRecipientTipQuestionnaires(tipId: string): Observable<RequestableQuestionnaire[]> {
     return this.httpClient.get<RequestableQuestionnaire[]>(`api/recipient/rtips/${tipId}/questionnaires`);
   }
