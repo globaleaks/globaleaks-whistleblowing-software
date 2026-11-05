@@ -11,7 +11,7 @@
 <div class="modal-body">
   <label for="redact" class="visually-hidden">{{ 'Content' | translate }}</label>
   <textarea #redact id="redact" name="controlElement" [ngModel]="forced_visible ? unmaskedContent : content" (ngModelChange)="forced_visible ? unmaskedContent : content = $event" cols="30"
-  rows="10" (keydown)="ignoreEdit($event)" class="form-control"></textarea>
+  rows="10" (keydown)="ignoreEdit($event)" (select)="updateSelection()" (selectionchange)="updateSelection()" (click)="updateSelection()" (keyup)="updateSelection()" class="form-control"></textarea>
 </div>
 
 <div class="modal-footer">
@@ -43,11 +43,11 @@
         }
       </button>
 
-      <button class="btn btn-primary" id="select_content" (click)="selectContent()">
+      <button class="btn btn-primary" id="select_content" (click)="selectContent()" [disabled]="!can_select">
         <span>{{ 'Select' | translate }}</span>
       </button>
 
-      <button class="btn btn-primary" id="unselect_content" (click)="unSelectContent()">
+      <button class="btn btn-primary" id="unselect_content" (click)="unSelectContent()" [disabled]="!can_unselect">
         <span>{{ 'Unselect' | translate }}</span>
       </button>
 
