@@ -556,7 +556,8 @@ class AuthTypeHandler(BaseHandler):
     check_roles = 'any'
 
     def post(self):
-        username = json.loads(self.request.content.read())['username']
+        request = self.validate_request(self.request.content.read(), {'username': str})
+        username = request['username']
 
         idp_claims = None
 

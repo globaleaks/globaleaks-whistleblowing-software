@@ -306,7 +306,7 @@ class BaseHandler:
             except Exception:
                 return False
 
-        if python_type is bool and value in {'true', 'false'}:
+        if python_type is bool and isinstance(value, str) and value in {'true', 'false'}:
             return True
 
         return isinstance(value, python_type)
@@ -316,7 +316,7 @@ class BaseHandler:
         """
         Return True if the python class matches the given regexp.
         """
-        return bool(re.match(type, value))
+        return isinstance(value, str) and bool(re.match(type, value))
 
     @staticmethod
     def validate_type(value, type):
@@ -345,6 +345,8 @@ class BaseHandler:
 
         # value as "[ type ]"
         elif isinstance(type, list):
+            if not isinstance(value, list):
+                return False
             # empty list is ok
             if not value:
                 retval = True
@@ -372,6 +374,8 @@ class BaseHandler:
                 raise errors.InputValidationError
 
         if isinstance(request_template, dict):
+            if not isinstance(request, dict):
+                raise errors.InputValidationError
             success_check = 0
             keys_to_strip = []
             for key, value in request.items():
@@ -417,9 +421,11 @@ class BaseHandler:
                 log.err("Success counter double check failure: %d", success_check)
                 raise errors.InputValidationError("Success counter double check failure")
 
-        elif (isinstance(request_template, list)
-                and not all(BaseHandler.validate_type(x, request_template[0]) for x in request)):
-            raise errors.InputValidationError(f"Not every element in {request} is {request_template[0]}")
+        elif isinstance(request_template, list):
+            if not isinstance(request, list):
+                raise errors.InputValidationError
+            if not all(BaseHandler.validate_type(x, request_template[0]) for x in request):
+                raise errors.InputValidationError(f"Not every element in {request} is {request_template[0]}")
 
         return request
 
@@ -530,8 +536,24 @@ class BaseHandler:
         if b'flowFilename' not in self.request.args:
             return
 
-        total_file_size = int(self.request.args[b'flowTotalSize'][0])
-        file_id = self.request.args[b'flowIdentifier'][0].decode()
+        required = (b'flowFilename', b'flowTotalSize', b'flowIdentifier',
+                    b'flowChunkNumber', b'flowTotalChunks', b'file')
+        for key in required:
+            values = self.request.args.get(key)
+            if not isinstance(values, list) or len(values) != 1 or not isinstance(values[0], bytes):
+                raise errors.InputValidationError
+
+        try:
+            total_file_size = int(self.request.args[b'flowTotalSize'][0])
+            chunk_number = int(self.request.args[b'flowChunkNumber'][0])
+            total_chunks = int(self.request.args[b'flowTotalChunks'][0])
+            file_id = self.request.args[b'flowIdentifier'][0].decode()
+            filename = self.request.args[b'flowFilename'][0].decode()
+        except (ValueError, UnicodeError):
+            raise errors.InputValidationError
+
+        if total_file_size < 0 or not file_id or not 1 <= chunk_number <= total_chunks:
+            raise errors.InputValidationError
 
         if file_id not in self.state.TempUploadFiles:
             if self.session and self.session.role == 'whistleblower':
@@ -562,8 +584,6 @@ class BaseHandler:
             log.err("File upload request rejected: file too big", tid=self.request.tid)
             raise errors.FileTooBig(max_file_size)
 
-        chunk_number = int(self.request.args[b'flowChunkNumber'][0])
-
         with f.open('w') as f:
             # Chunks are uploaded strictly in order (simultaneousUploads: 1). Anything that
             # is not the next expected chunk is a re-send of one already received (its
@@ -584,7 +604,7 @@ class BaseHandler:
             if self.request.args[b'flowChunkNumber'][0] != self.request.args[b'flowTotalChunks'][0]:
                 return
 
-        filename = sanitize_filename(self.request.args[b'flowFilename'][0].decode())
+        filename = sanitize_filename(filename)
         mime_type, _ = mimetypes.guess_type(filename)
         mime_type = mime_type or 'application/octet-stream'  # Default MIME type if None
         sha256_digest = f.hash_sha256_ctx.hexdigest()
