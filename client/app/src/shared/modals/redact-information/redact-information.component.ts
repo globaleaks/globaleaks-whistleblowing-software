@@ -36,6 +36,8 @@ export class RedactInformationComponent implements OnInit{
   unmaskedContent = "";
   content = "";
   originalContent = "";
+  can_select = false;
+  can_unselect = false;
 
   cancel() {
     this.modalService.dismissAll();
@@ -50,6 +52,8 @@ export class RedactInformationComponent implements OnInit{
     this.temporary_redaction = [];
     this.permanent_redaction = [];
     this.ranges_selected = [];
+    this.can_select = false;
+    this.can_unselect = false;
 
     if (this.redaction) {
       this.permanent_redaction = this.redaction.permanent_redaction;
@@ -80,6 +84,11 @@ export class RedactInformationComponent implements OnInit{
   }
 
   selectContent() {
+    this.updateSelection();
+    if (!this.can_select) {
+      return;
+    }
+
     const response:any = this.maskService.getSelectedRanges(true, this.ranges_selected,this.redactTextArea());
 
     if (!this.vars.redaction_switch) {
@@ -95,12 +104,41 @@ export class RedactInformationComponent implements OnInit{
       this.content = this.maskService.maskContent(this.content, this.ranges_selected, true, String.fromCharCode(0x2591),"");
       this.content = this.maskService.maskContent(this.content, this.permanent_redaction, true, String.fromCharCode(0x2588),"");
     }
+    this.updateSelection();
   }
 
   unSelectContent() {
+    this.updateSelection();
+    if (!this.can_unselect) {
+      return;
+    }
+
     const response:any = this.maskService.getSelectedRanges(false, this.ranges_selected,this.redactTextArea());
     this.ranges_selected = response.new_ranges;
-    this.content = this.maskService.onUnHighlight(this.content, this.unmaskedContent, [response.selected_ranges]);
+    this.content = this.maskService.onUnHighlight(this.content, this.vars.redaction_switch ? this.unmaskedContent : this.originalContent, [response.selected_ranges]);
+    this.updateSelection();
+  }
+
+  updateSelection() {
+    const elem = this.redactTextArea().nativeElement;
+    const start = elem.selectionStart;
+    const end = elem.selectionEnd;
+    this.can_select = start < end;
+    this.can_unselect = start < end && this.ranges_selected.some((range: any) => range.start < end && range.end >= start);
+
+    if (!this.vars.redaction_switch) {
+      let position = start;
+      const ranges = this.temporary_redaction.slice().sort((a, b) => a.start - b.start);
+
+      for (const range of ranges) {
+        if (range.start > position) {
+          break;
+        }
+        position = Math.max(position, range.end + 1);
+      }
+
+      this.can_select = this.can_select && position >= end;
+    }
   }
 
   saveMasking() {
