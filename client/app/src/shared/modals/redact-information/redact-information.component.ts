@@ -36,10 +36,9 @@ export class RedactInformationComponent implements OnInit{
   deleting: any[] = [];
   unmaskedContent = "";
   content = "";
-  can_hide = false;
-  can_unhide = false;
-  can_delete = false;
-  changed = false;
+  originalContent = "";
+  can_select = false;
+  can_unselect = false;
 
   cancel() {
     this.modalService.dismissAll();
@@ -47,6 +46,11 @@ export class RedactInformationComponent implements OnInit{
 
   ngOnInit(): void {
     this.redaction = this.arg.redaction;
+    this.temporary_redaction = [];
+    this.permanent_redaction = [];
+    this.ranges_selected = [];
+    this.can_select = false;
+    this.can_unselect = false;
 
     if (this.redaction) {
       this.temporary_redaction = this.redaction.temporary_redaction;
@@ -70,6 +74,11 @@ export class RedactInformationComponent implements OnInit{
   }
 
   selectContent() {
+    this.updateSelection();
+    if (!this.can_select) {
+      return;
+    }
+
     const response:any = this.maskService.getSelectedRanges(true, this.ranges_selected,this.redactTextArea());
 
     if (!this.vars.redaction_switch) {
@@ -85,51 +94,41 @@ export class RedactInformationComponent implements OnInit{
       this.content = this.maskService.maskContent(this.content, this.ranges_selected, true, String.fromCharCode(0x2591),"");
       this.content = this.maskService.maskContent(this.content, this.permanent_redaction, true, String.fromCharCode(0x2588),"");
     }
-
-    const selection = this.selection();
-    this.hidden = this.maskService.mergeRanges([selection], this.hidden);
-    this.render();
+    this.updateSelection();
   }
 
-  unhideContent() {
-    if (!this.can_unhide) {
+  unSelectContent() {
+    this.updateSelection();
+    if (!this.can_unselect) {
       return;
     }
 
-    const selection = this.selection();
-    this.hidden = this.maskService.splitRanges(selection, this.hidden);
-    this.deleting = this.maskService.splitRanges(selection, this.deleting);
-    this.render();
-  }
-
-  deleteContent() {
-    if (!this.can_delete) {
-      return;
-    }
-
-    const merged = this.maskService.mergeRanges([this.selection()], this.deleting);
-
-    if (this.canDeleteDirectly()) {
-      // Any content can be deleted, except what is deleted already
-      this.deleting = this.permanent_redaction.reduce((ranges: any[], range: any) => this.maskService.splitRanges(range, ranges), merged);
-    } else {
-      // Only the saved hidden content can be deleted, within one hidden range at a time
-      this.deleting = this.maskService.intersectRanges(this.copyRanges(this.temporary_redaction), merged);
-    }
-
-    this.render();
+    const response:any = this.maskService.getSelectedRanges(false, this.ranges_selected,this.redactTextArea());
+    this.ranges_selected = response.new_ranges;
+    this.content = this.maskService.onUnHighlight(this.content, this.vars.redaction_switch ? this.unmaskedContent : this.originalContent, [response.selected_ranges]);
+    this.updateSelection();
   }
 
   updateSelection() {
     const elem = this.redactTextArea().nativeElement;
     const start = elem.selectionStart;
     const end = elem.selectionEnd;
-    const selected = start < end;
+    this.can_select = start < end;
+    this.can_unselect = start < end && this.ranges_selected.some((range: any) => range.start < end && range.end >= start);
 
-    this.can_hide = selected && !this.covers([...this.hidden, ...this.permanent_redaction], start, end);
-    this.can_unhide = selected && this.hidden.some((range: any) => range.start < end && range.end >= start);
-    this.can_delete = selected && !this.covers([...this.deleting, ...this.permanent_redaction], start, end) &&
-      (this.canDeleteDirectly() || this.covers(this.temporary_redaction, start, end));
+    if (!this.vars.redaction_switch) {
+      let position = start;
+      const ranges = this.temporary_redaction.slice().sort((a, b) => a.start - b.start);
+
+      for (const range of ranges) {
+        if (range.start > position) {
+          break;
+        }
+        position = Math.max(position, range.end + 1);
+      }
+
+      this.can_select = this.can_select && position >= end;
+    }
   }
 
   saveMasking() {
