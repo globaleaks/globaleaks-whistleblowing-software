@@ -1,3 +1,5 @@
+from nacl.encoding import Base64Encoder
+from nacl.public import PrivateKey
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import db, models
@@ -9,6 +11,7 @@ from globaleaks.handlers.recipient import rtip
 from globaleaks.jobs.notification import MailGenerator
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import transact
+from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_now
 from globaleaks.rest import errors
 from globaleaks.tests import helpers
@@ -25,6 +28,13 @@ def subject(object_word, status_word):
 @transact
 def uuid_of(session, tid):
     return ConfigFactory(session, tid).get_val('uuid')
+
+
+@transact
+def escrowed_tip_key(session, itip_id):
+    itip = session.get(models.InternalTip, itip_id)
+    prv_key = GCE.asymmetric_decrypt(helpers.ESCROW_PRV_KEY, Base64Encoder.decode(itip.crypto_escrow_bkp1_key))
+    return PrivateKey(prv_key, Base64Encoder).public_key.encode(Base64Encoder).decode(), itip.crypto_tip_pub_key
 
 
 @transact
@@ -207,6 +217,13 @@ class TestCommunication(ExchangeTest):
         self.assertEqual(holders, {self.dummy_receiver_1['id'],
                                    self.dummy_receiver_2['id'],
                                    self.destination['id']})
+
+    @inlineCallbacks
+    def test_the_key_of_the_report_is_escrowed_on_the_site_that_owns_it(self):
+        filed = yield self.communicate()
+
+        escrowed, pub_key = yield escrowed_tip_key(filed['id'])
+        self.assertEqual(escrowed, pub_key)
 
     @inlineCallbacks
     def test_the_origin_owns_the_report_and_the_destination_reads_it(self):

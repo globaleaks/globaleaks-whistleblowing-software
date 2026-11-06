@@ -714,6 +714,10 @@ class _InternalTip(Model):
     crypto_pub_key = Column(UnicodeText(56), default='', nullable=False)
     crypto_tip_pub_key = Column(UnicodeText(56), default='', nullable=False)
     crypto_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
+    # The private key of the report encrypted to the escrow key of the root site and to the one of
+    # its site
+    crypto_escrow_bkp1_key = Column(UnicodeText(84), default='', nullable=False)
+    crypto_escrow_bkp2_key = Column(UnicodeText(84), default='', nullable=False)
     deprecated_crypto_files_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
     def is_owned_by(self, tid):

@@ -156,10 +156,12 @@ def toggle_escrow(session, tid, user_session):
         if protected_users and user_session.user_id not in protected_users:
             raise errors.ForbiddenOperation
 
-        if tid == 1:
-            session.query(models.User).update({'crypto_escrow_bkp1_key': ''}, synchronize_session=False)
-        else:
-            session.query(models.User).filter(models.User.tid == tid).update({'crypto_escrow_bkp2_key': ''}, synchronize_session=False)
+        # The copies of the keys of the accounts and of the reports go with the escrow key
+        for model in (models.User, models.InternalTip):
+            if tid == 1:
+                session.query(model).update({'crypto_escrow_bkp1_key': ''}, synchronize_session=False)
+            else:
+                session.query(model).filter(model.tid == tid).update({'crypto_escrow_bkp2_key': ''}, synchronize_session=False)
 
         session.query(models.User).filter(models.User.tid == tid).update({'crypto_escrow_prv_key': ''}, synchronize_session=False)
 

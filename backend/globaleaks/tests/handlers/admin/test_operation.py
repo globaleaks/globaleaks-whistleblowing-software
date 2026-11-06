@@ -38,6 +38,11 @@ def get_backup_config(session, tid):
             for var_name in ('backup_enabled', 'backup_time', 'backup_period', 'backup_retention')}
 
 
+@transact
+def get_report_escrow_copies(session):
+    return [bkp1 for bkp1, in session.query(models.InternalTip.crypto_escrow_bkp1_key)]
+
+
 class TestAdminPasswordReset(helpers.TestHandlerWithPopulatedDB):
     _handler = AdminOperationHandler
 
@@ -221,6 +226,16 @@ class TestAdminOperations(helpers.TestHandlerWithPopulatedDB):
         # double toggle is needed to test disabling and enabling
         yield self._test_operation_handler('toggle_escrow')
         yield self._test_operation_handler('toggle_escrow')
+
+    @defer.inlineCallbacks
+    def test_admin_toggle_escrow_drops_the_copies_of_the_reports(self):
+        yield self.perform_full_submission_actions()
+        copies = yield get_report_escrow_copies()
+        self.assertTrue(copies and all(copies))
+
+        yield self._test_operation_handler('toggle_escrow')
+        copies = yield get_report_escrow_copies()
+        self.assertFalse(any(copies))
 
     @defer.inlineCallbacks
     def test_admin_toggle_escrow_on_secondary_tenant(self):

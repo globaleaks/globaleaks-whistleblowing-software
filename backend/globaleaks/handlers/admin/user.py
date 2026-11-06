@@ -22,7 +22,7 @@ from globaleaks.orm import db_del, db_get, db_log, transact, tw
 from globaleaks.rest import errors, requests
 from globaleaks.sessions import Sessions
 from globaleaks.state import State
-from globaleaks.transactions import db_get_user
+from globaleaks.transactions import db_escrow_key, db_get_user
 from globaleaks.utils.crypto import GCE, generateRandomPassword, sha256
 from globaleaks.utils.utility import datetime_null, uuid4
 
@@ -167,24 +167,6 @@ def db_generate_user_keys(session, tid, user, user_session, key, token):
     return cc
 
 
-def db_escrow_user_key(user, tid, cc, escrow_pub_key_1, escrow_pub_key_n):
-    """
-    Keep copies of the key of an account encrypted to the escrow key of the root site and to the
-    one of its site
-
-    :param user: The account
-    :param tid: A tenant ID
-    :param cc: The private key of the account
-    :param escrow_pub_key_1: The escrow key of the root site
-    :param escrow_pub_key_n: The escrow key of the site
-    """
-    if escrow_pub_key_1:
-        user.crypto_escrow_bkp1_key = Base64Encoder.encode(GCE.asymmetric_encrypt(escrow_pub_key_1, cc))
-
-    if tid != 1 and escrow_pub_key_n:
-        user.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(escrow_pub_key_n, cc))
-
-
 def db_create_user(session, tid, user_session, request, language, defer_password_setup=False):
     """
     Transaction for creating a new user
@@ -262,7 +244,7 @@ def db_create_user(session, tid, user_session, request, language, defer_password
     if defer_password_setup or (not crypto_escrow_pub_key_tenant_1 and not crypto_escrow_pub_key_tenant_n):
         return user
 
-    db_escrow_user_key(user, tid, cc, crypto_escrow_pub_key_tenant_1, crypto_escrow_pub_key_tenant_n)
+    db_escrow_key(session, tid, user, cc)
 
     return user
 

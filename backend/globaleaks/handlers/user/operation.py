@@ -8,7 +8,7 @@ from globaleaks.handlers.operation import OperationHandler
 from globaleaks.orm import db_log, transact
 from globaleaks.rest import errors
 from globaleaks.state import State
-from globaleaks.transactions import db_get_user
+from globaleaks.transactions import db_escrow_key, db_get_user
 from globaleaks.utils.crypto import GCE, sha256
 from globaleaks.utils.fs import directory_traversal_check, srm
 from globaleaks.utils.utility import datetime_now
@@ -53,15 +53,7 @@ def change_password(session, tid, user_session, new_password, current_password):
 
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
 
-        root_config = models.config.ConfigFactory(session, 1)
-        crypto_escrow_pub_key_tenant_1 = root_config.get_val('crypto_escrow_pub_key')
-        if crypto_escrow_pub_key_tenant_1:
-            user.crypto_escrow_bkp1_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key_tenant_1, cc))
-
-        if tid != 1:
-            crypto_escrow_pub_key_tenant_n = config.get_val('crypto_escrow_pub_key')
-            if crypto_escrow_pub_key_tenant_n:
-                user.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key_tenant_n, cc))
+        db_escrow_key(session, tid, user, cc)
 
     reset_token = user_session.properties.get('reset_token')
     if reset_token:

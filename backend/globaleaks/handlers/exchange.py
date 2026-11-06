@@ -22,6 +22,7 @@ from globaleaks.models.exchanges import db_exchange_outgoing_enabled, \
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
+from globaleaks.transactions import db_escrow_key
 from globaleaks.utils.crypto import GCE, generateRandomKey, sha256
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import datetime_now, datetime_null, get_expiration
@@ -647,6 +648,7 @@ def db_new_exchange_report(session, owner_tid, channel, source_user, stage, encr
         return itip, b''
 
     crypto_tip_prv_key, itip.crypto_tip_pub_key = GCE.generate_keypair()
+    db_escrow_key(session, owner_tid, itip, crypto_tip_prv_key)
 
     return itip, crypto_tip_prv_key
 

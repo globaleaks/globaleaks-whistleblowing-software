@@ -19,6 +19,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
+from globaleaks.transactions import db_escrow_key
 from globaleaks.utils.crypto import sha256, sha512, GCE
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import get_expiration, datetime_null, parse_iso8601
@@ -1045,6 +1046,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         itip.crypto_pub_key = PrivateKey(user_session.cc, Base64Encoder).public_key.encode(Base64Encoder)
         itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, user_session.cc))
         itip.crypto_tip_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_pub_key, crypto_tip_prv_key))
+        db_escrow_key(session, tid, itip, crypto_tip_prv_key)
 
     # Apply special handling to the whistleblower identity question
     identity_provided = False

@@ -1,5 +1,7 @@
 from types import SimpleNamespace
 
+from nacl.encoding import Base64Encoder
+from nacl.public import PrivateKey
 from twisted.internet.defer import inlineCallbacks
 from twisted.trial import unittest
 
@@ -9,7 +11,9 @@ from globaleaks.handlers.whistleblower import submission, wbtip
 from globaleaks.jobs import delivery
 from globaleaks.orm import transact
 from globaleaks.rest import errors
+from globaleaks.models.config import db_set_config_variable
 from globaleaks.tests import helpers
+from globaleaks.transactions import db_escrow_key
 from globaleaks.utils.crypto import GCE
 
 
@@ -23,6 +27,25 @@ def inject_legacy_receipt_report(session, context_id):
     session.add(itip)
     session.flush()
     return itip.id
+
+
+@transact
+def get_escrow_copies_of_the_last_report(session):
+    itip = session.query(models.InternalTip).order_by(models.InternalTip.progressive.desc()).first()
+    return itip.crypto_tip_pub_key, itip.crypto_escrow_bkp1_key, itip.crypto_escrow_bkp2_key
+
+
+@transact
+def escrow_on_secondary_site(session, escrow_pub_key, prv_key):
+    db_set_config_variable(session, 2, 'crypto_escrow_pub_key', escrow_pub_key)
+    itip = models.InternalTip()
+    db_escrow_key(session, 2, itip, prv_key)
+    return itip.crypto_escrow_bkp1_key, itip.crypto_escrow_bkp2_key
+
+
+def escrowed_public_key(escrow_prv_key, copy):
+    prv_key = GCE.asymmetric_decrypt(escrow_prv_key, Base64Encoder.decode(copy))
+    return PrivateKey(prv_key, Base64Encoder).public_key.encode(Base64Encoder)
 
 
 @transact
@@ -857,6 +880,25 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
     def test_create_simple_submission(self):
         self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         yield self.create_submission(self.submission_desc)
+
+    @inlineCallbacks
+    def test_the_key_of_the_report_is_escrowed(self):
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
+        yield self.create_submission(self.submission_desc)
+
+        pub_key, bkp1, bkp2 = yield get_escrow_copies_of_the_last_report()
+        self.assertEqual(escrowed_public_key(helpers.ESCROW_PRV_KEY, bkp1), pub_key.encode())
+        self.assertEqual(bkp2, '')
+
+    @inlineCallbacks
+    def test_a_report_of_a_secondary_site_is_escrowed_to_both_sites(self):
+        escrow_prv_key, escrow_pub_key = GCE.generate_keypair()
+        prv_key, pub_key = GCE.generate_keypair()
+
+        bkp1, bkp2 = yield escrow_on_secondary_site(escrow_pub_key, prv_key)
+
+        self.assertEqual(escrowed_public_key(helpers.ESCROW_PRV_KEY, bkp1), pub_key)
+        self.assertEqual(escrowed_public_key(escrow_prv_key, bkp2), pub_key)
 
     @inlineCallbacks
     def test_create_submission_attach_files_finalize_and_verify_file_creation(self):
