@@ -25,6 +25,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
+from globaleaks.transactions import db_escrow_missing_key
 from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
@@ -81,10 +82,12 @@ def db_notify_recipients_of_tip_update(session, itip_id):
         db_notify_report_update(session, user, rtip, itip)
 
 
-def db_get_wbtip(session, itip_id, language):
+def db_get_wbtip(session, itip_id, language, user_cc=None):
     itip = db_get(session, models.InternalTip, models.InternalTip.id == itip_id)
 
     itip.last_access = datetime_now()
+
+    db_escrow_missing_key(session, itip.tid, itip, itip.crypto_tip_prv_key, user_cc)
 
     db_log(session, tid=itip.tid, type='whistleblower_access_report', user_id=itip_id, object_id=itip.id)
 
@@ -92,8 +95,8 @@ def db_get_wbtip(session, itip_id, language):
 
 
 @transact
-def get_wbtip(session, itip_id, language):
-    return db_get_wbtip(session, itip_id, language)
+def get_wbtip(session, itip_id, language, user_cc=None):
+    return db_get_wbtip(session, itip_id, language, user_cc)
 
 
 @transact
@@ -265,7 +268,7 @@ class WBTipInstance(BaseHandler):
         # Local import to avoid a circular import with recipient.rtip.
         from globaleaks.handlers.recipient.rtip import redact_report  # noqa: PLC0415
 
-        tip, crypto_tip_prv_key = yield get_wbtip(self.session.user_id, self.request.language)
+        tip, crypto_tip_prv_key = yield get_wbtip(self.session.user_id, self.request.language, self.session.cc)
 
         if State.tenants[self.request.tid].cache.antivirus_enabled and crypto_tip_prv_key:
             enqueue_tip_files_for_rescan(tip, GCE.asymmetric_decrypt(self.session.cc, crypto_tip_prv_key))

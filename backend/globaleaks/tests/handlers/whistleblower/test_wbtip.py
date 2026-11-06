@@ -30,6 +30,20 @@ class TestWBTipInstance(helpers.TestHandlerWithPopulatedDB):
 
             yield handler.get()
 
+    @inlineCallbacks
+    def test_get_escrows_the_key_of_a_report_without_copies(self):
+        yield helpers.drop_report_escrow_copies()
+
+        wbtip_desc = (yield self.get_wbtips())[0]
+        yield self.request(role='whistleblower', user_id=wbtip_desc['id']).get()
+
+        copies = yield helpers.get_report_escrow_copies()
+        pub_key, escrowed = copies[wbtip_desc['id']]
+        self.assertEqual(escrowed, pub_key)
+
+        # Only the report opened is escrowed
+        self.assertTrue(any(not escrowed for _, escrowed in copies.values()))
+
 
 class TestWBTipCommentCollection(helpers.TestHandlerWithPopulatedDB):
     _handler = wbtip.WBTipCommentCollection

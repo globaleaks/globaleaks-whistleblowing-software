@@ -16,6 +16,7 @@ import tempfile
 from datetime import timedelta
 
 from nacl.encoding import Base32Encoder, Base64Encoder
+from nacl.public import PrivateKey
 
 from urllib.parse import urlsplit  # pylint: disable=import-error
 
@@ -102,6 +103,32 @@ def mock_nullfunction(*args, **kwargs):
 def mock_gce_generate_key():
     return KEY
 
+
+
+@transact
+def drop_report_escrow_copies(session):
+    """
+    Bring the reports back to before the escrow of their keys
+    """
+    session.query(models.InternalTip).update({'crypto_escrow_bkp1_key': '', 'crypto_escrow_bkp2_key': ''})
+
+
+@transact
+def get_report_escrow_copies(session):
+    """
+    Return the public key of every report with the public key of the private one escrowed to the
+    root site, empty when the report holds no copy
+    """
+    copies = {}
+    for itip in session.query(models.InternalTip):
+        escrowed = ''
+        if itip.crypto_escrow_bkp1_key:
+            prv_key = GCE.asymmetric_decrypt(ESCROW_PRV_KEY, Base64Encoder.decode(itip.crypto_escrow_bkp1_key))
+            escrowed = PrivateKey(prv_key, Base64Encoder).public_key.encode(Base64Encoder).decode()
+
+        copies[itip.id] = (itip.crypto_tip_pub_key, escrowed)
+
+    return copies
 
 def mock_gce_generate_keypair():
     return USER_PRV_KEY, USER_PUB_KEY

@@ -44,6 +44,28 @@ def db_escrow_key(session, tid, obj, prv_key):
             obj.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(escrow_pub_key_n, prv_key))
 
 
+def db_escrow_missing_key(session, tid, obj, encrypted_prv_key, cc):
+    """
+    Complete the escrow copies of the private key of an account or of a report that misses them,
+    as the reports filed before the escrow of their keys, or before the escrow was enabled, do:
+    whoever decrypts the key on access protects it
+
+    :param session: An ORM session
+    :param tid: The tenant ID of the site the account or the report belongs to
+    :param obj: The account or the report
+    :param encrypted_prv_key: Its private key, encrypted to the one decrypting it
+    :param cc: The private key decrypting it
+    """
+    if not encrypted_prv_key or not cc:
+        return
+
+    missing = not obj.crypto_escrow_bkp1_key and ConfigFactory(session, 1).get_val('crypto_escrow_pub_key') or \
+        tid != 1 and not obj.crypto_escrow_bkp2_key and ConfigFactory(session, tid).get_val('crypto_escrow_pub_key')
+
+    if missing:
+        db_escrow_key(session, tid, obj, GCE.asymmetric_decrypt(cc, Base64Encoder.decode(encrypted_prv_key)))
+
+
 def db_schedule_email(session, tid, address, subject, body, secondary_smtp=False):
     return db_add(session,
                   models.Mail,

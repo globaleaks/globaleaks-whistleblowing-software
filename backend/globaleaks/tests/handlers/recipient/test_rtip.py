@@ -94,6 +94,17 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             handler = self.request(role='receiver', user_id=rtip_desc['receiver_id'])
             yield handler.get(rtip_desc['id'])
 
+    @inlineCallbacks
+    def test_get_escrows_the_key_of_a_report_without_copies(self):
+        yield helpers.drop_report_escrow_copies()
+
+        rtip_desc = (yield self.get_rtips())[0]
+        yield self.request(role='receiver', user_id=rtip_desc['receiver_id']).get(rtip_desc['id'])
+
+        copies = yield helpers.get_report_escrow_copies()
+        pub_key, escrowed = copies[rtip_desc['id']]
+        self.assertEqual(escrowed, pub_key)
+
 
     @inlineCallbacks
     def test_postpone(self):

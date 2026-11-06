@@ -29,6 +29,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
+from globaleaks.transactions import db_escrow_missing_key
 from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
@@ -793,7 +794,7 @@ def register_rfile_on_db(session, tid, user_id, itip_id, uploaded_file):
     return serializers.serialize_rfile(session, new_file), itip.crypto_tip_pub_key
 
 
-def db_get_rtip(session, tid, user_id, itip_id, language):
+def db_get_rtip(session, tid, user_id, itip_id, language, user_cc=None):
     """
     Transaction retrieving an rtip
 
@@ -802,9 +803,13 @@ def db_get_rtip(session, tid, user_id, itip_id, language):
     :param user_id: A user ID of the user opening the submission
     :param itip_id: An itip ID to accessed
     :param language: A language to be used for the serialization
+    :param user_cc: The private key of the user, protecting with the escrow the key of the report
     :return:  The serialized descriptor of the rtip
     """
     _, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
+
+    # The report is escrowed by the keys of the site that owns it
+    db_escrow_missing_key(session, itip.tid, itip, rtip.crypto_tip_prv_key, user_cc)
 
     rtip.last_access = datetime_now()
     if rtip.access_date == datetime_null():
@@ -862,7 +867,7 @@ def db_get_rtip(session, tid, user_id, itip_id, language):
 
 
 @transact
-def get_rtip(session, tid, user_id, itip_id, language):
+def get_rtip(session, tid, user_id, itip_id, language, user_cc=None):
     """
     Transaction retrieving an rtip
 
@@ -871,9 +876,10 @@ def get_rtip(session, tid, user_id, itip_id, language):
     :param user_id: A user ID of the user opening the submission
     :param itip_id: An itip ID to accessed
     :param language: A language to be used for the serialization
+    :param user_cc: The private key of the user, protecting with the escrow the key of the report
     :return:  The serialized descriptor of the rtip
     """
-    return db_get_rtip(session, tid, user_id, itip_id, language)
+    return db_get_rtip(session, tid, user_id, itip_id, language, user_cc)
 
 
 def redact_answers(answers, redactions, depth=0):
@@ -1834,7 +1840,7 @@ class RTipInstance(OperationHandler):
 
     @inlineCallbacks
     def get(self, tip_id):
-        tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, tip_id, self.request.language)
+        tip, crypto_tip_prv_key = yield get_rtip(self.request.tid, self.session.user_id, tip_id, self.request.language, self.session.cc)
 
         if State.tenants[self.request.tid].cache.antivirus_enabled and crypto_tip_prv_key:
             enqueue_tip_files_for_rescan(tip, GCE.asymmetric_decrypt(self.session.cc, crypto_tip_prv_key))
