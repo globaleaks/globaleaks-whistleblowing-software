@@ -19,13 +19,13 @@ from globaleaks.handlers.auth import db_set_receipt_hash
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.whistleblower.submission import decrypt_tip, \
     db_set_internaltip_answers, db_archive_questionnaire_schema, \
-    db_set_internaltip_data, db_validate_answers, extract_statistical_data
+    db_set_internaltip_data, db_validate_answers
 from globaleaks.handlers.user import user_serialize_user
 from globaleaks.models import serializers
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.transactions import db_escrow_missing_key
+from globaleaks.transactions import db_complete_report_key_copies
 from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
@@ -87,7 +87,7 @@ def db_get_wbtip(session, itip_id, language, user_cc=None):
 
     itip.last_access = datetime_now()
 
-    db_escrow_missing_key(session, itip.tid, itip, itip.crypto_tip_prv_key, user_cc)
+    db_complete_report_key_copies(session, itip, itip.crypto_tip_prv_key, user_cc)
 
     db_log(session, tid=itip.tid, type='whistleblower_access_report', user_id=itip_id, object_id=itip.id)
 
@@ -192,17 +192,12 @@ def store_additional_questionnaire_answers(session, tid, user_id, answers, langu
     steps, _ = db_validate_answers(session, tid, questionnaire_id, answers, True)
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
-    stat_data = extract_statistical_data(session, tid, answers)
     plaintext_answers = answers
 
     if itip.crypto_tip_pub_key:
-        if stat_data:
-            crypto_stat_pub_key = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'crypto_stat_pub_key'))[0]
-            stat_data = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_stat_pub_key, json.dumps(stat_data, cls=JSONEncoder).encode())).decode()
-
         answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, questionnaire_id, questionnaire_hash, answers, stat_data, None, plaintext_answers, itip.crypto_tip_pub_key)
+    db_set_internaltip_answers(session, itip.id, questionnaire_id, questionnaire_hash, answers, None, plaintext_answers, itip.crypto_tip_pub_key)
 
     # The questionnaire has been answered and is no longer asked: the report
     # carries no request until the recipients make another one

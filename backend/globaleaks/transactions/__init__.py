@@ -44,26 +44,55 @@ def db_escrow_key(session, tid, obj, prv_key):
             obj.crypto_escrow_bkp2_key = Base64Encoder.encode(GCE.asymmetric_encrypt(escrow_pub_key_n, prv_key))
 
 
-def db_escrow_missing_key(session, tid, obj, encrypted_prv_key, cc):
+def db_stat_key(session, itip, prv_key):
     """
-    Complete the escrow copies of the private key of an account or of a report that misses them,
-    as the reports filed before the escrow of their keys, or before the escrow was enabled, do:
-    whoever decrypts the key on access protects it
+    Keep a copy of the private key of a report encrypted to the statistical key of its site, the
+    statistics reading its answers through it. The reports an exchange files are not accounted for
 
     :param session: An ORM session
-    :param tid: The tenant ID of the site the account or the report belongs to
-    :param obj: The account or the report
+    :param itip: The report
+    :param prv_key: Its private key
+    """
+    if itip.type in ('request', 'exchange'):
+        return
+
+    stat_pub_key = ConfigFactory(session, itip.tid).get_val('crypto_stat_pub_key')
+    if stat_pub_key:
+        itip.crypto_stat_tip_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(stat_pub_key, prv_key))
+
+
+def db_complete_report_key_copies(session, itip, encrypted_prv_key, cc):
+    """
+    Complete the copies of the private key of a report for the escrow and for the statistics that it
+    misses, as the reports filed before them, or before the escrow was enabled, do: whoever
+    decrypts the key on access protects it
+
+    :param session: An ORM session
+    :param itip: The report
     :param encrypted_prv_key: Its private key, encrypted to the one decrypting it
     :param cc: The private key decrypting it
     """
     if not encrypted_prv_key or not cc:
         return
 
-    missing = not obj.crypto_escrow_bkp1_key and ConfigFactory(session, 1).get_val('crypto_escrow_pub_key') or \
-        tid != 1 and not obj.crypto_escrow_bkp2_key and ConfigFactory(session, tid).get_val('crypto_escrow_pub_key')
+    root_config, config = ConfigFactory(session, 1), ConfigFactory(session, itip.tid)
 
-    if missing:
-        db_escrow_key(session, tid, obj, GCE.asymmetric_decrypt(cc, Base64Encoder.decode(encrypted_prv_key)))
+    escrow_missing = not itip.crypto_escrow_bkp1_key and root_config.get_val('crypto_escrow_pub_key') or \
+        itip.tid != 1 and not itip.crypto_escrow_bkp2_key and config.get_val('crypto_escrow_pub_key')
+
+    stat_missing = not itip.crypto_stat_tip_prv_key and itip.type not in ('request', 'exchange') and \
+        config.get_val('crypto_stat_pub_key')
+
+    if not escrow_missing and not stat_missing:
+        return
+
+    prv_key = GCE.asymmetric_decrypt(cc, Base64Encoder.decode(encrypted_prv_key))
+
+    if escrow_missing:
+        db_escrow_key(session, itip.tid, itip, prv_key)
+
+    if stat_missing:
+        db_stat_key(session, itip, prv_key)
 
 
 def db_schedule_email(session, tid, address, subject, body, secondary_smtp=False):

@@ -1,12 +1,16 @@
 
 from datetime import timedelta
 
-from globaleaks import models
+from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks
 
+from globaleaks import models
+
 from globaleaks.handlers import analyst
+from globaleaks.handlers.admin.questionnaire import db_get_questionnaire
 from globaleaks.orm import transact
 from globaleaks.tests import helpers
+from globaleaks.utils.crypto import GCE
 
 
 class TestStatistics(helpers.TestHandlerWithPopulatedDB):
@@ -92,6 +96,90 @@ class TestStatistics(helpers.TestHandlerWithPopulatedDB):
     @transact
     def get_a_tip_day(self, session):
         return session.query(models.InternalTip).first().creation_date.strftime('%Y-%m-%d')
+
+
+def a_choice_of(fields):
+    """
+    Return the first choice among some fields of a questionnaire, at any depth
+    """
+    for field in fields:
+        if field['type'] in models.STATISTICAL_CHOICE_TYPES:
+            return field['id']
+
+        found = a_choice_of(field['children'])
+        if found:
+            return found
+
+
+@transact
+def make_a_choice_statistical(session, analyst_id, questionnaire_id):
+    """
+    Turn a choice the reports answered into the instance of a statistical question template, and
+    give the analyst the statistical key; return the template
+    """
+    analyst_user = session.get(models.User, analyst_id)
+    analyst_user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(helpers.USER_PUB_KEY, helpers.STAT_PRV_KEY))
+
+    questionnaire = db_get_questionnaire(session, 1, questionnaire_id, 'en')
+    field = session.get(models.Field, a_choice_of([f for step in questionnaire['steps'] for f in step['children']]))
+
+    template = models.Field()
+    template.tid = 1
+    template.type = field.type
+    template.instance = 'template'
+    template.statistical = True
+    template.label = {'en': 'Statistical question'}
+    session.add(template)
+    session.flush()
+
+    field.instance = 'reference'
+    field.template_id = template.id
+
+    return template.id
+
+
+@transact
+def set_statistical(session, template_id, statistical):
+    session.get(models.Field, template_id).statistical = statistical
+
+
+@transact
+def drop_stat_copies(session):
+    session.query(models.InternalTip).update({'crypto_stat_tip_prv_key': ''})
+
+
+class TestStatisticalAnswers(helpers.TestHandlerWithPopulatedDB):
+    """
+    The statistics open the answers of the reports through the copy of their key kept for the
+    statistical key, and count what the statistical questions, as configured now, ask
+    """
+    _handler = analyst.Statistics
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+        self.template_id = yield make_a_choice_statistical(self.dummy_analyst['id'], self.dummy_context['questionnaire_id'])
+
+    @inlineCallbacks
+    def answers_counted(self):
+        stats = yield self.request(user_id=self.dummy_analyst['id'], role='analyst').get()
+        metrics = {m['template_id']: m for m in stats['question_template_dropdown_metrics']}
+        return metrics[self.template_id]['total_answers'] if self.template_id in metrics else 0
+
+    @inlineCallbacks
+    def test_the_answers_of_the_reports_are_counted(self):
+        self.assertEqual((yield self.answers_counted()), 2)
+
+    @inlineCallbacks
+    def test_a_question_no_longer_statistical_is_not_counted(self):
+        yield set_statistical(self.template_id, False)
+        self.assertEqual((yield self.answers_counted()), 0)
+
+    @inlineCallbacks
+    def test_a_report_without_the_copy_of_its_key_is_not_counted(self):
+        yield drop_stat_copies()
+        self.assertEqual((yield self.answers_counted()), 0)
 
 
 class TestStatisticalTemplates(helpers.TestHandlerWithPopulatedDB):

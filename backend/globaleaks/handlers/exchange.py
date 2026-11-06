@@ -710,7 +710,6 @@ def db_store_exchange_answers(session, itip, steps, answers):
     itip_answers.questionnaire_hash = questionnaire_hash
     itip_answers.creation_date = itip.creation_date
     itip_answers.answers = answers
-    itip_answers.stat_answers = {}
     itip_answers.hash_sha256, itip_answers.hash_sha512 = \
         data_hashes(plaintext_answers, itip.crypto_tip_pub_key)
     session.add(itip_answers)

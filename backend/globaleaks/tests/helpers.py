@@ -106,29 +106,34 @@ def mock_gce_generate_key():
 
 
 @transact
-def drop_report_escrow_copies(session):
+def drop_report_key_copies(session):
     """
-    Bring the reports back to before the escrow of their keys
+    Bring the reports back to before the copies of their keys for the escrow and the statistics
     """
-    session.query(models.InternalTip).update({'crypto_escrow_bkp1_key': '', 'crypto_escrow_bkp2_key': ''})
+    session.query(models.InternalTip).update({'crypto_escrow_bkp1_key': '',
+                                              'crypto_escrow_bkp2_key': '',
+                                              'crypto_stat_tip_prv_key': ''})
+
+
+def _public_key_of_copy(prv_key, copy):
+    if not copy:
+        return ''
+
+    tip_prv_key = GCE.asymmetric_decrypt(prv_key, Base64Encoder.decode(copy))
+    return PrivateKey(tip_prv_key, Base64Encoder).public_key.encode(Base64Encoder).decode()
 
 
 @transact
-def get_report_escrow_copies(session):
+def get_report_key_copies(session):
     """
-    Return the public key of every report with the public key of the private one escrowed to the
-    root site, empty when the report holds no copy
+    Return, for every report, its public key with the public keys of the private ones kept for the
+    escrow of the root site and for the statistics, empty when the report holds no such copy
     """
-    copies = {}
-    for itip in session.query(models.InternalTip):
-        escrowed = ''
-        if itip.crypto_escrow_bkp1_key:
-            prv_key = GCE.asymmetric_decrypt(ESCROW_PRV_KEY, Base64Encoder.decode(itip.crypto_escrow_bkp1_key))
-            escrowed = PrivateKey(prv_key, Base64Encoder).public_key.encode(Base64Encoder).decode()
+    return {itip.id: (itip.crypto_tip_pub_key,
+                      _public_key_of_copy(ESCROW_PRV_KEY, itip.crypto_escrow_bkp1_key),
+                      _public_key_of_copy(STAT_PRV_KEY, itip.crypto_stat_tip_prv_key))
+            for itip in session.query(models.InternalTip)}
 
-        copies[itip.id] = (itip.crypto_tip_pub_key, escrowed)
-
-    return copies
 
 def mock_gce_generate_keypair():
     return USER_PRV_KEY, USER_PUB_KEY

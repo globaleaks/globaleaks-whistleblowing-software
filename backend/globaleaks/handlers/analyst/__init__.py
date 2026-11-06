@@ -1,3 +1,4 @@
+from sqlalchemy.orm import aliased
 from sqlalchemy.sql.expression import func, and_, false
 from nacl.encoding import Base64Encoder
 from globaleaks import models
@@ -6,6 +7,7 @@ from globaleaks.models.config import DEFAULT_PROFILE_ID, db_get_config_variable,
 from globaleaks.orm import transact, tw
 from twisted.internet.defer import inlineCallbacks
 import json
+import re
 from datetime import datetime, timedelta
 from globaleaks.rest import errors, requests
 from globaleaks.utils.crypto import GCE
@@ -212,39 +214,134 @@ def _localized_label(value, language='en'):
     return str(value).strip() if value is not None else ''
 
 
-def _decode_stat_answers(raw_stat_answers, stat_prv_key):
-    if raw_stat_answers in (None, '', {}):
+def _entry_is_option_selected(flag):
+    return flag is True or (isinstance(flag, str) and flag.strip().lower() == 'true')
+
+
+def _extract_entry_answer_value(field_type, entry):
+    if field_type == 'checkbox':
+        # A checkbox answer has no single 'value': each option is stored as a
+        # separate flag keyed by its option id (bool True or the string 'True').
+        return [option_id for option_id, flag in entry.items()
+                if re.match(requests.uuid_regexp, option_id) and _entry_is_option_selected(flag)]
+
+    return entry.get('value')
+
+
+def _collect_answer_entries(answer_map):
+    """
+    Collect the first entry of every field answered, at any depth
+
+    :param answer_map: The answers of a questionnaire
+    :return: The first entry of each field, by field id
+    """
+    collected = {}
+    if not isinstance(answer_map, dict):
+        return collected
+
+    for field_id, entries in answer_map.items():
+        if not re.match(requests.uuid_regexp, field_id) or not isinstance(entries, list) or not entries:
+            continue
+
+        first_entry = entries[0]
+        if isinstance(first_entry, dict):
+            collected[field_id] = first_entry
+            collected.update(_collect_answer_entries(first_entry))
+
+    return collected
+
+
+def _db_get_statistical_fields(session, tid, field_ids):
+    """
+    Describe some fields by what makes them statistical: their own flag and, for a choice
+    referencing a template, the flag of the template
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param field_ids: The fields
+    :return: The description of each field, by field id
+    """
+    template_field = aliased(models.Field)
+    rows = session.query(models.Field.id, models.Field.type, models.Field.template_id, models.Field.instance, models.Field.statistical, template_field.statistical) \
+                  .outerjoin(template_field, template_field.id == models.Field.template_id) \
+                  .filter(models.Field.tid.in_({1, tid}), models.Field.id.in_(field_ids)) \
+                  .all()
+
+    return {field_id: {'type': field_type, 'template_id': template_id, 'instance': instance, 'field_statistical': field_statistical, 'template_statistical': template_statistical}
+            for field_id, field_type, template_id, instance, field_statistical, template_statistical in rows}
+
+
+def _statistical_answer(field_data, entry):
+    """
+    Return the statistical value of an answer and the template it counts for too, if any
+
+    :param field_data: The description of the field answered
+    :param entry: The answer
+    :return: The value, None when the answer is not statistical, and the template
+    """
+    is_template_choice = (field_data['type'] in models.STATISTICAL_CHOICE_TYPES and field_data['instance'] == 'reference' and field_data['template_id'])
+    counts_for_template = is_template_choice and bool(field_data['template_statistical'])
+    if not (bool(field_data['field_statistical']) or counts_for_template):
+        return None, None
+
+    answer_value = _extract_entry_answer_value(field_data['type'], entry)
+    if answer_value in (None, '', []):
+        return None, None
+
+    return answer_value, field_data['template_id'] if counts_for_template else None
+
+
+def extract_statistical_data(session, tid:int, answers:dict):
+    answer_entries = _collect_answer_entries(answers)
+    if not answer_entries:
         return {}
 
-    if isinstance(raw_stat_answers, dict):
-        return raw_stat_answers
+    statistical_fields_by_id = _db_get_statistical_fields(session, tid, list(answer_entries.keys()))
 
-    if isinstance(raw_stat_answers, str):
-        stat_text = raw_stat_answers.strip()
-        if not stat_text:
-            return {}
+    answers_dict = dict()
+    for k, entry in answer_entries.items():
+        field_data = statistical_fields_by_id.get(k)
+        if field_data is None:
+            continue
 
-        try:
-            parsed = json.loads(stat_text)
-            if isinstance(parsed, dict):
-                return parsed
-        except ValueError:
-            # Not plain JSON: the answers may be encrypted, and are read below
-            pass
+        answer_value, template_id = _statistical_answer(field_data, entry)
+        if answer_value is None:
+            continue
 
-        if not stat_prv_key:
-            return {}
+        answers_dict[k] = answer_value
 
-        try:
-            encrypted_payload = Base64Encoder.decode(stat_text.encode('utf-8'))
-            decrypted = GCE.asymmetric_decrypt(stat_prv_key, encrypted_payload).decode('utf-8')
-            parsed = json.loads(decrypted)
-            if isinstance(parsed, dict):
-                return parsed
-        except (ValueError, CryptoError):
-            return {}
+        if template_id:
+            answers_dict.setdefault(f'template:{template_id}', answer_value)
 
-    return {}
+    return answers_dict
+
+
+def _decrypt_answers(answers, crypto_stat_tip_prv_key, stat_prv_key, tip_keys, itip_id):
+    """
+    Return the answers of a report as the statistics read them: in the clear, or decrypted through
+    the copy of the key of the report kept for the statistical key; empty when they cannot be read
+
+    :param answers: The answers as stored
+    :param crypto_stat_tip_prv_key: The key of the report encrypted to the statistical key
+    :param stat_prv_key: The statistical private key of the analyst
+    :param tip_keys: The keys of the reports already decrypted, by report
+    :param itip_id: The report
+    """
+    if isinstance(answers, dict):
+        return answers
+
+    if not isinstance(answers, str) or not crypto_stat_tip_prv_key or not stat_prv_key:
+        return {}
+
+    try:
+        if itip_id not in tip_keys:
+            tip_keys[itip_id] = GCE.asymmetric_decrypt(stat_prv_key, Base64Encoder.decode(crypto_stat_tip_prv_key.encode()))
+
+        parsed = json.loads(GCE.asymmetric_decrypt(tip_keys[itip_id], Base64Encoder.decode(answers.encode())).decode())
+    except (ValueError, CryptoError):
+        return {}
+
+    return parsed if isinstance(parsed, dict) else {}
 
 
 def _get_user_stat_prv_key(session, tid, user_id, user_cc):
@@ -444,12 +541,20 @@ def calculate_dropdown_template_metrics(session, tid, filtered_tips_subquery, la
     }
 
     stat_prv_key = _get_user_stat_prv_key(session, tid, user_id, user_cc)
-    stat_rows = session.query(models.InternalTipAnswers.stat_answers) \
-                       .join(filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTipAnswers.internaltip_id) \
-                       .all()
+    # The answers are opened in the transaction and only what the statistical questions, as they are
+    # configured now, count of them leaves it; the reports an exchange files are not accounted for
+    rows = session.query(models.InternalTipAnswers.internaltip_id,
+                         models.InternalTipAnswers.answers,
+                         models.InternalTip.crypto_stat_tip_prv_key) \
+                  .join(filtered_tips_subquery, filtered_tips_subquery.c.id == models.InternalTipAnswers.internaltip_id) \
+                  .join(models.InternalTip, models.InternalTip.id == models.InternalTipAnswers.internaltip_id) \
+                  .filter(models.InternalTip.type.notin_(('request', 'exchange'))) \
+                  .all()
 
-    for stat_answers, in stat_rows:
-        stat_answers_dict = _decode_stat_answers(stat_answers, stat_prv_key)
+    tip_keys = {}
+    for itip_id, answers, crypto_stat_tip_prv_key in rows:
+        answers = _decrypt_answers(answers, crypto_stat_tip_prv_key, stat_prv_key, tip_keys, itip_id)
+        stat_answers_dict = extract_statistical_data(session, tid, answers)
         if not stat_answers_dict:
             continue
 

@@ -32,7 +32,7 @@ def inject_legacy_receipt_report(session, context_id):
 @transact
 def get_escrow_copies_of_the_last_report(session):
     itip = session.query(models.InternalTip).order_by(models.InternalTip.progressive.desc()).first()
-    return itip.crypto_tip_pub_key, itip.crypto_escrow_bkp1_key, itip.crypto_escrow_bkp2_key
+    return itip.crypto_tip_pub_key, itip.crypto_escrow_bkp1_key, itip.crypto_escrow_bkp2_key, itip.crypto_stat_tip_prv_key
 
 
 @transact
@@ -886,9 +886,17 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
         yield self.create_submission(self.submission_desc)
 
-        pub_key, bkp1, bkp2 = yield get_escrow_copies_of_the_last_report()
+        pub_key, bkp1, bkp2, _ = yield get_escrow_copies_of_the_last_report()
         self.assertEqual(escrowed_public_key(helpers.ESCROW_PRV_KEY, bkp1), pub_key.encode())
         self.assertEqual(bkp2, '')
+
+    @inlineCallbacks
+    def test_the_key_of_the_report_is_kept_for_the_statistical_key(self):
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
+        yield self.create_submission(self.submission_desc)
+
+        pub_key, _, _, stat_copy = yield get_escrow_copies_of_the_last_report()
+        self.assertEqual(escrowed_public_key(helpers.STAT_PRV_KEY, stat_copy), pub_key.encode())
 
     @inlineCallbacks
     def test_a_report_of_a_secondary_site_is_escrowed_to_both_sites(self):

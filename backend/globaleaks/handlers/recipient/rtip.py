@@ -29,7 +29,7 @@ from globaleaks.models import serializers
 from globaleaks.orm import db_get, db_del, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.transactions import db_escrow_missing_key
+from globaleaks.transactions import db_complete_report_key_copies
 from globaleaks.utils.antivirus import enqueue_antivirus_scan, enqueue_tip_files_for_rescan, get_av_result, prepare_file_download, serialize_files_metadata_csv
 from globaleaks.utils.crypto import GCE, sha256, sha512
 from globaleaks.utils.fs import directory_traversal_check
@@ -803,13 +803,12 @@ def db_get_rtip(session, tid, user_id, itip_id, language, user_cc=None):
     :param user_id: A user ID of the user opening the submission
     :param itip_id: An itip ID to accessed
     :param language: A language to be used for the serialization
-    :param user_cc: The private key of the user, protecting with the escrow the key of the report
+    :param user_cc: The private key of the user, completing the copies of the key of the report
     :return:  The serialized descriptor of the rtip
     """
     _, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
 
-    # The report is escrowed by the keys of the site that owns it
-    db_escrow_missing_key(session, itip.tid, itip, rtip.crypto_tip_prv_key, user_cc)
+    db_complete_report_key_copies(session, itip, rtip.crypto_tip_prv_key, user_cc)
 
     rtip.last_access = datetime_now()
     if rtip.access_date == datetime_null():
@@ -876,7 +875,7 @@ def get_rtip(session, tid, user_id, itip_id, language, user_cc=None):
     :param user_id: A user ID of the user opening the submission
     :param itip_id: An itip ID to accessed
     :param language: A language to be used for the serialization
-    :param user_cc: The private key of the user, protecting with the escrow the key of the report
+    :param user_cc: The private key of the user, completing the copies of the key of the report
     :return:  The serialized descriptor of the rtip
     """
     return db_get_rtip(session, tid, user_id, itip_id, language, user_cc)

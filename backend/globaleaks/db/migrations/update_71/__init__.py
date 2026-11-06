@@ -25,9 +25,13 @@ them, feature by feature:
   their defaults.
 - Question types: the questions of the types email and number, that no client
   ever rendered, become inputboxes validated as an email address or a number.
-- Escrow of the reports: like the key of an account, the key of a report is
-  kept encrypted to the escrow keys of the root site and of its site; the
-  reports already filed take no copy, as the platform never holds their keys.
+- Keys of the reports: the key of a report is kept encrypted, beside the
+  copies of the whistleblower and of the recipients, to the escrow keys of the
+  root site and of its site and to the statistical key of its site; the
+  statistics read the answers of a report through the latter and count the
+  questions statistical at the time they are computed. The reports carry no
+  such copies yet: they take them when the whistleblower or a recipient opens
+  them.
 - Redaction log: the entries of the audit log recording a change of the
   temporary redaction name the redaction it replaced by its correct key.
 """

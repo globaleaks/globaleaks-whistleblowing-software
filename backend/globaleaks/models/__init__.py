@@ -718,6 +718,9 @@ class _InternalTip(Model):
     # its site
     crypto_escrow_bkp1_key = Column(UnicodeText(84), default='', nullable=False)
     crypto_escrow_bkp2_key = Column(UnicodeText(84), default='', nullable=False)
+    # The private key of the report encrypted to the statistical key of its site: the statistics
+    # read the answers through it
+    crypto_stat_tip_prv_key = Column(UnicodeText(84), default='', nullable=False)
     deprecated_crypto_files_pub_key = Column(UnicodeText(56), default='', nullable=False)
 
     def is_owned_by(self, tid):
@@ -749,7 +752,6 @@ class _InternalTipAnswers(Model):
     questionnaire_id = Column(UnicodeText(36), default='', nullable=False)
     creation_date = Column(DateTime, default=datetime_now, nullable=False)
     answers = Column(JSON, default=dict, nullable=False)
-    stat_answers = Column(JSON, default=dict, nullable=False)
     hash_sha256 = Column(UnicodeText(64), default='', nullable=True)
     hash_sha512 = Column(UnicodeText(128), default='', nullable=True)
 

@@ -95,15 +95,16 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
             yield handler.get(rtip_desc['id'])
 
     @inlineCallbacks
-    def test_get_escrows_the_key_of_a_report_without_copies(self):
-        yield helpers.drop_report_escrow_copies()
+    def test_get_completes_the_copies_of_the_key_of_a_report(self):
+        yield helpers.drop_report_key_copies()
 
         rtip_desc = (yield self.get_rtips())[0]
         yield self.request(role='receiver', user_id=rtip_desc['receiver_id']).get(rtip_desc['id'])
 
-        copies = yield helpers.get_report_escrow_copies()
-        pub_key, escrowed = copies[rtip_desc['id']]
+        copies = yield helpers.get_report_key_copies()
+        pub_key, escrowed, stat = copies[rtip_desc['id']]
         self.assertEqual(escrowed, pub_key)
+        self.assertEqual(stat, pub_key)
 
 
     @inlineCallbacks

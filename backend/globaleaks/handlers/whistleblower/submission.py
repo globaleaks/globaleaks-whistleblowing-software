@@ -9,7 +9,6 @@ from datetime import datetime
 from nacl.encoding import Base64Encoder
 from nacl.exceptions import CryptoError
 from nacl.public import PrivateKey
-from sqlalchemy.orm import aliased
 
 
 from globaleaks import models
@@ -19,7 +18,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.transactions import db_escrow_key
+from globaleaks.transactions import db_escrow_key, db_stat_key
 from globaleaks.utils.crypto import sha256, sha512, GCE
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import get_expiration, datetime_null, parse_iso8601
@@ -56,108 +55,6 @@ def decrypt_hashes(tip_key, holder, prefix=''):
         if holder.get(k):
             with contextlib.suppress(CryptoError, ValueError):
                 holder[k] = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(holder[k].encode())).decode()
-
-
-def _entry_is_option_selected(flag):
-    return flag is True or (isinstance(flag, str) and flag.strip().lower() == 'true')
-
-
-def _extract_entry_answer_value(field_type, entry):
-    if field_type == 'checkbox':
-        # A checkbox answer has no single 'value': each option is stored as a
-        # separate flag keyed by its option id (bool True or the string 'True').
-        return [option_id for option_id, flag in entry.items()
-                if re.match(requests.uuid_regexp, option_id) and _entry_is_option_selected(flag)]
-
-    return entry.get('value')
-
-
-def _collect_answer_entries(answer_map):
-    """
-    Collect the first entry of every field answered, at any depth
-
-    :param answer_map: The answers of a questionnaire
-    :return: The first entry of each field, by field id
-    """
-    collected = {}
-    if not isinstance(answer_map, dict):
-        return collected
-
-    for field_id, entries in answer_map.items():
-        if not re.match(requests.uuid_regexp, field_id) or not isinstance(entries, list) or not entries:
-            continue
-
-        first_entry = entries[0]
-        if isinstance(first_entry, dict):
-            collected[field_id] = first_entry
-            collected.update(_collect_answer_entries(first_entry))
-
-    return collected
-
-
-def _db_get_statistical_fields(session, tid, field_ids):
-    """
-    Describe some fields by what makes them statistical: their own flag and, for a choice
-    referencing a template, the flag of the template
-
-    :param session: An ORM session
-    :param tid: A tenant ID
-    :param field_ids: The fields
-    :return: The description of each field, by field id
-    """
-    template_field = aliased(models.Field)
-    rows = session.query(models.Field.id, models.Field.type, models.Field.template_id, models.Field.instance, models.Field.statistical, template_field.statistical) \
-                  .outerjoin(template_field, template_field.id == models.Field.template_id) \
-                  .filter(models.Field.tid.in_({1, tid}), models.Field.id.in_(field_ids)) \
-                  .all()
-
-    return {field_id: {'type': field_type, 'template_id': template_id, 'instance': instance, 'field_statistical': field_statistical, 'template_statistical': template_statistical}
-            for field_id, field_type, template_id, instance, field_statistical, template_statistical in rows}
-
-
-def _statistical_answer(field_data, entry):
-    """
-    Return the statistical value of an answer and the template it counts for too, if any
-
-    :param field_data: The description of the field answered
-    :param entry: The answer
-    :return: The value, None when the answer is not statistical, and the template
-    """
-    is_template_choice = (field_data['type'] in models.STATISTICAL_CHOICE_TYPES and field_data['instance'] == 'reference' and field_data['template_id'])
-    counts_for_template = is_template_choice and bool(field_data['template_statistical'])
-    if not (bool(field_data['field_statistical']) or counts_for_template):
-        return None, None
-
-    answer_value = _extract_entry_answer_value(field_data['type'], entry)
-    if answer_value in (None, '', []):
-        return None, None
-
-    return answer_value, field_data['template_id'] if counts_for_template else None
-
-
-def extract_statistical_data(session, tid:int, answers:dict):
-    answer_entries = _collect_answer_entries(answers)
-    if not answer_entries:
-        return {}
-
-    statistical_fields_by_id = _db_get_statistical_fields(session, tid, list(answer_entries.keys()))
-
-    answers_dict = dict()
-    for k, entry in answer_entries.items():
-        field_data = statistical_fields_by_id.get(k)
-        if field_data is None:
-            continue
-
-        answer_value, template_id = _statistical_answer(field_data, entry)
-        if answer_value is None:
-            continue
-
-        answers_dict[k] = answer_value
-
-        if template_id:
-            answers_dict.setdefault(f'template:{template_id}', answer_value)
-
-    return answers_dict
 
 
 def _decrypt_value(tip_key, value):
@@ -282,7 +179,7 @@ def data_hashes(value, crypto_tip_pub_key=''):
            Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_tip_pub_key, hash_sha512)).decode()
 
 
-def db_set_internaltip_answers(session, itip_id, questionnaire_id, questionnaire_hash, answers, stat_answers, date=None, plaintext=None, crypto_tip_pub_key=''):
+def db_set_internaltip_answers(session, itip_id, questionnaire_id, questionnaire_hash, answers, date=None, plaintext=None, crypto_tip_pub_key=''):
     x = session.query(models.InternalTipAnswers) \
                .filter(models.InternalTipAnswers.internaltip_id == itip_id,
                        models.InternalTipAnswers.questionnaire_hash == questionnaire_hash).one_or_none()
@@ -295,7 +192,6 @@ def db_set_internaltip_answers(session, itip_id, questionnaire_id, questionnaire
     ita.questionnaire_id = questionnaire_id
     ita.questionnaire_hash = questionnaire_hash
     ita.answers = answers
-    ita.stat_answers = stat_answers
     ita.hash_sha256, ita.hash_sha512 = data_hashes(answers if plaintext is None else plaintext, crypto_tip_pub_key)
 
     if date:
@@ -1047,6 +943,7 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
         itip.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, user_session.cc))
         itip.crypto_tip_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_pub_key, crypto_tip_prv_key))
         db_escrow_key(session, tid, itip, crypto_tip_prv_key)
+        db_stat_key(session, itip, crypto_tip_prv_key)
 
     # Apply special handling to the whistleblower identity question
     identity_provided = False
@@ -1064,16 +961,11 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
 
         db_set_internaltip_data(session, itip.id, 'whistleblower_identity', wbi, itip.creation_date, identity_data, itip.crypto_tip_pub_key)
 
-    stat_data = extract_statistical_data(session, tid, answers)
     plaintext_answers = answers
     if crypto_is_available:
-        if stat_data:
-            crypto_stat_pub_key = db_get(session, models.Config.value, (models.Config.tid == tid, models.Config.var_name == 'crypto_stat_pub_key'))[0]
-            stat_data = Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_stat_pub_key, json.dumps(stat_data, cls=JSONEncoder).encode())).decode()
-
         answers = Base64Encoder.encode(GCE.asymmetric_encrypt(itip.crypto_tip_pub_key, json.dumps(answers, cls=JSONEncoder).encode())).decode()
 
-    db_set_internaltip_answers(session, itip.id, context.questionnaire_id, questionnaire_hash, answers, stat_data, itip.creation_date, plaintext_answers, itip.crypto_tip_pub_key)
+    db_set_internaltip_answers(session, itip.id, context.questionnaire_id, questionnaire_hash, answers, itip.creation_date, plaintext_answers, itip.crypto_tip_pub_key)
 
     operator_id = user_session.properties.get('operator_session', '')
     if operator_id:
