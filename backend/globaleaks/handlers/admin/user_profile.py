@@ -5,7 +5,7 @@ from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_reconcile_support_user_access, \
                                          decrypt_tenant_support_private_key
-from globaleaks.handlers.user import serialize_user_profile, \
+from globaleaks.handlers.user import db_check_statistical_key, serialize_user_profile, \
                                      user_permissions
 from globaleaks.models import config, UserProfile
 from globaleaks.models.config import DEFAULT_PROFILE_ID
@@ -415,6 +415,10 @@ def update_user_profile(session, tid, user_session, profile_id, request):
 
     for user in affected_users:
         db_reconcile_support_user_access(session, tid, user, support_private_key, admin_capable=admin_capable)
+
+    # The accounts of a profile that stops naming the analysts give the statistical key back
+    for affected_tid in {user.tid for user in affected_users}:
+        db_check_statistical_key(session, affected_tid)
 
     return profile, [user.id for user in affected_users]
 

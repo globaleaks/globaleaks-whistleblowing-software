@@ -5,6 +5,7 @@ from nacl.public import PrivateKey
 
 from globaleaks import models
 from globaleaks.handlers.operation import OperationHandler
+from globaleaks.handlers.user import db_check_statistical_key, db_reconcile_statistical_key
 from globaleaks.orm import db_log, transact
 from globaleaks.rest import errors
 from globaleaks.state import State
@@ -46,14 +47,18 @@ def change_password(session, tid, user_session, new_password, current_password):
         if not user.crypto_pub_key or not GCE.check_equality(
                 user.crypto_pub_key, derived_public_key):
             # The first password change generates the user key and its backup; a regenerated keypair
-            # invalidates the support key wrap
+            # invalidates the support key wrap and the statistical key one
             user.crypto_pub_key = derived_public_key
             user.crypto_bkp_key, user.crypto_rec_key = GCE.generate_recovery_key(user_session.cc)
             user.crypto_support_prv_key = ''
+            user.crypto_global_stat_prv_key = ''
 
         user.crypto_prv_key = Base64Encoder.encode(GCE.symmetric_encrypt(key, cc))
 
         db_escrow_key(session, tid, user, cc)
+
+        db_reconcile_statistical_key(session, tid, user, cc)
+        db_check_statistical_key(session, tid)
 
     reset_token = user_session.properties.get('reset_token')
     if reset_token:

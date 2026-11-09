@@ -7,6 +7,7 @@ import globaleaks.handlers.user.validate_email  # noqa: F401
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import get_localized_values
+from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_get, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
@@ -18,13 +19,25 @@ from globaleaks.utils.utility import datetime_now, datetime_null
 from globaleaks.handlers.admin.notification import db_get_notification
 
 
-# Roles that are always granted access to the statistical key
-STATISTICAL_KEY_ROLES = ('admin', 'analyst')
+def db_is_statistical_key_holder(user):
+    """
+    Tell whether an account is meant to hold the statistical key of its site: the analysts alone.
+    The key opens the reports through the copies of their keys kept for the statistics, and is not
+    the business of whoever else administers or reads the site
+
+    :param user: The account
+    """
+    return 'analyst' in user.profile.roles_list
 
 
 def db_grant_statistical_key(session, tid, stat_prv_key):
     """
-    Distribute the (already decrypted) statistical private key to every
+    Give the statistical private key to every analyst of a site holding a key and not the
+    statistical one yet, and keep its copy for the escrow of the site when the site has one
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param stat_prv_key: The statistical private key
     """
     users = session.query(models.User) \
                    .filter(models.User.tid == tid,
@@ -32,24 +45,96 @@ def db_grant_statistical_key(session, tid, stat_prv_key):
                            models.User.crypto_global_stat_prv_key == '')
 
     for user in users:
-        if any(role in user.profile.roles_list for role in STATISTICAL_KEY_ROLES):
+        if db_is_statistical_key_holder(user):
             user.crypto_global_stat_prv_key = Base64Encoder.encode(
                 GCE.asymmetric_encrypt(user.crypto_pub_key, stat_prv_key))
+
+    config = ConfigFactory(session, tid)
+    escrow_pub_key = config.get_val('crypto_escrow_pub_key')
+    if escrow_pub_key and not config.get_val('crypto_stat_prv_key'):
+        config.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(escrow_pub_key, stat_prv_key)))
+
+
+def db_get_statistical_prv_key(session, tid, user, cc):
+    """
+    Return the statistical private key of a site an account reaches: through the copy it holds, or
+    through the escrow of the site; None when it reaches none
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user: The account
+    :param cc: The private key of the account
+    """
+    try:
+        if user.crypto_global_stat_prv_key:
+            return GCE.asymmetric_decrypt(cc, Base64Encoder.decode(user.crypto_global_stat_prv_key))
+
+        escrow_copy = ConfigFactory(session, tid).get_val('crypto_stat_prv_key')
+        if user.tid == tid and user.crypto_escrow_prv_key and escrow_copy:
+            escrow_prv_key = GCE.asymmetric_decrypt(cc, Base64Encoder.decode(user.crypto_escrow_prv_key))
+            return GCE.asymmetric_decrypt(escrow_prv_key, Base64Encoder.decode(escrow_copy))
+    except (ValueError, CryptoError):
+        pass
+
+    return None
 
 
 def db_reconcile_statistical_key(session, tid, user, cc):
     """
-    If the given user holds the statistical key, distribute it to any
+    Let an account that reaches the statistical key give it to the analysts still missing it; the
+    key of a site is born with its first analyst, and no account but the analysts and the escrow
+    ever holds it
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user: The account
+    :param cc: The private key of the account
     """
-    if not cc or not user.crypto_global_stat_prv_key:
+    if not cc or not State.tenants[tid].cache.encryption:
         return
 
-    try:
-        stat_prv_key = GCE.asymmetric_decrypt(cc, Base64Encoder.decode(user.crypto_global_stat_prv_key))
-    except (ValueError, CryptoError):
-        return
+    stat_prv_key = db_get_statistical_prv_key(session, tid, user, cc)
+
+    if stat_prv_key is None:
+        config = ConfigFactory(session, tid)
+        if not db_is_statistical_key_holder(user) or not user.crypto_pub_key or config.get_val('crypto_stat_pub_key'):
+            return
+
+        stat_prv_key, stat_pub_key = GCE.generate_keypair()
+        config.set_val('crypto_stat_pub_key', stat_pub_key)
 
     db_grant_statistical_key(session, tid, stat_prv_key)
+
+
+def db_check_statistical_key(session, tid):
+    """
+    Take the statistical key away from the accounts that are no longer analysts and, when nobody
+    reaches it any more, forget it together with the copies of the keys of the reports kept for it:
+    the next analyst gives the site a new one and the reports take their copy again as they are
+    opened
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    """
+    holders = session.query(models.User) \
+                     .filter(models.User.tid == tid,
+                             models.User.crypto_global_stat_prv_key != '')
+
+    held = False
+    for user in holders:
+        if db_is_statistical_key_holder(user):
+            held = True
+        else:
+            user.crypto_global_stat_prv_key = ''
+
+    config = ConfigFactory(session, tid)
+    if held or config.get_val('crypto_stat_prv_key') or not config.get_val('crypto_stat_pub_key'):
+        return
+
+    config.set_val('crypto_stat_pub_key', '')
+    session.query(models.InternalTip) \
+           .filter(models.InternalTip.tid == tid) \
+           .update({'crypto_stat_tip_prv_key': ''}, synchronize_session=False)
 
 
 user_permissions = ObjectDict({

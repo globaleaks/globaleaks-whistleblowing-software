@@ -48,8 +48,14 @@ class TestMigrationRoutines(unittest.TestCase):
             keys = dict(conn.execute("SELECT id, crypto_global_stat_prv_key FROM user WHERE id IN "
                                      "('68411d07-2e28-4d16-a213-21879ee5e14d', '7ec773d3-f1dd-4ed6-9c1f-eba508725b08')"))
 
+            stat_pub_keys = dict(conn.execute("SELECT tid, value FROM config WHERE var_name = 'crypto_stat_pub_key'"))
+
+        # The administrator gives the statistical key back: the root site, where nobody holds it,
+        # forgets it, while the secondary sites keep it through the copy escrowed to the root site
         self.assertEqual(keys['68411d07-2e28-4d16-a213-21879ee5e14d'], '')
-        self.assertNotEqual(keys['7ec773d3-f1dd-4ed6-9c1f-eba508725b08'], '')
+        self.assertEqual(keys['7ec773d3-f1dd-4ed6-9c1f-eba508725b08'], '')
+        self.assertEqual(stat_pub_keys.get(1, ''), '')
+        self.assertNotEqual(stat_pub_keys[2], '')
 
         # The change of a temporary redaction names the one it replaced by its correct key
         with sqlite3.connect(dbpath) as conn:

@@ -11,7 +11,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_reconcile_support_user_access, \
                                          decrypt_tenant_support_private_key, \
                                          is_support_admin
-from globaleaks.handlers.user import db_reconcile_statistical_key, \
+from globaleaks.handlers.user import db_check_statistical_key, db_reconcile_statistical_key, \
                                      parse_pgp_options, \
                                      serialize_user, \
                                      user_permissions
@@ -323,6 +323,8 @@ def db_delete_user(session, tid, user_session, user_id, check):
         # Delete the personal profile of the users configured with a standard role
         db_del(session, models.UserProfile, models.UserProfile.id == user_id)
 
+    db_check_statistical_key(session, tid)
+
     db_log(session, tid=tid, type='delete_user', user_id=user_session.user_id, object_id=user_id, data=stats)
 
 
@@ -480,6 +482,9 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     db_realign_profile_contexts(session, user, old_profile_id)
 
     permissions_changed = db_update_user_permissions(session, user, request)
+
+    # An account that stops being an analyst gives the statistical key back
+    db_check_statistical_key(session, tid)
 
     is_now_support_admin = is_support_admin(user)
     db_reconcile_support_user_access(session, tid, user, support_private_key, admin_capable=is_now_support_admin)

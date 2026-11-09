@@ -1107,6 +1107,9 @@ class TestGLWithPopulatedDB(TestGL):
         for user in session.query(models.User):
             if user.id == self.dummy_admin['id']:
                 user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, ESCROW_PRV_KEY))
+
+            # The statistical key is held by the analysts alone
+            if user.id == self.dummy_analyst['id']:
                 user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(USER_PUB_KEY, STAT_PRV_KEY))
 
             if self.clientside_hashing:

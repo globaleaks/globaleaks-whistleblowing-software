@@ -9,7 +9,7 @@ from globaleaks.handlers.admin.notification import db_get_notification
 from globaleaks.handlers.analyst import set_default_statistical_template
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
-from globaleaks.handlers.user import get_user
+from globaleaks.handlers.user import db_check_statistical_key, get_user
 from globaleaks.handlers.user.operation import disable_2fa, reset_idp_binding
 from globaleaks.models import Config, ConfigL10N, InternalTip, User
 from globaleaks.models.config import configurable_keys, db_get_protected_users, db_get_customizable_keys, db_get_profile_children, db_reset_key, db_set_config_variable, get_default, protected_keys, unlockable_keys, ConfigDescriptor, ConfigFactory, ConfigL10NFactory, DEFAULT_PROFILE_ID
@@ -126,11 +126,6 @@ def toggle_escrow(session, tid, user_session):
 
         config.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
 
-        # Keep a recovery copy of the statistical key encrypted to the escrow key
-        if user.crypto_global_stat_prv_key:
-            stat_prv_key = GCE.asymmetric_decrypt(user_session.cc, Base64Encoder.decode(user.crypto_global_stat_prv_key))
-            config.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, stat_prv_key)))
-
         if user.tid == tid:
             user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(user.crypto_pub_key, crypto_escrow_prv_key))
             user_session.ek = True
@@ -168,6 +163,9 @@ def toggle_escrow(session, tid, user_session):
         config.set_val('crypto_escrow_pub_key', '')
         config.set_val('crypto_escrow_prv_key', '')
         config.set_val('crypto_stat_prv_key', '')
+
+        # Without the escrow copy the statistical key is reached by the analysts alone, if any
+        db_check_statistical_key(session, tid)
 
     db_log(session, tid=tid, type='toggle_escrow', user_id=user_session.user_id)
 

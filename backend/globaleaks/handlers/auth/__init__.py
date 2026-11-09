@@ -328,16 +328,16 @@ def db_unlock_private_key(session, tid, user, key):
 
 def db_propagate_login_keys(session, tid, user, crypto_prv_key):
     """
-    A logging-in holder propagates the statistical key to any admin/analyst still missing it
-    (covers activation-link and legacy accounts), and the support key alike
+    A logging-in account reaching the statistical key gives it to the analysts still missing it, and
+    the first analyst of a site gives the site its key (covers activation-link and legacy accounts);
+    the support key alike
 
     :param session: An ORM session
     :param tid: A tenant ID
     :param user: The account
     :param crypto_prv_key: The private key of the account
     """
-    if State.tenants[tid].cache.encryption and crypto_prv_key and user.crypto_global_stat_prv_key:
-        db_reconcile_statistical_key(session, tid, user, crypto_prv_key)
+    db_reconcile_statistical_key(session, tid, user, crypto_prv_key)
 
     if crypto_prv_key and user.crypto_support_prv_key:
         db_reconcile_support_key(session, tid, user, crypto_prv_key)

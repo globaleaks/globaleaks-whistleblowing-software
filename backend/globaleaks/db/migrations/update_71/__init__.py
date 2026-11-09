@@ -32,6 +32,9 @@ them, feature by feature:
   questions statistical at the time they are computed. The reports carry no
   such copies yet: they take them when the whistleblower or a recipient opens
   them.
+- Statistical key: as it opens the reports, it is held by the analysts and
+  the escrow alone. The other accounts give it back; a site where nobody holds
+  it any more forgets it, and its first analyst gives it a new one.
 - Redaction log: the entries of the audit log recording a change of the
   temporary redaction name the redaction it replaced by its correct key.
 """
@@ -335,6 +338,10 @@ class MigrationScript(MigrationBase):
             new_obj.idp_id = ''
             new_obj.crypto_support_prv_key = ''
 
+            # The statistical key is held by the analysts alone
+            if new_obj.role != EnumUserRole.analyst.name:
+                new_obj.crypto_global_stat_prv_key = ''
+
             profile = UserProfile()
             profile.id = old_obj.id
             profile.tid = old_obj.tid
@@ -524,6 +531,22 @@ class MigrationScript(MigrationBase):
                 data['old_temporary_redaction'] = data.pop('old_remporary_redaction')
                 entry.data = data
 
+    def migrate_statistical_keys(self):
+        """
+        A site whose statistical key no analyst holds and the escrow does not keep forgets it: its
+        first analyst gives it a new one
+        """
+        config_model, user_model = self.model_to['Config'], self.model_to['User']
+
+        holders = {tid for tid, key in self.session_new.query(user_model.tid, user_model.crypto_global_stat_prv_key) if key}
+
+        escrowed = {c.tid for c in self.session_new.query(config_model).filter(config_model.var_name == 'crypto_stat_prv_key') if c.value}
+
+        for config in self.session_new.query(config_model).filter(config_model.var_name == 'crypto_stat_pub_key',
+                                                                   config_model.tid < tenant.DEFAULT_PROFILE_ID):
+            if config.value and config.tid not in holders and config.tid not in escrowed:
+                config.value = ''
+
     def epilogue(self):
         tenant.db_create(self.session_new, {'active': False, 'mode': 'default', 'profile': 'default', 'name': 'GLOBALEAKS', 'subdomain': ''}, False)
         self.entries_count['SubmissionStatus'] += 3
@@ -544,3 +567,5 @@ class MigrationScript(MigrationBase):
         self.migrate_additional_questionnaires()
 
         self.migrate_redaction_logs()
+
+        self.migrate_statistical_keys()

@@ -336,41 +336,34 @@ def db_wizard_user(session, tid, request, prefix, role, language):
 
 def db_wizard_keys(node, root_tenant_node, tid, encryption, escrow):
     """
-    Generate the statistical key of a site and, with the escrow, its escrow key, keeping a recovery
-    copy of the statistical key encrypted to the escrow key
+    Generate, with the escrow, the escrow key of a site. The statistical key is not generated here:
+    it is born with the first analyst of the site, who holds it with the analysts after them
 
     :param node: The configuration of the site
     :param root_tenant_node: The configuration of the root site
     :param tid: A tenant ID
     :param encryption: Whether the site encrypts
     :param escrow: Whether the site holds an escrow key
-    :return: The statistical private key, the escrow private key and the escrow public key
+    :return: The escrow private key and the escrow public key
     """
-    crypto_stat_prv_key = ""
     crypto_escrow_prv_key = ""
     crypto_escrow_pub_key = ""
-
-    if encryption:
-        crypto_stat_prv_key, crypto_stat_pub_key = GCE.generate_keypair()
-        node.set_val('crypto_stat_pub_key', crypto_stat_pub_key)
 
     if encryption and escrow:
         crypto_escrow_prv_key, crypto_escrow_pub_key = GCE.generate_keypair()
 
         node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
 
-        node.set_val('crypto_stat_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(crypto_escrow_pub_key, crypto_stat_prv_key)))
-
         if tid != 1 and root_tenant_node.get_val('crypto_escrow_pub_key'):
             node.set_val('crypto_escrow_prv_key', Base64Encoder.encode(GCE.asymmetric_encrypt(root_tenant_node.get_val('crypto_escrow_pub_key'), crypto_escrow_prv_key)))
 
-    return crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key
+    return crypto_escrow_prv_key, crypto_escrow_pub_key
 
 
 def db_wizard_admin(session, tid, request, language, node, encryption, escrow,
-                    crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key):
+                    crypto_escrow_prv_key, crypto_escrow_pub_key):
     """
-    Create the first administrator of a site, holder of the escrow key and of the statistical key
+    Create the first administrator of a site, holder of the escrow key
 
     :param session: An ORM session
     :param tid: A tenant ID
@@ -379,7 +372,6 @@ def db_wizard_admin(session, tid, request, language, node, encryption, escrow,
     :param node: The configuration of the site
     :param encryption: Whether the site encrypts
     :param escrow: Whether the site holds an escrow key
-    :param crypto_stat_prv_key: The statistical private key of the site
     :param crypto_escrow_prv_key: The escrow private key of the site
     :param crypto_escrow_pub_key: The escrow public key of the site
     """
@@ -388,11 +380,6 @@ def db_wizard_admin(session, tid, request, language, node, encryption, escrow,
     if encryption and escrow:
         node.set_val('crypto_escrow_pub_key', crypto_escrow_pub_key)
         admin_user.crypto_escrow_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_escrow_prv_key))
-
-    # The first admin always becomes a holder of the statistical key so that
-    # it can be propagated to every other admin/analyst (escrow independent)
-    if encryption and admin_user.crypto_pub_key:
-        admin_user.crypto_global_stat_prv_key = Base64Encoder.encode(GCE.asymmetric_encrypt(admin_user.crypto_pub_key, crypto_stat_prv_key))
 
 
 def db_wizard_channels(session, tid, node, request, receiver_user, language):
@@ -493,12 +480,12 @@ def db_wizard(session, tid, hostname, request):
     if tid == 1 and not is_ip_address(hostname):
        node.set_val('hostname', hostname)
 
-    crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key = \
+    crypto_escrow_prv_key, crypto_escrow_pub_key = \
         db_wizard_keys(node, root_tenant_node, tid, encryption, escrow)
 
     if not request['skip_admin_account_creation']:
         db_wizard_admin(session, tid, request, language, node, encryption, escrow,
-                        crypto_stat_prv_key, crypto_escrow_prv_key, crypto_escrow_pub_key)
+                        crypto_escrow_prv_key, crypto_escrow_pub_key)
 
     receiver_user = None
     if not request['skip_recipient_account_creation']:
