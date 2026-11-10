@@ -5,6 +5,7 @@ from sqlalchemy import func
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
+from globaleaks.handlers.admin.notification import db_notify_account_change
 from globaleaks.handlers.admin.operation import set_tmp_key
 from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, db_create_user_profile, db_detach_user_from_profile_contexts, db_enforce_administrable, db_enforce_assignable_profile, db_enforce_grantable, sync_permissions
 from globaleaks.handlers.base import BaseHandler
@@ -312,7 +313,7 @@ def db_get_user_stats(session, tid, user_id):
 def db_delete_user(session, tid, user_session, user_id, check):
     db_get(session, models.User, models.User.id == user_session.user_id)
 
-    user = db_get(session, models.User, models.User.id == user_id)
+    user = db_get_user(session, tid, user_id)
 
     # A user is never deleted when it is the one asking, when its escrow key would be
     # lost together with it, or when it is one of the protected users of the site
@@ -334,6 +335,8 @@ def db_delete_user(session, tid, user_session, user_id, check):
 
         if stats_changed:
             raise errors.OperationConflict
+
+    db_notify_account_change(session, user, 'deleted')
 
     db_del(session, models.User, (models.User.tid == tid, models.User.id == user_id))
 
@@ -473,9 +476,17 @@ def db_update_user(session, tid, user_session, user_id, request, language):
 
     old_role = user.role
     old_profile_id = user.profile_id
+    old_contexts = {c.context_id for c in session.query(models.ReceiverContext)
+                                               .filter(models.ReceiverContext.receiver_id == user.id)}
     old_enabled = user.enabled
     was_support_admin = is_support_admin(user)
     support_private_key = decrypt_tenant_support_private_key(user_session, tid, session)
+
+    if old_enabled and not request['enabled']:
+        db_notify_account_change(session, user, 'disabled')
+
+    if request['mail_address'] != user.mail_address:
+        db_notify_account_change(session, user, 'email_changed')
 
     db_switch_standard_profile(session, tid, user, request, user_session)
 
@@ -496,6 +507,11 @@ def db_update_user(session, tid, user_session, user_id, request, language):
     session.expire(user, ['profile'])
 
     db_realign_profile_contexts(session, user, old_profile_id)
+
+    current_contexts = {c.context_id for c in session.query(models.ReceiverContext)
+                                                   .filter(models.ReceiverContext.receiver_id == user.id)}
+    if old_contexts - current_contexts:
+        db_notify_account_change(session, user, 'channel_removed')
 
     permissions_changed = db_update_user_permissions(session, user, request)
 

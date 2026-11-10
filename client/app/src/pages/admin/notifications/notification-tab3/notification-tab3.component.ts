@@ -60,6 +60,7 @@ export class NotificationTab3Component {
     'signup_invite',
     'activation',
     'email_validation',
+    'account_change',
     'account_activation',
     'password_reset_validation',
     'user_credentials',

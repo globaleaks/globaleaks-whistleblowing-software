@@ -1,0 +1,3 @@
+Dear {RecipientName},
+
+This email is to inform you that an administrator has performed the following action on your account: {Action}

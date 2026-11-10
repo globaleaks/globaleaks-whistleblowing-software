@@ -2,6 +2,7 @@ import json
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
+from globaleaks.handlers.admin.notification import db_notify_account_change
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_reconcile_support_user_access, \
                                          decrypt_tenant_support_private_key
@@ -228,6 +229,11 @@ def sync_contexts(session, profile, request, sync_users=True):
         for template_id in current - requested:
             context = db_local_context_of(session, user.tid, template_id)
             if context is not None:
+                if session.query(models.ReceiverContext).filter(
+                        models.ReceiverContext.context_id == context.id,
+                        models.ReceiverContext.receiver_id == user.id).count():
+                    db_notify_account_change(session, user, 'channel_removed')
+
                 session.query(models.ReceiverContext) \
                        .filter(models.ReceiverContext.context_id == context.id,
                                models.ReceiverContext.receiver_id == user.id).delete()

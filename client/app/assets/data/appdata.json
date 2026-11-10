@@ -1,6 +1,30 @@
 {
   "version": 1,
   "templates": {
+    "account_change_mail_title": {
+      "en": "Account configuration changed"
+    },
+    "account_change_mail_template": {
+      "en": "Dear {RecipientName},\n\nThis email is to inform you that an administrator has performed the following action on your account: {Action}"
+    },
+    "account_change_deleted": {
+      "en": "Your account has been deleted"
+    },
+    "account_change_disabled": {
+      "en": "Your account has been disabled"
+    },
+    "account_change_password_reset": {
+      "en": "Your password has been reset"
+    },
+    "account_change_email_changed": {
+      "en": "The email configured on your account has been changed"
+    },
+    "account_change_channel_removed": {
+      "en": "You have been removed from a channel"
+    },
+    "account_change_option_removed": {
+      "en": "You have been removed from a question option association"
+    },
     "account_activation_mail_template": {
       "am": "ውድ {RecipientName},\n\n ስርኣቱ፡- {Site} ላይ የተጠቃሚ መለያ ስለተፈጠረለዎት\n\nይሄ ኢሜል ተልኮለዎታል፡፡\n\nየተጠቃሚ ስም፡- {Username}\nማንቂያ አገናኛ፡- {Url}\n\nመለያውን ለማንቃት እባኮት የማንቂያ አገናኙን ጠቅ አድርጉ\n\nእና የተጠቃሚ ይለፍ ቃለዎትን አዘጋጁ\n\nከተሳካ ማንቃት በኋላ ሲስተሙ ውስጥ\n\nበሚከተለው አገናኝ {LoginUrl} መግባት ይችላሉ፡፡\n{AccountRecoveryKeyInstructions}\n\nለተጠቃሚ ሰነድ የሚከተለውን ጎብኝ\n{DocumentationUrl}\n\nከትህትና ጋር\n{NodeName}",
       "ar": "عزيزي {RecipientName},\n\nانت تستقبل هذا البريد الإلكتروني لأنه تم إنشاء حساب مستخدم لك على النظام: {Site}\n\nاسم المستخدم: {Username}\nرابط تفعيل {Url}\n\nمن فضلك قم بالضغط على رابط التفعيل من أجل إكمال باقي خطوات تنشيط الحساب وإعداد كلمة السر.\n\nبعد التفعيل الناجح، سيكون بمقدورك الولوج إلى النظام من خلال الرابط التالي: {LoginUrl}\n{AccountRecoveryKeyInstructions}\n\nللاطلاع على وثائق المستخدم، قم بزيارة:\n{DocumentationUrl}\n\nأطيب التحيّات،\n{NodeName}",

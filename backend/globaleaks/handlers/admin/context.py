@@ -3,6 +3,7 @@ import re
 from sqlalchemy.sql.expression import not_
 
 from globaleaks import models
+from globaleaks.handlers.admin.notification import db_notify_account_change
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.models import fill_localized_keys, get_localized_values
@@ -229,6 +230,8 @@ def db_associate_context_profiles(session, context, profile_ids):
                                                     'receiver_id': user.id,
                                                     'order': 0}))
             elif not attaching:
+                if attached.count():
+                    db_notify_account_change(session, user, 'channel_removed')
                 attached.delete()
 
 
@@ -240,6 +243,16 @@ def db_associate_context_receivers(session, context, receiver_ids):
     :param context: The context on which associate the specified receivers
     :param receiver_ids: A list of receivers ids to be associated to the context
     """
+    removed = session.query(models.User).filter(
+        models.User.tid == context.tid,
+        models.User.id == models.ReceiverContext.receiver_id,
+        models.ReceiverContext.context_id == context.id,
+        models.User.id.notin_(receiver_ids or [])
+    ).all()
+
+    for user in removed:
+        db_notify_account_change(session, user, 'channel_removed')
+
     db_del(session, models.ReceiverContext, models.ReceiverContext.context_id == context.id)
 
     if not receiver_ids:
@@ -542,6 +555,12 @@ def delete_context(session, tid, context_id, root_session=False):
             raise errors.ForbiddenOperation
 
     for c in contexts:
+        for user in session.query(models.User).filter(
+                models.User.id == models.ReceiverContext.receiver_id,
+                models.ReceiverContext.context_id == c.id,
+                models.User.tid == c.tid):
+            db_notify_account_change(session, user, 'channel_removed')
+
         session.delete(c)
 
 

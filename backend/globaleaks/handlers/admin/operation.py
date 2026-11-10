@@ -5,7 +5,7 @@ from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.admin.node import db_admin_serialize_node
-from globaleaks.handlers.admin.notification import db_get_notification
+from globaleaks.handlers.admin.notification import db_get_notification, db_notify_account_change
 from globaleaks.handlers.analyst import set_default_statistical_template
 from globaleaks.handlers.operation import OperationHandler
 from globaleaks.handlers.user.reset_password import db_generate_password_reset_token
@@ -353,6 +353,8 @@ def db_set_user_password(session, tid, user_session, user_id, key):
     # previously authenticated sessions usable; never revoke the operator's own.
     if user_session.user_id != user_id:
         Sessions.revoke(tid, user_id)
+
+    db_notify_account_change(session, user, 'password_reset')
 
     db_log(session, tid=tid, type='change_password', user_id=user_session.user_id, object_id=user_id)
 

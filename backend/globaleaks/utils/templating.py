@@ -687,6 +687,14 @@ class EmailValidationKeyword(UserNodeKeyword):
         return '/api/user/validate/email/' + self.data['validation_token']
 
 
+class AccountChangeKeyword(UserNodeKeyword):
+    keyword_list = UserNodeKeyword.keyword_list + ['{Action}']
+    data_keys = UserNodeKeyword.data_keys + ['action']
+
+    def action(self):
+        return self.data['notification']['account_change_' + self.data['action']]
+
+
 class AccountActivationKeyword(UserNodeKeyword):
     keyword_list = UserNodeKeyword.keyword_list + account_activation_keywords
 
@@ -773,6 +781,7 @@ supported_template_types = {
     'signup': PlatformSignupKeyword,
     'activation': PlatformSignupKeyword,
     'email_validation': EmailValidationKeyword,
+    'account_change': AccountChangeKeyword,
     'account_activation': AccountActivationKeyword,
     'password_reset_validation': PasswordResetValidationKeyword,
     'user_credentials': UserCredentials,

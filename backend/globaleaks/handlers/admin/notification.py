@@ -3,6 +3,7 @@ from globaleaks.models.config import ConfigFactory, ConfigL10NFactory, get_defau
 from globaleaks.models.config_desc import ConfigDescriptor, ConfigFilters, ConfigL10NFilters
 from globaleaks.orm import db_log, transact, tw
 from globaleaks.rest import errors, requests
+from globaleaks.state import State
 
 # The variables of each server are named by its prefix: the administration reads and writes them
 # without it, so that the two servers are served by the same handler in the same shape
@@ -34,6 +35,28 @@ def db_get_notification(session, tid, language):
     ret.update(ConfigL10NFactory(session, tid).serialize('notification', language))
 
     return ret
+
+
+def db_notify_account_change(session, user, action):
+    if not user.mail_address:
+        return
+
+    node = ConfigFactory(session, user.tid).serialize('node')
+    node.update(ConfigL10NFactory(session, user.tid).serialize('node', user.language))
+
+    template_vars = {
+        'type': 'account_change',
+        'user': {
+            'name': user.name,
+            'username': user.username,
+            'pgp_key_public': user.pgp_key_public
+        },
+        'action': action,
+        'node': node,
+        'notification': db_get_notification(session, user.tid, user.language)
+    }
+
+    State.format_and_send_mail(session, user.tid, user.mail_address, template_vars)
 
 
 def db_get_notification_settings(session, tid):

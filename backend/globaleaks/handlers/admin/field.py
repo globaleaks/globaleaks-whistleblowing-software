@@ -2,6 +2,7 @@ import copy
 from sqlalchemy.sql.expression import not_
 
 from globaleaks import models
+from globaleaks.handlers.admin.notification import db_notify_account_change
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.public import serialize_field, trigger_map
 from globaleaks.models import fill_localized_keys
@@ -83,11 +84,23 @@ def db_update_fieldoption(session, field_id, fieldoption_id, option_dict, langua
     if o is None:
         o = db_add(session, models.FieldOption, option_dict)
     else:
+        removed = set(o.trigger_receiver or []) - set(option_dict.get('trigger_receiver', o.trigger_receiver) or [])
+        db_notify_removed_option_receivers(session, field_id, removed)
         o.update(option_dict)
 
     o.order = idx
 
     return o.id
+
+
+def db_notify_removed_option_receivers(session, field_id, receiver_ids):
+    if not receiver_ids:
+        return
+
+    field = db_get(session, models.Field, models.Field.id == field_id)
+    for user in session.query(models.User).filter(models.User.tid == field.tid,
+                                                 models.User.id.in_(receiver_ids)):
+        db_notify_account_change(session, user, 'option_removed')
 
 
 def db_update_fieldoptions(session, field_id, options, language):
@@ -101,13 +114,16 @@ def db_update_fieldoptions(session, field_id, options, language):
     """
     options_ids = [db_update_fieldoption(session, field_id, option['id'], option, language, idx) for idx, option in enumerate(options)]
 
-    if not options_ids:
-        return
-
     ids = [id for (id,) in session.query(models.FieldOption.id).filter(
         models.FieldOption.field_id == field_id,
         not_(models.FieldOption.id.in_(options_ids))
     ).all()]
+
+    removed_receivers = set()
+    for option in session.query(models.FieldOption).filter(models.FieldOption.id.in_(ids)):
+        removed_receivers.update(option.trigger_receiver or [])
+
+    db_notify_removed_option_receivers(session, field_id, removed_receivers)
 
     db_del(session,
            models.FieldOption,
