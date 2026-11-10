@@ -175,7 +175,7 @@ Give the user administrative access to the following features:
 Give this admin ability to change user passwords
 Give this user ability to grant user access to reports
 Give this user ability to mask information
-Give this user ability to permanently redact masked information
+Give this user ability to permanently delete masked information
 Give this user ability to transfer reports to other users
 Grant access
 Group of questions
@@ -315,7 +315,6 @@ Recipients
 Recipients have requested you to fill an additional questionnaire.
 Recipients only
 Recipients selected:
-Redact
 Refresh
 Regenerate
 Regular expression
@@ -469,7 +468,6 @@ Type
 Type your new password again
 URL redirects
 Unhide
-Unselect
 Upload
 Upload a file:
 Upload date

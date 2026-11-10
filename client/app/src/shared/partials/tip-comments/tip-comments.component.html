@@ -22,7 +22,7 @@
                   </div>
                   <div data-ng-if="comment.content" class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
                   @if (redactMode() && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
-                    <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{(redactOperationTitle() ?? '') | translate}}" [attr.aria-label]="(redactOperationTitle() ?? '') | translate">
+                    <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{'Mask' | translate}}" [attr.aria-label]="'Mask' | translate">
                       <i class="fas fa-eraser" aria-hidden="true"></i>
                     </button>
                   }
@@ -38,7 +38,7 @@
                   @if (!comment.type) {
                     <div class="preformatted">{{maskContent(comment.id, '0', comment.content)}}</div>
                     @if (redactMode() && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
-                      <button type="button" class="btn btn-sm float-end edit" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{(redactOperationTitle() ?? '') | translate}}" [attr.aria-label]="(redactOperationTitle() ?? '') | translate">
+                      <button type="button" class="btn btn-sm float-end edit" (click)="redactInformation('comment', comment.id, '0', comment.content)" ngbTooltip="{{'Mask' | translate}}" [attr.aria-label]="'Mask' | translate">
                         <i class="fas fa-eraser" aria-hidden="true"></i>
                       </button>
                       <br/>

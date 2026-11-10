@@ -113,7 +113,7 @@ msgid "Allow the recipient to edit the reports' expiration date"
 msgstr "Permetti al ricevente di modificare la data di scadenza dei report"
 
 msgid "Allow the recipient to delete reports"
-msgstr "Permetti a questo ricevente di cancellare le segnalazioni"
+msgstr "Permetti a questo ricevente di eliminare le segnalazioni"
 
 msgid "Allow the reporting person to add attachments"
 msgstr "Permetti alla persona segnalante di aggiungere allegati alla segnalazione"
@@ -339,7 +339,7 @@ msgid ""
 msgstr "E' in uso la configurazione email predefinita. Si suggerisce di utilizzare un server di posta privato."
 
 msgid "Delete"
-msgstr "Cancella"
+msgstr "Elimina"
 
 msgid "Denied"
 msgstr "Negato"
@@ -582,8 +582,8 @@ msgstr "Dai a questo utente il permesso di concedere l'accesso alle segnalazioni
 msgid "Give this user ability to mask information"
 msgstr "Dai a questo utente il permesso di mascherare le informazioni"
 
-msgid "Give this user ability to permanently redact masked information"
-msgstr "Dai a questo utente il permesso di cancellare permanentemente le informazioni mascherate"
+msgid "Give this user ability to permanently delete masked information"
+msgstr "Dai a questo utente il permesso di eliminare definitivamente le informazioni mascherate"
 
 msgid "Give this user ability to transfer reports to other users"
 msgstr "Dai a questo utente il permesso di trasferire l'accesso alle segnalazioni ad altri utenti"
@@ -601,7 +601,7 @@ msgid "Hidden"
 msgstr "Nascosto"
 
 msgid "Hide"
-msgstr "Nascosto"
+msgstr "Nascondi"
 
 msgid "High"
 msgstr "Alto"
@@ -632,7 +632,7 @@ msgstr "Identità"
 
 msgid ""
 "If not activated within 24 hours the platform will be automatically deleted."
-msgstr "Se non attivata entro 24 ore la piattaforma verrà cancellata automaticamente."
+msgstr "Se non attivata entro 24 ore la piattaforma verrà eliminata automaticamente."
 
 msgid ""
 "If you need technical support, have general questions, or have new ideas for"
@@ -924,7 +924,7 @@ msgid "Please choose a different username."
 msgstr "Si prega di scegliere un username differente."
 
 msgid "Please note that all the associated data will be permanently deleted."
-msgstr "Si prega di notare che tutti i dati associati saranno cancellati definitivamente."
+msgstr "Si prega di notare che tutti i dati associati saranno eliminati definitivamente."
 
 msgid "Please select your account:"
 msgstr "Come prima cosa seleziona il tuo utente:"
@@ -1012,9 +1012,6 @@ msgstr "Soli riceventi"
 
 msgid "Recipients selected:"
 msgstr "Riceventi selezionati"
-
-msgid "Redact"
-msgstr "Cancella"
 
 msgid "Refresh"
 msgstr "Aggiorna"
@@ -1491,7 +1488,7 @@ msgid "URL redirects"
 msgstr "Redirezioni URL"
 
 msgid "Unhide"
-msgstr "Scopri"
+msgstr "Rendi visibile"
 
 msgid "Unselect"
 msgstr "Deseleziona"
@@ -1788,7 +1785,7 @@ msgid "Users' credentials:"
 msgstr "Credenziali delle utenze:"
 
 msgid "The platform will be automatically deleted on:"
-msgstr "La piattaforma verrà automaticamente cancellata il:"
+msgstr "La piattaforma verrà automaticamente eliminata il:"
 
 msgid "Access instructions"
 msgstr "Istruzioni per l'accesso"
@@ -2023,13 +2020,13 @@ msgid "New report"
 msgstr "Nuova segnalazione"
 
 msgid "One or more reports are expiring and will be soon deleted."
-msgstr "Una o più segnalazioni sono in scadenza e verranno presto cancellate."
+msgstr "Una o più segnalazioni sono in scadenza e verranno presto eliminate."
 
 msgid "The earliest expiration date is {EarliestExpirationDate}."
 msgstr "La scadenza più vicina è {EarliestExpirationDate}."
 
 msgid "Please remember to check them before they are deleted."
-msgstr "Ricordati di controllarle prima che vengano cancellate."
+msgstr "Ricordati di controllarle prima che vengano eliminate."
 
 msgid "Some reports will expire soon"
 msgstr "Alcune delle segnalazioni stanno per scadere"

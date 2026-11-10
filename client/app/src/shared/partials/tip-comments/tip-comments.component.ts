@@ -33,7 +33,6 @@ export class TipCommentsComponent {
   readonly tipService = input.required<ReceiverTipService | WbtipService>();
   readonly key = input.required<string>();
   readonly redactMode = input<boolean>();
-  readonly redactOperationTitle = input<string>();
 
   collapsed = false;
   newCommentContent = "";

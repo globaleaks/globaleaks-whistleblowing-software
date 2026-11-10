@@ -556,8 +556,8 @@ msgstr "Give this user ability to grant user access to reports"
 msgid "Give this user ability to mask information"
 msgstr "Give this user ability to mask information"
 
-msgid "Give this user ability to permanently redact masked information"
-msgstr "Give this user ability to permanently redact masked information"
+msgid "Give this user ability to permanently delete masked information"
+msgstr "Give this user ability to permanently delete masked information"
 
 msgid "Give this user ability to transfer reports to other users"
 msgstr "Give this user ability to transfer reports to other users"
@@ -995,9 +995,6 @@ msgstr "Recipients only"
 
 msgid "Recipients selected:"
 msgstr "Recipients selected:"
-
-msgid "Redact"
-msgstr "Redact"
 
 msgid "Refresh"
 msgstr "Refresh"
@@ -1487,9 +1484,6 @@ msgstr "URL redirects"
 
 msgid "Unhide"
 msgstr "Unhide"
-
-msgid "Unselect"
-msgstr "Unselect"
 
 msgid "Upload"
 msgstr "Upload"

@@ -29,10 +29,10 @@
               <button
                 type="button"
                 class="btn btn-sm btn-outline-secondary"
-                [ngbTooltip]="'Mask' | translate"
+                [ngbTooltip]="'Show' | translate"
                 (click)="redactFileOperation('full-unmask')"
-                [attr.aria-label]="'Mask' | translate">
-                <i class="fas fa-eraser"></i>
+                [attr.aria-label]="'Show' | translate">
+                <i class="fas fa-eye"></i>
               </button>
             }
 
@@ -40,9 +40,9 @@
               <button
                 type="button"
                 class="tip-action-delete-file btn btn-sm btn-danger"
-                [ngbTooltip]="'Redact' | translate"
+                [ngbTooltip]="'Delete' | translate"
                 (click)="redactFileOperation('redact')"
-                [attr.aria-label]="'Redact' | translate">
+                [attr.aria-label]="'Delete' | translate">
                 <i class="fas fa-trash"></i>
               </button>
             }
@@ -63,7 +63,7 @@
               [ngbTooltip]="'Mask' | translate"
               (click)="redactFileOperation('full-mask')"
               [attr.aria-label]="'Mask' | translate">
-              <i class="fas fa-eraser"></i>
+              <i class="fas fa-eye-slash"></i>
             </button>
           }
         }

@@ -18,7 +18,6 @@ export class TipQuestionnaireAnswersComponent {
   protected utilsService = inject(UtilsService);
 
   readonly tipService = input.required<ReceiverTipService | WbtipService>();
-  readonly redactOperationTitle = input<string>();
   readonly redactMode = input<boolean>();
   collapsed = false;
 

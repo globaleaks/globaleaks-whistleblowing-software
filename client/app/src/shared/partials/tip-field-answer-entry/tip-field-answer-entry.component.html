@@ -92,7 +92,7 @@
       <span>
         @for (field of field().children | orderBy:['y', 'x']; track field) {
           <div>
-            <src-tip-field [redactOperationTitle]="redactOperationTitle()" [redactMode]="redactMode()" [fields]=field [fieldAnswers]=entry()></src-tip-field>
+            <src-tip-field [redactMode]="redactMode()" [fields]=field [fieldAnswers]=entry()></src-tip-field>
           </div>
         }
       </span>
@@ -120,7 +120,7 @@
           <span>
             <span class="preformatted">{{maskContent(field().id, entry()['index'], entry()['value'])}}</span>
             @if (redactMode() && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
-              <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('answer', field(), entry()['index'], entry()['value'])" ngbTooltip="{{(redactOperationTitle() ?? '') | translate}}" [attr.aria-label]="(redactOperationTitle() ?? '') | translate">
+              <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('answer', field(), entry()['index'], entry()['value'])" ngbTooltip="{{'Mask' | translate}}" [attr.aria-label]="'Mask' | translate">
                 <i class="fas fa-eraser" aria-hidden="true"></i>
               </button>
             }

@@ -84,7 +84,6 @@ export class TipComponent implements OnInit {
   showEditLabelInput: boolean;
   loading = true;
   redactMode = false;
-  redactOperationTitle: string;
   submission: any;
 
   ngOnInit() {
@@ -94,7 +93,6 @@ export class TipComponent implements OnInit {
 
   loadTipData() {
     this.tip_id = this.activatedRoute.snapshot.paramMap.get("tip_id");
-    this.redactOperationTitle = this.translateService.instant('Mask') + ' / ' + this.translateService.instant('Redact');
     const requestObservable: Observable<any> = this.httpService.receiverTip(this.tip_id);
     this.loading = true;
     this.RTipService.reset();

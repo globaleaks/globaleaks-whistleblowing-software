@@ -25,7 +25,6 @@ export class WhistleBlowerIdentityReceiverComponent {
   private modalService = inject(NgbModal);
   private utils = inject(UtilsService);
 
-  readonly redactOperationTitle = input<string>();
   readonly redactMode = input<boolean>();
   collapsed = false;
 

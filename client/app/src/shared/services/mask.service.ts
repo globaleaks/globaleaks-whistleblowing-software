@@ -10,7 +10,6 @@ import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 export class MaskService {
   private modalService = inject(NgbModal);
 
-
   getSelectedRanges(select: boolean, selected_ranges: any[],redactTextArea:ElementRef) {
 
     const elem = redactTextArea.nativeElement;
@@ -55,6 +54,10 @@ export class MaskService {
   mergeRanges(newRanges: any[], temporaryRanges: any[]) {
     const allRanges = newRanges.concat(temporaryRanges);
     allRanges.sort((a, b) => a.start - b.start);
+
+    if (allRanges.length === 0) {
+      return [];
+    }
 
     const mergedRanges = [];
     let currentRange = allRanges[0];
