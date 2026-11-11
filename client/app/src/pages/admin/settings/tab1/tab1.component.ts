@@ -9,6 +9,7 @@ import {AppDataService} from "@app/app-data.service";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {TranslatePipe} from "@ngx-translate/core";
 import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.directive";
+import {ColorsComponent} from "@app/pages/admin/settings/colors/colors.component";
 
 @Component({
     selector: "src-tab1",
@@ -16,6 +17,7 @@ import {HeldByProfileDirective} from "@app/shared/directive/held-by-profile.dire
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
     imports: [
+    ColorsComponent,
     HeldByProfileDirective,
     ImageUploadDirective,
     FormsModule,
@@ -28,6 +30,9 @@ export class Tab1Component {
   protected appDataService = inject(AppDataService);
   protected authenticationService = inject(AuthenticationService);
   private readonly utilsService = inject(UtilsService);
+  // The tab of the logo shown: the one of the light theme, which serves the dark one too until this has
+  // a logo of its own, or the one of the dark theme
+  logoTab: "light" | "dark" = "light";
 
   protected readonly Constants = Constants;
   readonly contentForm = input.required<NgForm>();

@@ -291,6 +291,7 @@ ConfigFilters = {
         'onionservice_enable',
         'password_change_period',
         'pgp',
+        'primary_color',
         'profile',
         'reachable_via_web',
         'receipt_salt',

@@ -1,6 +1,6 @@
 <!-- The primary color of the site, as the administrator chooses it; the interface computes from it
      an accessible palette. It is saved with the other settings -->
-<fieldset id="PrimaryColor" class="form-group">
+<fieldset id="PrimaryColor" class="form-group" [disabled]="heldByProfile">
   <label for="pick-primary-color">{{ 'Colors' | translate }}</label>
   <div class="d-flex align-items-start gap-2">
     <!-- The picker of the browser opens from the button, which shows the color chosen; the picker

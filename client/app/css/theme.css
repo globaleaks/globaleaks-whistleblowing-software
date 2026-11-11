@@ -727,7 +727,8 @@ progress {
 
   .btn:disabled,
   .btn.disabled,
-  .container-disabled {
+  .container-disabled,
+  .field-action--off {
     color: GrayText;
   }
 

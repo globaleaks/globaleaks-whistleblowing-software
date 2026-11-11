@@ -706,3 +706,4 @@ Customizable
 Not customizable
 Enable login by access code
 Not in use
+Colors

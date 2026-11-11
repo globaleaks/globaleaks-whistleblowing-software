@@ -187,6 +187,10 @@ def db_update_node(session, tid, user_session, request, language):
                     'backup_enabled', 'backup_time', 'backup_period', 'backup_retention']:
             request.pop(var, None)
 
+    # The brand color is kept in the form the clients compare it in
+    if 'primary_color' in request:
+        request['primary_color'] = request['primary_color'].strip().upper()
+
     config = ConfigFactory(session, tid)
     antivirus_was_enabled = config.get_val('antivirus_enabled')
     idp_issuer_was = config.get_val('idp_issuer')

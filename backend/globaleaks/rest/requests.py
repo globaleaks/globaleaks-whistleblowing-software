@@ -43,6 +43,8 @@ homepage_regexp = r'^/(submission|signup)?$'
 support_escalation_regexp = r'^(none|admins|all)$'
 whistleblowing_destination_regexp = r'^/(submission|login)$'
 support_status_regexp = r'^(new|opened|closed)$'
+# The brand color of a site, from which the palette of the interface is computed
+hex_color_regexp = r'^#[0-9A-Fa-f]{6}$'
 
 field_instance_regexp = (r'^('
                          'instance|'

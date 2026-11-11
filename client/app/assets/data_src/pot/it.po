@@ -2701,6 +2701,9 @@ msgstr "Configurazione"
 msgid "Detach"
 msgstr "Distacca"
 
+msgid "Colors"
+msgstr "Colori"
+
 msgid "Switch to the dark theme"
 msgstr "Passa al tema scuro"
 

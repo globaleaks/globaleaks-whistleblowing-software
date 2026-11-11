@@ -25,6 +25,11 @@ export class ColorsComponent {
 
   protected readonly color = signal(this.nodeResolver.dataModel.primary_color || OFFICIAL_PRIMARY_COLOR);
 
+  // A site naming a profile shows the color of the profile and does not change it
+  protected get heldByProfile(): boolean {
+    return this.nodeResolver.heldByProfile("primary_color");
+  }
+
   // The picker of the browser, opened by the button it sits under; where showPicker is missing, the
   // click on the input opens it the same
   protected openPicker(input: HTMLInputElement): void {

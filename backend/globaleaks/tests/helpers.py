@@ -500,6 +500,7 @@ class MockDict:
             'custom_support_url': '',
             'support_escalation': 'all',
             'pgp': False,
+            'primary_color': '#0978CF',
             'antivirus_enabled': False,
             'antivirus_clamd_ip': 'localhost',
             'antivirus_clamd_port': 3310,

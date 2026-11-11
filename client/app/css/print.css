@@ -18,9 +18,9 @@
     left: 0;
     top: 0;
     width: 100%;
-    background: white;
+    background: var(--gl-bg);
     z-index: 9999;
-    color: #1d1f2a;
+    color: var(--gl-text);
     font-family: "Noto Sans Variable", sans-serif;
     font-size: 16px;
     box-sizing: border-box;
