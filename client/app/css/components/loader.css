@@ -13,7 +13,7 @@
   z-index: 2147483647;
   pointer-events: none;
   user-select: none;
-  background-color: #fff;
+  background-color: var(--gl-bg);
   opacity: 0.2;
 }
 
@@ -22,8 +22,8 @@
   margin: 0 auto;
   display: flex;
   align-items: center;
-  border: 0.5rem solid #c8d1e0;
-  border-top-color: #1d1f24;
+  border: 0.5rem solid var(--gl-border);
+  border-top-color: var(--gl-text);
   border-radius: 50%;
   width: 6rem;
   height: 6rem;

@@ -1,0 +1,665 @@
+/*
+ * The theme of the interface
+ *
+ * The palette is the official GlobaLeaks one: two scales of ten steps, primary and neutral, and a
+ * few colors every palette shares. The interface never names a color of the palette: it names a
+ * role, and the role takes a color of the palette.
+ *
+ * Every rule of the file has no specificity (:where), so that the order of the rules is what
+ * decides among them and a custom CSS of the site, loaded last, overrides any of them with a
+ * plain :root rule.
+ */
+
+:where(:root) {
+  /* The primary scale */
+  --gl-primary-10: #ECF5FE;
+  --gl-primary-20: #BEDFFF;
+  --gl-primary-30: #92CAFE;
+  --gl-primary-40: #66B1F7;
+  --gl-primary-50: #3D97E8;
+  --gl-primary-60: #0978CF;
+  --gl-primary-70: #0265B1;
+  --gl-primary-80: #02518F;
+  --gl-primary-90: #0D4370;
+  --gl-primary-100: #00325C;
+
+  /* The neutral scale */
+  --gl-neutral-10: #F2F4F7;
+  --gl-neutral-20: #D7DBE1;
+  --gl-neutral-30: #BFC4CC;
+  --gl-neutral-40: #A5ACB6;
+  --gl-neutral-50: #8B939F;
+  --gl-neutral-60: #6E7783;
+  --gl-neutral-70: #5C6470;
+  --gl-neutral-80: #48505B;
+  --gl-neutral-90: #3B414B;
+  --gl-neutral-100: #2C313A;
+
+  /* The colors every palette shares */
+  --gl-white: #FFF;
+  --gl-black: #1D1F24;
+  --gl-yellow: #FFE433;
+  --gl-red: #E30310;
+
+  /* The roles */
+  color-scheme: light;
+
+  --gl-bg: var(--gl-white);
+  --gl-surface: var(--gl-white);
+  --gl-surface-subtle: var(--gl-primary-10);
+  --gl-header: var(--gl-black);
+  --gl-footer: var(--gl-neutral-10);
+  --gl-text: var(--gl-black);
+  --gl-text-secondary: var(--gl-neutral-70);
+  --gl-link: var(--gl-primary-80);
+  --gl-button: var(--gl-primary-80);
+  --gl-on-button: var(--gl-white);
+  --gl-border: var(--gl-neutral-30);
+  --gl-border-input: var(--gl-neutral-50);
+  --gl-warning: var(--gl-yellow);
+  --gl-danger: var(--gl-red);
+
+  /* The steps a button takes when pointed and pressed */
+  --gl-button-hover: var(--gl-primary-90);
+  --gl-button-active: var(--gl-primary-100);
+
+  /* The text on a subtle surface (primary-10) takes one step darker than usual */
+  --gl-subtle-text-secondary: var(--gl-neutral-80);
+  --gl-subtle-link: var(--gl-primary-90);
+}
+
+@media (prefers-contrast: more) {
+  :where(:root) {
+    --gl-text-secondary: var(--gl-neutral-80);
+    --gl-border: var(--gl-neutral-50);
+    --gl-subtle-text-secondary: var(--gl-neutral-90);
+  }
+}
+
+/* The links on the black of the header take one of the lightest steps of the primary scale */
+:where(#PrivacyBadge) {
+  --gl-link: var(--gl-primary-30);
+}
+
+/* The text on the subtle surfaces takes one step darker */
+:where(#FooterBox, .tos-text, .alert-secondary, .jumbotron, .drag-drop:hover, .audio-box,
+       .select-card.selected, .input-group-text) {
+  --gl-text-secondary: var(--gl-subtle-text-secondary);
+  --gl-link: var(--gl-subtle-link);
+}
+
+/*
+ * Bootstrap
+ *
+ * Bootstrap is compiled with colors of its own: its variables and the classes the interface uses
+ * are given the roles.
+ */
+:root,
+[data-bs-theme] {
+  --bs-body-bg: var(--gl-bg);
+  --bs-body-color: var(--gl-text);
+  --bs-emphasis-color: var(--gl-text);
+  --bs-heading-color: inherit;
+  --bs-secondary-color: var(--gl-text-secondary);
+  --bs-secondary-bg: var(--gl-surface-subtle);
+  --bs-tertiary-color: var(--gl-text-secondary);
+  --bs-tertiary-bg: var(--gl-surface-subtle);
+  --bs-link-color: var(--gl-link);
+  --bs-link-hover-color: var(--gl-link);
+  --bs-border-color: var(--gl-border);
+  --bs-border-color-translucent: var(--gl-border);
+  --bs-focus-ring-color: color-mix(in srgb, var(--gl-link) 35%, transparent);
+  --bs-form-invalid-color: var(--gl-danger);
+  --bs-form-invalid-border-color: var(--gl-danger);
+  --bs-form-valid-color: var(--gl-link);
+  --bs-form-valid-border-color: var(--gl-button);
+  --bs-primary: var(--gl-button);
+  --bs-secondary: var(--gl-text-secondary);
+  --bs-danger: var(--gl-danger);
+  --bs-warning: var(--gl-warning);
+}
+
+.card,
+.modal-content,
+.dropdown-menu,
+.popover,
+.list-group,
+.toast {
+  --bs-card-bg: var(--gl-surface);
+  --bs-modal-bg: var(--gl-surface);
+  --bs-dropdown-bg: var(--gl-surface);
+  --bs-dropdown-color: var(--gl-text);
+  --bs-dropdown-link-color: var(--gl-text);
+  --bs-dropdown-link-hover-color: var(--gl-text);
+  --bs-dropdown-link-hover-bg: var(--gl-surface-subtle);
+  --bs-dropdown-link-active-color: var(--gl-on-button);
+  --bs-dropdown-link-active-bg: var(--gl-button);
+  --bs-popover-bg: var(--gl-surface);
+  --bs-list-group-bg: var(--gl-surface);
+  --bs-list-group-color: var(--gl-text);
+  --bs-list-group-active-bg: var(--gl-button);
+  --bs-list-group-active-border-color: var(--gl-button);
+  --bs-list-group-active-color: var(--gl-on-button);
+  --bs-toast-bg: var(--gl-surface);
+}
+
+.card-header {
+  --bs-card-cap-bg: var(--gl-surface-subtle);
+}
+
+.table {
+  --bs-table-color: var(--gl-text);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--gl-border);
+  --bs-table-hover-color: var(--gl-text);
+  --bs-table-hover-bg: var(--gl-surface-subtle);
+  --bs-table-striped-color: var(--gl-text);
+  --bs-table-active-color: var(--gl-text);
+  --bs-table-active-bg: var(--gl-surface-subtle);
+}
+
+.pagination {
+  --bs-pagination-color: var(--gl-link);
+  --bs-pagination-bg: var(--gl-surface);
+  --bs-pagination-border-color: var(--gl-border);
+  --bs-pagination-hover-color: var(--gl-link);
+  --bs-pagination-hover-bg: var(--gl-surface-subtle);
+  --bs-pagination-focus-color: var(--gl-link);
+  --bs-pagination-focus-bg: var(--gl-surface-subtle);
+  --bs-pagination-active-color: var(--gl-on-button);
+  --bs-pagination-active-bg: var(--gl-button);
+  --bs-pagination-active-border-color: var(--gl-button);
+  --bs-pagination-disabled-color: var(--gl-text-secondary);
+  --bs-pagination-disabled-bg: var(--gl-surface);
+}
+
+.nav-tabs {
+  --bs-nav-tabs-border-color: var(--gl-border);
+  --bs-nav-tabs-link-hover-border-color: var(--gl-border);
+  --bs-nav-tabs-link-active-color: var(--gl-link);
+  --bs-nav-tabs-link-active-bg: var(--gl-bg);
+  --bs-nav-tabs-link-active-border-color: var(--gl-border) var(--gl-border) var(--gl-bg);
+}
+
+.nav-pills {
+  --bs-nav-pills-link-active-color: var(--gl-on-button);
+  --bs-nav-pills-link-active-bg: var(--gl-button);
+}
+
+.progress {
+  --bs-progress-bg: var(--gl-surface-subtle);
+  --bs-progress-bar-bg: var(--gl-button);
+}
+
+.form-control,
+.form-select {
+  color: var(--gl-text);
+  border-color: var(--gl-border-input);
+}
+
+.form-select {
+  background-color: var(--gl-surface);
+}
+
+.form-control:focus,
+.form-select:focus {
+  color: var(--gl-text);
+  background-color: var(--gl-surface);
+  border-color: var(--gl-link);
+}
+
+.form-control::placeholder {
+  color: var(--gl-text-secondary);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  color: var(--gl-text-secondary);
+  background-color: var(--gl-surface-subtle);
+}
+
+.form-check-input {
+  background-color: var(--gl-surface);
+  border-color: var(--gl-border-input);
+}
+
+.form-check-input:checked {
+  background-color: var(--gl-button);
+  border-color: var(--gl-button);
+}
+
+.btn-primary {
+  --bs-btn-color: var(--gl-on-button);
+  --bs-btn-bg: var(--gl-button);
+  --bs-btn-border-color: var(--gl-button);
+  --bs-btn-hover-color: var(--gl-on-button);
+  --bs-btn-hover-bg: var(--gl-button-hover);
+  --bs-btn-hover-border-color: var(--gl-button-hover);
+  --bs-btn-active-color: var(--gl-on-button);
+  --bs-btn-active-bg: var(--gl-button-active);
+  --bs-btn-active-border-color: var(--gl-button-active);
+  --bs-btn-disabled-color: var(--gl-on-button);
+  --bs-btn-disabled-bg: var(--gl-button);
+  --bs-btn-disabled-border-color: var(--gl-button);
+}
+
+.btn-secondary {
+  --bs-btn-color: var(--gl-bg);
+  --bs-btn-bg: var(--gl-text-secondary);
+  --bs-btn-border-color: var(--gl-text-secondary);
+  --bs-btn-hover-color: var(--gl-bg);
+  --bs-btn-hover-bg: var(--gl-text);
+  --bs-btn-hover-border-color: var(--gl-text);
+  --bs-btn-active-color: var(--gl-bg);
+  --bs-btn-active-bg: var(--gl-text);
+  --bs-btn-active-border-color: var(--gl-text);
+  --bs-btn-disabled-color: var(--gl-bg);
+  --bs-btn-disabled-bg: var(--gl-text-secondary);
+  --bs-btn-disabled-border-color: var(--gl-text-secondary);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--gl-text);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: var(--gl-border-input);
+  --bs-btn-hover-color: var(--gl-text);
+  --bs-btn-hover-bg: var(--gl-surface-subtle);
+  --bs-btn-hover-border-color: var(--gl-border-input);
+  --bs-btn-active-color: var(--gl-text);
+  --bs-btn-active-bg: var(--gl-surface-subtle);
+  --bs-btn-active-border-color: var(--gl-text);
+  --bs-btn-disabled-color: var(--gl-text-secondary);
+  --bs-btn-disabled-bg: transparent;
+  --bs-btn-disabled-border-color: var(--gl-border);
+}
+
+.btn-light {
+  --bs-btn-color: var(--gl-text);
+  --bs-btn-bg: var(--gl-surface-subtle);
+  --bs-btn-border-color: var(--gl-border);
+  --bs-btn-hover-color: var(--gl-text);
+  --bs-btn-hover-bg: var(--gl-surface);
+  --bs-btn-hover-border-color: var(--gl-border-input);
+  --bs-btn-active-color: var(--gl-text);
+  --bs-btn-active-bg: var(--gl-surface);
+  --bs-btn-active-border-color: var(--gl-text);
+}
+
+/* The danger is said by the red of the text and of the border on the background of the page, red on
+   white and red on black: never a white text on a red field. A tinted field would take the red
+   below the contrast of a text: pointed and pressed, the button thickens its border instead */
+.btn-danger,
+.btn-outline-danger {
+  --bs-btn-color: var(--gl-danger);
+  --bs-btn-border-color: var(--gl-danger);
+  --bs-btn-hover-color: var(--gl-danger);
+  --bs-btn-hover-border-color: var(--gl-danger);
+  --bs-btn-active-color: var(--gl-danger);
+  --bs-btn-active-border-color: var(--gl-danger);
+  --bs-btn-disabled-color: var(--gl-danger);
+  --bs-btn-disabled-border-color: var(--gl-danger);
+}
+
+.btn-danger {
+  --bs-btn-bg: var(--gl-bg);
+  --bs-btn-hover-bg: var(--gl-bg);
+  --bs-btn-active-bg: var(--gl-bg);
+  --bs-btn-disabled-bg: var(--gl-bg);
+}
+
+.btn-outline-danger {
+  --bs-btn-bg: transparent;
+  --bs-btn-hover-bg: transparent;
+  --bs-btn-active-bg: transparent;
+  --bs-btn-disabled-bg: transparent;
+}
+
+.btn-danger:hover,
+.btn-outline-danger:hover {
+  box-shadow: inset 0 0 0 1px var(--gl-danger);
+}
+
+.btn-danger:active,
+.btn-outline-danger:active,
+.btn-check:checked + .btn-danger,
+.btn-check:checked + .btn-outline-danger {
+  box-shadow: inset 0 0 0 2px var(--gl-danger);
+}
+
+.btn-link {
+  --bs-btn-color: var(--gl-link);
+  --bs-btn-hover-color: var(--gl-link);
+  --bs-btn-active-color: var(--gl-link);
+  --bs-btn-disabled-color: var(--gl-text-secondary);
+}
+
+.alert-danger {
+  --bs-alert-color: var(--gl-text);
+  --bs-alert-bg: color-mix(in srgb, var(--gl-danger) 12%, var(--gl-surface));
+  --bs-alert-border-color: var(--gl-danger);
+  --bs-alert-link-color: var(--gl-text);
+}
+
+.alert-warning {
+  --bs-alert-color: var(--gl-text);
+  --bs-alert-bg: color-mix(in srgb, var(--gl-warning) 20%, var(--gl-surface));
+  --bs-alert-border-color: var(--gl-warning);
+  --bs-alert-link-color: var(--gl-text);
+}
+
+.alert-primary,
+.alert-info,
+.alert-success {
+  --bs-alert-color: var(--gl-text);
+  --bs-alert-bg: var(--gl-surface-subtle);
+  --bs-alert-border-color: var(--gl-button);
+  --bs-alert-link-color: var(--gl-link);
+}
+
+.text-primary,
+.text-info,
+.text-success,
+.link-primary {
+  color: var(--gl-link) !important;
+}
+
+.text-danger {
+  color: var(--gl-danger) !important;
+}
+
+/* The yellow is an accent of the icons, never the color of a text */
+.text-warning {
+  color: var(--gl-warning) !important;
+}
+
+.text-muted,
+.text-secondary,
+.text-gray {
+  color: var(--gl-text-secondary) !important;
+}
+
+.text-dark {
+  color: var(--gl-text) !important;
+}
+
+.text-white {
+  color: var(--gl-on-button) !important;
+}
+
+.bg-primary,
+.bg-info,
+.bg-success,
+.text-bg-primary {
+  color: var(--gl-on-button) !important;
+  background-color: var(--gl-button) !important;
+}
+
+.bg-secondary {
+  color: var(--gl-bg);
+  background-color: var(--gl-text-secondary) !important;
+}
+
+.bg-danger {
+  color: var(--gl-bg);
+  background-color: var(--gl-danger) !important;
+}
+
+.bg-warning,
+.text-bg-warning {
+  color: var(--gl-black) !important;
+  background-color: var(--gl-warning) !important;
+}
+
+.bg-light {
+  background-color: var(--gl-surface-subtle) !important;
+}
+
+.bg-white {
+  background-color: var(--gl-surface) !important;
+}
+
+.bg-dark {
+  color: var(--gl-on-button);
+  background-color: var(--gl-header) !important;
+}
+
+/*
+ * ng-select
+ *
+ * Its theme writes the colors of a light page: its rules are given the roles, with its own
+ * selectors so that they win by coming later.
+ */
+.ng-select .ng-select-container,
+.ng-select.ng-select-opened > .ng-select-container {
+  color: var(--gl-text);
+  background-color: var(--gl-surface);
+  border-color: var(--gl-border-input);
+}
+
+.ng-select.ng-select-focused:not(.ng-select-opened) > .ng-select-container {
+  border-color: var(--gl-link);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gl-link) 25%, transparent);
+}
+
+.ng-select.ng-select-disabled > .ng-select-container,
+.ng-select.ng-select-multiple.ng-select-disabled > .ng-select-container .ng-value-container .ng-value {
+  color: var(--gl-text-secondary);
+  background-color: var(--gl-surface-subtle);
+}
+
+.ng-select .ng-select-container .ng-value-container .ng-placeholder,
+.ng-select .ng-clear-wrapper {
+  color: var(--gl-text-secondary);
+}
+
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-input > input,
+.ng-select .ng-select-container .ng-value-container .ng-input > input {
+  color: var(--gl-text);
+}
+
+.ng-select .ng-clear-wrapper:hover .ng-clear,
+.ng-select .ng-clear-wrapper:focus .ng-clear {
+  color: var(--gl-danger);
+}
+
+.ng-select .ng-arrow-wrapper .ng-arrow {
+  border-top-color: var(--gl-text-secondary);
+}
+
+.ng-select .ng-arrow-wrapper:hover .ng-arrow {
+  border-top-color: var(--gl-text);
+}
+
+.ng-select.ng-select-opened > .ng-select-container .ng-arrow {
+  border-bottom-color: var(--gl-text-secondary);
+}
+
+.ng-select.ng-select-opened > .ng-select-container .ng-arrow:hover {
+  border-bottom-color: var(--gl-text);
+}
+
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value {
+  color: var(--gl-text);
+  background-color: var(--gl-surface-subtle);
+}
+
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon:hover {
+  background-color: color-mix(in srgb, var(--gl-link) 25%, var(--gl-surface-subtle));
+}
+
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon.left,
+.ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon.right,
+[dir="rtl"] .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon.left,
+[dir="rtl"] .ng-select.ng-select-multiple .ng-select-container .ng-value-container .ng-value .ng-value-icon.right {
+  border-color: var(--gl-border);
+}
+
+.ng-dropdown-panel {
+  color: var(--gl-text);
+  background-color: var(--gl-surface);
+  border-color: var(--gl-border);
+}
+
+.ng-dropdown-panel .ng-dropdown-header,
+.ng-dropdown-panel .ng-dropdown-footer {
+  border-color: var(--gl-border);
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+  color: var(--gl-text);
+  background-color: var(--gl-surface);
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup,
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-disabled {
+  color: var(--gl-text-secondary);
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-marked,
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup.ng-option-marked {
+  color: var(--gl-text);
+  background-color: var(--gl-surface-subtle);
+}
+
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected,
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked,
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup.ng-option-selected,
+.ng-dropdown-panel .ng-dropdown-panel-items .ng-optgroup.ng-option-selected.ng-option-marked {
+  color: var(--gl-text);
+  background-color: color-mix(in srgb, var(--gl-link) 25%, var(--gl-surface));
+}
+
+/*
+ * ng-multiselect-dropdown
+ *
+ * Its styles are bound to its component, which adds an attribute to every part of their selectors,
+ * and are written in the colors of a light page: the roles are given to them as important, the
+ * one way to win over them without copying their selectors.
+ */
+.multiselect-dropdown .dropdown-btn {
+  color: var(--gl-text) !important;
+  background-color: var(--gl-surface) !important;
+  border-color: var(--gl-border-input) !important;
+}
+
+.multiselect-dropdown .dropdown-btn .dropdown-multiselect__caret::before {
+  border-color: var(--gl-text-secondary) transparent !important;
+}
+
+.multiselect-dropdown .dropdown-btn .selected-item-container .selected-item {
+  color: var(--gl-on-button) !important;
+  background: var(--gl-button) !important;
+  border-color: var(--gl-button) !important;
+}
+
+.multiselect-dropdown .disabled > span {
+  color: var(--gl-text-secondary) !important;
+  background-color: var(--gl-surface-subtle) !important;
+}
+
+.multiselect-dropdown .dropdown-list {
+  color: var(--gl-text) !important;
+  background: var(--gl-surface) !important;
+  border-color: var(--gl-border) !important;
+  box-shadow: 0 1px 5px var(--gl-border) !important;
+}
+
+.multiselect-dropdown .dropdown-list .filter-textbox {
+  border-bottom-color: var(--gl-border) !important;
+}
+
+.multiselect-dropdown .dropdown-list .filter-textbox input {
+  color: var(--gl-text) !important;
+  background-color: transparent !important;
+}
+
+.multiselect-dropdown .multiselect-item-checkbox:hover {
+  background-color: var(--gl-surface-subtle) !important;
+}
+
+.multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"] + div {
+  color: var(--gl-text) !important;
+}
+
+.multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"] + div::before {
+  color: var(--gl-button) !important;
+  border-color: var(--gl-border-input) !important;
+}
+
+.multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"]:checked + div::before {
+  background: var(--gl-button) !important;
+  border-color: var(--gl-button) !important;
+}
+
+.multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"] + div::after {
+  border-color: var(--gl-on-button) !important;
+}
+
+.multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"]:hover + div::before,
+.multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"]:focus + div::before {
+  background-color: var(--gl-surface-subtle) !important;
+  border-color: var(--gl-button) !important;
+}
+
+.multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"]:checked:hover + div::before,
+.multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"]:checked:focus + div::before {
+  background-color: var(--gl-button) !important;
+}
+
+/*
+ * Forced colors
+ *
+ * The browser replaces the colors with the ones of the system: what told a state apart by its
+ * color alone is given a border or an outline in the colors of the system.
+ */
+@media (forced-colors: active) {
+  a,
+  .btn-link,
+  .nav-link {
+    color: LinkText;
+  }
+
+  .btn,
+  .badge,
+  .alert,
+  .form-control,
+  .form-select,
+  .form-select-custom,
+  .form-check-input,
+  .select-card,
+  .step-index,
+  .page-link,
+  .nav-tabs .nav-link,
+  #PrivacyBadge,
+  #DemoBadge {
+    border: 1px solid CanvasText;
+  }
+
+  .btn {
+    border-color: ButtonText;
+  }
+
+  .select-card.selected,
+  .step-index-selected,
+  .nav-tabs .nav-link.active,
+  .page-item.active .page-link,
+  .custom-date-selector:hover,
+  .form-check-input:checked {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+
+  .form-check-input:checked {
+    background-color: Highlight;
+  }
+
+  .btn:disabled,
+  .btn.disabled,
+  .container-disabled {
+    color: GrayText;
+  }
+
+  :focus-visible {
+    outline: 3px solid Highlight !important;
+  }
+}

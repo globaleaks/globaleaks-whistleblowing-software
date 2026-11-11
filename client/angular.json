@@ -40,6 +40,7 @@
               { "bundleName": "styles", "inject": true, "input": "node_modules/@ng-select/ng-select/themes/default.theme.css" },
               { "bundleName": "styles", "inject": true, "input": "app/css/components/overrides/ng-bootstrap.css" },
               { "bundleName": "styles", "inject": true, "input": "app/css/components/overrides/ng-select.css" },
+              { "bundleName": "styles", "inject": true, "input": "app/css/theme.css" },
               { "bundleName": "styles", "inject": true, "input": "app/css/components/loader.css" },
               { "bundleName": "styles", "inject": true, "input": "app/css/components/switch.css" },
               { "bundleName": "styles", "inject": true, "input": "app/css/components/select.css" },

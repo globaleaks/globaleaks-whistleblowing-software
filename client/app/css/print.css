@@ -1,8 +1,8 @@
 @media print {
   button,
   .svg-inline--fa {
-    color: #103253 !important;
-    fill: #103253 !important;
+    color: var(--gl-link) !important;
+    fill: var(--gl-link) !important;
   }
 
  .dropdown-menu.show {

@@ -4,15 +4,15 @@
   text-overflow: '';
   width: 100%;
   padding: 6px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--gl-border-input);
   border-radius: 5px;
-  background-color: #fff;
+  background-color: var(--gl-surface);
   font-size: 16px;
-  color: #333;
+  color: var(--gl-text);
 }
 
 .form-select-custom:focus {
   outline: none;
-  border-color: #66afe9;
-  box-shadow: 0 0 5px rgb(102 175 233 / 50%);
+  border-color: var(--gl-link);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--gl-link) 50%, transparent);
 }

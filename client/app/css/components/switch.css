@@ -5,7 +5,7 @@
 }
 
 input:disabled + .slider::before {
-  background-color: #ccc;
+  background-color: var(--gl-border);
   left: 1px;
 }
 
@@ -47,16 +47,16 @@ input:disabled + .slider::before {
 }
 
 input + .slider {
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: var(--gl-surface);
+  border: 1px solid var(--gl-border-input);
 }
 
 input:checked + .slider {
-  background-color: #2866a2;
-  border: 1px solid #2866a2;
+  background-color: var(--gl-button);
+  border: 1px solid var(--gl-button);
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #24598f;
-  border: 1px solid #2866a2;
+  box-shadow: 0 0 1px var(--gl-button-hover);
+  border: 1px solid var(--gl-button);
 }
