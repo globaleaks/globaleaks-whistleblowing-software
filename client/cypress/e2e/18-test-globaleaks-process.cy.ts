@@ -95,6 +95,8 @@ describe("globaleaks process", function () {
     cy.get("#tip-action-postpone").click();
     cy.takeScreenshot("recipient/modal_postpone", ".modal-dialog");
     cy.get('.modal').should('be.visible');
+    // The channel keeps its reports for a limited time, so the expiration cannot be removed
+    cy.get('#modal-action-reset').should('not.exist');
     cy.get('input[name="dp"]').invoke('val').then((currentDate: any) => {
       const current = new Date(currentDate);
       const nextDay = new Date(current);

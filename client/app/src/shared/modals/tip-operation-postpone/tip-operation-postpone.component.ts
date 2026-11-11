@@ -54,6 +54,15 @@ export class TipOperationPostponeComponent implements OnInit {
     return;
   }
 
+  reset() {
+    this.cancel();
+
+    return this.httpService.tipOperation("reset_expiration", {}, this.args.tip.id)
+      .subscribe(() => {
+        this.reload();
+      });
+  }
+
   reload() {
     this.utils.reloadCurrentRoute();
   }

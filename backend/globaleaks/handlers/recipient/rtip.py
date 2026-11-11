@@ -978,6 +978,35 @@ def delete_wbfile(session, tid, user_id, file_id):
 
 
 @transact
+def reset_expiration(session, tid, user_id, itip_id):
+    """
+    Transaction for removing the expiration of a submission of a channel
+    configured without data retention
+
+    :param session: An ORM session
+    :param tid: A tenant ID of the user performing the operation
+    :param user_id: A user ID of the user performing the operation
+    :param itip_id: An itip ID of the submission object of the operation
+    """
+    user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
+
+    if not user.can_postpone_expiration or \
+       db_get_ttl(session, models.Context, itip.context_id) > 0:
+        raise errors.ForbiddenOperation
+
+    prev_expiration_date = itip.expiration_date
+    itip.expiration_date = datetime_never()
+    itip.update_date = datetime_now()
+
+    log_data = {
+      'prev_expiration_date': int(datetime.timestamp(prev_expiration_date)),
+      'curr_expiration_date': int(datetime.timestamp(itip.expiration_date))
+    }
+
+    db_log(session, tid=tid, type='update_report_expiration', user_id=user_id, object_id=itip.id, data=log_data)
+
+
+@transact
 def postpone_expiration(session, tid, user_id, itip_id, expiration_date):
     """
     Transaction for postponing the expiration of a submission
@@ -1420,6 +1449,7 @@ class RTipInstance(OperationHandler):
             'grant': RTipInstance.grant_tip_access,
             'revoke': RTipInstance.revoke_tip_access,
             'postpone': RTipInstance.postpone_expiration,
+            'reset_expiration': RTipInstance.reset_expiration,
             'set_reminder': RTipInstance.set_reminder,
             'set': RTipInstance.set_tip_val,
             'update_status': RTipInstance.update_submission_status,
@@ -1449,6 +1479,9 @@ class RTipInstance(OperationHandler):
 
     def postpone_expiration(self, req_args, itip_id, *args, **kwargs):
         return postpone_expiration(self.request.tid, self.session.user_id, itip_id, req_args['value'])
+
+    def reset_expiration(self, req_args, itip_id, *args, **kwargs):
+        return reset_expiration(self.request.tid, self.session.user_id, itip_id)
 
     def set_reminder(self, req_args, itip_id, *args, **kwargs):
         return set_reminder(self.request.tid, self.session.user_id, itip_id, req_args['value'])

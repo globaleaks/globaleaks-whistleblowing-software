@@ -18,6 +18,11 @@ from globaleaks.utils.utility import datetime_never, datetime_now
 
 
 @transact
+def set_contexts_timetolive(session, ttl):
+    session.query(models.Context).update({'tip_timetolive': ttl})
+
+
+@transact
 def create_substatus(session, submissionstatus_id):
     substatus = models.SubmissionSubStatus()
     substatus.tid = 1
@@ -154,6 +159,48 @@ class TestRTipInstance(helpers.TestHandlerWithPopulatedDB):
         rtip_descs = yield self.get_rtips()
         for rtip_desc in rtip_descs:
             self.assertTrue(rtip_desc['expiration_date'] == expiration)
+
+    @inlineCallbacks
+    def test_reset_expiration_of_reports_of_channels_without_retention(self):
+        yield set_contexts_timetolive(0)
+        yield self.set_itips_expiration(datetime_now())
+
+        rtip_descs = yield self.get_rtips()
+
+        for rtip_desc in rtip_descs:
+            operation = {
+              'operation': 'reset_expiration',
+              'args': {}
+            }
+
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+            yield handler.put(rtip_desc['id'])
+            self.assertEqual(handler.request.code, 200)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertEqual(rtip_desc['expiration_date'], datetime_never())
+
+    @inlineCallbacks
+    def test_reset_expiration_of_reports_of_channels_with_retention(self):
+        expiration = datetime_now()
+
+        yield self.set_itips_expiration(expiration)
+
+        rtip_descs = yield self.get_rtips()
+
+        for rtip_desc in rtip_descs:
+            operation = {
+              'operation': 'reset_expiration',
+              'args': {}
+            }
+
+            handler = self.request(operation, role='receiver', user_id=rtip_desc['receiver_id'])
+            yield self.assertFailure(handler.put(rtip_desc['id']), errors.ForbiddenOperation)
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            self.assertEqual(rtip_desc['expiration_date'], expiration)
 
     @inlineCallbacks
     def test_grant_and_revoke_access(self):

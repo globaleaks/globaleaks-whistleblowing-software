@@ -375,6 +375,7 @@ export class TipComponent implements OnInit {
         minDate: this.utils.getMinPostponeDate(this.tip.expiration_date),
         maxDate: this.utils.getPostponeDate(Math.max(365, tip_timetolive * 2))
       },
+      can_reset: tip_timetolive === 0 && !this.utils.isNever(this.tip.expiration_date),
       opened: false,
       Utils: this.utils
     };
