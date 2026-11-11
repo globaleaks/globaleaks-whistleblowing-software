@@ -87,7 +87,7 @@ body {
 body {
   background-color: var(--gl-bg);
   color: var(--gl-text);
-  font-family: "Inter Variable", "Noto Sans Armenian Variable", "Noto Sans Arabic Variable", "Noto Sans Bengali Variable", "Noto Sans Hebrew Variable", "Noto Sans HK Variable", "Noto Sans JP Variable", "Noto Sans Georgian Variable", "Noto Sans Khmer Variable", "Noto Sans KR Variable", "Noto Sans Myanmar Variable", "Noto Sans Sc Variable", "Noto Sans Tamil Variable", "Noto Sans Thaana Variable", "Noto Sans Thai Variable", "Noto Serif Tibetan", sans-serif;
+  font-family: "Noto Sans Variable", "Noto Sans Armenian Variable", "Noto Sans Arabic Variable", "Noto Sans Bengali Variable", "Noto Sans Hebrew Variable", "Noto Sans HK Variable", "Noto Sans JP Variable", "Noto Sans Georgian Variable", "Noto Sans Khmer Variable", "Noto Sans KR Variable", "Noto Sans Myanmar Variable", "Noto Sans Sc Variable", "Noto Sans Tamil Variable", "Noto Sans Thaana Variable", "Noto Sans Thai Variable", "Noto Serif Tibetan", sans-serif;
   font-size: 16px;
   min-height: 20rem;
 }

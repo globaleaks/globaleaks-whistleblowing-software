@@ -78,6 +78,6 @@ This CSS example shows how to customize the font of the application.
    }
 
    body {
-     font-family: 'Antani', Inter, sans-serif;
+     font-family: 'Antani', 'Noto Sans Variable', sans-serif;
      font-size: 16px;
    }

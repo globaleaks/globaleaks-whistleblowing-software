@@ -31,8 +31,7 @@ try:
     import fpdf
 
     class REPORTPDF(fpdf.FPDF):
-        report_default_font = "Inter-Regular.ttf"
-        report_fallback_fonts = ["GoNotoKurrent-Regular.ttf"]
+        report_default_font = "GoNotoKurrent-Regular.ttf"
         report_direction = 'ltr'
         report_line_height = 3
         report_margin = 10
@@ -41,11 +40,9 @@ try:
             super(REPORTPDF, self).__init__(*args, **kwargs)
 
             fontspath = os.path.join(Settings.client_path, "fonts")
-            self.add_font(family="Inter-Regular.ttf", style='', fname=os.path.join(fontspath, "Inter-Regular.ttf"))
             self.add_font(family="GoNotoKurrent-Regular.ttf", style='', fname=os.path.join(fontspath, "GoNotoKurrent-Regular.ttf"))
 
             self.set_font(self.report_default_font, "", 11)
-            self.set_fallback_fonts(self.report_fallback_fonts)
 
             self.set_auto_page_break(auto=True, margin=15)
 

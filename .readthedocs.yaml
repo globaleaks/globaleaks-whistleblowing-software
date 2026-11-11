@@ -7,7 +7,7 @@ build:
     python: latest
   commands:
     - pip install -r documentation/requirements.txt
-    - cd documentation && ./scripts/install_inter.sh
+    - cd documentation && ./scripts/install_fonts.sh
     - cd documentation && ./scripts/install_fontawesome.sh
     - cd documentation && make html
     - cd documentation && make latexpdf

@@ -13,15 +13,7 @@ module.exports = function(grunt) {
       url: "https://github.com/satbyy/go-noto-universal/releases/download/v7.0/GoNotoKurrent-Regular.ttf",
       type: "file",
       output: "GoNotoKurrent-Regular.ttf",
-    },
-
-    // Inter zip → extract one file
-    {
-      url: "https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip",
-      type: "zip",
-      pick: "extras/ttf/Inter-Regular.ttf",
-      output: "Inter-Regular.ttf",
-    },
+    }
   ];
 
   function downloadToFile(url, outPath, cb) {
