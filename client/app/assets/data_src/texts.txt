@@ -484,7 +484,6 @@ Type your new password again
 URL redirects
 Unhide
 Unread
-Unselect
 Updated
 Upload
 Upload a file:

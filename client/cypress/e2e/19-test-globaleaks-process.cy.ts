@@ -175,12 +175,12 @@ describe("globaleaks process", function () {
 
     cy.get("#edit-question").first().click();
     cy.takeScreenshot("recipient/modal_mask_1", ".modal-dialog");
-    cy.get("#select_content").should('be.disabled');
+    cy.get("#mask_content").should('be.disabled');
     cy.get('textarea[name="controlElement"]').should('be.visible').then(textarea => {
       const elem = textarea[0] as HTMLTextAreaElement;
       elem.setSelectionRange(0, elem.value.length);
     }).trigger('select');
-    cy.get("#select_content").should('be.enabled').click();
+    cy.get("#mask_content").should('be.enabled').click();
     cy.takeScreenshot("recipient/modal_mask_2", ".modal-dialog");
     cy.get("#save_masking").click();
 
@@ -191,12 +191,12 @@ describe("globaleaks process", function () {
     cy.get('#actionsDropdownButton').click();
     cy.get('[id="tip-action-mask"]').click();
     cy.get("#edit-question").first().click();
-    cy.get("#unselect_content").should('be.disabled');
+    cy.get("#unmask_content").should('be.disabled');
     cy.get('textarea[name="controlElement"]').should('be.visible').then(textarea => {
       const elem = textarea[0] as HTMLTextAreaElement;
       elem.setSelectionRange(0, elem.value.length);
     }).trigger('select');
-    cy.get("#unselect_content").should('be.enabled').click();
+    cy.get("#unmask_content").should('be.enabled').click();
     cy.get("#save_masking").click();
 
     cy.get('#actionsDropdownButton').click();

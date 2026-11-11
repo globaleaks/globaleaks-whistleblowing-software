@@ -49,8 +49,8 @@
                           @if (maskService.isMasked(file.ifile_id,tipService.tip)) {
                             <span>
                               @if (preferenceResolver.dataModel.profile.permissions.can_mask_information) {
-                                <button class="btn btn-sm btn-outline-secondary tip-action-mask-file" [class.active]="redactMode()" [ngbTooltip]="'Mask' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Mask' | translate">
-                                    <i class="fa-solid fa-eraser"></i>
+                                <button class="btn btn-sm btn-outline-secondary tip-action-mask-file" [class.active]="redactMode()" [ngbTooltip]="'Show' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('full-unmask', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Show' | translate">
+                                    <i class="fa-solid fa-eye"></i>
                                   </button>
                               }
                               @if (preferenceResolver.dataModel.profile.permissions.can_redact_information) {

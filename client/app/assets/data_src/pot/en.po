@@ -1539,9 +1539,6 @@ msgstr "Unhide"
 msgid "Unread"
 msgstr "Unread"
 
-msgid "Unselect"
-msgstr "Unselect"
-
 msgid "Updated"
 msgstr "Updated"
 

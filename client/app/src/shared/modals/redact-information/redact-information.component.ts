@@ -23,6 +23,7 @@ export class RedactInformationComponent implements OnInit{
   protected preferenceResolver = inject(PreferenceResolver);
   private readonly modalService = inject(NgbModal);
   private readonly receiverTipService = inject(ReceiverTipService);
+  private readonly httpService = inject(HttpService);
 
   readonly redactTextArea = viewChild.required<ElementRef>('redact');
   arg: any;
@@ -36,9 +37,10 @@ export class RedactInformationComponent implements OnInit{
   deleting: any[] = [];
   unmaskedContent = "";
   content = "";
-  originalContent = "";
-  can_select = false;
-  can_unselect = false;
+  can_hide = false;
+  can_unhide = false;
+  can_delete = false;
+  changed = false;
 
   cancel() {
     this.modalService.dismissAll();
@@ -46,11 +48,6 @@ export class RedactInformationComponent implements OnInit{
 
   ngOnInit(): void {
     this.redaction = this.arg.redaction;
-    this.temporary_redaction = [];
-    this.permanent_redaction = [];
-    this.ranges_selected = [];
-    this.can_select = false;
-    this.can_unselect = false;
 
     if (this.redaction) {
       this.temporary_redaction = this.redaction.temporary_redaction;
@@ -73,62 +70,55 @@ export class RedactInformationComponent implements OnInit{
     this.forced_visible = !this.forced_visible;
   }
 
-  selectContent() {
-    this.updateSelection();
-    if (!this.can_select) {
+  hideContent() {
+    if (!this.can_hide) {
       return;
     }
 
-    const response:any = this.maskService.getSelectedRanges(true, this.ranges_selected,this.redactTextArea());
-
-    if (!this.vars.redaction_switch) {
-      this.ranges_selected = this.maskService.intersectRanges(this.temporary_redaction, response.new_ranges);
-      this.content = this.maskService.maskContent(this.content, this.ranges_selected, true, String.fromCharCode(0x2588),"");
-    } else {
-      if (!this.preferenceResolver.dataModel.profile.permissions.can_mask_information) {
-        this.ranges_selected = this.maskService.intersectRanges(this.temporary_redaction, response.new_ranges);
-      } else {
-        this.ranges_selected = response.new_ranges;
-      }
-
-      this.content = this.maskService.maskContent(this.content, this.ranges_selected, true, String.fromCharCode(0x2591),"");
-      this.content = this.maskService.maskContent(this.content, this.permanent_redaction, true, String.fromCharCode(0x2588),"");
-    }
-    this.updateSelection();
+    const selection = this.selection();
+    this.hidden = this.maskService.mergeRanges([selection], this.hidden);
+    this.render();
   }
 
-  unSelectContent() {
-    this.updateSelection();
-    if (!this.can_unselect) {
+  unhideContent() {
+    if (!this.can_unhide) {
       return;
     }
 
-    const response:any = this.maskService.getSelectedRanges(false, this.ranges_selected,this.redactTextArea());
-    this.ranges_selected = response.new_ranges;
-    this.content = this.maskService.onUnHighlight(this.content, this.vars.redaction_switch ? this.unmaskedContent : this.originalContent, [response.selected_ranges]);
-    this.updateSelection();
+    const selection = this.selection();
+    this.hidden = this.maskService.splitRanges(selection, this.hidden);
+    this.deleting = this.maskService.splitRanges(selection, this.deleting);
+    this.render();
+  }
+
+  deleteContent() {
+    if (!this.can_delete) {
+      return;
+    }
+
+    const merged = this.maskService.mergeRanges([this.selection()], this.deleting);
+
+    if (this.canDeleteDirectly()) {
+      // Any content can be deleted, except what is deleted already
+      this.deleting = this.permanent_redaction.reduce((ranges: any[], range: any) => this.maskService.splitRanges(range, ranges), merged);
+    } else {
+      // Only the saved hidden content can be deleted, within one hidden range at a time
+      this.deleting = this.maskService.intersectRanges(this.copyRanges(this.temporary_redaction), merged);
+    }
+
+    this.render();
   }
 
   updateSelection() {
     const elem = this.redactTextArea().nativeElement;
     const start = elem.selectionStart;
     const end = elem.selectionEnd;
-    this.can_select = start < end;
-    this.can_unselect = start < end && this.ranges_selected.some((range: any) => range.start < end && range.end >= start);
+    const selected = start < end;
 
-    if (!this.vars.redaction_switch) {
-      let position = start;
-      const ranges = this.temporary_redaction.slice().sort((a, b) => a.start - b.start);
-
-      for (const range of ranges) {
-        if (range.start > position) {
-          break;
-        }
-        position = Math.max(position, range.end + 1);
-      }
-
-      this.can_select = this.can_select && position >= end;
-    }
+    this.can_hide = selected && !this.covers([...this.hidden, ...this.permanent_redaction], start, end);
+    this.can_unhide = selected && this.hidden.some((range: any) => range.start < end && range.end >= start);
+    this.can_delete = selected && !this.covers([...this.deleting, ...this.permanent_redaction], start, end) &&
+      (this.canDeleteDirectly() || this.covers(this.temporary_redaction, start, end));
   }
 
   saveMasking() {
@@ -142,7 +132,7 @@ export class RedactInformationComponent implements OnInit{
       ...(this.redaction ? {id: this.redaction.id} : {}),
     };
 
-    const prefs = this.preferenceResolver.dataModel;
+    const prefs = this.preferenceResolver.dataModel.profile.permissions;
     // The backend deletes only hidden content: what is to be deleted gets hidden first
     const hidden = this.maskService.mergeRanges(this.copyRanges(this.deleting), this.copyRanges(this.hidden));
     const mask: RedactionData | null = prefs.can_mask_information && this.differ(hidden, this.temporary_redaction) ?
@@ -198,7 +188,7 @@ export class RedactInformationComponent implements OnInit{
 
   // Who can hide can delete content not yet hidden, hiding it first on save
   private canDeleteDirectly() {
-    const prefs = this.preferenceResolver.dataModel;
+    const prefs = this.preferenceResolver.dataModel.profile.permissions;
     return prefs.can_mask_information && prefs.can_redact_information;
   }
 
