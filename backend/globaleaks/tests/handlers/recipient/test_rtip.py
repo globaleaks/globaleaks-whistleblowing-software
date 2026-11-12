@@ -982,7 +982,7 @@ class TestReportTemporaryRedaction(helpers.TestHandlerWithPopulatedDB):
             itip_id = rtip_desc['id']
             receiver_id = rtip_desc['receiver_id']
 
-            comment = yield rtip.create_comment(1, receiver_id, itip_id, 'SECRET comment')
+            comment = yield rtip.create_comment(1, receiver_id, itip_id, 'IRRELEVANT_PERSONAL_DATA comment')
 
             tip = yield self.read_rtip(itip_id, receiver_id)
             field_id, entry, original_answer = self.find_redactable_answer(tip)
@@ -993,20 +993,20 @@ class TestReportTemporaryRedaction(helpers.TestHandlerWithPopulatedDB):
 
             # A privileged recipient reads the original content.
             tip = yield self.read_rtip(itip_id, receiver_id)
-            self.assertEqual(self.comment_content(tip, comment['id']), 'SECRET comment')
+            self.assertEqual(self.comment_content(tip, comment['id']), 'IRRELEVANT_PERSONAL_DATA comment')
             self.assertEqual(self.answer_value(tip, field_id, entry), original_answer)
 
             # A recipient without the permission reads the masked content.
             yield self.set_redaction_privileges(receiver_id, False)
             tip = yield self.read_rtip(itip_id, receiver_id)
-            self.assertNotIn('SECRET', self.comment_content(tip, comment['id']))
+            self.assertNotIn('IRRELEVANT_PERSONAL_DATA', self.comment_content(tip, comment['id']))
             self.assertIn(mask, self.comment_content(tip, comment['id']))
             self.assertIn(mask, self.answer_value(tip, field_id, entry))
 
             # The whistleblower (no User record, hence non-privileged) reads the
             # masked content too.
             tip = yield self.read_wbtip(itip_id)
-            self.assertNotIn('SECRET', self.comment_content(tip, comment['id']))
+            self.assertNotIn('IRRELEVANT_PERSONAL_DATA', self.comment_content(tip, comment['id']))
             self.assertIn(mask, self.comment_content(tip, comment['id']))
             self.assertIn(mask, self.answer_value(tip, field_id, entry))
 
@@ -1033,7 +1033,7 @@ class TestReportTemporaryRedaction(helpers.TestHandlerWithPopulatedDB):
                 'wbfiles': [],
                 'rfiles': [],
                 'data': {'whistleblower_identity': {
-                    identity_field_id: [{'value': 'SECRET identity'}]
+                    identity_field_id: [{'value': 'IRRELEVANT_PERSONAL_DATA identity'}]
                 }}
             }
 
@@ -1047,16 +1047,54 @@ class TestReportTemporaryRedaction(helpers.TestHandlerWithPopulatedDB):
             # A privileged recipient reads the original identity.
             report = yield rtip.redact_report(receiver_id, build_report(itip_id))
             self.assertEqual(report['data']['whistleblower_identity'][identity_field_id][0]['value'],
-                             'SECRET identity')
+                             'IRRELEVANT_PERSONAL_DATA identity')
 
             # A recipient without the permission reads the masked identity.
             yield self.set_redaction_privileges(receiver_id, False)
             report = yield rtip.redact_report(receiver_id, build_report(itip_id))
             value = report['data']['whistleblower_identity'][identity_field_id][0]['value']
-            self.assertNotIn('SECRET', value)
+            self.assertNotIn('IRRELEVANT_PERSONAL_DATA', value)
             self.assertIn(mask, value)
 
             yield self.set_redaction_privileges(receiver_id, True)
+
+    @inlineCallbacks
+    def test_an_export_masks_for_every_recipient(self):
+        # A recipient with the permission to mask reads the original content in
+        # the report, but an export carries it masked as for everybody else
+        mask = chr(0x2591)
+        identity_field_id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+        comment_id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+
+        def build_report(itip_id):
+            return {
+                'id': itip_id,
+                'questionnaires': [],
+                'comments': [{'id': comment_id, 'content': 'IRRELEVANT_PERSONAL_DATA comment'}],
+                'wbfiles': [],
+                'rfiles': [],
+                'data': {'whistleblower_identity': {
+                    identity_field_id: [{'value': 'IRRELEVANT_PERSONAL_DATA identity'}]
+                }}
+            }
+
+        rtip_descs = yield self.get_rtips()
+        for rtip_desc in rtip_descs:
+            itip_id = rtip_desc['id']
+            receiver_id = rtip_desc['receiver_id']
+
+            yield self.add_redaction(itip_id, identity_field_id, [{'start': 0, 'end': 100}])
+            yield self.add_redaction(itip_id, comment_id, [{'start': 0, 'end': 100}])
+
+            report = yield rtip.redact_report(receiver_id, build_report(itip_id))
+            self.assertEqual(report['comments'][0]['content'], 'IRRELEVANT_PERSONAL_DATA comment')
+
+            report = yield rtip.redact_report(receiver_id, build_report(itip_id), enforce=True)
+            identity = report['data']['whistleblower_identity'][identity_field_id][0]['value']
+            self.assertNotIn('IRRELEVANT_PERSONAL_DATA', identity)
+            self.assertIn(mask, identity)
+            self.assertNotIn('IRRELEVANT_PERSONAL_DATA', report['comments'][0]['content'])
+            self.assertIn(mask, report['comments'][0]['content'])
 
 
 class TestWhistleblowerFileDownload(helpers.TestHandlerWithPopulatedDB):

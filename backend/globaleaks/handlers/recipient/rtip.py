@@ -830,7 +830,7 @@ def db_user_can_bypass_masking(session, user_id):
 
 
 @transact
-def redact_report(session, user_id, report):
+def redact_report(session, user_id, report, enforce=False):
     redactions = session.query(models.Redaction).filter(models.Redaction.internaltip_id == report['id']).all()
 
     if not len(redactions):
@@ -840,7 +840,8 @@ def redact_report(session, user_id, report):
     # without the masking/redaction permission (recipients without it and the
     # whistleblower); the content of a masked file is instead never downloadable
     # by anyone, so masked files are flagged and their name is hidden for everyone.
-    privileged = db_user_can_bypass_masking(session, user_id)
+    # An export enforces the redactions regardless of the viewer's permission.
+    privileged = not enforce and db_user_can_bypass_masking(session, user_id)
 
     if not privileged:
         redactions_by_reference_id = {}
