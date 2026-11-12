@@ -19,20 +19,23 @@ const emulate = (features: {name: string; value: string}[]) =>
 
 const LIGHT = {
   "--gl-bg": "#FFF",
-  "--gl-header": "#1D1F24",
-  "--gl-button": "#02518F",
-  "--gl-text": "#1D1F24",
+  "--gl-header": "#FFF",
+  "--gl-band": "#1F1F1F",
+  "--gl-link": "#025A9F",
+  "--gl-button": "#025A9F",
+  "--gl-text": "#1F1F1F",
   "--gl-danger": "#E30310"
 };
 
 const DARK = {
-  "--gl-bg": "#1D1F24",
-  "--gl-surface": "#2C313A",
-  "--gl-header": "#2C313A",
+  "--gl-bg": "#1F1F1F",
+  "--gl-surface": "#1F1F1F",
+  "--gl-surface-subtle": "#002445",
+  "--gl-header": "#1F1F1F",
   "--gl-text": "#F2F4F7",
-  "--gl-link": "#66B1F7",
-  "--gl-button": "#0978CF",
-  "--gl-danger": "#FF8B8C"
+  "--gl-link": "#7BBBFE",
+  "--gl-button": "#7BBBFE",
+  "--gl-danger": "#FF8F90"
 };
 
 describe("theme", () => {

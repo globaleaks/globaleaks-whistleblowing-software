@@ -1,9 +1,18 @@
 /*
  * The theme of the interface
  *
- * The palette is the official GlobaLeaks one: two scales of ten steps, primary and neutral, and a
- * few colors every palette shares. The interface never names a color of the palette: it names a
- * role, and the role takes a color of the palette.
+ * The palette is the official GlobaLeaks one (Visual Identity Guidelines v3.0): two scales of five
+ * steps, primary and neutral, and a few colors every palette shares. The interface never names a
+ * color of the palette: it names a role, and the role takes a color of the palette.
+ *
+ * The steps of a scale are read from one end in the light theme and from the other in the dark one:
+ *
+ *        light theme                                  dark theme
+ *   1    backgrounds and subtle surfaces              body text and headings
+ *   2    dividers, decorative borders, focus ring     links and secondary text
+ *   3    brand, buttons, links, input borders         buttons, input borders, icons
+ *   4    hover states, secondary text                 dividers and decorative borders
+ *   5    headings and strong text                     backgrounds and surfaces
  *
  * Every rule of the file has no specificity (:where), so that the order of the rules is what
  * decides among them and a custom CSS of the site, loaded last, overrides any of them with a
@@ -16,33 +25,23 @@
 
 :where(:root) {
   /* The primary scale */
-  --gl-primary-10: #ECF5FE;
-  --gl-primary-20: #BEDFFF;
-  --gl-primary-30: #92CAFE;
-  --gl-primary-40: #66B1F7;
-  --gl-primary-50: #3D97E8;
-  --gl-primary-60: #0978CF;
-  --gl-primary-70: #0265B1;
-  --gl-primary-80: #02518F;
-  --gl-primary-90: #0D4370;
-  --gl-primary-100: #00325C;
+  --gl-primary-1: #ECF5FE;
+  --gl-primary-2: #66B1F7;
+  --gl-primary-3: #0978CF;
+  --gl-primary-4: #025A9F;
+  --gl-primary-5: #002445;
 
-  /* The neutral scale */
-  --gl-neutral-10: #F2F4F7;
-  --gl-neutral-20: #D7DBE1;
-  --gl-neutral-30: #BFC4CC;
-  --gl-neutral-40: #A5ACB6;
-  --gl-neutral-50: #8B939F;
-  --gl-neutral-60: #6E7783;
-  --gl-neutral-70: #5C6470;
-  --gl-neutral-80: #48505B;
-  --gl-neutral-90: #3B414B;
-  --gl-neutral-100: #2C313A;
+  /* The neutral scale, a gray with a tint of the primary color; its darkest step is the black */
+  --gl-neutral-1: #F2F4F7;
+  --gl-neutral-2: #A5ACB6;
+  --gl-neutral-3: #6E7783;
+  --gl-neutral-4: #525964;
+  --gl-neutral-5: #1F1F1F;
 
   /* The colors every palette shares */
   --gl-white: #FFF;
-  --gl-black: #1D1F24;
-  --gl-yellow: #FFE433;
+  --gl-black: #1F1F1F;
+  --gl-yellow: #FE3;
   --gl-red: #E30310;
   --gl-red-light: #FF8B8C;
 }
@@ -53,71 +52,76 @@
 
   --gl-bg: var(--gl-white);
   --gl-surface: var(--gl-white);
-  --gl-surface-subtle: var(--gl-primary-10);
-  --gl-header: var(--gl-black);
-  --gl-footer: var(--gl-neutral-10);
+  --gl-surface-subtle: var(--gl-primary-1);
+  --gl-header: var(--gl-white);
+  --gl-footer: var(--gl-neutral-1);
+  --gl-band: var(--gl-black);
   --gl-text: var(--gl-black);
-  --gl-text-secondary: var(--gl-neutral-70);
-  --gl-link: var(--gl-primary-80);
-  --gl-button: var(--gl-primary-80);
+  --gl-text-secondary: var(--gl-neutral-4);
+  --gl-link: var(--gl-primary-3);
+  --gl-button: var(--gl-primary-3);
   --gl-on-button: var(--gl-white);
-  --gl-border: var(--gl-neutral-30);
-  --gl-border-input: var(--gl-neutral-50);
+  --gl-border: var(--gl-neutral-2);
+  --gl-border-input: var(--gl-neutral-3);
+  --gl-focus: var(--gl-primary-2);
   --gl-warning: var(--gl-yellow);
   --gl-danger: var(--gl-red);
 
   /* The steps a button takes when pointed and pressed */
-  --gl-button-hover: var(--gl-primary-90);
-  --gl-button-active: var(--gl-primary-100);
+  --gl-button-hover: var(--gl-primary-4);
+  --gl-button-active: var(--gl-primary-5);
 
-  /* The text on a subtle surface (primary-10) takes one step darker than usual */
-  --gl-subtle-text-secondary: var(--gl-neutral-80);
-  --gl-subtle-link: var(--gl-primary-90);
+  /* The text on a subtle surface (primary-1, neutral-1) takes one step darker than usual */
+  --gl-subtle-text-secondary: var(--gl-neutral-5);
+  --gl-subtle-link: var(--gl-primary-4);
 }
 
 @media (prefers-contrast: more) {
   :where(:root) {
-    --gl-text-secondary: var(--gl-neutral-80);
-    --gl-border: var(--gl-neutral-50);
-    --gl-subtle-text-secondary: var(--gl-neutral-90);
+    --gl-text-secondary: var(--gl-neutral-5);
+    --gl-link: var(--gl-primary-4);
+    --gl-border: var(--gl-neutral-3);
   }
 }
 
-/* The dark theme, as the system prefers it */
+/* The dark theme, as the system prefers it. The surfaces are the black of the background, outlined
+   with the dividers */
 @media screen and (prefers-color-scheme: dark) {
   :where(:root:not([data-theme="light"])) {
     color-scheme: dark;
 
     --gl-bg: var(--gl-black);
-    --gl-surface: var(--gl-neutral-100);
-    --gl-surface-subtle: var(--gl-primary-90);
-    --gl-header: var(--gl-neutral-100);
-    --gl-footer: var(--gl-neutral-100);
-    --gl-text: var(--gl-neutral-10);
-    --gl-text-secondary: var(--gl-neutral-40);
-    --gl-link: var(--gl-primary-40);
-    --gl-button: var(--gl-primary-60);
+    --gl-surface: var(--gl-neutral-5);
+    --gl-surface-subtle: var(--gl-primary-5);
+    --gl-header: var(--gl-black);
+    --gl-footer: var(--gl-primary-5);
+    --gl-band: var(--gl-primary-5);
+    --gl-text: var(--gl-neutral-1);
+    --gl-text-secondary: var(--gl-neutral-2);
+    --gl-link: var(--gl-primary-2);
+    --gl-button: var(--gl-primary-3);
     --gl-on-button: var(--gl-white);
-    --gl-border: var(--gl-neutral-80);
-    --gl-border-input: var(--gl-neutral-50);
+    --gl-border: var(--gl-neutral-4);
+    --gl-border-input: var(--gl-neutral-3);
+    --gl-focus: var(--gl-primary-2);
     --gl-warning: var(--gl-yellow);
     --gl-danger: var(--gl-red-light);
 
-    /* The steps a button takes when pointed and pressed */
-    --gl-button-hover: var(--gl-primary-70);
-    --gl-button-active: var(--gl-primary-80);
+    /* The step a button takes when pointed and pressed: the darkest would vanish on the black */
+    --gl-button-hover: var(--gl-primary-4);
+    --gl-button-active: var(--gl-primary-4);
 
-    /* The text on a surface (neutral-100) takes one step lighter than usual */
-    --gl-subtle-text-secondary: var(--gl-neutral-30);
-    --gl-subtle-link: var(--gl-primary-30);
+    /* The secondary text on a subtle surface (primary-5) takes one step lighter than usual; the
+       link keeps its step (6.9:1), as one step lighter it would be the color of the text */
+    --gl-subtle-text-secondary: var(--gl-neutral-1);
+    --gl-subtle-link: var(--gl-primary-2);
   }
 }
 
 @media screen and (prefers-color-scheme: dark) and (prefers-contrast: more) {
   :where(:root:not([data-theme="light"])) {
-    --gl-text-secondary: var(--gl-neutral-30);
-    --gl-border: var(--gl-neutral-60);
-    --gl-subtle-text-secondary: var(--gl-neutral-20);
+    --gl-text-secondary: var(--gl-neutral-1);
+    --gl-border: var(--gl-neutral-3);
   }
 }
 
@@ -127,64 +131,52 @@
     color-scheme: dark;
 
     --gl-bg: var(--gl-black);
-    --gl-surface: var(--gl-neutral-100);
-    --gl-surface-subtle: var(--gl-primary-90);
-    --gl-header: var(--gl-neutral-100);
-    --gl-footer: var(--gl-neutral-100);
-    --gl-text: var(--gl-neutral-10);
-    --gl-text-secondary: var(--gl-neutral-40);
-    --gl-link: var(--gl-primary-40);
-    --gl-button: var(--gl-primary-60);
+    --gl-surface: var(--gl-neutral-5);
+    --gl-surface-subtle: var(--gl-primary-5);
+    --gl-header: var(--gl-black);
+    --gl-footer: var(--gl-primary-5);
+    --gl-band: var(--gl-primary-5);
+    --gl-text: var(--gl-neutral-1);
+    --gl-text-secondary: var(--gl-neutral-2);
+    --gl-link: var(--gl-primary-2);
+    --gl-button: var(--gl-primary-3);
     --gl-on-button: var(--gl-white);
-    --gl-border: var(--gl-neutral-80);
-    --gl-border-input: var(--gl-neutral-50);
+    --gl-border: var(--gl-neutral-4);
+    --gl-border-input: var(--gl-neutral-3);
+    --gl-focus: var(--gl-primary-2);
     --gl-warning: var(--gl-yellow);
     --gl-danger: var(--gl-red-light);
 
-    /* The steps a button takes when pointed and pressed */
-    --gl-button-hover: var(--gl-primary-70);
-    --gl-button-active: var(--gl-primary-80);
+    /* The step a button takes when pointed and pressed: the darkest would vanish on the black */
+    --gl-button-hover: var(--gl-primary-4);
+    --gl-button-active: var(--gl-primary-4);
 
-    /* The text on a surface (neutral-100) takes one step lighter than usual */
-    --gl-subtle-text-secondary: var(--gl-neutral-30);
-    --gl-subtle-link: var(--gl-primary-30);
+    /* The secondary text on a subtle surface (primary-5) takes one step lighter than usual; the
+       link keeps its step (6.9:1), as one step lighter it would be the color of the text */
+    --gl-subtle-text-secondary: var(--gl-neutral-1);
+    --gl-subtle-link: var(--gl-primary-2);
   }
 }
 
 @media screen and (prefers-contrast: more) {
   :where(:root[data-theme="dark"]) {
-    --gl-text-secondary: var(--gl-neutral-30);
-    --gl-border: var(--gl-neutral-60);
-    --gl-subtle-text-secondary: var(--gl-neutral-20);
+    --gl-text-secondary: var(--gl-neutral-1);
+    --gl-border: var(--gl-neutral-3);
   }
 }
 
-/* The links on the header, black in the light theme and the darkest gray in the dark one, take one
-   of the lightest steps of the primary scale */
+/* The band of the privacy badge, black in the light theme and the darkest blue in the dark one,
+   takes the link of the dark theme */
 :where(#PrivacyBadge) {
-  --gl-link: var(--gl-primary-30);
+  --gl-link: var(--gl-primary-2);
 }
 
-/* The text on the surfaces that are not the background: one step darker on the subtle surface of
-   the light theme, one step lighter on the surface of the dark theme */
-:where(#FooterBox, .tos-text, .alert-secondary, .jumbotron, .drag-drop:hover, .audio-box,
-       .select-card.selected, .input-group-text) {
+/* The text on the subtle surfaces: one step darker in the light theme, one step lighter in the dark
+   one */
+:where(#FooterBox, .tos-text, .alert-secondary, .jumbotron, .drag-drop:hover,
+       .audio-box, .select-card.selected, .input-group-text) {
   --gl-text-secondary: var(--gl-subtle-text-secondary);
   --gl-link: var(--gl-subtle-link);
-}
-
-@media screen and (prefers-color-scheme: dark) {
-  :where(:root:not([data-theme="light"])) :where(.card, .modal-content, .dropdown-menu, .popover, .select-card, #LoginStatusBox) {
-    --gl-text-secondary: var(--gl-subtle-text-secondary);
-    --gl-link: var(--gl-subtle-link);
-  }
-}
-
-@media screen {
-  :where(:root[data-theme="dark"]) :where(.card, .modal-content, .dropdown-menu, .popover, .select-card, #LoginStatusBox) {
-    --gl-text-secondary: var(--gl-subtle-text-secondary);
-    --gl-link: var(--gl-subtle-link);
-  }
 }
 
 /*
@@ -208,7 +200,7 @@
   --bs-link-hover-color: var(--gl-link);
   --bs-border-color: var(--gl-border);
   --bs-border-color-translucent: var(--gl-border);
-  --bs-focus-ring-color: color-mix(in srgb, var(--gl-link) 35%, transparent);
+  --bs-focus-ring-color: var(--gl-focus);
   --bs-form-invalid-color: var(--gl-danger);
   --bs-form-invalid-border-color: var(--gl-danger);
   --bs-form-valid-color: var(--gl-link);
@@ -385,43 +377,43 @@
   --bs-btn-active-border-color: var(--gl-text);
 }
 
-/* The danger is said by the red of the text and of the border on the background of the page, red on
-   white and red on black: never a white text on a red field. A tinted field would take the red
-   below the contrast of a text: pointed and pressed, the button thickens its border instead */
-.btn-danger,
+/* The danger button is the same red in both themes, under a white label (4.9:1); pointed and
+   pressed, it darkens. The outline one says the danger with the red of the theme on the background */
+.btn-danger {
+  --bs-btn-color: var(--gl-white);
+  --bs-btn-bg: var(--gl-red);
+  --bs-btn-border-color: var(--gl-red);
+  --bs-btn-hover-color: var(--gl-white);
+  --bs-btn-hover-bg: color-mix(in srgb, var(--gl-red) 85%, var(--gl-black));
+  --bs-btn-hover-border-color: color-mix(in srgb, var(--gl-red) 85%, var(--gl-black));
+  --bs-btn-active-color: var(--gl-white);
+  --bs-btn-active-bg: color-mix(in srgb, var(--gl-red) 70%, var(--gl-black));
+  --bs-btn-active-border-color: color-mix(in srgb, var(--gl-red) 70%, var(--gl-black));
+  --bs-btn-disabled-color: var(--gl-white);
+  --bs-btn-disabled-bg: var(--gl-red);
+  --bs-btn-disabled-border-color: var(--gl-red);
+}
+
 .btn-outline-danger {
   --bs-btn-color: var(--gl-danger);
+  --bs-btn-bg: transparent;
   --bs-btn-border-color: var(--gl-danger);
   --bs-btn-hover-color: var(--gl-danger);
+  --bs-btn-hover-bg: transparent;
   --bs-btn-hover-border-color: var(--gl-danger);
   --bs-btn-active-color: var(--gl-danger);
+  --bs-btn-active-bg: transparent;
   --bs-btn-active-border-color: var(--gl-danger);
   --bs-btn-disabled-color: var(--gl-danger);
+  --bs-btn-disabled-bg: transparent;
   --bs-btn-disabled-border-color: var(--gl-danger);
 }
 
-.btn-danger {
-  --bs-btn-bg: var(--gl-bg);
-  --bs-btn-hover-bg: var(--gl-bg);
-  --bs-btn-active-bg: var(--gl-bg);
-  --bs-btn-disabled-bg: var(--gl-bg);
-}
-
-.btn-outline-danger {
-  --bs-btn-bg: transparent;
-  --bs-btn-hover-bg: transparent;
-  --bs-btn-active-bg: transparent;
-  --bs-btn-disabled-bg: transparent;
-}
-
-.btn-danger:hover,
 .btn-outline-danger:hover {
   box-shadow: inset 0 0 0 1px var(--gl-danger);
 }
 
-.btn-danger:active,
 .btn-outline-danger:active,
-.btn-check:checked + .btn-danger,
 .btn-check:checked + .btn-outline-danger {
   box-shadow: inset 0 0 0 2px var(--gl-danger);
 }
@@ -500,8 +492,8 @@
 }
 
 .bg-danger {
-  color: var(--gl-bg);
-  background-color: var(--gl-danger) !important;
+  color: var(--gl-white);
+  background-color: var(--gl-red) !important;
 }
 
 .bg-warning,
@@ -519,8 +511,8 @@
 }
 
 .bg-dark {
-  color: var(--gl-on-button);
-  background-color: var(--gl-header) !important;
+  color: var(--gl-white);
+  background-color: var(--gl-band) !important;
 }
 
 /*

@@ -1,22 +1,29 @@
-// GlobaLeaks Visual Identity Colors
+// GlobaLeaks Visual Identity Guidelines v3.0
 // https://github.com/globaleaks/globaleaks-whistleblowing-software/blob/stable/brand/globaleaks-brand-guidelines.pdf
+//
+// Bootstrap is compiled with the official palette, so that what it draws by itself never takes a
+// color outside of it. At run time the interface overrides its colors with the roles of theme.css,
+// computed from the primary color of the site.
 
-$blue:       #205782;
-$red:        #DE1B1B;
-$yellow:     #FFD644;
+// The primary scale: Blue_4 is the color of links and buttons, Blue_5 (Brand_2) the darkest
+$blue:       #025A9F;
+$blue-dark:  #002445;
+$red:        #E30310;
+$yellow:     #FFEE33;
 
 $white:      #FFFFFF;
 
-$gray-100:   #F5F7FA;
-$gray-200:   #EBEFF5;
-$gray-300:   #DDE3ED;
-$gray-400:   #C8D1E0;
-$gray-500:   #AFBACC;
-$gray-600:   #8E99AB;
-$gray-700:   #707A8A;
-$gray-800:   #58606E;
-$gray-900:   #434A54;
-$black:      #1D1F24;
+// The neutral scale has five steps: Bootstrap's nine grays take them two by two
+$gray-100:   #F2F4F7; // Gray_1
+$gray-200:   #F2F4F7; // Gray_1
+$gray-300:   #A5ACB6; // Gray_2
+$gray-400:   #A5ACB6; // Gray_2
+$gray-500:   #6E7783; // Gray_3
+$gray-600:   #6E7783; // Gray_3
+$gray-700:   #525964; // Gray_4
+$gray-800:   #525964; // Gray_4
+$gray-900:   #1F1F1F; // Gray_5 · Black
+$black:      #1F1F1F;
 
 // Import Bootstrap
 @use "bootstrap/scss/bootstrap" with (
@@ -38,7 +45,7 @@ $black:      #1D1F24;
   $black:      $black,
 
   $indigo:     $blue,
-  $purple:     $red,
+  $purple:     $blue-dark,
   $pink:       $red,
   $orange:     $yellow,
   $green:      $blue,
@@ -46,11 +53,25 @@ $black:      #1D1F24;
   $cyan:       $blue,
 
   $primary:    $blue,
-  $secondary:  $gray-800,
+  $secondary:  $gray-700,
   $success:    $blue,
   $info:       $blue,
   $warning:    $yellow,
   $danger:     $red,
   $light:      $gray-100,
-  $dark:       $gray-900
+  $dark:       $gray-900,
+
+  // The ring of the focus is the outline of main.css, 3px apart from the control: Bootstrap
+  // draws no glow of its own
+  $focus-ring-width: 0,
+  $focus-ring-color: $blue-dark,
+
+  // Buttons and fields are 44px tall, in every size (2.75rem with a 1px border)
+  $input-btn-padding-y:    0.5625rem,
+  $input-btn-padding-y-sm: 0.65625rem,
+  $input-btn-padding-y-lg: 0.5625rem,
+
+  // The pages of a pagination as tall as the buttons, in every size
+  $pagination-padding-y:    0.5625rem,
+  $pagination-padding-y-sm: 0.65625rem
 );
