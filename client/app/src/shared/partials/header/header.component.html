@@ -1,10 +1,9 @@
 <header id="HeaderBox" class="p-3">
   <div class="d-flex flex-wrap justify-content-between">
     <div id="HeaderBox1">
-      <!-- A link to the home page: named by the title of the site, or by the page it opens where the site has none -->
-      <a id="LogoBox" class="mb-3" href="/" (click)="$event.preventDefault(); appConfig.setHomepage()">
-        <img class="img-fluid" [alt]="appDataService.projectTitle" src="s/logo" />
-      </a>
+      <div id="LogoBox" class="mb-3" (click)="appConfig.setHomepage()" (keydown.enter)="appConfig.setHomepage()" tabindex="0" role="button">
+        <img class="img-fluid pointer" [alt]="appDataService.projectTitle" [src]="themeService.theme() === 'dark' ? 's/logo-dark' : 's/logo'" />
+      </div>
       <div id="TitleBox">
         @if (appDataService.projectTitle || appDataService.pageTitle) {
           <h1>

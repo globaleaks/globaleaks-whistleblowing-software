@@ -12,6 +12,7 @@ from globaleaks.utils.fs import directory_traversal_check
 appfiles = {
     'favicon': ('favicon.ico', ['image/x-icon'], 'images/favicon.ico'),
     'logo': ('logo.webp', ['image/gif', 'image/jpeg', 'image/png', 'image/webp'], 'images/logo.webp'),
+    'logo-dark': ('logo-dark.webp', ['image/gif', 'image/jpeg', 'image/png', 'image/webp'], 'images/logo-white.webp'),
     'css': ('custom.css', ['text/css'], 'data/empty.txt'),
     'script': ('script.js', ['text/javascript'], 'data/empty.txt')
 }
@@ -50,6 +51,13 @@ class FileHandler(BaseHandler):
         id = yield get_file_id_by_name(self.request.tid, name)
         if not id and self.request.tid != 1:
             id = yield get_file_id_by_name(1, name)
+
+        # The logo of the dark theme is the GlobaLeaks logo in negative, white on transparent: a
+        # site with a logo of its own shows that one in the dark theme too
+        if not id and name == 'logo-dark':
+            id = yield get_file_id_by_name(self.request.tid, 'logo')
+            if not id and self.request.tid != 1:
+                id = yield get_file_id_by_name(1, 'logo')
 
         if id:
             path = os.path.abspath(os.path.join(self.state.settings.files_path, id))

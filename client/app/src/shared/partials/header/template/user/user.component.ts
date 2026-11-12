@@ -13,6 +13,7 @@ import {ReceiptComponent} from "../../../receipt/receipt.component";
 import {TranslatePipe} from "@ngx-translate/core";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
 import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {ThemeService} from "@app/shared/theme/theme.service";
 
 
 @Component({
@@ -30,6 +31,7 @@ export class UserComponent {
   protected utilsService = inject(UtilsService);
   protected appDataService = inject(AppDataService);
   protected translationService = inject(TranslationService);
+  protected themeService = inject(ThemeService);
   private router = inject(Router);
 
   constructor() {

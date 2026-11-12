@@ -1207,3 +1207,14 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   border-bottom: 2px solid var(--gl-link);
   width: max-content;
 }
+
+/* The switch of the theme: a sun in the light theme, a moon in the dark one, in the color of the text */
+#ThemeToggleBox {
+  margin-left: 0.5em;
+}
+
+#ThemeToggle {
+  height: 2.2rem;
+  padding: 0 0.5em;
+  color: var(--gl-text);
+}

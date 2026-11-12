@@ -11,6 +11,20 @@
       </ng-select>
     </div>
   }
+  <!-- The switch of the theme, right of the language -->
+  <div id="ThemeToggleBox" class="order-3">
+    <button id="ThemeToggle" type="button" class="btn btn-link"
+            (click)="themeService.toggle()"
+            [attr.aria-label]="(themeService.theme() === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme') | translate"
+            ngbTooltip="{{ (themeService.theme() === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme') | translate }}">
+      <!-- The icon tells the theme in use: the sun in the light theme, the moon in the dark one -->
+      @if (themeService.theme() === 'dark') {
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>
+      } @else {
+        <i class="fa-solid fa-sun" aria-hidden="true"></i>
+      }
+    </button>
+  </div>
   @if (utilsService.showUserStatusBox()) {
     <div id="LoginStatusBox">
       @if (!preferences.dataModel.password_change_needed && !preferences.dataModel.require_two_factor) {

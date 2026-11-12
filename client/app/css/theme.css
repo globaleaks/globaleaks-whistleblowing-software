@@ -8,6 +8,10 @@
  * Every rule of the file has no specificity (:where), so that the order of the rules is what
  * decides among them and a custom CSS of the site, loaded last, overrides any of them with a
  * plain :root rule.
+ *
+ * The dark theme applies when the user chooses it (data-theme="dark" on the root element) or when
+ * the user follows the system (no data-theme) and the system prefers it; an explicit choice wins.
+ * It applies on screen alone: a page is always printed in the light theme.
  */
 
 :where(:root) {
@@ -40,8 +44,11 @@
   --gl-black: #1D1F24;
   --gl-yellow: #FFE433;
   --gl-red: #E30310;
+  --gl-red-light: #FF8B8C;
+}
 
-  /* The roles */
+/* The light theme */
+:where(:root) {
   color-scheme: light;
 
   --gl-bg: var(--gl-white);
@@ -76,23 +83,116 @@
   }
 }
 
-/* The links on the black of the header take one of the lightest steps of the primary scale */
+/* The dark theme, as the system prefers it */
+@media screen and (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="light"])) {
+    color-scheme: dark;
+
+    --gl-bg: var(--gl-black);
+    --gl-surface: var(--gl-neutral-100);
+    --gl-surface-subtle: var(--gl-primary-90);
+    --gl-header: var(--gl-neutral-100);
+    --gl-footer: var(--gl-neutral-100);
+    --gl-text: var(--gl-neutral-10);
+    --gl-text-secondary: var(--gl-neutral-40);
+    --gl-link: var(--gl-primary-40);
+    --gl-button: var(--gl-primary-60);
+    --gl-on-button: var(--gl-white);
+    --gl-border: var(--gl-neutral-80);
+    --gl-border-input: var(--gl-neutral-50);
+    --gl-warning: var(--gl-yellow);
+    --gl-danger: var(--gl-red-light);
+
+    /* The steps a button takes when pointed and pressed */
+    --gl-button-hover: var(--gl-primary-70);
+    --gl-button-active: var(--gl-primary-80);
+
+    /* The text on a surface (neutral-100) takes one step lighter than usual */
+    --gl-subtle-text-secondary: var(--gl-neutral-30);
+    --gl-subtle-link: var(--gl-primary-30);
+  }
+}
+
+@media screen and (prefers-color-scheme: dark) and (prefers-contrast: more) {
+  :where(:root:not([data-theme="light"])) {
+    --gl-text-secondary: var(--gl-neutral-30);
+    --gl-border: var(--gl-neutral-60);
+    --gl-subtle-text-secondary: var(--gl-neutral-20);
+  }
+}
+
+/* The dark theme, as the user chooses it */
+@media screen {
+  :where(:root[data-theme="dark"]) {
+    color-scheme: dark;
+
+    --gl-bg: var(--gl-black);
+    --gl-surface: var(--gl-neutral-100);
+    --gl-surface-subtle: var(--gl-primary-90);
+    --gl-header: var(--gl-neutral-100);
+    --gl-footer: var(--gl-neutral-100);
+    --gl-text: var(--gl-neutral-10);
+    --gl-text-secondary: var(--gl-neutral-40);
+    --gl-link: var(--gl-primary-40);
+    --gl-button: var(--gl-primary-60);
+    --gl-on-button: var(--gl-white);
+    --gl-border: var(--gl-neutral-80);
+    --gl-border-input: var(--gl-neutral-50);
+    --gl-warning: var(--gl-yellow);
+    --gl-danger: var(--gl-red-light);
+
+    /* The steps a button takes when pointed and pressed */
+    --gl-button-hover: var(--gl-primary-70);
+    --gl-button-active: var(--gl-primary-80);
+
+    /* The text on a surface (neutral-100) takes one step lighter than usual */
+    --gl-subtle-text-secondary: var(--gl-neutral-30);
+    --gl-subtle-link: var(--gl-primary-30);
+  }
+}
+
+@media screen and (prefers-contrast: more) {
+  :where(:root[data-theme="dark"]) {
+    --gl-text-secondary: var(--gl-neutral-30);
+    --gl-border: var(--gl-neutral-60);
+    --gl-subtle-text-secondary: var(--gl-neutral-20);
+  }
+}
+
+/* The links on the header, black in the light theme and the darkest gray in the dark one, take one
+   of the lightest steps of the primary scale */
 :where(#PrivacyBadge) {
   --gl-link: var(--gl-primary-30);
 }
 
-/* The text on the subtle surfaces takes one step darker */
+/* The text on the surfaces that are not the background: one step darker on the subtle surface of
+   the light theme, one step lighter on the surface of the dark theme */
 :where(#FooterBox, .tos-text, .alert-secondary, .jumbotron, .drag-drop:hover, .audio-box,
        .select-card.selected, .input-group-text) {
   --gl-text-secondary: var(--gl-subtle-text-secondary);
   --gl-link: var(--gl-subtle-link);
 }
 
+@media screen and (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme="light"])) :where(.card, .modal-content, .dropdown-menu, .popover, .select-card, #LoginStatusBox) {
+    --gl-text-secondary: var(--gl-subtle-text-secondary);
+    --gl-link: var(--gl-subtle-link);
+  }
+}
+
+@media screen {
+  :where(:root[data-theme="dark"]) :where(.card, .modal-content, .dropdown-menu, .popover, .select-card, #LoginStatusBox) {
+    --gl-text-secondary: var(--gl-subtle-text-secondary);
+    --gl-link: var(--gl-subtle-link);
+  }
+}
+
 /*
  * Bootstrap
  *
  * Bootstrap is compiled with colors of its own: its variables and the classes the interface uses
- * are given the roles.
+ * are given the roles. Its dark mode (data-bs-theme, set along data-theme) is kept for what it
+ * draws by itself, as the arrows of the selects and the close buttons.
  */
 :root,
 [data-bs-theme] {

@@ -1,6 +1,7 @@
 import {Component, inject} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
+import {ThemeService} from "@app/shared/theme/theme.service";
 
 import {UserComponent} from "./template/user/user.component";
 import {TranslatePipe} from "@ngx-translate/core";
@@ -14,4 +15,5 @@ import {TranslatePipe} from "@ngx-translate/core";
 export class HeaderComponent {
   appConfig = inject(AppConfigService);
   appDataService = inject(AppDataService);
+  protected themeService = inject(ThemeService);
 }

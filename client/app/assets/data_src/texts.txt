@@ -519,3 +519,5 @@ Skip to content
 Toggle navigation
 Main navigation
 Copied to clipboard
+Switch to the light theme
+Switch to the dark theme

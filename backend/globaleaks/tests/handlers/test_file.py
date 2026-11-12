@@ -1,8 +1,11 @@
+import os
+
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks.handlers import file
 from globaleaks.handlers.admin import file as admin_file
 from globaleaks.rest.errors import ResourceNotFound
+from globaleaks.state import State
 from globaleaks.tests import helpers
 
 
@@ -27,3 +30,32 @@ class TestFileInstance(helpers.TestHandler):
         x = yield handler.get(x[0]['name'])
 
         self.assertIsNone(x)
+
+    def served_path(self, handler):
+        """
+        Record the path of the file a handler serves
+        """
+        served = []
+        handler.write_file = lambda filename, path: served.append(path)
+        return served
+
+    @inlineCallbacks
+    def test_the_logo_of_the_dark_theme_is_the_globaleaks_logo_in_negative(self):
+        handler = self.request()
+        served = self.served_path(handler)
+        yield handler.get('logo-dark')
+
+        self.assertTrue(served[0].endswith(os.path.join('images', 'logo-white.webp')))
+
+    @inlineCallbacks
+    def test_a_site_with_a_logo_of_its_own_shows_it_in_the_dark_theme(self):
+        self._handler = admin_file.FileInstance
+        handler = self.request({}, role='admin', permissions={'can_upload_files': True}, attachment=self.get_dummy_attachment('file.png'))
+        yield handler.post('logo')
+
+        self._handler = file.FileHandler
+        handler = self.request()
+        served = self.served_path(handler)
+        yield handler.get('logo-dark')
+
+        self.assertTrue(served[0].startswith(os.path.abspath(State.settings.files_path)))
