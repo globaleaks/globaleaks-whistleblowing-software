@@ -2102,6 +2102,15 @@ msgstr "Contraseña: {Password}"
 msgid "Reset password"
 msgstr "Establecer contraseña"
 
+msgid "Colors"
+msgstr "Colores"
+
+msgid "Switch to the dark theme"
+msgstr "Cambiar al tema oscuro"
+
+msgid "Switch to the light theme"
+msgstr "Cambiar al tema claro"
+
 msgid "Skip to content"
 msgstr "Saltar al contenido"
 
@@ -2113,6 +2122,3 @@ msgstr "Navegación principal"
 
 msgid "Copied to clipboard"
 msgstr "Copiado al portapapeles"
-
-msgid "Colors"
-msgstr "Colores"

@@ -2051,6 +2051,15 @@ msgstr "Slaptažodis: {Password}"
 msgid "Reset password"
 msgstr "Nustatyti slaptažodį"
 
+msgid "Colors"
+msgstr "Spalvos"
+
+msgid "Switch to the dark theme"
+msgstr "Perjungti į tamsią temą"
+
+msgid "Switch to the light theme"
+msgstr "Perjungti į šviesią temą"
+
 msgid "Skip to content"
 msgstr "Pereiti prie turinio"
 
@@ -2062,6 +2071,3 @@ msgstr "Pagrindinė navigacija"
 
 msgid "Copied to clipboard"
 msgstr "Nukopijuota į iškarpinę"
-
-msgid "Colors"
-msgstr "Spalvos"

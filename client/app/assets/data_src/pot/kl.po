@@ -2060,6 +2060,15 @@ msgstr "Isertaat: {Isertaat}"
 msgid "Reset password"
 msgstr "Isissutissaq inissiguk"
 
+msgid "Colors"
+msgstr "Qalipaatit"
+
+msgid "Switch to the dark theme"
+msgstr "Qaamannginnerusumut taarseruk"
+
+msgid "Switch to the light theme"
+msgstr "Qaamanerusumut taarseruk"
+
 msgid "Skip to content"
 msgstr "Imaanut ingerlaarit"
 
@@ -2071,6 +2080,3 @@ msgstr "Sumiiffimmut nassataq pingaarneq"
 
 msgid "Copied to clipboard"
 msgstr "Assilineqarpoq"
-
-msgid "Colors"
-msgstr "Qalipaatit"

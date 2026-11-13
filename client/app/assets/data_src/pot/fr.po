@@ -2244,6 +2244,15 @@ msgstr "heures"
 msgid "minutes"
 msgstr "minutes"
 
+msgid "Colors"
+msgstr "Couleurs"
+
+msgid "Switch to the dark theme"
+msgstr "Passer au thème sombre"
+
+msgid "Switch to the light theme"
+msgstr "Passer au thème clair"
+
 msgid "Skip to content"
 msgstr "Aller au contenu"
 
@@ -2255,6 +2264,3 @@ msgstr "Navigation principale"
 
 msgid "Copied to clipboard"
 msgstr "Copié dans le presse-papiers"
-
-msgid "Colors"
-msgstr "Couleurs"

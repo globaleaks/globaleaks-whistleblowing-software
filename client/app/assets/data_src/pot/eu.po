@@ -2068,6 +2068,15 @@ msgstr "Pasahitza:{Password}"
 msgid "Reset password"
 msgstr "Berrezarri pasahitza"
 
+msgid "Colors"
+msgstr "Koloreak"
+
+msgid "Switch to the dark theme"
+msgstr "Aldatu gai ilunera"
+
+msgid "Switch to the light theme"
+msgstr "Aldatu gai argira"
+
 msgid "Skip to content"
 msgstr "Joan edukira"
 
@@ -2079,6 +2088,3 @@ msgstr "Nabigazio nagusia"
 
 msgid "Copied to clipboard"
 msgstr "Arbelean kopiatu da"
-
-msgid "Colors"
-msgstr "Koloreak"

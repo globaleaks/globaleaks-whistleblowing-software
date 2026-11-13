@@ -2050,6 +2050,15 @@ msgstr "ពាក្យសម្ងាត់៖ {Password}"
 msgid "Reset password"
 msgstr "កំណត់ពាក្យសម្ងាត់"
 
+msgid "Colors"
+msgstr "ពណ៌"
+
+msgid "Switch to the dark theme"
+msgstr "ប្ដូរទៅរចនាប័ទ្មងងឹត"
+
+msgid "Switch to the light theme"
+msgstr "ប្ដូរទៅរចនាប័ទ្មភ្លឺ"
+
 msgid "Skip to content"
 msgstr "រំលងទៅមាតិកា"
 
@@ -2061,6 +2070,3 @@ msgstr "ការរុករកមេ"
 
 msgid "Copied to clipboard"
 msgstr "បានចម្លងទៅក្ដារតម្បៀតខ្ទាស់"
-
-msgid "Colors"
-msgstr "ពណ៌"

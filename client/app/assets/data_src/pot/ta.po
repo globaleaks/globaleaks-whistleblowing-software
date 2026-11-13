@@ -2038,6 +2038,15 @@ msgstr "பங்கு: {Role}"
 msgid "Password: {Password}"
 msgstr "கடவுச்சொல்: {Password}"
 
+msgid "Colors"
+msgstr "நிறங்கள்"
+
+msgid "Switch to the dark theme"
+msgstr "இருண்ட தீமுக்கு மாறு"
+
+msgid "Switch to the light theme"
+msgstr "ஒளிர் தீமுக்கு மாறு"
+
 msgid "Skip to content"
 msgstr "உள்ளடக்கத்திற்குச் செல்"
 
@@ -2049,6 +2058,3 @@ msgstr "முதன்மை வழிசெலுத்தல்"
 
 msgid "Copied to clipboard"
 msgstr "கிளிப்போர்டுக்கு நகலெடுக்கப்பட்டது"
-
-msgid "Colors"
-msgstr "நிறங்கள்"

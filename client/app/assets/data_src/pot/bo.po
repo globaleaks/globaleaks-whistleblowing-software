@@ -2049,6 +2049,15 @@ msgstr "གསང་ཡིག།: {Password}"
 msgid "Reset password"
 msgstr "གསང་ཡིག་སྒྲིག་བཀོད་བྱ།"
 
+msgid "Colors"
+msgstr "ཚོན་མདོག"
+
+msgid "Switch to the dark theme"
+msgstr "ཁ་དོག་ནག་པོའི་བརྗོད་གཞིར་བརྗེ་བ།"
+
+msgid "Switch to the light theme"
+msgstr "ཁ་དོག་དཀར་པོའི་བརྗོད་གཞིར་བརྗེ་བ།"
+
 msgid "Skip to content"
 msgstr "ནང་དོན་ལ་མཆོང་།"
 
@@ -2060,6 +2069,3 @@ msgstr "ལམ་སྟོན་གཙོ་བོ།"
 
 msgid "Copied to clipboard"
 msgstr "སྦྱར་སྡེར་དུ་འདྲ་བཤུས་བྱས་ཟིན།"
-
-msgid "Colors"
-msgstr "ཚོན་མདོག"

@@ -2059,6 +2059,15 @@ msgstr "Vai trò: {Role}"
 msgid "Password: {Password}"
 msgstr "Mật khẩu: {Password}"
 
+msgid "Colors"
+msgstr "Màu sắc"
+
+msgid "Switch to the dark theme"
+msgstr "Chuyển sang giao diện tối"
+
+msgid "Switch to the light theme"
+msgstr "Chuyển sang giao diện sáng"
+
 msgid "Skip to content"
 msgstr "Chuyển đến nội dung"
 
@@ -2070,6 +2079,3 @@ msgstr "Điều hướng chính"
 
 msgid "Copied to clipboard"
 msgstr "Đã sao chép vào bộ nhớ tạm"
-
-msgid "Colors"
-msgstr "Màu sắc"

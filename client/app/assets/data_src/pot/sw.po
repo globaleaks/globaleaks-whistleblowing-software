@@ -2054,6 +2054,15 @@ msgstr "neno la siri: {Password}"
 msgid "Reset password"
 msgstr "Weka nenosiri"
 
+msgid "Colors"
+msgstr "Rangi"
+
+msgid "Switch to the dark theme"
+msgstr "Badili kwenda mandhari meusi"
+
+msgid "Switch to the light theme"
+msgstr "Badili kwenda mandhari angavu"
+
 msgid "Skip to content"
 msgstr "Ruka hadi maudhui"
 
@@ -2065,6 +2074,3 @@ msgstr "Urambazaji mkuu"
 
 msgid "Copied to clipboard"
 msgstr "Imenakiliwa kwenye ubao wa kunakili"
-
-msgid "Colors"
-msgstr "Rangi"

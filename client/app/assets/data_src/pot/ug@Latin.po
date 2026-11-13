@@ -2049,6 +2049,15 @@ msgstr "Parol: {Password}"
 msgid "Reset password"
 msgstr "Parol seplesh"
 
+msgid "Colors"
+msgstr "Rengler"
+
+msgid "Switch to the dark theme"
+msgstr "Qaranghu uslubqa almashturush"
+
+msgid "Switch to the light theme"
+msgstr "Yoruq uslubqa almashturush"
+
 msgid "Skip to content"
 msgstr "Mezmun'gha atlash"
 
@@ -2060,6 +2069,3 @@ msgstr "Asasiy yol bashlash"
 
 msgid "Copied to clipboard"
 msgstr "Chaplash taxtisigha köchürüldi"
-
-msgid "Colors"
-msgstr "Rengler"

@@ -2048,6 +2048,15 @@ msgstr "Пароль: {Password}"
 msgid "Reset password"
 msgstr "Пароль бельгилемек"
 
+msgid "Colors"
+msgstr "Renkler"
+
+msgid "Switch to the dark theme"
+msgstr "Qaranlıq temağa keç"
+
+msgid "Switch to the light theme"
+msgstr "Aydın temağa keç"
+
 msgid "Skip to content"
 msgstr "Muhtevağa keç"
 
@@ -2059,6 +2068,3 @@ msgstr "Esas naviğatsiya"
 
 msgid "Copied to clipboard"
 msgstr "Almaşuv buferine kopiyalandı"
-
-msgid "Colors"
-msgstr "Renkler"

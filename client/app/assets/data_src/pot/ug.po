@@ -2050,6 +2050,15 @@ msgstr "پارول: {Password}"
 msgid "Reset password"
 msgstr "پارول سەپلەش"
 
+msgid "Colors"
+msgstr "رەڭلەر"
+
+msgid "Switch to the dark theme"
+msgstr "قاراڭغۇ ئۇسلۇبقا ئالماشتۇرۇش"
+
+msgid "Switch to the light theme"
+msgstr "يورۇق ئۇسلۇبقا ئالماشتۇرۇش"
+
 msgid "Skip to content"
 msgstr "مەزمۇنغا ئاتلاش"
 
@@ -2061,6 +2070,3 @@ msgstr "ئاساسىي يول باشلاش"
 
 msgid "Copied to clipboard"
 msgstr "چاپلاش تاختىسىغا كۆچۈرۈلدى"
-
-msgid "Colors"
-msgstr "رەڭلەر"

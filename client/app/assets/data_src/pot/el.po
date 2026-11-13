@@ -2070,6 +2070,15 @@ msgstr "Κωδικός Πρόσβασης: {Password}"
 msgid "Reset password"
 msgstr "Καθορισμός κωδικού"
 
+msgid "Colors"
+msgstr "Χρώματα"
+
+msgid "Switch to the dark theme"
+msgstr "Εναλλαγή στο σκούρο θέμα"
+
+msgid "Switch to the light theme"
+msgstr "Εναλλαγή στο φωτεινό θέμα"
+
 msgid "Skip to content"
 msgstr "Μετάβαση στο περιεχόμενο"
 
@@ -2081,6 +2090,3 @@ msgstr "Κύρια πλοήγηση"
 
 msgid "Copied to clipboard"
 msgstr "Αντιγράφηκε στο πρόχειρο"
-
-msgid "Colors"
-msgstr "Χρώματα"

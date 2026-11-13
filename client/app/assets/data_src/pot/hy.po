@@ -2051,6 +2051,15 @@ msgstr "Գաղտնաբառ՝ {Password}"
 msgid "Reset password"
 msgstr "Սահմանել գաղտնաբառ"
 
+msgid "Colors"
+msgstr "Գույներ"
+
+msgid "Switch to the dark theme"
+msgstr "Անցնել մուգ թեմային"
+
+msgid "Switch to the light theme"
+msgstr "Անցնել բաց թեմային"
+
 msgid "Skip to content"
 msgstr "Անցնել բովանդակությանը"
 
@@ -2062,6 +2071,3 @@ msgstr "Հիմնական նավիգացիա"
 
 msgid "Copied to clipboard"
 msgstr "Պատճենվեց սեղմատախտակին"
-
-msgid "Colors"
-msgstr "Գույներ"

@@ -2141,6 +2141,15 @@ msgstr "Лозинка: {Password}"
 msgid "Reset password"
 msgstr "Поставите лозинку"
 
+msgid "Colors"
+msgstr "Боје"
+
+msgid "Switch to the dark theme"
+msgstr "Пребаци на тамну тему"
+
+msgid "Switch to the light theme"
+msgstr "Пребаци на светлу тему"
+
 msgid "Skip to content"
 msgstr "Пређи на садржај"
 
@@ -2152,6 +2161,3 @@ msgstr "Главна навигација"
 
 msgid "Copied to clipboard"
 msgstr "Копирано у оставу"
-
-msgid "Colors"
-msgstr "Боје"

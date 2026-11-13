@@ -2047,6 +2047,15 @@ msgstr "סיסמה: {Password}"
 msgid "Reset password"
 msgstr "קבע סיסמה"
 
+msgid "Colors"
+msgstr "צבעים"
+
+msgid "Switch to the dark theme"
+msgstr "מעבר לערכת נושא כהה"
+
+msgid "Switch to the light theme"
+msgstr "מעבר לערכת נושא בהירה"
+
 msgid "Skip to content"
 msgstr "דילוג לתוכן"
 
@@ -2058,6 +2067,3 @@ msgstr "ניווט ראשי"
 
 msgid "Copied to clipboard"
 msgstr "הועתק ללוח"
-
-msgid "Colors"
-msgstr "צבעים"

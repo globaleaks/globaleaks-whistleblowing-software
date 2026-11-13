@@ -2073,6 +2073,15 @@ msgstr "Kata sandi: {Password}"
 msgid "Reset password"
 msgstr "Atur kata sandi"
 
+msgid "Colors"
+msgstr "Warna"
+
+msgid "Switch to the dark theme"
+msgstr "Beralih ke tema gelap"
+
+msgid "Switch to the light theme"
+msgstr "Beralih ke tema terang"
+
 msgid "Skip to content"
 msgstr "Langsung ke konten"
 
@@ -2084,6 +2093,3 @@ msgstr "Navigasi utama"
 
 msgid "Copied to clipboard"
 msgstr "Disalin ke papan klip"
-
-msgid "Colors"
-msgstr "Warna"

@@ -2050,6 +2050,15 @@ msgstr "Парол: {Password}"
 msgid "Reset password"
 msgstr "Парол хlоттае"
 
+msgid "Colors"
+msgstr "Басарш"
+
+msgid "Switch to the dark theme"
+msgstr "Ӏаьржа тема хӀотто"
+
+msgid "Switch to the light theme"
+msgstr "Сирла тема хӀотто"
+
 msgid "Skip to content"
 msgstr "Чулацам тӀе дехьа вала"
 
@@ -2061,6 +2070,3 @@ msgstr "Коьрта навигаци"
 
 msgid "Copied to clipboard"
 msgstr "Буфере копи йина"
-
-msgid "Colors"
-msgstr "Басарш"

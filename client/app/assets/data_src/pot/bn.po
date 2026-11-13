@@ -2054,6 +2054,15 @@ msgstr "পাসওয়ার্ড: {Password}"
 msgid "Reset password"
 msgstr "পাসওয়ার্ড সেট করুন"
 
+msgid "Colors"
+msgstr "রং"
+
+msgid "Switch to the dark theme"
+msgstr "গাঢ় থিমে যান"
+
+msgid "Switch to the light theme"
+msgstr "হালকা থিমে যান"
+
 msgid "Skip to content"
 msgstr "বিষয়বস্তুতে যান"
 
@@ -2065,6 +2074,3 @@ msgstr "প্রধান নেভিগেশন"
 
 msgid "Copied to clipboard"
 msgstr "ক্লিপবোর্ডে কপি করা হয়েছে"
-
-msgid "Colors"
-msgstr "রং"

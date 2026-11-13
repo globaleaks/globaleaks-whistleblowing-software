@@ -2048,6 +2048,15 @@ msgstr "პაროლი: {Password}"
 msgid "Reset password"
 msgstr "პაროლის დაყენება"
 
+msgid "Colors"
+msgstr "ფერები"
+
+msgid "Switch to the dark theme"
+msgstr "მუქ თემაზე გადართვა"
+
+msgid "Switch to the light theme"
+msgstr "ღია თემაზე გადართვა"
+
 msgid "Skip to content"
 msgstr "შინაარსზე გადასვლა"
 
@@ -2059,6 +2068,3 @@ msgstr "მთავარი ნავიგაცია"
 
 msgid "Copied to clipboard"
 msgstr "დაკოპირდა ბუფერში"
-
-msgid "Colors"
-msgstr "ფერები"

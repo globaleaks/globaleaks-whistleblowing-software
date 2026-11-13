@@ -2052,6 +2052,15 @@ msgstr "Құпиясөз: {Құпиясөз}"
 msgid "Reset password"
 msgstr "Құпиясөзді орнату"
 
+msgid "Colors"
+msgstr "Түстер"
+
+msgid "Switch to the dark theme"
+msgstr "Қараңғы тақырыпқа ауысу"
+
+msgid "Switch to the light theme"
+msgstr "Ашық тақырыпқа ауысу"
+
 msgid "Skip to content"
 msgstr "Мазмұнға өту"
 
@@ -2063,6 +2072,3 @@ msgstr "Негізгі навигация"
 
 msgid "Copied to clipboard"
 msgstr "Алмасу буферіне көшірілді"
-
-msgid "Colors"
-msgstr "Түстер"

@@ -2045,6 +2045,15 @@ msgstr "የይለፍ ቃል፡-{Password}"
 msgid "Reset password"
 msgstr "የይለፍ ቃል ያዘጋጁ"
 
+msgid "Colors"
+msgstr "ቀለሞች"
+
+msgid "Switch to the dark theme"
+msgstr "ወደ ጨለማ ገጽታ ቀይር"
+
+msgid "Switch to the light theme"
+msgstr "ወደ ብሩህ ገጽታ ቀይር"
+
 msgid "Skip to content"
 msgstr "ወደ ይዘቱ ዝለል"
 
@@ -2056,6 +2065,3 @@ msgstr "ዋና አሰሳ"
 
 msgid "Copied to clipboard"
 msgstr "ወደ ቅንጥብ ሰሌዳ ተቀድቷል"
-
-msgid "Colors"
-msgstr "ቀለሞች"

@@ -2056,6 +2056,15 @@ msgstr "รหัสผ่าน: {Password}"
 msgid "Reset password"
 msgstr "ตั้งรหัสผ่าน"
 
+msgid "Colors"
+msgstr "สี"
+
+msgid "Switch to the dark theme"
+msgstr "สลับไปใช้ธีมมืด"
+
+msgid "Switch to the light theme"
+msgstr "สลับไปใช้ธีมสว่าง"
+
 msgid "Skip to content"
 msgstr "ข้ามไปยังเนื้อหา"
 
@@ -2067,6 +2076,3 @@ msgstr "การนำทางหลัก"
 
 msgid "Copied to clipboard"
 msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว"
-
-msgid "Colors"
-msgstr "สี"

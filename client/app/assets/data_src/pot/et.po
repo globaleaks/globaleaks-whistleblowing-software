@@ -2048,6 +2048,15 @@ msgstr "Parool: {Password}"
 msgid "Reset password"
 msgstr "Määra parool"
 
+msgid "Colors"
+msgstr "Värvid"
+
+msgid "Switch to the dark theme"
+msgstr "Lülitu tumedale teemale"
+
+msgid "Switch to the light theme"
+msgstr "Lülitu heledale teemale"
+
 msgid "Skip to content"
 msgstr "Liigu sisu juurde"
 
@@ -2059,6 +2068,3 @@ msgstr "Põhinavigeerimine"
 
 msgid "Copied to clipboard"
 msgstr "Kopeeritud lõikelauale"
-
-msgid "Colors"
-msgstr "Värvid"

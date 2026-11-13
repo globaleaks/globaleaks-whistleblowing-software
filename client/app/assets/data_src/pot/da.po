@@ -2062,6 +2062,15 @@ msgstr "Adgangskode: {Password}"
 msgid "Reset password"
 msgstr "Sæt adgangskode"
 
+msgid "Colors"
+msgstr "Farver"
+
+msgid "Switch to the dark theme"
+msgstr "Skift til mørkt tema"
+
+msgid "Switch to the light theme"
+msgstr "Skift til lyst tema"
+
 msgid "Skip to content"
 msgstr "Gå til indhold"
 
@@ -2073,6 +2082,3 @@ msgstr "Hovednavigation"
 
 msgid "Copied to clipboard"
 msgstr "Kopieret til udklipsholderen"
-
-msgid "Colors"
-msgstr "Farver"

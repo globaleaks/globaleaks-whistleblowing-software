@@ -2071,6 +2071,15 @@ msgstr "Hasło: {Password}"
 msgid "Reset password"
 msgstr "Ustaw hasło"
 
+msgid "Colors"
+msgstr "Kolory"
+
+msgid "Switch to the dark theme"
+msgstr "Przełącz na ciemny motyw"
+
+msgid "Switch to the light theme"
+msgstr "Przełącz na jasny motyw"
+
 msgid "Skip to content"
 msgstr "Przejdź do treści"
 
@@ -2082,6 +2091,3 @@ msgstr "Nawigacja główna"
 
 msgid "Copied to clipboard"
 msgstr "Skopiowano do schowka"
-
-msgid "Colors"
-msgstr "Kolory"

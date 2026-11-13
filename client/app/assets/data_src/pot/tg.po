@@ -2057,6 +2057,15 @@ msgstr "Гузарвожа: {Password}"
 msgid "Reset password"
 msgstr "Таъин кардани гузарвожа"
 
+msgid "Colors"
+msgstr "Рангҳо"
+
+msgid "Switch to the dark theme"
+msgstr "Гузаштан ба мавзӯи торик"
+
+msgid "Switch to the light theme"
+msgstr "Гузаштан ба мавзӯи равшан"
+
 msgid "Skip to content"
 msgstr "Гузариш ба мундариҷа"
 
@@ -2068,6 +2077,3 @@ msgstr "Навигатсияи асосӣ"
 
 msgid "Copied to clipboard"
 msgstr "Ба буфер нусхабардорӣ шуд"
-
-msgid "Colors"
-msgstr "Рангҳо"

@@ -2051,6 +2051,15 @@ msgstr "Сырсөз: {Сырсөз}"
 msgid "Reset password"
 msgstr "Сыр сөз коюу"
 
+msgid "Colors"
+msgstr "Түстөр"
+
+msgid "Switch to the dark theme"
+msgstr "Караңгы темага которулуу"
+
+msgid "Switch to the light theme"
+msgstr "Ачык темага которулуу"
+
 msgid "Skip to content"
 msgstr "Мазмунга өтүү"
 
@@ -2062,6 +2071,3 @@ msgstr "Негизги навигация"
 
 msgid "Copied to clipboard"
 msgstr "Алмашуу буферине көчүрүлдү"
-
-msgid "Colors"
-msgstr "Түстөр"

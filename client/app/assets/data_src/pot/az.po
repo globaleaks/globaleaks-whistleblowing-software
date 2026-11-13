@@ -2055,6 +2055,15 @@ msgstr "Parol: {Password}"
 msgid "Reset password"
 msgstr "Şifrə təyin edin"
 
+msgid "Colors"
+msgstr "Rənglər"
+
+msgid "Switch to the dark theme"
+msgstr "Tünd temaya keç"
+
+msgid "Switch to the light theme"
+msgstr "Açıq temaya keç"
+
 msgid "Skip to content"
 msgstr "Məzmuna keç"
 
@@ -2066,6 +2075,3 @@ msgstr "Əsas naviqasiya"
 
 msgid "Copied to clipboard"
 msgstr "Mübadilə buferinə kopyalandı"
-
-msgid "Colors"
-msgstr "Rənglər"

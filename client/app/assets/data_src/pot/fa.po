@@ -2074,6 +2074,15 @@ msgstr "گذرواژه: {Password}"
 msgid "Reset password"
 msgstr "تنظیم گذرواژه"
 
+msgid "Colors"
+msgstr "رنگ‌ها"
+
+msgid "Switch to the dark theme"
+msgstr "تغییر به پوسته تیره"
+
+msgid "Switch to the light theme"
+msgstr "تغییر به پوسته روشن"
+
 msgid "Skip to content"
 msgstr "رفتن به محتوا"
 
@@ -2085,6 +2094,3 @@ msgstr "ناوبری اصلی"
 
 msgid "Copied to clipboard"
 msgstr "در کلیپ‌بورد کپی شد"
-
-msgid "Colors"
-msgstr "رنگ‌ها"

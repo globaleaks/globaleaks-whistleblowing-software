@@ -2048,6 +2048,15 @@ msgstr "Kata laluan: {Password}"
 msgid "Reset password"
 msgstr "Tetapkan kata laluan"
 
+msgid "Colors"
+msgstr "Warna"
+
+msgid "Switch to the dark theme"
+msgstr "Tukar ke tema gelap"
+
+msgid "Switch to the light theme"
+msgstr "Tukar ke tema cerah"
+
 msgid "Skip to content"
 msgstr "Langkau ke kandungan"
 
@@ -2059,6 +2068,3 @@ msgstr "Navigasi utama"
 
 msgid "Copied to clipboard"
 msgstr "Disalin ke papan keratan"
-
-msgid "Colors"
-msgstr "Warna"

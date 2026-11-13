@@ -2129,6 +2129,15 @@ msgstr "Wachtwoord: {Password}"
 msgid "Reset password"
 msgstr "Wachtwoord instellen"
 
+msgid "Colors"
+msgstr "Kleuren"
+
+msgid "Switch to the dark theme"
+msgstr "Overschakelen naar het donkere thema"
+
+msgid "Switch to the light theme"
+msgstr "Overschakelen naar het lichte thema"
+
 msgid "Skip to content"
 msgstr "Naar de inhoud"
 
@@ -2140,6 +2149,3 @@ msgstr "Hoofdnavigatie"
 
 msgid "Copied to clipboard"
 msgstr "Gekopieerd naar het klembord"
-
-msgid "Colors"
-msgstr "Kleuren"

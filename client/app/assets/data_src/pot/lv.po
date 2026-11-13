@@ -2053,6 +2053,15 @@ msgstr "Parole: {Password}"
 msgid "Reset password"
 msgstr "Iestatīt paroli"
 
+msgid "Colors"
+msgstr "Krāsas"
+
+msgid "Switch to the dark theme"
+msgstr "Pārslēgt uz tumšo motīvu"
+
+msgid "Switch to the light theme"
+msgstr "Pārslēgt uz gaišo motīvu"
+
 msgid "Skip to content"
 msgstr "Pāriet uz saturu"
 
@@ -2064,6 +2073,3 @@ msgstr "Galvenā navigācija"
 
 msgid "Copied to clipboard"
 msgstr "Nokopēts starpliktuvē"
-
-msgid "Colors"
-msgstr "Krāsas"

@@ -2062,6 +2062,15 @@ msgstr "tuntia"
 msgid "minutes"
 msgstr "minuuttia"
 
+msgid "Colors"
+msgstr "Värit"
+
+msgid "Switch to the dark theme"
+msgstr "Vaihda tummaan teemaan"
+
+msgid "Switch to the light theme"
+msgstr "Vaihda vaaleaan teemaan"
+
 msgid "Skip to content"
 msgstr "Siirry sisältöön"
 
@@ -2073,6 +2082,3 @@ msgstr "Päänavigointi"
 
 msgid "Copied to clipboard"
 msgstr "Kopioitu leikepöydälle"
-
-msgid "Colors"
-msgstr "Värit"

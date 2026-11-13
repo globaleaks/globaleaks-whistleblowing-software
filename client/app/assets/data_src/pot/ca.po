@@ -2069,6 +2069,15 @@ msgstr "Contrasenya: {Password}"
 msgid "Reset password"
 msgstr "Estableix la contrasenya"
 
+msgid "Colors"
+msgstr "Colors"
+
+msgid "Switch to the dark theme"
+msgstr "Canvia al tema fosc"
+
+msgid "Switch to the light theme"
+msgstr "Canvia al tema clar"
+
 msgid "Skip to content"
 msgstr "Salta al contingut"
 
@@ -2080,6 +2089,3 @@ msgstr "Navegació principal"
 
 msgid "Copied to clipboard"
 msgstr "S'ha copiat al porta-retalls"
-
-msgid "Colors"
-msgstr "Colors"

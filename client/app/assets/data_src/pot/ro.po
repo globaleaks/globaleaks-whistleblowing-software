@@ -2065,6 +2065,15 @@ msgstr "Parolă: {Password}"
 msgid "Reset password"
 msgstr "Setează parola"
 
+msgid "Colors"
+msgstr "Culori"
+
+msgid "Switch to the dark theme"
+msgstr "Comută la tema întunecată"
+
+msgid "Switch to the light theme"
+msgstr "Comută la tema luminoasă"
+
 msgid "Skip to content"
 msgstr "Salt la conținut"
 
@@ -2076,6 +2085,3 @@ msgstr "Navigare principală"
 
 msgid "Copied to clipboard"
 msgstr "Copiat în clipboard"
-
-msgid "Colors"
-msgstr "Culori"

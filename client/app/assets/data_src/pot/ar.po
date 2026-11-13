@@ -2102,6 +2102,15 @@ msgstr "كلمة السركلمة السر: {Password}"
 msgid "Reset password"
 msgstr "ضبط كلمة السر"
 
+msgid "Colors"
+msgstr "الألوان"
+
+msgid "Switch to the dark theme"
+msgstr "التبديل إلى السمة الداكنة"
+
+msgid "Switch to the light theme"
+msgstr "التبديل إلى السمة الفاتحة"
+
 msgid "Skip to content"
 msgstr "الانتقال إلى المحتوى"
 
@@ -2113,6 +2122,3 @@ msgstr "التنقل الرئيسي"
 
 msgid "Copied to clipboard"
 msgstr "تم النسخ إلى الحافظة"
-
-msgid "Colors"
-msgstr "الألوان"

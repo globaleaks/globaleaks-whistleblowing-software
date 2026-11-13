@@ -2046,6 +2046,15 @@ msgstr "ລະຫັດຜ່ານ: {Password}"
 msgid "Reset password"
 msgstr "ຕັ້ງລະຫັດຜ່ານ"
 
+msgid "Colors"
+msgstr "ສີ"
+
+msgid "Switch to the dark theme"
+msgstr "ສະຫຼັບໄປຮູບແບບມືດ"
+
+msgid "Switch to the light theme"
+msgstr "ສະຫຼັບໄປຮູບແບບແຈ້ງ"
+
 msgid "Skip to content"
 msgstr "ຂ້າມໄປຫາເນື້ອຫາ"
 
@@ -2057,6 +2066,3 @@ msgstr "ການນຳທາງຫຼັກ"
 
 msgid "Copied to clipboard"
 msgstr "ສຳເນົາໃສ່ຄລິບບອດແລ້ວ"
-
-msgid "Colors"
-msgstr "ສີ"

@@ -2059,6 +2059,15 @@ msgstr "Fjalëkalim: {Password}"
 msgid "Reset password"
 msgstr "Caktoni fjalëkalim"
 
+msgid "Colors"
+msgstr "Ngjyrat"
+
+msgid "Switch to the dark theme"
+msgstr "Kalo te tema e errët"
+
+msgid "Switch to the light theme"
+msgstr "Kalo te tema e çelët"
+
 msgid "Skip to content"
 msgstr "Kalo te përmbajtja"
 
@@ -2070,6 +2079,3 @@ msgstr "Navigimi kryesor"
 
 msgid "Copied to clipboard"
 msgstr "U kopjua në kujtesën e fragmenteve"
-
-msgid "Colors"
-msgstr "Ngjyrat"

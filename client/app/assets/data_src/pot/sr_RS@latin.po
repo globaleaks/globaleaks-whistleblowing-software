@@ -2067,6 +2067,15 @@ msgstr "Lozinka: {Password}"
 msgid "Reset password"
 msgstr "Kreiraj lozinku"
 
+msgid "Colors"
+msgstr "Boje"
+
+msgid "Switch to the dark theme"
+msgstr "Prebaci na tamnu temu"
+
+msgid "Switch to the light theme"
+msgstr "Prebaci na svetlu temu"
+
 msgid "Skip to content"
 msgstr "Pređi na sadržaj"
 
@@ -2078,6 +2087,3 @@ msgstr "Glavna navigacija"
 
 msgid "Copied to clipboard"
 msgstr "Kopirano u ostavu"
-
-msgid "Colors"
-msgstr "Boje"

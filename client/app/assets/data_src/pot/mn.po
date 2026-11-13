@@ -2133,6 +2133,15 @@ msgstr "Нууц үг: {Password}"
 msgid "Reset password"
 msgstr "Нууц үг тохируулах"
 
+msgid "Colors"
+msgstr "Өнгө"
+
+msgid "Switch to the dark theme"
+msgstr "Бараан загвар руу шилжих"
+
+msgid "Switch to the light theme"
+msgstr "Цайвар загвар руу шилжих"
+
 msgid "Skip to content"
 msgstr "Агуулга руу шилжих"
 
@@ -2144,6 +2153,3 @@ msgstr "Үндсэн навигаци"
 
 msgid "Copied to clipboard"
 msgstr "Санах ойд хуулагдлаа"
-
-msgid "Colors"
-msgstr "Өнгө"

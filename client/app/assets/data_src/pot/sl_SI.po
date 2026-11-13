@@ -2049,6 +2049,15 @@ msgstr "Geslo: {Password}"
 msgid "Reset password"
 msgstr "Nastavi geslo"
 
+msgid "Colors"
+msgstr "Barve"
+
+msgid "Switch to the dark theme"
+msgstr "Preklopi na temno temo"
+
+msgid "Switch to the light theme"
+msgstr "Preklopi na svetlo temo"
+
 msgid "Skip to content"
 msgstr "Skoči na vsebino"
 
@@ -2060,6 +2069,3 @@ msgstr "Glavna navigacija"
 
 msgid "Copied to clipboard"
 msgstr "Kopirano v odložišče"
-
-msgid "Colors"
-msgstr "Barve"

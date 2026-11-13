@@ -2077,6 +2077,15 @@ msgstr "Parola: {Password}"
 msgid "Reset password"
 msgstr "Parola ayarla"
 
+msgid "Colors"
+msgstr "Renkler"
+
+msgid "Switch to the dark theme"
+msgstr "Koyu temaya geç"
+
+msgid "Switch to the light theme"
+msgstr "Açık temaya geç"
+
 msgid "Skip to content"
 msgstr "İçeriğe atla"
 
@@ -2088,6 +2097,3 @@ msgstr "Ana gezinme"
 
 msgid "Copied to clipboard"
 msgstr "Panoya kopyalandı"
-
-msgid "Colors"
-msgstr "Renkler"

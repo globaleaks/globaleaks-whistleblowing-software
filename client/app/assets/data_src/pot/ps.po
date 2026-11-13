@@ -2049,6 +2049,15 @@ msgstr "پټ نوم: {Password}"
 msgid "Reset password"
 msgstr "د پټ نوم ورکول"
 
+msgid "Colors"
+msgstr "رنګونه"
+
+msgid "Switch to the dark theme"
+msgstr "تیاره بڼې ته بدلول"
+
+msgid "Switch to the light theme"
+msgstr "روښانه بڼې ته بدلول"
+
 msgid "Skip to content"
 msgstr "منځپانګې ته ورشئ"
 
@@ -2060,6 +2069,3 @@ msgstr "اصلي لارښوونه"
 
 msgid "Copied to clipboard"
 msgstr "کلیپ بورډ ته کاپي شو"
-
-msgid "Colors"
-msgstr "رنګونه"

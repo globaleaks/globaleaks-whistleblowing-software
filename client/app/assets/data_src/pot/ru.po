@@ -2081,6 +2081,15 @@ msgstr "Пароль: {Password}"
 msgid "Reset password"
 msgstr "Установка пароля"
 
+msgid "Colors"
+msgstr "Цвета"
+
+msgid "Switch to the dark theme"
+msgstr "Переключиться на тёмную тему"
+
+msgid "Switch to the light theme"
+msgstr "Переключиться на светлую тему"
+
 msgid "Skip to content"
 msgstr "Перейти к содержимому"
 
@@ -2092,6 +2101,3 @@ msgstr "Основная навигация"
 
 msgid "Copied to clipboard"
 msgstr "Скопировано в буфер обмена"
-
-msgid "Colors"
-msgstr "Цвета"

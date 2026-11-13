@@ -2049,6 +2049,15 @@ msgstr "Пароль: {Password}"
 msgid "Reset password"
 msgstr "Серсүзе урнаштыру"
 
+msgid "Colors"
+msgstr "Төсләр"
+
+msgid "Switch to the dark theme"
+msgstr "Караңгы темага күчү"
+
+msgid "Switch to the light theme"
+msgstr "Якты темага күчү"
+
 msgid "Skip to content"
 msgstr "Эчтәлеккә күчү"
 
@@ -2060,6 +2069,3 @@ msgstr "Төп навигация"
 
 msgid "Copied to clipboard"
 msgstr "Алмашу буферына күчерелде"
-
-msgid "Colors"
-msgstr "Төсләр"

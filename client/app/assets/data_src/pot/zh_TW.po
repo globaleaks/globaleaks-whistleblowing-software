@@ -2044,6 +2044,15 @@ msgstr "角色: {Role}"
 msgid "Password: {Password}"
 msgstr "密碼: {Password}"
 
+msgid "Colors"
+msgstr "顏色"
+
+msgid "Switch to the dark theme"
+msgstr "切換至深色主題"
+
+msgid "Switch to the light theme"
+msgstr "切換至淺色主題"
+
 msgid "Skip to content"
 msgstr "跳至內容"
 
@@ -2055,6 +2064,3 @@ msgstr "主要導覽"
 
 msgid "Copied to clipboard"
 msgstr "已複製到剪貼簿"
-
-msgid "Colors"
-msgstr "顏色"

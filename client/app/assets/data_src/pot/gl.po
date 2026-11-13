@@ -2041,6 +2041,15 @@ msgstr "Contrasinal: {Password}"
 msgid "Reset password"
 msgstr "Establecer contrasinal"
 
+msgid "Colors"
+msgstr "Cores"
+
+msgid "Switch to the dark theme"
+msgstr "Cambiar ao tema escuro"
+
+msgid "Switch to the light theme"
+msgstr "Cambiar ao tema claro"
+
 msgid "Skip to content"
 msgstr "Saltar ao contido"
 
@@ -2052,6 +2061,3 @@ msgstr "Navegación principal"
 
 msgid "Copied to clipboard"
 msgstr "Copiado no portapapeis"
-
-msgid "Colors"
-msgstr "Cores"

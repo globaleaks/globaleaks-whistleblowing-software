@@ -2059,6 +2059,15 @@ msgstr "Heslo: {Password}"
 msgid "Reset password"
 msgstr "Nastaviť heslo"
 
+msgid "Colors"
+msgstr "Farby"
+
+msgid "Switch to the dark theme"
+msgstr "Prepnúť na tmavú tému"
+
+msgid "Switch to the light theme"
+msgstr "Prepnúť na svetlú tému"
+
 msgid "Skip to content"
 msgstr "Prejsť na obsah"
 
@@ -2070,6 +2079,3 @@ msgstr "Hlavná navigácia"
 
 msgid "Copied to clipboard"
 msgstr "Skopírované do schránky"
-
-msgid "Colors"
-msgstr "Farby"

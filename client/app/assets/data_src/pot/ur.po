@@ -2061,6 +2061,15 @@ msgstr "پاس ورڈ: {Password}"
 msgid "Reset password"
 msgstr "Set password"
 
+msgid "Colors"
+msgstr "رنگ"
+
+msgid "Switch to the dark theme"
+msgstr "گہری تھیم پر جائیں"
+
+msgid "Switch to the light theme"
+msgstr "ہلکی تھیم پر جائیں"
+
 msgid "Skip to content"
 msgstr "مواد پر جائیں"
 
@@ -2072,6 +2081,3 @@ msgstr "مرکزی نیویگیشن"
 
 msgid "Copied to clipboard"
 msgstr "کلپ بورڈ پر کاپی ہو گیا"
-
-msgid "Colors"
-msgstr "رنگ"

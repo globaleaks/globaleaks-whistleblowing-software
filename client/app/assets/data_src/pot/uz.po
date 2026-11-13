@@ -2050,6 +2050,15 @@ msgstr "Paroli: {Password}"
 msgid "Reset password"
 msgstr "Parol belgilash"
 
+msgid "Colors"
+msgstr "Ranglar"
+
+msgid "Switch to the dark theme"
+msgstr "Toʻq mavzuga oʻtish"
+
+msgid "Switch to the light theme"
+msgstr "Och mavzuga oʻtish"
+
 msgid "Skip to content"
 msgstr "Tarkibga o'tish"
 
@@ -2061,6 +2070,3 @@ msgstr "Asosiy navigatsiya"
 
 msgid "Copied to clipboard"
 msgstr "Buferga nusxalandi"
-
-msgid "Colors"
-msgstr "Ranglar"

@@ -2055,6 +2055,15 @@ msgstr "Rôle : {Role}"
 msgid "Password: {Password}"
 msgstr "Mot de passe : {Password}"
 
+msgid "Colors"
+msgstr "Loko"
+
+msgid "Switch to the dark theme"
+msgstr "Hivadika ho amin'ny endrika maizina"
+
+msgid "Switch to the light theme"
+msgstr "Hivadika ho amin'ny endrika mazava"
+
 msgid "Skip to content"
 msgstr "Mankany amin'ny votoaty"
 
@@ -2066,6 +2075,3 @@ msgstr "Fitetezana lehibe"
 
 msgid "Copied to clipboard"
 msgstr "Voadika"
-
-msgid "Colors"
-msgstr "Loko"

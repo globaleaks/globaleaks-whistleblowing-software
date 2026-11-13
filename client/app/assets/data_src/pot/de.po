@@ -2101,6 +2101,15 @@ msgstr "Passwort: {Password}"
 msgid "Reset password"
 msgstr "Passwort festlegen"
 
+msgid "Colors"
+msgstr "Farben"
+
+msgid "Switch to the dark theme"
+msgstr "Zum dunklen Design wechseln"
+
+msgid "Switch to the light theme"
+msgstr "Zum hellen Design wechseln"
+
 msgid "Skip to content"
 msgstr "Zum Inhalt springen"
 
@@ -2112,6 +2121,3 @@ msgstr "Hauptnavigation"
 
 msgid "Copied to clipboard"
 msgstr "In die Zwischenablage kopiert"
-
-msgid "Colors"
-msgstr "Farben"

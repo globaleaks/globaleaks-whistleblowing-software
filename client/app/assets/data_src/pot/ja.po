@@ -2053,6 +2053,15 @@ msgstr "パスワード: {Password}"
 msgid "Reset password"
 msgstr "パスワードを設定"
 
+msgid "Colors"
+msgstr "色"
+
+msgid "Switch to the dark theme"
+msgstr "ダークテーマに切り替える"
+
+msgid "Switch to the light theme"
+msgstr "ライトテーマに切り替える"
+
 msgid "Skip to content"
 msgstr "コンテンツへスキップ"
 
@@ -2064,6 +2073,3 @@ msgstr "メインナビゲーション"
 
 msgid "Copied to clipboard"
 msgstr "クリップボードにコピーしました"
-
-msgid "Colors"
-msgstr "色"

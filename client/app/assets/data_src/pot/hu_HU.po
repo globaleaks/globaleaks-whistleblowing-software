@@ -2184,6 +2184,15 @@ msgstr "óra"
 msgid "minutes"
 msgstr "perc"
 
+msgid "Colors"
+msgstr "Színek"
+
+msgid "Switch to the dark theme"
+msgstr "Váltás sötét témára"
+
+msgid "Switch to the light theme"
+msgstr "Váltás világos témára"
+
 msgid "Skip to content"
 msgstr "Ugrás a tartalomra"
 
@@ -2195,6 +2204,3 @@ msgstr "Fő navigáció"
 
 msgid "Copied to clipboard"
 msgstr "Vágólapra másolva"
-
-msgid "Colors"
-msgstr "Színek"

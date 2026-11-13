@@ -2047,6 +2047,15 @@ msgstr "စကားဝှက် - {Password}"
 msgid "Reset password"
 msgstr "စကားဝှက် သတ်မှတ်ပါ"
 
+msgid "Colors"
+msgstr "အရောင်များ"
+
+msgid "Switch to the dark theme"
+msgstr "အမှောင်အပြင်အဆင်သို့ ပြောင်းရန်"
+
+msgid "Switch to the light theme"
+msgstr "အလင်းအပြင်အဆင်သို့ ပြောင်းရန်"
+
 msgid "Skip to content"
 msgstr "အကြောင်းအရာသို့ ကျော်သွားရန်"
 
@@ -2058,6 +2067,3 @@ msgstr "ပင်မ လမ်းညွှန်"
 
 msgid "Copied to clipboard"
 msgstr "ကလစ်ဘုတ်သို့ ကူးယူပြီးပါပြီ"
-
-msgid "Colors"
-msgstr "အရောင်များ"

@@ -2053,6 +2053,15 @@ msgstr "Parol: {Password}"
 msgid "Reset password"
 msgstr "Paroly belläň"
 
+msgid "Colors"
+msgstr "Reňkler"
+
+msgid "Switch to the dark theme"
+msgstr "Garaňky tema geç"
+
+msgid "Switch to the light theme"
+msgstr "Ýagty tema geç"
+
 msgid "Skip to content"
 msgstr "Mazmuna geç"
 
@@ -2064,6 +2073,3 @@ msgstr "Esasy nawigasiýa"
 
 msgid "Copied to clipboard"
 msgstr "Bufere göçürildi"
-
-msgid "Colors"
-msgstr "Reňkler"

@@ -2074,6 +2074,15 @@ msgstr "Пароль: {Password}"
 msgid "Reset password"
 msgstr "Встановити пароль"
 
+msgid "Colors"
+msgstr "Кольори"
+
+msgid "Switch to the dark theme"
+msgstr "Перемкнути на темну тему"
+
+msgid "Switch to the light theme"
+msgstr "Перемкнути на світлу тему"
+
 msgid "Skip to content"
 msgstr "Перейти до вмісту"
 
@@ -2085,6 +2094,3 @@ msgstr "Основна навігація"
 
 msgid "Copied to clipboard"
 msgstr "Скопійовано в буфер обміну"
-
-msgid "Colors"
-msgstr "Кольори"
