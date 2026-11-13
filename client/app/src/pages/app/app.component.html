@@ -27,20 +27,20 @@
             <src-privacybadge></src-privacybadge>
           </div>
         }
-        <src-header></src-header>
+        <src-header>
+          @if (appConfig.sidebar && showSidebar) {
+            <button id="SidebarToggle" class="btn btn-link d-lg-none"
+                type="button"
+                (click)="isNavCollapsed = !isNavCollapsed"
+                aria-controls="Sidebar"
+                [attr.aria-expanded]="!isNavCollapsed"
+                aria-label="Toggle navigation">
+              <i class="fas fa-bars" aria-hidden="true"></i>
+            </button>
+          }
+        </src-header>
 
         <src-message-console id="MessagesConsoleBox"></src-message-console>
-
-        @if (appConfig.sidebar && showSidebar) {
-          <button class="btn btn-link d-lg-none ms-2 my-2"
-              type="button"
-              (click)="isNavCollapsed = !isNavCollapsed"
-              aria-controls="Sidebar"
-              [attr.aria-expanded]="!isNavCollapsed"
-              [attr.aria-label]="'Toggle navigation' | translate">
-            <i class="fa-solid fa-bars"></i>
-          </button>
-        }
 
         <div id="ContentBox">
           <div class="row">

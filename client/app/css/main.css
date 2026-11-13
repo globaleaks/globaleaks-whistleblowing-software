@@ -771,12 +771,19 @@ p:last-child {
   margin: 0;
 }
 
-/* The logo is a link: a block as wide as the picture, so that the height and the margin under it hold */
-#LogoBox {
-  display: block;
-  width: fit-content;
+#LogoBox{
   min-height: 5rem;
 }
+
+#LogoRow > #LogoBox {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.fadeInOut {
+  opacity: 0;
+}
+
 
 #TitleBox {
   font-size: 1.6rem;
@@ -1366,4 +1373,126 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   font: inherit;
   line-height: inherit;
   vertical-align: baseline;
+}
+
+/*
+ * The language is a control like the icons beside it: no box, the color of a link, next to the icons;
+ * with the ring of the focus when reached by keyboard
+ */
+#LanguagePickerBox .ng-select .ng-select-container {
+  color: var(--gl-link);
+  background-color: transparent;
+  border-color: transparent;
+  cursor: pointer;
+}
+
+#LanguagePickerBox .ng-select .ng-value-container {
+  justify-content: flex-end;
+  padding-left: 0;
+}
+
+#LanguagePickerBox .ng-select .ng-value .language-native {
+  margin-left: 0.4rem;
+}
+
+#LanguagePickerBox .ng-select .ng-arrow-wrapper {
+  width: auto;
+  padding-left: 0.3rem;
+  padding-right: 0.5rem;
+}
+
+#LanguagePickerBox .ng-select .ng-arrow-wrapper .ng-arrow {
+  border-top-color: var(--gl-link);
+}
+
+#LanguagePickerBox .ng-select.ng-select-opened .ng-arrow-wrapper .ng-arrow {
+  border-bottom-color: var(--gl-link);
+}
+
+/* The list of the languages keeps their names whole, as wide as the longest */
+#LanguagePickerBox .ng-dropdown-panel {
+  width: max-content;
+  min-width: 100%;
+  right: 0;
+  left: auto;
+}
+
+/* Wider than a phone, the logo and the controls of the header have their middles on one line */
+@media (width >= 576px) {
+  #LogoBox {
+    display: flex;
+    align-items: center;
+  }
+
+  #UserBox > .d-flex {
+    min-height: 5rem;
+    align-items: center;
+    align-content: center;
+  }
+}
+
+/*
+ * The header on a phone: one line, with the logo in the room the controls leave, whatever its shape,
+ * the language told by the sign of the translation and the links of the session gathered in a menu.
+ * Every control is as large as a finger (2.75rem, 44px).
+ */
+@media (width < 576px) {
+  #HeaderBox > .d-flex {
+    flex-wrap: nowrap !important;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  #HeaderBox1 {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  #LogoBox {
+    min-height: 0;
+  }
+
+  /* The logo stands as tall as the controls, so that their middles are on one line */
+  #LogoRow {
+    min-height: 2.75rem;
+    margin-bottom: 0 !important;
+  }
+
+  #LogoBox img {
+    max-height: 3rem;
+    max-width: 100%;
+  }
+
+  #HeaderBox2 {
+    flex: 0 0 auto;
+  }
+
+  /* On a phone the language is its sign alone, as large as a finger */
+  #LanguagePickerBox.language-box,
+  #LanguagePickerBox.language-box-extended {
+    width: auto;
+  }
+
+  #LanguagePickerBox .ng-select .ng-select-container {
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+  }
+
+  #LanguagePickerBox .ng-value .language-native {
+    display: none;
+  }
+
+  #ThemeToggleBox.order-3 #ThemeToggle,
+  #SessionMenuButton,
+  #SidebarToggle {
+    min-width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  #SessionMenuBox .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.75rem;
+  }
 }

@@ -10,6 +10,11 @@
             <span [attr.data-cy]="lang.code">{{lang.native}}</span>
           </ng-option>
         }
+        <!-- The language in use: the sign of the translation, known in every script, and its own name;
+             on a phone the sign alone, the names being in the list -->
+        <ng-template ng-label-tmp>
+          <i class="fa-solid fa-language" aria-hidden="true"></i><span class="language-native">{{languageNative(translationService.language)}}</span>
+        </ng-template>
       </ng-select>
     </div>
   }
@@ -21,7 +26,7 @@
     </div>
   }
   @if (utilsService.showUserStatusBox()) {
-    <div id="LoginStatusBox" class="order-3 d-flex">
+    <div id="LoginStatusBox" class="order-3 d-none d-sm-flex">
       @if (!preferences.dataModel.password_change_needed && !preferences.dataModel.require_two_factor) {
         <span id="HomeLinkBox">
           @if (authentication.session.role !== 'whistleblower') {
@@ -58,6 +63,34 @@
           <i class="pointer fas fa-right-from-bracket"></i>
         </a>
       </span>
+    </div>
+    <!-- On a phone the links of the session are a menu, each named and as large as a finger -->
+    <div id="SessionMenuBox" class="order-3 d-sm-none" ngbDropdown placement="bottom-end">
+      <button id="SessionMenuButton" type="button" class="btn btn-link" ngbDropdownToggle [attr.aria-label]="'Menu' | translate">
+        <i class="fa-solid fa-circle-user" aria-hidden="true"></i>
+      </button>
+      <div ngbDropdownMenu aria-labelledby="SessionMenuButton">
+        @if (!preferences.dataModel.password_change_needed && !preferences.dataModel.require_two_factor) {
+          @if (authentication.session.role !== 'whistleblower') {
+            <a ngbDropdownItem [href]="'#'+authentication.session.homepage"><i class="fas fa-fw fa-house" aria-hidden="true"></i> {{'Home' | translate}}</a>
+          }
+          @if (authentication.session.role !== 'whistleblower' && !authentication.session.properties.management_session) {
+            <a ngbDropdownItem [href]="'#'+authentication.session.preferencespage"><i class="fas fa-fw fa-user" aria-hidden="true"></i> {{'Preferences' | translate}}</a>
+          }
+        }
+        <button ngbDropdownItem type="button" (click)="themeService.toggle()">
+          @if (themeService.theme() === 'dark') {
+            <i class="fa-solid fa-fw fa-sun" aria-hidden="true"></i>
+          } @else {
+            <i class="fa-solid fa-fw fa-moon" aria-hidden="true"></i>
+          }
+          {{ (themeService.theme() === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme') | translate }}
+        </button>
+        @if (!preferences.dataModel.password_change_needed && !preferences.dataModel.require_two_factor && authentication.session && authentication.session.role !== 'whistleblower') {
+          <button ngbDropdownItem type="button" (click)="utilsService.openSupportModal($event)"><i class="fas fa-fw fa-life-ring" aria-hidden="true"></i> {{'Request support' | translate}}</button>
+        }
+        <button ngbDropdownItem type="button" (click)="onLogout($event)"><i class="fas fa-fw fa-right-from-bracket" aria-hidden="true"></i> {{'Logout' | translate}}</button>
+      </div>
     </div>
   }
 </div>

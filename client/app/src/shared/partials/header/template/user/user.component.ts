@@ -7,12 +7,12 @@ import {AppDataService} from "@app/app-data.service";
 import {TranslationService} from "@app/services/helper/translation.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {ActivatedRoute, Router} from "@angular/router";
-import {NgSelectComponent, NgOptionComponent} from "@ng-select/ng-select";
+import {NgSelectComponent, NgOptionComponent, NgLabelTemplateDirective} from "@ng-select/ng-select";
 import {FormsModule} from "@angular/forms";
 import {ReceiptComponent} from "../../../receipt/receipt.component";
 import {TranslatePipe} from "@ngx-translate/core";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
-import {NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbDropdownModule, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 import {ThemeService} from "@app/shared/theme/theme.service";
 import {NgTemplateOutlet} from "@angular/common";
 
@@ -21,7 +21,7 @@ import {NgTemplateOutlet} from "@angular/common";
     selector: "src-user",
     templateUrl: "./user.component.html",
     standalone: true,
-    imports: [NgbTooltipModule, NgTemplateOutlet, NgSelectComponent, FormsModule, NgOptionComponent, ReceiptComponent, TranslatePipe, OrderByPipe]
+    imports: [NgbTooltipModule, NgbDropdownModule, NgTemplateOutlet, NgSelectComponent, FormsModule, NgOptionComponent, NgLabelTemplateDirective, ReceiptComponent, TranslatePipe, OrderByPipe]
 })
 export class UserComponent {
   protected activatedRoute = inject(ActivatedRoute);
@@ -37,6 +37,12 @@ export class UserComponent {
 
   constructor() {
     this.onQueryParameterChangeListener();
+  }
+
+  // The name of a language in its own words and script, as the list of the languages tells it
+  languageNative(code: string): string {
+    const language = this.appDataService.languages_enabled_selector.find(l => l.code === code);
+    return language ? language.native : code;
   }
 
   onChangeLanguage(language: string) {

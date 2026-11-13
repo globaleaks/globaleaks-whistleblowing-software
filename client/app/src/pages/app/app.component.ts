@@ -89,7 +89,8 @@ export class AppComponent implements AfterViewInit, OnInit {
         ];
         const currentUrl = event.url;
         this.showSidebar = !excludedUrls.includes(currentUrl);
-        this.announceNavigation(event.urlAfterRedirects);
+        // The sidebar of a phone closes once a section of it is chosen
+        this.isNavCollapsed = true;
       }
     });
   }
