@@ -12,10 +12,12 @@
 <div class="modal-footer">
   <!-- Save and Cancel first, as everywhere; Delete last -->
   <button class="btn btn-primary" id="save_masking" type="button" (click)="saveMasking()" [disabled]="!changed">
+    <i class="fa-solid fa-floppy-disk"></i>
     <span>{{ 'Save' | translate }}</span>
   </button>
 
   <button class="btn btn-outline-secondary" id="modal-action-cancel" type="button" (click)="cancel()">
+    <i class="fa-solid fa-xmark"></i>
     <span>{{ 'Cancel' | translate }}</span>
   </button>
 

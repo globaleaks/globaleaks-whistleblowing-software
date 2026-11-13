@@ -19,7 +19,7 @@ import {FormsModule} from '@angular/forms';
         [(ngModel)]="value"
       >
       <span class="input-group-text">
-        <i class="fa-solid fa-search" aria-hidden="true"></i>
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
       </span>
     </div>
   `

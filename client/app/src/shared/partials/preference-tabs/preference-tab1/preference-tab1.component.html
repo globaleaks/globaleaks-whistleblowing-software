@@ -23,6 +23,7 @@
                 <span>{{preferenceResolver.dataModel.name}}</span>
                 @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
                   <button class="btn btn-sm btn-outline-secondary" (click)="toggleNameEditing(); $event.stopPropagation();">
+                    <i class="fa-solid fa-pen-to-square"></i>
                     <span>{{'Edit'|translate}}</span>
                   </button>
                 }
@@ -40,6 +41,7 @@
                   <span>{{preferenceResolver.dataModel.public_name}}</span>
                   @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
                     <button class="btn btn-sm btn-outline-secondary" (click)="togglePublicNameEditing(); $event.stopPropagation();">
+                      <i class="fa-solid fa-pen-to-square"></i>
                       <span>{{'Edit'|translate}}</span>
                     </button>
                   }
@@ -58,6 +60,7 @@
                   }
                   @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
                     <button class="btn btn-sm btn-outline-secondary" (click)="toggleEmailAddressEditing(); $event.stopPropagation();">
+                      <i class="fa-solid fa-pen-to-square"></i>
                       <span>{{'Edit'|translate}}</span>
                     </button>
                   }
@@ -148,7 +151,7 @@
                   }
                   <br />
                   <button type="submit" class="btn btn-primary" (click)="save()" [disabled]="preferenceForm.invalid || pgpkeyForm.invalid">
-                    <i class="fa-solid fa-check"></i>
+                    <i class="fa-solid fa-floppy-disk"></i>
                     <span>{{'Save'|translate}}</span>
                   </button>
                   @if (preferenceResolver.dataModel.encryption) {
@@ -158,7 +161,7 @@
               }
               @if (!appDataService.public.node.pgp) {
                 <button type="submit" class="btn btn-primary" (click)="save()" [disabled]="preferenceForm.invalid">
-                  <i class="fa-solid fa-check"></i>
+                  <i class="fa-solid fa-floppy-disk"></i>
                   <span>{{'Save'|translate}}</span>
                 </button>
               }

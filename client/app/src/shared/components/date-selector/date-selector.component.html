@@ -9,5 +9,5 @@
 <!-- The dates apply as soon as the range is whole: saving closes the calendar, which otherwise its icon does -->
 <div class="position-absolute bottom-0 start-0 m-2 d-flex gap-2">
     <button type="button" class="btn btn-primary" (click)="closed.emit()">{{ 'Save' | translate }}</button>
-    <button type="button" class="btn btn-danger" (click)="resetDatepicker()">{{ 'Reset' | translate }}</button>
+    <button type="button" class="btn btn-outline-danger" (click)="resetDatepicker()">{{ 'Reset' | translate }}</button>
 </div>

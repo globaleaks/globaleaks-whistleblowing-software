@@ -39,7 +39,7 @@
             @if (preferenceResolver.dataModel.can_redact_information) {
               <button
                 type="button"
-                class="tip-action-delete-file btn btn-sm btn-danger"
+                class="tip-action-delete-file btn btn-sm btn-outline-danger"
                 [ngbTooltip]="'Delete' | translate"
                 (click)="redactFileOperation('redact')"
                 [attr.aria-label]="'Delete' | translate">

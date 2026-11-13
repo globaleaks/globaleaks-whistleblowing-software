@@ -12,10 +12,13 @@
  *
  *        light theme                                  dark theme
  *   1    backgrounds and subtle surfaces              body text and headings
- *   2    dividers, decorative borders, focus ring     links and secondary text
- *   3    brand, buttons, links, input borders         buttons, input borders, icons
- *   4    hover states, secondary text                 dividers and decorative borders
- *   5    headings and strong text                     backgrounds and surfaces
+ *   2    dividers and decorative borders              links, buttons, focus ring
+ *   3    brand accents, icons, borders, large titles  borders and icons (3:1)
+ *   4    links, buttons, secondary text               dividers and decorative borders
+ *   5    hover, focus ring, headings                  backgrounds and surfaces
+ *
+ * Every pair of a text and its background is 7:1 or more (WCAG 2.2 AAA); the borders of the
+ * controls, the icons and the ring of the focus are 3:1 or more.
  *
  * Every rule of the file has no specificity (:where), so that the order of the rules is what
  * decides among them and a custom CSS of the site, loaded last, overrides any of them with a
@@ -29,7 +32,7 @@
 :where(:root) {
   /* The primary scale */
   --gl-primary-1: #ECF5FE;
-  --gl-primary-2: #66B1F7;
+  --gl-primary-2: #7BBBFE;
   --gl-primary-3: #0978CF;
   --gl-primary-4: #025A9F;
   --gl-primary-5: #002445;
@@ -46,7 +49,7 @@
   --gl-black: #1F1F1F;
   --gl-yellow: #FE3;
   --gl-red: #E30310;
-  --gl-red-light: #FF8B8C;
+  --gl-red-light: #FF8F90;
 }
 
 /* The light theme */
@@ -61,34 +64,37 @@
   --gl-band: var(--gl-black);
   --gl-text: var(--gl-black);
   --gl-text-secondary: var(--gl-neutral-4);
-  --gl-link: var(--gl-primary-3);
-  --gl-button: var(--gl-primary-3);
+  --gl-link: var(--gl-primary-4);
+  --gl-button: var(--gl-primary-4);
   --gl-on-button: var(--gl-white);
   --gl-border: var(--gl-neutral-2);
   --gl-border-input: var(--gl-neutral-3);
-  --gl-focus: var(--gl-primary-2);
+  --gl-surface-subtle-border: transparent;
+  --gl-accent: var(--gl-primary-3);
+  --gl-focus: var(--gl-primary-5);
   --gl-warning: var(--gl-yellow);
   --gl-danger: var(--gl-red);
 
   /* The steps a button takes when pointed and pressed */
-  --gl-button-hover: var(--gl-primary-4);
+  --gl-button-hover: var(--gl-primary-5);
   --gl-button-active: var(--gl-primary-5);
 
-  /* The text on a subtle surface (primary-1, neutral-1) takes one step darker than usual */
+  /* On a subtle surface (primary-1, neutral-1) the text is black and the link the darkest blue */
   --gl-subtle-text-secondary: var(--gl-neutral-5);
-  --gl-subtle-link: var(--gl-primary-4);
+  --gl-subtle-link: var(--gl-primary-5);
 }
 
 @media (prefers-contrast: more) {
   :where(:root) {
     --gl-text-secondary: var(--gl-neutral-5);
-    --gl-link: var(--gl-primary-4);
+    --gl-link: var(--gl-primary-5);
     --gl-border: var(--gl-neutral-3);
   }
 }
 
 /* The dark theme, as the system prefers it. The surfaces are the black of the background, outlined
-   with the dividers */
+   with the step 3 of the neutral scale (3.6:1 on the black), and the subtle surfaces, whose darkest
+   blue barely stands apart from the black (1.05:1), with the step 3 of the primary one (3.6:1) */
 @media screen and (prefers-color-scheme: dark) {
   :where(:root:not([data-theme="light"])) {
     color-scheme: dark;
@@ -102,20 +108,22 @@
     --gl-text: var(--gl-neutral-1);
     --gl-text-secondary: var(--gl-neutral-2);
     --gl-link: var(--gl-primary-2);
-    --gl-button: var(--gl-primary-3);
-    --gl-on-button: var(--gl-white);
-    --gl-border: var(--gl-neutral-4);
+    --gl-button: var(--gl-primary-2);
+    --gl-on-button: var(--gl-black);
+    --gl-border: var(--gl-neutral-3);
     --gl-border-input: var(--gl-neutral-3);
+    --gl-surface-subtle-border: var(--gl-primary-3);
+    --gl-accent: var(--gl-primary-3);
     --gl-focus: var(--gl-primary-2);
     --gl-warning: var(--gl-yellow);
     --gl-danger: var(--gl-red-light);
 
-    /* The step a button takes when pointed and pressed: the darkest would vanish on the black */
-    --gl-button-hover: var(--gl-primary-4);
-    --gl-button-active: var(--gl-primary-4);
+    /* The button pointed and pressed goes one step lighter, under the same black label */
+    --gl-button-hover: var(--gl-primary-1);
+    --gl-button-active: var(--gl-primary-1);
 
-    /* The secondary text on a subtle surface (primary-5) takes one step lighter than usual; the
-       link keeps its step (6.9:1), as one step lighter it would be the color of the text */
+    /* On a subtle surface (primary-5) the secondary text takes the lightest step; the link keeps
+       its step, 7:1 on it (palette.ts) */
     --gl-subtle-text-secondary: var(--gl-neutral-1);
     --gl-subtle-link: var(--gl-primary-2);
   }
@@ -124,7 +132,6 @@
 @media screen and (prefers-color-scheme: dark) and (prefers-contrast: more) {
   :where(:root:not([data-theme="light"])) {
     --gl-text-secondary: var(--gl-neutral-1);
-    --gl-border: var(--gl-neutral-3);
   }
 }
 
@@ -142,20 +149,22 @@
     --gl-text: var(--gl-neutral-1);
     --gl-text-secondary: var(--gl-neutral-2);
     --gl-link: var(--gl-primary-2);
-    --gl-button: var(--gl-primary-3);
-    --gl-on-button: var(--gl-white);
-    --gl-border: var(--gl-neutral-4);
+    --gl-button: var(--gl-primary-2);
+    --gl-on-button: var(--gl-black);
+    --gl-border: var(--gl-neutral-3);
     --gl-border-input: var(--gl-neutral-3);
+    --gl-surface-subtle-border: var(--gl-primary-3);
+    --gl-accent: var(--gl-primary-3);
     --gl-focus: var(--gl-primary-2);
     --gl-warning: var(--gl-yellow);
     --gl-danger: var(--gl-red-light);
 
-    /* The step a button takes when pointed and pressed: the darkest would vanish on the black */
-    --gl-button-hover: var(--gl-primary-4);
-    --gl-button-active: var(--gl-primary-4);
+    /* The button pointed and pressed goes one step lighter, under the same black label */
+    --gl-button-hover: var(--gl-primary-1);
+    --gl-button-active: var(--gl-primary-1);
 
-    /* The secondary text on a subtle surface (primary-5) takes one step lighter than usual; the
-       link keeps its step (6.9:1), as one step lighter it would be the color of the text */
+    /* On a subtle surface (primary-5) the secondary text takes the lightest step; the link keeps
+       its step, 7:1 on it (palette.ts) */
     --gl-subtle-text-secondary: var(--gl-neutral-1);
     --gl-subtle-link: var(--gl-primary-2);
   }
@@ -164,20 +173,22 @@
 @media screen and (prefers-contrast: more) {
   :where(:root[data-theme="dark"]) {
     --gl-text-secondary: var(--gl-neutral-1);
-    --gl-border: var(--gl-neutral-3);
   }
 }
 
 /* The band of the privacy badge, black in the light theme and the darkest blue in the dark one,
-   takes the link of the dark theme */
+   takes the link and the ring of the focus of the dark theme */
 :where(#PrivacyBadge) {
   --gl-link: var(--gl-primary-2);
+  --gl-focus: var(--gl-primary-2);
 }
 
-/* The text on the subtle surfaces: one step darker in the light theme, one step lighter in the dark
-   one */
-:where(#FooterBox, .tos-text, .alert-secondary, .jumbotron, .drag-drop:hover,
-       .audio-box, .select-card.selected, .input-group-text) {
+
+/* The text on the subtle surfaces: black and the darkest blue in the light theme, the lightest
+   steps in the dark one */
+:where(#FooterBox, .tos-text, .alert-primary, .alert-info, .alert-success,
+       .alert-secondary, .jumbotron, .drag-drop, .audio-box, .select-card.selected, .input-group-text,
+       .card-header, .bg-light) {
   --gl-text-secondary: var(--gl-subtle-text-secondary);
   --gl-link: var(--gl-subtle-link);
 }
@@ -283,7 +294,7 @@
 
 .progress {
   --bs-progress-bg: var(--gl-surface-subtle);
-  --bs-progress-bar-bg: var(--gl-button);
+  --bs-progress-bar-bg: var(--gl-accent);
 }
 
 .form-control,
@@ -318,9 +329,23 @@
   border-color: var(--gl-border-input);
 }
 
+/* The brand (Blue_3) is the color of the accents: what is chosen, the fill of a progress, the border
+   of an information and its icon. It is never the color of a text: on it, the mark is white */
 .form-check-input:checked {
-  background-color: var(--gl-button);
-  border-color: var(--gl-button);
+  background-color: var(--gl-accent);
+  border-color: var(--gl-accent);
+}
+
+.fa-circle-info {
+  color: var(--gl-accent);
+}
+
+/* The checkboxes and the radios are the ones of the browser, which take the accent from here */
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+progress {
+  accent-color: var(--gl-accent);
 }
 
 .btn-primary {
@@ -338,78 +363,42 @@
   --bs-btn-disabled-border-color: var(--gl-button);
 }
 
-.btn-secondary {
-  --bs-btn-color: var(--gl-bg);
-  --bs-btn-bg: var(--gl-text-secondary);
-  --bs-btn-border-color: var(--gl-text-secondary);
-  --bs-btn-hover-color: var(--gl-bg);
-  --bs-btn-hover-bg: var(--gl-text);
-  --bs-btn-hover-border-color: var(--gl-text);
-  --bs-btn-active-color: var(--gl-bg);
-  --bs-btn-active-bg: var(--gl-text);
-  --bs-btn-active-border-color: var(--gl-text);
-  --bs-btn-disabled-color: var(--gl-bg);
-  --bs-btn-disabled-bg: var(--gl-text-secondary);
-  --bs-btn-disabled-border-color: var(--gl-text-secondary);
-}
-
+/* The brand button is the only one filled with a color: the others say what they do with the color
+   of their label and of their border, on the background. The secondary one is gray */
 .btn-outline-secondary {
-  --bs-btn-color: var(--gl-text);
+  --bs-btn-color: var(--gl-text-secondary);
   --bs-btn-bg: transparent;
   --bs-btn-border-color: var(--gl-border-input);
-  --bs-btn-hover-color: var(--gl-text);
+  --bs-btn-hover-color: var(--gl-text-secondary);
   --bs-btn-hover-bg: var(--gl-surface-subtle);
   --bs-btn-hover-border-color: var(--gl-border-input);
-  --bs-btn-active-color: var(--gl-text);
+  --bs-btn-active-color: var(--gl-text-secondary);
   --bs-btn-active-bg: var(--gl-surface-subtle);
-  --bs-btn-active-border-color: var(--gl-text);
+  --bs-btn-active-border-color: var(--gl-text-secondary);
   --bs-btn-disabled-color: var(--gl-text-secondary);
   --bs-btn-disabled-bg: transparent;
   --bs-btn-disabled-border-color: var(--gl-border);
 }
 
-.btn-light {
-  --bs-btn-color: var(--gl-text);
-  --bs-btn-bg: var(--gl-surface-subtle);
-  --bs-btn-border-color: var(--gl-border);
-  --bs-btn-hover-color: var(--gl-text);
-  --bs-btn-hover-bg: var(--gl-surface);
-  --bs-btn-hover-border-color: var(--gl-border-input);
-  --bs-btn-active-color: var(--gl-text);
-  --bs-btn-active-bg: var(--gl-surface);
-  --bs-btn-active-border-color: var(--gl-text);
-}
-
-/* The danger button is the same red in both themes, under a white label (4.9:1); pointed and
-   pressed, it darkens. The outline one says the danger with the red of the theme on the background */
-.btn-danger {
-  --bs-btn-color: var(--gl-white);
-  --bs-btn-bg: var(--gl-red);
-  --bs-btn-border-color: var(--gl-red);
-  --bs-btn-hover-color: var(--gl-white);
-  --bs-btn-hover-bg: color-mix(in srgb, var(--gl-red) 85%, var(--gl-black));
-  --bs-btn-hover-border-color: color-mix(in srgb, var(--gl-red) 85%, var(--gl-black));
-  --bs-btn-active-color: var(--gl-white);
-  --bs-btn-active-bg: color-mix(in srgb, var(--gl-red) 70%, var(--gl-black));
-  --bs-btn-active-border-color: color-mix(in srgb, var(--gl-red) 70%, var(--gl-black));
-  --bs-btn-disabled-color: var(--gl-white);
-  --bs-btn-disabled-bg: var(--gl-red);
-  --bs-btn-disabled-border-color: var(--gl-red);
-}
-
+/* The danger one has the red on its border and its icon, and the label in the color of the text:
+   the red is too light for a text on white */
 .btn-outline-danger {
-  --bs-btn-color: var(--gl-danger);
+  --bs-btn-color: var(--gl-text);
   --bs-btn-bg: transparent;
   --bs-btn-border-color: var(--gl-danger);
-  --bs-btn-hover-color: var(--gl-danger);
+  --bs-btn-hover-color: var(--gl-text);
   --bs-btn-hover-bg: transparent;
   --bs-btn-hover-border-color: var(--gl-danger);
-  --bs-btn-active-color: var(--gl-danger);
+  --bs-btn-active-color: var(--gl-text);
   --bs-btn-active-bg: transparent;
   --bs-btn-active-border-color: var(--gl-danger);
-  --bs-btn-disabled-color: var(--gl-danger);
+  --bs-btn-disabled-color: var(--gl-text);
   --bs-btn-disabled-bg: transparent;
   --bs-btn-disabled-border-color: var(--gl-danger);
+}
+
+.btn-outline-danger :is(i, svg) {
+  color: var(--gl-danger);
 }
 
 .btn-outline-danger:hover {
@@ -447,7 +436,7 @@
 .alert-success {
   --bs-alert-color: var(--gl-text);
   --bs-alert-bg: var(--gl-surface-subtle);
-  --bs-alert-border-color: var(--gl-button);
+  --bs-alert-border-color: var(--gl-accent);
   --bs-alert-link-color: var(--gl-link);
 }
 
@@ -458,7 +447,14 @@
   color: var(--gl-link) !important;
 }
 
+/* An error is said in red: its text, its icon and its border */
 .text-danger {
+  color: var(--gl-danger) !important;
+}
+
+:is(i, svg).text-danger,
+.text-danger :is(i, svg),
+.invalid-feedback :is(i, svg) {
   color: var(--gl-danger) !important;
 }
 
@@ -495,8 +491,9 @@
 }
 
 .bg-danger {
-  color: var(--gl-white);
-  background-color: var(--gl-red) !important;
+  color: var(--gl-text);
+  background-color: transparent !important;
+  border: 1px solid var(--gl-danger);
 }
 
 .bg-warning,
@@ -682,12 +679,12 @@
 }
 
 .multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"]:checked + div::before {
-  background: var(--gl-button) !important;
-  border-color: var(--gl-button) !important;
+  background: var(--gl-accent) !important;
+  border-color: var(--gl-accent) !important;
 }
 
 .multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"] + div::after {
-  border-color: var(--gl-on-button) !important;
+  border-color: var(--gl-white) !important;
 }
 
 .multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"]:hover + div::before,
@@ -698,7 +695,7 @@
 
 .multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"]:checked:hover + div::before,
 .multiselect-dropdown .multiselect-item-checkbox input[type="checkbox"]:checked:focus + div::before {
-  background-color: var(--gl-button) !important;
+  background-color: var(--gl-accent) !important;
 }
 
 /*

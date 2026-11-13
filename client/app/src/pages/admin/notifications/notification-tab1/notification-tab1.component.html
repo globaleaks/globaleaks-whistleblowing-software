@@ -91,7 +91,7 @@
     </div>
     <div class="form-group">
       <button class="btn btn-primary" [disabled]="notificationForm().invalid" (click)="updateNotification(notificationResolver.dataModel)" type="submit">
-        <i class="fa-solid fa-check"></i>
+        <i class="fa-solid fa-floppy-disk"></i>
         <span id="save_notification">{{ 'Save' | translate }}</span>
       </button>
       <button ngbTooltip="{{'Send a test email to your email address.' | translate}}" (click)="updateThenTestMail(notificationResolver.dataModel)" class="btn btn-primary">

@@ -54,7 +54,7 @@
                   <td class="preformatted">{{ default_texts[item] || item }}</td>
                   <td class="clearfix">
                     <span class="preformatted">{{ custom_texts[item] }}</span>
-                    <button type="button" class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item); updateCustomText(custom_texts,vars.language_to_customize)"
+                    <button type="button" class="deleteCustomTextButton float-end btn btn-sm btn-outline-danger" (click)="deleteCustomText(custom_texts,item); updateCustomText(custom_texts,vars.language_to_customize)"
                             [attr.aria-label]="'Delete' | translate" ngbTooltip="{{ 'Delete' | translate }}">
                       <i class="fa-solid fa-trash" aria-hidden="true"></i>
                     </button>

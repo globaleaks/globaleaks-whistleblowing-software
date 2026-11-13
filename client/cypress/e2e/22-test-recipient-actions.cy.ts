@@ -19,7 +19,7 @@ describe("recipient admin tip actions", () => {
     cy.get('.custom-date-selector').first().click();
     cy.get('.custom-date-selector').eq(4).click({ shiftKey: true });
     // The button that resets the range, found by its place: its text is in the language of the run
-    cy.get('#tip-action-filter-report-date').next().find('button.btn-danger').click();
+    cy.get('#tip-action-filter-report-date').next().find('button.btn-outline-danger').click();
 
     // Select all the reports
     cy.get('#tip-action-select-all').click();

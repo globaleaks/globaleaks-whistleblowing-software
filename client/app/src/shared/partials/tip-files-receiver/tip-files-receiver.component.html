@@ -21,7 +21,7 @@
                     <td>{{ displayName(file) }}</td>
                     <td>
                       @if (!maskService.isMasked(file.ifile_id, tipService.tip)) {
-                        <button class="btn btn-sm btn-primary tip-action-views-file"  [class.btn-secondary]="!utilsService.supportedViewTypes.includes(file.type)" [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)" type="button" [attr.aria-label]="'View' | translate">
+                        <button class="btn btn-sm tip-action-views-file" [class.btn-primary]="utilsService.supportedViewTypes.includes(file.type)" [class.btn-outline-secondary]="!utilsService.supportedViewTypes.includes(file.type)" [disabled]="!utilsService.supportedViewTypes.includes(file.type)" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(file)" type="button" [attr.aria-label]="'View' | translate">
                           <i class="fa-solid fa-eye"></i>
                         </button>
                       } @else {
@@ -53,7 +53,7 @@
                                   </button>
                               }
                               @if (preferenceResolver.dataModel.can_redact_information) {
-                                <button class="btn btn-sm btn-danger tip-action-delete-file" [ngbTooltip]="'Delete' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('redact', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Delete' | translate">
+                                <button class="btn btn-sm btn-outline-danger tip-action-delete-file" [ngbTooltip]="'Delete' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('redact', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Delete' | translate">
                                   <i class="fa-solid fa-trash"></i>
                                 </button>
                               }

@@ -200,11 +200,11 @@
     }
     <div class="form-group">
       <button class="btn btn-primary" id="save" [disabled]="contentForm().invalid" (click)="updateNode()" type="submit">
-        <i class="fa-solid fa-check"></i>
+        <i class="fa-solid fa-floppy-disk"></i>
         <span>{{ 'Save' | translate }}</span>
       </button>
       @if (nodeResolver.dataModel.root_tenant || authenticationService.session.properties.management_session) {
-        <button class="btn btn-danger" (click)="resetSubmissions()">
+        <button class="btn btn-outline-danger" (click)="resetSubmissions()">
           <i class="fa-solid fa-trash"></i>
           <span>{{ 'Reset reports' | translate }}</span>
         </button>

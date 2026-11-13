@@ -5,7 +5,7 @@
   <div id="WhistleblowerBox" class="d-block mx-auto">
     @if (appDataService.public.node.disable_submissions || (!appDataService.public.node.https_whistleblower && !appDataService.connection.tor)) {
       <div id="WhistleblowerSubmitBoxButtonDisabled" class="mt-4">
-        <button class="btn btn-danger disabled">
+        <button class="btn btn-outline-danger disabled">
           <i class="fa-solid fa-ban"></i>
           <span id="submissions_disabled">{{'Submissions disabled'|translate}}</span>
         </button>

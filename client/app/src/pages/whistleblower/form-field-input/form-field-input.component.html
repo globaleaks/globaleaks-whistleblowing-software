@@ -82,7 +82,7 @@
               <div>
                 <div class="input-group">
                   <input id="{{fieldEntry()}}" class="form-control" [name]="fieldEntry()" [minDate]="dateOptions.min_date" [maxDate]="dateOptions.max_date" type="text" readonly="readonly" [attr.aria-label]="field().label" [(ngModel)]="input_date" [required]="entry().required_status" ngbDatepicker #datepicker="ngbDatepicker" (click)="datepicker.toggle()" (ngModelChange)="onDateSelection()" />
-                  <button type="button" class="btn btn-light border border-1" (click)="datepicker.toggle()">
+                  <button type="button" class="btn btn-outline-secondary" (click)="datepicker.toggle()">
                     <i class="fa-solid fa-calendar"></i>
                   </button>
                 </div>
@@ -96,7 +96,7 @@
                 <span class="form-group ms-1">
                   <div class="input-group ms-1">
                     <input id="{{fieldEntry()}}" class="form-control" [name]="fieldEntry()+'-startDate'" [minDate]="dateOptions1" [maxDate]="dateOptions2" type="text" [readOnly]="true" [attr.aria-label]="field().label" [(ngModel)]="input_start_date" [required]="entry().required_status" ngbDatepicker #datepickerstart="ngbDatepicker" (click)="datepickerstart.toggle()" (ngModelChange)="onStartDateSelection(input_start_date)" />
-                    <button type="button" class="btn btn-light border border-1" (click)="datepickerstart.toggle()">
+                    <button type="button" class="btn btn-outline-secondary" (click)="datepickerstart.toggle()">
                       <i class="fa-solid fa-calendar"></i>
                     </button>
                   </div>
@@ -107,7 +107,7 @@
                 <span class="form-group ms-2">
                   <div class="input-group ms-1">
                     <input id="{{fieldEntry()}}" class="form-control" [name]="fieldEntry()+'-endDate'" [minDate]="input_start_date" [maxDate]="dateOptions2" type="text" [readonly]="true" [attr.aria-label]="field().label" [(ngModel)]="input_end_date" [required]="entry().required_status" ngbDatepicker #datepickerend="ngbDatepicker" (click)="datepickerend.toggle()" (ngModelChange)="onEndDateSelection(input_end_date)" [disabled]="!input_start_date" />
-                    <button type="button" class="btn btn-light border border-1" (click)="input_start_date && datepickerend.toggle()">
+                    <button type="button" class="btn btn-outline-secondary" (click)="input_start_date && datepickerend.toggle()">
                       <i class="fa-solid fa-calendar"></i>
                     </button>
                   </div>

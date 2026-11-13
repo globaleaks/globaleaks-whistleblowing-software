@@ -26,12 +26,48 @@ a:hover {
   color: var(--gl-link);
 }
 
-a:focus,
-button:focus,
-input:focus,
-textarea:focus {
-  outline: 3px solid var(--gl-text);
-  outline-offset: 2px;
+/* The ring of the focus is never removed: it stands 2px apart from the control, so that it is
+   told apart also from a button of its own color, at 3:1 at least on the background (Brand_2 on
+   white, Blue_2 on black). Bootstrap draws no ring of its own (bootstrap.scss) and removes the
+   outline of its buttons and fields, hence the importance */
+:focus-visible {
+  outline: 3px solid var(--gl-focus) !important;
+  outline-offset: 2px !important;
+}
+
+/* The links inside a running text are underlined: the color does not tell them alone */
+:where(p, dd, .alert, .form-text, .card-text, .tos-text, .preformatted) a:not(.btn) {
+  text-decoration: underline;
+}
+
+/* Buttons and fields offer a target of 44 × 44 px at least. Bootstrap draws them that tall by the
+   padding set in bootstrap.scss; the buttons with a padding of their own, and the selects of
+   ng-select that Bootstrap does not draw, are held to the height here */
+.btn,
+.ng-select .ng-select-container {
+  min-height: 2.75rem;
+}
+
+.btn,
+.page-link {
+  min-width: 2.75rem;
+}
+
+/* A page of a pagination is as wide as a finger at least: its number stays in the middle */
+.pagination .page-link {
+  text-align: center;
+}
+
+/* Nothing moves when the system asks for less motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .onion-address {
@@ -941,6 +977,7 @@ input[type="email"] {
   padding: 2rem 1rem;
   margin-bottom: 2rem;
   background-color: var(--gl-surface-subtle);
+  border: 1px solid var(--gl-surface-subtle-border);
   border-radius: 0.3rem;
 }
 
@@ -956,7 +993,6 @@ input[type="email"] {
 }
 
 .navbar-toggler:focus {
-  outline: none;
   box-shadow: none;
 }
 
@@ -994,7 +1030,9 @@ input[type="email"] {
   color: var(--gl-link);
 }
 
+/* The title of an item stands in the middle of the height of its buttons, a finger tall */
 .editorHeader {
+  align-items: center;
   cursor: pointer;
 }
 
@@ -1036,8 +1074,9 @@ i.fa-solid.fa-chevron-right {
   100% { opacity: 0; }
 }
 
+/* The indicator of a recording blinks for 5 seconds and then stays: nothing flashes for longer */
 .blink {
-  animation: blink 1s infinite;
+  animation: blink 1s 5;
 }
 
 .was-validated .form-check-input:valid ~ .form-check-label, .form-check-input.is-valid ~ .form-check-label {
@@ -1225,58 +1264,22 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   width: max-content;
 }
 
-/* The palette: the steps side by side, from the lightest, one under the other where the space left
-   by the page would not hold them. The colors are shown as they are, whatever the colors the
-   browser forces */
-.palette-preview {
-  container-type: inline-size;
-}
-
-.palette-swatches {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-/* A step: its value over its contrast with the color it is written in, the white or the black, in a
-   type small enough for the step to be as tall as the buttons beside it */
-.palette-swatch {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: calc(1.5rem + 0.75rem + 2px);
-  padding: 0 0.5rem;
-  border-radius: var(--bs-border-radius);
-  font-size: 0.7rem;
-  line-height: 1.15;
-  font-weight: bold;
-  white-space: nowrap;
-  overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgb(128 128 128 / 40%);
+/* The color chosen, in the button that opens the picker: a square of it beside its code */
+.primary-color-chip {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+  border-radius: 0.2rem;
+  box-shadow: inset 0 0 0 1px rgb(128 128 128 / 60%);
   forced-color-adjust: none;
 }
 
-.palette-swatch-text-white {
-  color: var(--gl-white);
-}
-
-.palette-swatch-text-black {
-  color: var(--gl-black);
-}
-
-.palette-swatch-value {
+.primary-color-value {
   color: inherit;
   font-size: inherit;
-}
-
-/* One step to a line */
-@container (width < 24rem) {
-  .palette-swatches {
-    grid-template-columns: minmax(0, 1fr);
-  }
+  vertical-align: middle;
 }
 
 /* The picker of the browser, unseen under the button that opens it: there it opens */

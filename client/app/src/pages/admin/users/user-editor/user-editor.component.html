@@ -108,7 +108,7 @@
         </div>
         @if (user().two_factor) {
           <div class="form-group">
-            <button type="button" class="btn btn-danger" (click)="disable2FA(user())">
+            <button type="button" class="btn btn-outline-danger" (click)="disable2FA(user())">
               <i class="fa-solid fa-ban"></i>
               <span>{{ 'Disable two factor authentication' | translate }}</span>
             </button>

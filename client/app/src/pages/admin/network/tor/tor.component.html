@@ -4,7 +4,7 @@
       <span class="input-group-text rounded-end-0">{{ 'Tor Onion Service' | translate }}</span>
       <label for="tor-onionservice" class="visually-hidden">{{ 'Tor Onion Service address' | translate }}</label>
       <input id="tor-onionservice" name="onionservice" class="form-control" type="text" [value]="networkData.onionservice" disabled />
-      <button class="btn btn-danger rounded-start-0 m-0" [disabled]="torOnionResetInProgress"
+      <button class="btn btn-outline-danger rounded-start-0 m-0" [disabled]="torOnionResetInProgress"
         (click)="resetOnionPrivateKey()">
         <i class="fa-solid fa-arrows-rotate"></i>
         <span>{{ 'Regenerate' | translate }}</span>
@@ -88,7 +88,7 @@
           <div class="col-md-6">
             <button class="btn btn-primary" [disabled]="adminNetForm.invalid"
               (click)="updateTor(networkData)" type="submit">
-              <i class="fa-solid fa-check"></i>
+              <i class="fa-solid fa-floppy-disk"></i>
               <span>{{ 'Save' | translate }}</span>
             </button>
           </div>

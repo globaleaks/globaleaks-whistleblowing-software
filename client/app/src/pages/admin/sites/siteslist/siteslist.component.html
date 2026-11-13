@@ -28,7 +28,7 @@
       @if (tenant().active) {
         <button type="button" class="btn btn-sm btn-primary" data-action="disable" name="disable_tenant" (click)="toggleActivation($event)">{{'Enabled'|translate}}</button>
       } @else {
-        <button type="button" class="btn btn-sm btn-danger" data-action="enable" name="enable_tenant" (click)="toggleActivation($event)">{{'Disabled'|translate}}</button>
+        <button type="button" class="btn btn-sm btn-outline-danger" data-action="enable" name="enable_tenant" (click)="toggleActivation($event)">{{'Disabled'|translate}}</button>
       }
     }
   </ng-container>

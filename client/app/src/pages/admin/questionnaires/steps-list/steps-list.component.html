@@ -72,8 +72,8 @@
         }
         @for (trigger of step().triggered_by_options; track trigger) {
           <div class="nested">
-            <button class="btn btn-sm btn-danger" (click)="delTrigger(trigger)">
-              <i class="fa-solid fa-xmark"></i>
+            <button class="btn btn-sm btn-outline-danger" (click)="delTrigger(trigger)">
+              <i class="fas fa-xmark"></i>
             </button>
             <span>{{ parsedFields().fields_by_id[trigger.field].label }}</span>: <span>{{ parsedFields().options_by_id[trigger.option].label }}</span>
             @if (trigger.sufficient) {
