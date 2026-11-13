@@ -44,7 +44,7 @@
             <span>{{ 'Export' | translate }}</span>
           </button>
           @if (isRemovableTenant()) {
-            <button type="button" id="action-tenant-profile-delete" class="btn btn-sm btn-danger" name="delete_tenant" [disabled]="tenant.in_use" (click)="deleteTenant($event, tenant)">{{'Delete'|translate}}</button>
+            <button type="button" id="action-tenant-profile-delete" class="btn btn-sm btn-outline-danger" name="delete_tenant" [disabled]="tenant.in_use" (click)="deleteTenant($event, tenant)">{{'Delete'|translate}}</button>
           }
     }
   </ng-container>

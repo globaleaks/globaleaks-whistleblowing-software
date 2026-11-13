@@ -299,7 +299,8 @@ describe("globaleaks process", function () {
     cy.get('#filter-creation_date').click();
     cy.get('.custom-date-selector').first().click();
     cy.get('.custom-date-selector').eq(4).click({ shiftKey: true });
-    cy.contains('button.btn.btn-danger', 'Reset').click();
+    // The button that resets the range, found by its place: its text is in the language of the run
+    cy.get('#filter-creation_date').next().find('button.btn-outline-danger').click();
 
     cy.get('#tip-action-select-all').click();
     cy.visit("/#/recipient/reports");

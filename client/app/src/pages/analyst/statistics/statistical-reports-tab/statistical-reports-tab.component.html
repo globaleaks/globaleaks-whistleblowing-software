@@ -48,7 +48,7 @@
                 }
               </button>
               <div [hidden]="!datePicker" tabindex="-1" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
-                <src-date-selector class="position-absolute d-block" [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)">
+                <src-date-selector class="position-absolute d-block" [currentDates]="dateModel" (emitDateSelection)="onDateFilterChange($event)" (closed)="datePicker=false">
                 </src-date-selector>
               </div>
             </span>
@@ -101,7 +101,7 @@
         <td>{{ row.label }}</td>
         <td>{{ row.template }}</td>
         <td class="text-end">
-          <button type="button" class="btn btn-sm btn-danger" name="delete_report" id="delete_report" (click)="deleteReport(row)">
+          <button type="button" class="btn btn-sm btn-outline-danger" name="delete_report" id="delete_report" (click)="deleteReport(row)">
             <span>{{ 'Delete' | translate }}</span>
           </button>
           <button type="button" class="btn btn-sm btn-outline-secondary ms-1" id="edit_report" data-cy="toggle-statistical-report"

@@ -93,7 +93,7 @@
          </div>
           @if (user().two_factor) {
             <div class="form-group">
-              <button type="button" class="btn btn-danger" (click)="disable2FA(user())">
+              <button type="button" class="btn btn-outline-danger" (click)="disable2FA(user())">
                 <i class="fa-solid fa-ban"></i>
                 <span>{{ 'Disable two factor authentication' | translate }}</span>
               </button>
@@ -101,7 +101,7 @@
           }
           @if (user().idp_binding) {
             <div class="form-group">
-              <button type="button" class="btn btn-danger" (click)="resetIdpBinding(user())">
+              <button type="button" class="btn btn-outline-danger" (click)="resetIdpBinding(user())">
                 <i class="fa-solid fa-ban"></i>
                 <span>{{ 'Reset the identity bound to this user' | translate }}</span>
               </button>

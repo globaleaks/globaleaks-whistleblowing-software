@@ -57,9 +57,9 @@
             <button type="button" class="btn btn-primary me-2" id="backup-enable" (click)="toggleBackup()">{{ 'Enable' | translate }}</button>
           }
           @if (nodeData.backup_enabled) {
-            <button type="button" class="btn btn-danger me-2" id="backup-disable" (click)="toggleBackup()">{{ 'Disable' | translate }}</button>
+            <button type="button" class="btn btn-outline-danger me-2" id="backup-disable" (click)="toggleBackup()">{{ 'Disable' | translate }}</button>
           }
-          <button type="button" class="btn btn-danger" id="backup-reset" (click)="resetBackups()">{{ 'Reset' | translate }}</button>
+          <button type="button" class="btn btn-outline-danger" id="backup-reset" (click)="resetBackups()">{{ 'Reset' | translate }}</button>
         </div>
     </div>
 </div>

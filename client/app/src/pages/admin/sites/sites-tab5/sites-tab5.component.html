@@ -94,7 +94,7 @@
       <td>{{ row.owner_name }}</td>
       <td>{{ row.channel_name }}</td>
       <td class="text-end">
-        <button type="button" class="btn btn-sm btn-danger" data-action="delete" (click)="removeExchange(row)">
+        <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete" (click)="removeExchange(row)">
           <span>{{ 'Delete' | translate }}</span>
         </button>
         <button type="button" class="btn btn-sm btn-outline-secondary ms-1" data-action="toggle" [attr.aria-expanded]="expandedId === row.exchange.id" (click)="toggleRow(row)">

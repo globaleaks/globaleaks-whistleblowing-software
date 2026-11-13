@@ -31,9 +31,9 @@
         <button type="button" class="btn btn-primary me-2" id="idp-enable" (click)="enableIdp()" [disabled]="heldByProfile('idp') || !isConfigurationValid()">{{ 'Enable' | translate }}</button>
       }
       @if (nodeData.idp) {
-        <button type="button" class="btn btn-danger me-2" id="idp-disable" (click)="disableIdp()" [disabled]="heldByProfile('idp')">{{ 'Disable' | translate }}</button>
+        <button type="button" class="btn btn-outline-danger me-2" id="idp-disable" (click)="disableIdp()" [disabled]="heldByProfile('idp')">{{ 'Disable' | translate }}</button>
       }
-      <button type="button" class="btn btn-danger" id="idp-reset" (click)="resetIdp()" [disabled]="heldByProfile('idp')">{{ 'Reset' | translate }}</button>
+      <button type="button" class="btn btn-outline-danger" id="idp-reset" (click)="resetIdp()" [disabled]="heldByProfile('idp')">{{ 'Reset' | translate }}</button>
     </div>
   </div>
 </div>

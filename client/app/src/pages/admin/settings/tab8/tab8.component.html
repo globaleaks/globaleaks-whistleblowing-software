@@ -258,12 +258,12 @@
         <span>{{ 'Save' | translate }}</span>
       </button>
       @if (nodeResolver.dataModel.root_tenant || authenticationService.session?.properties?.management_session) {
-        <button type="button" class="btn btn-danger" (click)="resetSubmissions()">
+        <button type="button" class="btn btn-outline-danger" (click)="resetSubmissions()">
           <i class="fa-solid fa-trash"></i>
           <span>{{ 'Reset reports' | translate }}</span>
         </button>
       }
-      <button type="button" class="btn btn-secondary" id="configuration" (click)="openConfiguration()">
+      <button type="button" class="btn btn-outline-secondary" id="configuration" (click)="openConfiguration()">
         <i class="fa-solid fa-sliders"></i>
         <span>{{ 'Configuration' | translate }}</span>
       </button>

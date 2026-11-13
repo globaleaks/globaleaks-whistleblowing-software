@@ -50,7 +50,7 @@
           </td>
           <td><span class="badge" [ngClass]="statusClass(request.status)">{{ statusLabel(request.status) | translate }}</span></td>
           <td class="text-end">
-            <button type="button" class="btn btn-sm btn-danger" data-cy="delete-support-request" (click)="deleteRequest(request)">
+            <button type="button" class="btn btn-sm btn-outline-danger" data-cy="delete-support-request" (click)="deleteRequest(request)">
               <span>{{ 'Delete' | translate }}</span>
             </button>
             <button type="button" class="btn btn-sm btn-outline-secondary ms-1" name="edit_support" data-cy="toggle-support-request" [attr.aria-expanded]="expandedRequestId === request.id" [attr.aria-label]="(expandedRequestId === request.id ? 'Collapse' : 'Expand') | translate" (click)="toggleRequest(request)">

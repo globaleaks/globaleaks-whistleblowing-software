@@ -19,12 +19,12 @@
               <button type="button" class="btn btn-sm btn-primary me-1" data-cy="accept-invite" (click)="$event.stopPropagation(); acceptInvite(item.id)">
                 {{'Accept' | translate}}
               </button>
-              <button type="button" class="btn btn-sm btn-danger me-1" data-cy="deny-invite" (click)="$event.stopPropagation(); denyInvite(item.id)">
+              <button type="button" class="btn btn-sm btn-outline-danger me-1" data-cy="deny-invite" (click)="$event.stopPropagation(); denyInvite(item.id)">
                 {{'Deny' | translate}}
               </button>
             }
             @if (canDelete(item)) {
-              <button type="button" class="btn btn-sm btn-danger" data-cy="delete-invite" (click)="$event.stopPropagation(); deleteInvite(item.id)">
+              <button type="button" class="btn btn-sm btn-outline-danger" data-cy="delete-invite" (click)="$event.stopPropagation(); deleteInvite(item.id)">
                 {{'Delete' | translate}}
               </button>
             }

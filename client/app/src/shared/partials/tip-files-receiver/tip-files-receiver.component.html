@@ -54,7 +54,7 @@
                                   </button>
                               }
                               @if (preferenceResolver.dataModel.profile.permissions.can_redact_information) {
-                                <button class="btn btn-sm btn-danger tip-action-delete-file" [ngbTooltip]="'Delete' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('redact', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Delete' | translate">
+                                <button class="btn btn-sm btn-outline-danger tip-action-delete-file" [ngbTooltip]="'Delete' | translate" [attr.disabled]="!redactMode() ? true : null" (click)="redactFileOperation('redact', 'file', file, tipService.tip.id)" type="button" [attr.aria-label]="'Delete' | translate">
                                   <i class="fa-solid fa-trash"></i>
                                 </button>
                               }

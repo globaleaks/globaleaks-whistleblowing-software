@@ -19,9 +19,9 @@
         <button type="button" class="btn btn-primary me-2" id="antivirus-enable" data-cy="antivirus-enable" (click)="toggleAntivirus()">{{ 'Enable' | translate }}</button>
       }
       @if (nodeData.antivirus_enabled) {
-        <button type="button" class="btn btn-danger me-2" id="antivirus-disable" data-cy="antivirus-disable" (click)="toggleAntivirus()">{{ 'Disable' | translate }}</button>
+        <button type="button" class="btn btn-outline-danger me-2" id="antivirus-disable" data-cy="antivirus-disable" (click)="toggleAntivirus()">{{ 'Disable' | translate }}</button>
       }
-      <button type="button" class="btn btn-danger" id="antivirus-reset" data-cy="antivirus-reset" (click)="resetAntivirus()">{{ 'Reset' | translate }}</button>
+      <button type="button" class="btn btn-outline-danger" id="antivirus-reset" data-cy="antivirus-reset" (click)="resetAntivirus()">{{ 'Reset' | translate }}</button>
     </div>
   </div>
 </div>

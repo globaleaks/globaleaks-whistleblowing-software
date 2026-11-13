@@ -16,7 +16,7 @@
           <span>{{ 'Export' | translate }}</span>
         </button>
         @if (getUserID() !== profile.id && nodeData.tid === profile.tid) {
-          <button class="btn btn-sm btn-danger" id="delete_profile" [disabled]="profile.in_use" (click)="deleteProfile(profile)">
+          <button class="btn btn-sm btn-outline-danger" id="delete_profile" [disabled]="profile.in_use" (click)="deleteProfile(profile)">
             <span>{{ 'Delete' | translate }}</span>
           </button>
         }
