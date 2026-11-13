@@ -32,6 +32,7 @@
             "allowedCommonJsDependencies": ["@flowjs/flow.js", "qrcode"],
             "styles": [
               { "bundleName": "styles", "inject": true, "input": "node_modules/@fontsource-variable/noto-sans/index.css" },
+              { "bundleName": "styles", "inject": true, "input": "node_modules/@fontsource-variable/noto-sans-mono/index.css" },
               { "bundleName": "styles", "inject": true, "input": "node_modules/@fortawesome/fontawesome-svg-core/styles.css" },
               { "bundleName": "styles", "inject": true, "input": "node_modules/@angular/cdk/a11y-prebuilt.css" },
               { "bundleName": "styles", "inject": true, "input": "app/css/components/libs/bootstrap/bootstrap.scss" },

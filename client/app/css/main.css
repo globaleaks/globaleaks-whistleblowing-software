@@ -958,9 +958,31 @@ input[type="email"] {
   color: var(--gl-link);
 }
 
+/* The access code, 16 digits in groups of four: as wide as its 19 characters of the monospaced font */
 .receipt-input {
-  width: 300px;
-  text-align: center;
+  width: fit-content;
+  margin-inline: auto;
+}
+
+/* What is typed or read one character at a time - the access code, the passwords, the codes of the
+   two factor authentication, the recovery key - is written in the monospaced font, where every
+   character takes the same room and none is taken for another; while the placeholder shows, the
+   field keeps the font of the interface */
+input[type="password"]:not(:placeholder-shown),
+.mono-input:not(:placeholder-shown),
+.receipt-code {
+  font-family: "Noto Sans Mono Variable", monospace;
+}
+
+/* Aligned to the start of the field, which is left to right in every language (dir="ltr"), each
+   character of the access code appears where it stays */
+.receipt-code {
+  text-align: start;
+}
+
+.input-group > .receipt-code {
+  flex: 0 0 auto;
+  width: calc(19ch + 2 * var(--bs-border-width) + 1.5rem);
 }
 
 .container-disabled {

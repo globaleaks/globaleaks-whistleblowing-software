@@ -29,6 +29,7 @@
         "@fontsource-variable/noto-sans-khmer": "5.3.0",
         "@fontsource-variable/noto-sans-kr": "5.3.1",
         "@fontsource-variable/noto-sans-lao": "5.3.0",
+        "@fontsource-variable/noto-sans-mono": "5.3.0",
         "@fontsource-variable/noto-sans-myanmar": "5.3.0",
         "@fontsource-variable/noto-sans-sc": "5.3.1",
         "@fontsource-variable/noto-sans-tamil": "5.3.0",
@@ -3759,6 +3760,15 @@
       "version": "5.3.0",
       "resolved": "https://registry.npmjs.org/@fontsource-variable/noto-sans-lao/-/noto-sans-lao-5.3.0.tgz",
       "integrity": "sha512-XeZu5Vu6K6jdnbbpYoYifYdbgT76/5ogUpEvRgzhev3chS6BKEI13fxsgaIVQAfzGfDn408vjRYUBxTUS7S8cg==",
+      "license": "OFL-1.1",
+      "funding": {
+        "url": "https://github.com/sponsors/ayuhito"
+      }
+    },
+    "node_modules/@fontsource-variable/noto-sans-mono": {
+      "version": "5.3.0",
+      "resolved": "https://registry.npmjs.org/@fontsource-variable/noto-sans-mono/-/noto-sans-mono-5.3.0.tgz",
+      "integrity": "sha512-EgozyWG4nG2U1OT+zfdyHP1L8O0fUFMUBOilVF9urTshqIdfeGV9/FUQxaNHdPvHtV1cQCs1Ql0W1q93SiPK2w==",
       "license": "OFL-1.1",
       "funding": {
         "url": "https://github.com/sponsors/ayuhito"
