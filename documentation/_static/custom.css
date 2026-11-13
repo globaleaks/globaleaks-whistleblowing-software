@@ -40,8 +40,11 @@
   --font-stack--headings: "Noto Sans", sans-serif;
 }
 
-.highlight {
-  background-color: #EEF5FC;
+/* The code takes the subtle surface of the palette (conf.py), not the background of the Pygments
+   styles; the selector weighs as much as theirs for the dark theme, and comes after */
+body:is([data-theme], :not([data-theme])) .highlight {
+  background: var(--color-code-background);
+  color: var(--color-code-foreground);
 }
 
 .introduction-banner {
@@ -71,12 +74,4 @@
 
 img.align-center {
   margin-bottom: 1rem;
-}
-
-@media not print {
-  @media (prefers-color-scheme: dark) {
-    body:not([data-theme="light"]) {
-    --color-code-background: #1D1F24;
-    --color-code-foreground: #F5F7FA;
-  }
 }

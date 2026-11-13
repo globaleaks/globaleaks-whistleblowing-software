@@ -87,19 +87,70 @@ html_theme_options = {
     "html_copy_source": False,
     "light_logo": "images/logo-light-html.webp",
     "dark_logo": "images/logo-dark-html.webp",
+    # The roles of the interface (client/app/css/theme.css) on the official palette of the Visual
+    # Identity Guidelines v3.0: every text pair is 7:1 or more (AAA)
     "light_css_variables": {
-        "color-brand-primary": "#205282",
-        "color-brand-content": "#205282",
+        "color-brand-primary": "#025A9F",
+        "color-brand-content": "#025A9F",
+        "color-brand-visited": "#025A9F",
+        "color-link--hover": "#002445",
+        "color-link--visited--hover": "#002445",
+        "color-foreground-primary": "#1F1F1F",
+        "color-foreground-secondary": "#525964",
+        "color-foreground-muted": "#525964",
+        "color-foreground-border": "#6E7783",
+        "color-background-primary": "#FFFFFF",
+        "color-background-secondary": "#F2F4F7",
+        "color-background-hover": "#ECF5FE",
+        "color-background-border": "#A5ACB6",
+        "color-code-background": "#ECF5FE",
+        "color-code-foreground": "#1F1F1F",
+        # On the subtle surface of the sidebar (Gray_1) the link is Brand_2
+        "color-sidebar-link-text--top-level": "#002445",
     },
     "dark_css_variables": {
-        "color-brand-primary": "#79B0E6",
-        "color-brand-content": "#79B0E6",
+        "color-brand-primary": "#7BBBFE",
+        "color-brand-content": "#7BBBFE",
+        "color-brand-visited": "#7BBBFE",
+        "color-link--hover": "#ECF5FE",
+        "color-link--visited--hover": "#ECF5FE",
+        "color-foreground-primary": "#F2F4F7",
+        "color-foreground-secondary": "#A5ACB6",
+        "color-foreground-muted": "#A5ACB6",
+        "color-foreground-border": "#6E7783",
+        "color-background-primary": "#1F1F1F",
+        "color-background-secondary": "#002445",
+        "color-background-hover": "#002445",
+        "color-background-border": "#525964",
+        "color-code-background": "#002445",
+        "color-code-foreground": "#F2F4F7",
+        # On the subtle surface of the sidebar (Brand_2) the link keeps Blue_2 (7:1)
+        "color-sidebar-link-text--top-level": "#7BBBFE",
     },
 }
 
+# The PDF takes the colors of the light theme of the HTML: the titles in Brand_2, the code on the
+# subtle surface (Blue_1) with the border of the palette, and the titles of the notes in Blue_3 or,
+# for the warnings and the errors, in the color of danger, on the subtle surface
+latex_admonitions_info = ['note', 'hint', 'tip', 'seealso', 'todo', 'important', 'topic', 'contents', 'sidebar']
+latex_admonitions_danger = ['caution', 'warning', 'attention', 'danger', 'error']
+
+latex_sphinxsetup = [
+  'InnerLinkColor={HTML}{025A9F}',
+  'OuterLinkColor={HTML}{025A9F}',
+  'TitleColor={HTML}{002445}',
+  'VerbatimColor={HTML}{ECF5FE}',
+  'VerbatimBorderColor={HTML}{A5ACB6}',
+  'iconpackage=fontawesome7',
+]
+
+for admonition_type, color in [(t, '0978CF') for t in latex_admonitions_info] + [(t, 'E30310') for t in latex_admonitions_danger]:
+  latex_sphinxsetup.append(f'div.{admonition_type}_title-foreground-TeXcolor={{HTML}}{{{color}}}')
+  latex_sphinxsetup.append(f'div.{admonition_type}_title-background-TeXcolor={{HTML}}{{ECF5FE}}')
+
 latex_elements = {
   'preamble': r'\pdfmapfile{+"../../texmf/fonts/map/dvips/fontawesome7/fontawesome7.map"}',
-  'sphinxsetup': 'InnerLinkColor={HTML}{205282}, OuterLinkColor={HTML}{205282}, iconpackage=fontawesome7',
+  'sphinxsetup': ', '.join(latex_sphinxsetup),
 }
 
 latex_documents = []
