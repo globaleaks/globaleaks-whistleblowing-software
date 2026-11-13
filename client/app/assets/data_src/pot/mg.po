@@ -2066,3 +2066,6 @@ msgstr "Fitetezana lehibe"
 
 msgid "Copied to clipboard"
 msgstr "Voadika"
+
+msgid "Colors"
+msgstr "Loko"

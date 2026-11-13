@@ -2064,3 +2064,6 @@ msgstr "Galvenā navigācija"
 
 msgid "Copied to clipboard"
 msgstr "Nokopēts starpliktuvē"
+
+msgid "Colors"
+msgstr "Krāsas"

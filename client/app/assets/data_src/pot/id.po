@@ -2084,3 +2084,6 @@ msgstr "Navigasi utama"
 
 msgid "Copied to clipboard"
 msgstr "Disalin ke papan klip"
+
+msgid "Colors"
+msgstr "Warna"

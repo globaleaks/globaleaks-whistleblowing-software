@@ -2066,3 +2066,6 @@ msgstr "Əsas naviqasiya"
 
 msgid "Copied to clipboard"
 msgstr "Mübadilə buferinə kopyalandı"
+
+msgid "Colors"
+msgstr "Rənglər"

@@ -2064,3 +2064,6 @@ msgstr "Esasy nawigasiýa"
 
 msgid "Copied to clipboard"
 msgstr "Bufere göçürildi"
+
+msgid "Colors"
+msgstr "Reňkler"

@@ -2073,3 +2073,6 @@ msgstr "Hovednavigation"
 
 msgid "Copied to clipboard"
 msgstr "Kopieret til udklipsholderen"
+
+msgid "Colors"
+msgstr "Farver"

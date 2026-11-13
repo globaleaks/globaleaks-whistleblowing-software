@@ -2113,3 +2113,6 @@ msgstr "Navegación principal"
 
 msgid "Copied to clipboard"
 msgstr "Copiado al portapapeles"
+
+msgid "Colors"
+msgstr "Colores"

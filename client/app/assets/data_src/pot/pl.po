@@ -2082,3 +2082,6 @@ msgstr "Nawigacja główna"
 
 msgid "Copied to clipboard"
 msgstr "Skopiowano do schowka"
+
+msgid "Colors"
+msgstr "Kolory"

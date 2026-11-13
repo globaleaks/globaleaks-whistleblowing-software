@@ -2060,3 +2060,6 @@ msgstr "Asasiy yol bashlash"
 
 msgid "Copied to clipboard"
 msgstr "Chaplash taxtisigha köchürüldi"
+
+msgid "Colors"
+msgstr "Rengler"

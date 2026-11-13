@@ -2102,3 +2102,6 @@ msgstr "Navegação principal"
 
 msgid "Copied to clipboard"
 msgstr "Copiado para a área de transferência"
+
+msgid "Colors"
+msgstr "Cores"

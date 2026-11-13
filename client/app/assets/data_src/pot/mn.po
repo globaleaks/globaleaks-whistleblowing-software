@@ -2144,3 +2144,6 @@ msgstr "Үндсэн навигаци"
 
 msgid "Copied to clipboard"
 msgstr "Санах ойд хуулагдлаа"
+
+msgid "Colors"
+msgstr "Өнгө"

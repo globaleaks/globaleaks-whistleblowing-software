@@ -2060,3 +2060,6 @@ msgstr "اصلي لارښوونه"
 
 msgid "Copied to clipboard"
 msgstr "کلیپ بورډ ته کاپي شو"
+
+msgid "Colors"
+msgstr "رنګونه"

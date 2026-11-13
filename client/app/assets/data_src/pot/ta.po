@@ -2049,3 +2049,6 @@ msgstr "முதன்மை வழிசெலுத்தல்"
 
 msgid "Copied to clipboard"
 msgstr "கிளிப்போர்டுக்கு நகலெடுக்கப்பட்டது"
+
+msgid "Colors"
+msgstr "நிறங்கள்"

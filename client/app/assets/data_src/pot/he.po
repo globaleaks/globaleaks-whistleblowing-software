@@ -2058,3 +2058,6 @@ msgstr "ניווט ראשי"
 
 msgid "Copied to clipboard"
 msgstr "הועתק ללוח"
+
+msgid "Colors"
+msgstr "צבעים"

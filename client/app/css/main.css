@@ -1225,6 +1225,74 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   width: max-content;
 }
 
+/* The palette: the steps side by side, from the lightest, one under the other where the space left
+   by the page would not hold them. The colors are shown as they are, whatever the colors the
+   browser forces */
+.palette-preview {
+  container-type: inline-size;
+}
+
+.palette-swatches {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* A step: its value over its contrast with the color it is written in, the white or the black, in a
+   type small enough for the step to be as tall as the buttons beside it */
+.palette-swatch {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: calc(1.5rem + 0.75rem + 2px);
+  padding: 0 0.5rem;
+  border-radius: var(--bs-border-radius);
+  font-size: 0.7rem;
+  line-height: 1.15;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgb(128 128 128 / 40%);
+  forced-color-adjust: none;
+}
+
+.palette-swatch-text-white {
+  color: var(--gl-white);
+}
+
+.palette-swatch-text-black {
+  color: var(--gl-black);
+}
+
+.palette-swatch-value {
+  color: inherit;
+  font-size: inherit;
+}
+
+/* One step to a line */
+@container (width < 24rem) {
+  .palette-swatches {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The picker of the browser, unseen under the button that opens it: there it opens */
+.palette-picker {
+  position: relative;
+}
+
+.palette-picker input[type="color"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* The switch of the theme: a sun in the light theme, a moon in the dark one, in the color of the text */
 #ThemeToggleBox {
   margin-left: 0.5em;

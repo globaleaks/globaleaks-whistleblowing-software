@@ -32,6 +32,8 @@ short_text_regexp = r'^.{1,255}$'
 short_text_regexp_or_empty = r'^.{0,255}$'
 languages_list_regexp = r'^([a-zA-Z-]+)?(,\s*[a-zA-Z-]+)*$'
 homepage_regexp = r'^/(submission)?$'
+# The brand color of a site, from which the palette of the interface is computed
+hex_color_regexp = r'^#[0-9A-Fa-f]{6}$'
 
 field_instance_regexp = (r'^('
                          'instance|'
@@ -249,6 +251,7 @@ AdminNodeDesc = {
     'adminonly': bool,
     'custom_support_url': url_regexp_or_empty,
     'pgp': bool,
+    'primary_color': hex_color_regexp,
     'user_privacy_policy_text': str,
     'user_privacy_policy_url': str
 }
@@ -428,6 +431,7 @@ NodeDesc = {
     'maximum_filesize': int,
     'name': str,
     'presentation': str,
+    'primary_color': hex_color_regexp,
     'rootdomain': hostname_regexp_or_empty,
     'show_contexts_in_alphabetical_order': bool,
     'signup_tos1_checkbox_label': str,

@@ -2058,3 +2058,6 @@ msgstr "ပင်မ လမ်းညွှန်"
 
 msgid "Copied to clipboard"
 msgstr "ကလစ်ဘုတ်သို့ ကူးယူပြီးပါပြီ"
+
+msgid "Colors"
+msgstr "အရောင်များ"

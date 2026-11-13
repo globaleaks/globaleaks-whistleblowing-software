@@ -2060,3 +2060,6 @@ msgstr "Төп навигация"
 
 msgid "Copied to clipboard"
 msgstr "Алмашу буферына күчерелде"
+
+msgid "Colors"
+msgstr "Төсләр"

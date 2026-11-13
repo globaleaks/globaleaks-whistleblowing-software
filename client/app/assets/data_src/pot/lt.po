@@ -2062,3 +2062,6 @@ msgstr "Pagrindinė navigacija"
 
 msgid "Copied to clipboard"
 msgstr "Nukopijuota į iškarpinę"
+
+msgid "Colors"
+msgstr "Spalvos"

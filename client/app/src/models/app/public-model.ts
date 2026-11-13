@@ -16,6 +16,7 @@ export class Node {
   allow_indexing: boolean;
   adminonly: boolean;
   pgp: boolean;
+  primary_color: string;
   custom_support_url: string;
   disable_admin_notification: boolean;
   disable_receiver_notification: boolean;

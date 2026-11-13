@@ -2085,3 +2085,6 @@ msgstr "ناوبری اصلی"
 
 msgid "Copied to clipboard"
 msgstr "در کلیپ‌بورد کپی شد"
+
+msgid "Colors"
+msgstr "رنگ‌ها"

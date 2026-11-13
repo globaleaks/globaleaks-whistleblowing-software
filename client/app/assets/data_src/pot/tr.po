@@ -2088,3 +2088,6 @@ msgstr "Ana gezinme"
 
 msgid "Copied to clipboard"
 msgstr "Panoya kopyalandı"
+
+msgid "Colors"
+msgstr "Renkler"

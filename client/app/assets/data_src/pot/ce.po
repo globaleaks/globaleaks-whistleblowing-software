@@ -2061,3 +2061,6 @@ msgstr "Коьрта навигаци"
 
 msgid "Copied to clipboard"
 msgstr "Буфере копи йина"
+
+msgid "Colors"
+msgstr "Басарш"

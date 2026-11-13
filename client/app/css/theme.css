@@ -1,9 +1,12 @@
 /*
  * The theme of the interface
  *
- * The palette is the official GlobaLeaks one (Visual Identity Guidelines v3.0): two scales of five
- * steps, primary and neutral, and a few colors every palette shares. The interface never names a
- * color of the palette: it names a role, and the role takes a color of the palette.
+ * The palette is two scales of five steps, primary and neutral, computed from the primary color of
+ * the site (palette.ts), and a few colors every site shares. The interface never names a color of
+ * the palette: it names a role, and the role takes a color of the palette in the light and in the
+ * dark theme. The values written here are the official GlobaLeaks palette (Visual Identity
+ * Guidelines v3.0), the one of the default primary color: the theme service replaces the scales
+ * with the ones of the color of the site.
  *
  * The steps of a scale are read from one end in the light theme and from the other in the dark one:
  *

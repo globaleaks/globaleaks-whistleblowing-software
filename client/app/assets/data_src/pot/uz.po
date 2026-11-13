@@ -2061,3 +2061,6 @@ msgstr "Asosiy navigatsiya"
 
 msgid "Copied to clipboard"
 msgstr "Buferga nusxalandi"
+
+msgid "Colors"
+msgstr "Ranglar"

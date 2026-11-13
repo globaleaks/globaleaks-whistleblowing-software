@@ -2070,3 +2070,6 @@ msgstr "Hlavná navigácia"
 
 msgid "Copied to clipboard"
 msgstr "Skopírované do schránky"
+
+msgid "Colors"
+msgstr "Farby"

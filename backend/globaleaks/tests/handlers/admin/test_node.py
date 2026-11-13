@@ -27,6 +27,28 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(response['custom_support_url'], 'https://globaleaks.org')
 
     @inlineCallbacks
+    def test_the_primary_color_is_the_one_of_the_official_palette_by_default(self):
+        handler = self.request(role='admin')
+        response = yield handler.get()
+
+        self.assertEqual(response['primary_color'], '#0978CF')
+
+    @inlineCallbacks
+    def test_the_primary_color_is_saved_in_uppercase(self):
+        self.dummyNode['primary_color'] = '#2e7d32'
+
+        handler = self.request(self.dummyNode, role='admin')
+        response = yield handler.put()
+        self.assertEqual(response['primary_color'], '#2E7D32')
+
+    @inlineCallbacks
+    def test_the_primary_color_is_a_hex_triplet(self):
+        for value in ['2E7D32', '#2E7D3', '#2E7D321', '#GGGGGG', 'red', '', '#2E7D32;color:red']:
+            self.dummyNode['primary_color'] = value
+            handler = self.request(self.dummyNode, role='admin')
+            yield self.assertFailure(handler.put(), InputValidationError)
+
+    @inlineCallbacks
     def test_put_update_node_invalid_lang(self):
         self.dummyNode['languages_enabled'] = ["en", "shit"]
         handler = self.request(self.dummyNode, role='admin')

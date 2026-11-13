@@ -2065,3 +2065,6 @@ msgstr "প্রধান নেভিগেশন"
 
 msgid "Copied to clipboard"
 msgstr "ক্লিপবোর্ডে কপি করা হয়েছে"
+
+msgid "Colors"
+msgstr "রং"

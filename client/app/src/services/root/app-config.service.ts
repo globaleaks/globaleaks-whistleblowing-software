@@ -12,6 +12,7 @@ import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
 import {Observable, forkJoin, of} from "rxjs";
 import {catchError, map} from "rxjs/operators";
+import {ThemeService} from "@app/shared/theme/theme.service";
 import {TranslateLoader} from "@ngx-translate/core";
 import {TranslationLoader, guessLanguage} from "@app/services/helper/translation-loader";
 
@@ -30,6 +31,7 @@ export class AppConfigService {
   private httpService = inject(HttpService);
   private appDataService = inject(AppDataService);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly themeService = inject(ThemeService);
   private readonly translationLoader = inject(TranslateLoader);
   private isRunning = false;
 
@@ -65,6 +67,9 @@ export class AppConfigService {
         if (data.body !== null) {
           this.appDataService.updatePublic(data.body);
         }
+
+        this.themeService.setPrimaryColor(this.appDataService.public.node.primary_color);
+
         this.appDataService.contexts_by_id = this.utilsService.array_to_map(this.appDataService.public.contexts);
         this.appDataService.receivers_by_id = this.utilsService.array_to_map(this.appDataService.public.receivers);
         this.appDataService.questionnaires_by_id = this.utilsService.array_to_map(this.appDataService.public.questionnaires);

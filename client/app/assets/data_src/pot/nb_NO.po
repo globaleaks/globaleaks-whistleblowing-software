@@ -2061,3 +2061,6 @@ msgstr "Hovednavigasjon"
 
 msgid "Copied to clipboard"
 msgstr "Kopiert til utklippstavlen"
+
+msgid "Colors"
+msgstr "Farger"

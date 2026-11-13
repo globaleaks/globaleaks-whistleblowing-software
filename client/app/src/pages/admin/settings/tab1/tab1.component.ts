@@ -8,6 +8,7 @@ import {Constants} from "@app/shared/constants/constants";
 import {AppDataService} from "@app/app-data.service";
 import {ImageUploadDirective} from "@app/shared/directive/image-upload.directive";
 import {TranslatePipe} from "@ngx-translate/core";
+import {ColorsComponent} from "@app/pages/admin/settings/colors/colors.component";
 
 @Component({
     selector: "src-tab1",
@@ -15,6 +16,7 @@ import {TranslatePipe} from "@ngx-translate/core";
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     standalone: true,
     imports: [
+    ColorsComponent,
     ImageUploadDirective,
     FormsModule,
     TranslatePipe

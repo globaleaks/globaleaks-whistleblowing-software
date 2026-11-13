@@ -2064,3 +2064,6 @@ msgstr "メインナビゲーション"
 
 msgid "Copied to clipboard"
 msgstr "クリップボードにコピーしました"
+
+msgid "Colors"
+msgstr "色"

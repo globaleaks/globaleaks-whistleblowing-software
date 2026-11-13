@@ -92,6 +92,10 @@ def db_update_node(session, tid, user_session, request, language):
     :param language: the language in which to localize data
     :return: Return the serialized configuration for the specified tenant
     """
+    # The brand color is kept in the form the clients compare it in
+    if 'primary_color' in request:
+        request['primary_color'] = request['primary_color'].strip().upper()
+
     config = ConfigFactory(session, tid)
 
     config.update('node', request)

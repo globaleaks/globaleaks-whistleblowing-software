@@ -2069,3 +2069,6 @@ msgstr "主导航"
 
 msgid "Copied to clipboard"
 msgstr "已复制到剪贴板"
+
+msgid "Colors"
+msgstr "颜色"

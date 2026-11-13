@@ -445,6 +445,7 @@ class MockDict:
             'basic_auth_password': '',
             'custom_support_url': '',
             'pgp': False,
+            'primary_color': '#0978CF',
             'user_privacy_policy_text': '',
             'user_privacy_policy_url': ''
         }

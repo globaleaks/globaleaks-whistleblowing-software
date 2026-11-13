@@ -2068,3 +2068,6 @@ msgstr "Навигатсияи асосӣ"
 
 msgid "Copied to clipboard"
 msgstr "Ба буфер нусхабардорӣ шуд"
+
+msgid "Colors"
+msgstr "Рангҳо"

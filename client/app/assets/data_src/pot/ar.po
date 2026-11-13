@@ -2113,3 +2113,6 @@ msgstr "التنقل الرئيسي"
 
 msgid "Copied to clipboard"
 msgstr "تم النسخ إلى الحافظة"
+
+msgid "Colors"
+msgstr "الألوان"

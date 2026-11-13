@@ -97,6 +97,7 @@ ConfigDescriptor = {
     'onionservice_enable': Bool(default=True),
     'password_change_period': Int(default=365),  # Days
     'pgp': Bool(default=False),
+    'primary_color': Unicode(default='#0978CF'),  # The brand color the palette of the interface is computed from
     'protected_users': List(),  # List of ids of users protected from deletion and password reset
     'reachable_via_web': Bool(default=True),
     'receipt_salt': Unicode(default=GCE.generate_salt),
@@ -197,6 +198,7 @@ ConfigFilters = {
         'onionservice_enable',
         'password_change_period',
         'pgp',
+        'primary_color',
         'reachable_via_web',
         'receipt_salt',
         'rootdomain',
@@ -265,6 +267,7 @@ ConfigFilters = {
         'onionservice',
         'password_change_period',
         'pgp',
+        'primary_color',
         'receipt_salt',
         'rootdomain',
         'show_contexts_in_alphabetical_order',
@@ -370,6 +373,7 @@ ConfigFilters = {
         'mode',
         'onionservice',
         'pgp',
+        'primary_color',
         'receipt_salt',
         'rootdomain',
         'show_contexts_in_alphabetical_order',

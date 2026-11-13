@@ -2079,3 +2079,6 @@ msgstr "Nabigazio nagusia"
 
 msgid "Copied to clipboard"
 msgstr "Arbelean kopiatu da"
+
+msgid "Colors"
+msgstr "Koloreak"

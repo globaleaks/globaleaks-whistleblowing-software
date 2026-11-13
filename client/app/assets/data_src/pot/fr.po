@@ -2255,3 +2255,6 @@ msgstr "Navigation principale"
 
 msgid "Copied to clipboard"
 msgstr "Copié dans le presse-papiers"
+
+msgid "Colors"
+msgstr "Couleurs"

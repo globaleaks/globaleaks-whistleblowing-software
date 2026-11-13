@@ -25,6 +25,7 @@ export class nodeResolverModel {
   name: string;
   password_change_period: number;
   pgp: boolean;
+  primary_color: string;
   rootdomain: string;
   show_contexts_in_alphabetical_order: boolean;
   signup_tos1_enable: boolean;

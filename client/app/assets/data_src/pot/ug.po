@@ -2061,3 +2061,6 @@ msgstr "ئاساسىي يول باشلاش"
 
 msgid "Copied to clipboard"
 msgstr "چاپلاش تاختىسىغا كۆچۈرۈلدى"
+
+msgid "Colors"
+msgstr "رەڭلەر"

@@ -2092,3 +2092,6 @@ msgstr "Основная навигация"
 
 msgid "Copied to clipboard"
 msgstr "Скопировано в буфер обмена"
+
+msgid "Colors"
+msgstr "Цвета"

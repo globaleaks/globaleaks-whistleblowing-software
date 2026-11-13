@@ -1669,6 +1669,9 @@ msgstr "Switch to the light theme"
 msgid "Switch to the dark theme"
 msgstr "Switch to the dark theme"
 
+msgid "Colors"
+msgstr "Colors"
+
 msgid "Select a reporting channel:"
 msgstr "Select a reporting channel:"
 

@@ -2062,3 +2062,6 @@ msgstr "Негизги навигация"
 
 msgid "Copied to clipboard"
 msgstr "Алмашуу буферине көчүрүлдү"
+
+msgid "Colors"
+msgstr "Түстөр"

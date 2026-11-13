@@ -2062,3 +2062,6 @@ msgstr "Асноўная навігацыя"
 
 msgid "Copied to clipboard"
 msgstr "Скапіявана ў буфер абмену"
+
+msgid "Colors"
+msgstr "Колеры"

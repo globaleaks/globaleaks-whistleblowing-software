@@ -2081,3 +2081,6 @@ msgstr "Κύρια πλοήγηση"
 
 msgid "Copied to clipboard"
 msgstr "Αντιγράφηκε στο πρόχειρο"
+
+msgid "Colors"
+msgstr "Χρώματα"

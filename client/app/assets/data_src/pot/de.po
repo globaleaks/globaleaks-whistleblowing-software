@@ -2112,3 +2112,6 @@ msgstr "Hauptnavigation"
 
 msgid "Copied to clipboard"
 msgstr "In die Zwischenablage kopiert"
+
+msgid "Colors"
+msgstr "Farben"

@@ -2060,3 +2060,6 @@ msgstr "Glavna navigacija"
 
 msgid "Copied to clipboard"
 msgstr "Kopirano v odložišče"
+
+msgid "Colors"
+msgstr "Barve"

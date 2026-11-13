@@ -25,7 +25,6 @@ import {registerLocales, localeToBcp47} from "@app/services/helper/locale-provid
 import {mockEngine} from "@app/services/helper/mocks";
 import {BodyDomObserverService} from "@app/shared/services/body-dom-observer.service";
 import {WbTipResolver} from "@app/shared/resolvers/wb-tip-resolver.service";
-import {ThemeService} from "@app/shared/theme/theme.service";
 import DOMPurify from 'dompurify';
 
 registerLocales();
@@ -64,8 +63,6 @@ export class AppComponent implements AfterViewInit, OnInit {
   private bodyDomObserver = inject(BodyDomObserverService);
   private TrustedTypesService = inject(TrustedTypesService);
   private wbTipResolver = inject(WbTipResolver);
-  // Created with the application, so that the theme applies from the first paint
-  private readonly themeService = inject(ThemeService);
 
   showSidebar = true;
   private announcedUrl = "";

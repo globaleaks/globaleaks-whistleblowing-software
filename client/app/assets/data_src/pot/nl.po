@@ -2140,3 +2140,6 @@ msgstr "Hoofdnavigatie"
 
 msgid "Copied to clipboard"
 msgstr "Gekopieerd naar het klembord"
+
+msgid "Colors"
+msgstr "Kleuren"

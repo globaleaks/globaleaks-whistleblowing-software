@@ -2072,3 +2072,6 @@ msgstr "مرکزی نیویگیشن"
 
 msgid "Copied to clipboard"
 msgstr "کلپ بورڈ پر کاپی ہو گیا"
+
+msgid "Colors"
+msgstr "رنگ"

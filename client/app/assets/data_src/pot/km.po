@@ -2061,3 +2061,6 @@ msgstr "ការរុករកមេ"
 
 msgid "Copied to clipboard"
 msgstr "បានចម្លងទៅក្ដារតម្បៀតខ្ទាស់"
+
+msgid "Colors"
+msgstr "ពណ៌"

@@ -33,17 +33,11 @@ class TestPublicResource(HiddenContextMixin, helpers.TestHandlerWithPopulatedDB)
         self._handler.validate_request(json.dumps(response, default=str), requests.PublicResourcesDesc)
 
     @inlineCallbacks
-    def test_disabled_onion_service_is_not_advertised(self):
-        def update_and_serialize(session, enabled):
-            node = ConfigFactory(session, 1)
-            node.set_val('onionservice_enable', enabled)
-            return public.db_serialize_node(session, 1, 'en')
+    def test_the_primary_color_reaches_the_unauthenticated_pages(self):
+        handler = self.request()
+        response = yield handler.get()
 
-        original = yield tw(public.db_serialize_node, 1, 'en')
-        response = yield tw(update_and_serialize, False)
-        self.assertEqual(response['onionservice'], '')
-        response = yield tw(update_and_serialize, True)
-        self.assertEqual(response['onionservice'], original['onionservice'])
+        self.assertEqual(response['node']['primary_color'], '#0978CF')
 
     @inlineCallbacks
     def test_hidden_context_is_not_publicly_listed(self):

@@ -2059,3 +2059,6 @@ msgstr "მთავარი ნავიგაცია"
 
 msgid "Copied to clipboard"
 msgstr "დაკოპირდა ბუფერში"
+
+msgid "Colors"
+msgstr "ფერები"

@@ -2063,3 +2063,6 @@ msgstr "Негізгі навигация"
 
 msgid "Copied to clipboard"
 msgstr "Алмасу буферіне көшірілді"
+
+msgid "Colors"
+msgstr "Түстер"

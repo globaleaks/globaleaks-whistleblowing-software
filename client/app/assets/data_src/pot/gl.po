@@ -2052,3 +2052,6 @@ msgstr "Navegación principal"
 
 msgid "Copied to clipboard"
 msgstr "Copiado no portapapeis"
+
+msgid "Colors"
+msgstr "Cores"

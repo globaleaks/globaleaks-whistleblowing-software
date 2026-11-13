@@ -2057,3 +2057,6 @@ msgstr "ການນຳທາງຫຼັກ"
 
 msgid "Copied to clipboard"
 msgstr "ສຳເນົາໃສ່ຄລິບບອດແລ້ວ"
+
+msgid "Colors"
+msgstr "ສີ"

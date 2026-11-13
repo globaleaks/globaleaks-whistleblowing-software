@@ -2084,3 +2084,6 @@ msgstr "Huvudnavigering"
 
 msgid "Copied to clipboard"
 msgstr "Kopierat till urklipp"
+
+msgid "Colors"
+msgstr "Färger"

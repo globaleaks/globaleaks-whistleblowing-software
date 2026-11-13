@@ -4,6 +4,9 @@
       <label>{{ 'Logo' | translate }}</label>
       <div appImageUpload [imageUploadModel]="nodeResolver.dataModel" [imageUploadModelAttr]="'logo'" [imageUploadId]="'logo'"></div>
     </div>
+    @if (authenticationService.session?.role === 'admin') {
+      <src-colors></src-colors>
+    }
     <div class="form-group">
       <label for="project-name-input">{{ 'Project name' | translate }}</label>
       <input id="project-name-input" name="node.dataModel.name" class="form-control" [(ngModel)]="nodeResolver.dataModel.name" type="text" required />

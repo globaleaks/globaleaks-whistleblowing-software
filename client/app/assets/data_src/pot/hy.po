@@ -2062,3 +2062,6 @@ msgstr "Հիմնական նավիգացիա"
 
 msgid "Copied to clipboard"
 msgstr "Պատճենվեց սեղմատախտակին"
+
+msgid "Colors"
+msgstr "Գույներ"

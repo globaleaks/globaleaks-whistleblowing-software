@@ -2083,3 +2083,6 @@ msgstr "Navigazione principale"
 
 msgid "Copied to clipboard"
 msgstr "Copiato negli appunti"
+
+msgid "Colors"
+msgstr "Colori"

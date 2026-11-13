@@ -2050,3 +2050,6 @@ msgstr "主要導覽"
 
 msgid "Copied to clipboard"
 msgstr "已複製到剪貼簿"
+
+msgid "Colors"
+msgstr "顏色"

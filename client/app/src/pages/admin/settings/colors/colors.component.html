@@ -1,0 +1,22 @@
+<!-- The primary color of the site, as the administrator chooses it; the interface computes from it
+     an accessible palette. It is saved with the other settings -->
+<fieldset id="PrimaryColor" class="form-group">
+  <label for="pick-primary-color">{{ 'Colors' | translate }}</label>
+  <div class="d-flex align-items-start gap-2">
+    <!-- The picker of the browser opens from the button, which shows the color chosen; the picker
+         sits unseen under it -->
+    <span class="palette-picker">
+      <button #pickButton type="button" id="pick-primary-color" class="btn btn-outline-secondary" (click)="openPicker(colorInput)"
+              ngbTooltip="{{ 'Colors' | translate }}">
+        <span class="primary-color-chip" [style.background-color]="color()" aria-hidden="true"></span>
+        <code class="primary-color-value">{{ color() }}</code>
+      </button>
+      <input #colorInput type="color" id="primary-color" tabindex="-1" aria-hidden="true" [value]="color().toLowerCase()" (input)="onColor($event)" />
+    </span>
+    <!-- Always there, disabled on the official color; once pressed the focus goes back to the picker -->
+    <button type="button" id="reset-primary-color" class="btn btn-outline-secondary" [disabled]="color() === officialColor"
+            (click)="reset(); pickButton.focus()" [attr.aria-label]="'Reset' | translate" ngbTooltip="{{ 'Reset' | translate }}">
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+    </button>
+  </div>
+</fieldset>

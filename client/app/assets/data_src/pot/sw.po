@@ -2065,3 +2065,6 @@ msgstr "Urambazaji mkuu"
 
 msgid "Copied to clipboard"
 msgstr "Imenakiliwa kwenye ubao wa kunakili"
+
+msgid "Colors"
+msgstr "Rangi"

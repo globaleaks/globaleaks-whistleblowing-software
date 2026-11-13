@@ -2062,3 +2062,6 @@ msgstr "މައި ނެވިގޭޝަން"
 
 msgid "Copied to clipboard"
 msgstr "ކްލިޕްބޯޑަށް ކޮޕީކުރެވިއްޖެ"
+
+msgid "Colors"
+msgstr "ކުލަތައް"

@@ -2059,3 +2059,6 @@ msgstr "Põhinavigeerimine"
 
 msgid "Copied to clipboard"
 msgstr "Kopeeritud lõikelauale"
+
+msgid "Colors"
+msgstr "Värvid"

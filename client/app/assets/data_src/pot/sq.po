@@ -2070,3 +2070,6 @@ msgstr "Navigimi kryesor"
 
 msgid "Copied to clipboard"
 msgstr "U kopjua në kujtesën e fragmenteve"
+
+msgid "Colors"
+msgstr "Ngjyrat"

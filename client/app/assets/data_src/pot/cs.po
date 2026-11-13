@@ -2073,3 +2073,6 @@ msgstr "Hlavní navigace"
 
 msgid "Copied to clipboard"
 msgstr "Zkopírováno do schránky"
+
+msgid "Colors"
+msgstr "Barvy"

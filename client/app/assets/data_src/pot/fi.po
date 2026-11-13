@@ -2073,3 +2073,6 @@ msgstr "Päänavigointi"
 
 msgid "Copied to clipboard"
 msgstr "Kopioitu leikepöydälle"
+
+msgid "Colors"
+msgstr "Värit"

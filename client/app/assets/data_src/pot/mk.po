@@ -2062,3 +2062,6 @@ msgstr "Главна навигација"
 
 msgid "Copied to clipboard"
 msgstr "Копирано во меѓуспомнина"
+
+msgid "Colors"
+msgstr "Бои"

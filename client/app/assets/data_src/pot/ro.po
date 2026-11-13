@@ -2076,3 +2076,6 @@ msgstr "Navigare principală"
 
 msgid "Copied to clipboard"
 msgstr "Copiat în clipboard"
+
+msgid "Colors"
+msgstr "Culori"

@@ -2056,3 +2056,6 @@ msgstr "ዋና አሰሳ"
 
 msgid "Copied to clipboard"
 msgstr "ወደ ቅንጥብ ሰሌዳ ተቀድቷል"
+
+msgid "Colors"
+msgstr "ቀለሞች"

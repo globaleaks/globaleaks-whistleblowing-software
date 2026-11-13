@@ -521,3 +521,4 @@ Main navigation
 Copied to clipboard
 Switch to the light theme
 Switch to the dark theme
+Colors

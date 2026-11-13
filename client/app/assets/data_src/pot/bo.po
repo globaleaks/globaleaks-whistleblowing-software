@@ -2060,3 +2060,6 @@ msgstr "ལམ་སྟོན་གཙོ་བོ།"
 
 msgid "Copied to clipboard"
 msgstr "སྦྱར་སྡེར་དུ་འདྲ་བཤུས་བྱས་ཟིན།"
+
+msgid "Colors"
+msgstr "ཚོན་མདོག"

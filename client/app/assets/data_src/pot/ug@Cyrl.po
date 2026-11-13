@@ -2060,3 +2060,6 @@ msgstr "Асасий йол башлаш"
 
 msgid "Copied to clipboard"
 msgstr "Чаплаш тахтисиға көчүрүлди"
+
+msgid "Colors"
+msgstr "Рәңләр"
