@@ -754,6 +754,11 @@ p:last-child {
   background-color: var(--gl-header);
 }
 
+/* The controls of the header keep to the right, also on a line of their own under the logo */
+#HeaderBox2 {
+  margin-left: auto;
+}
+
 #HeaderBox h1 {
   margin: 0;
   padding: 0;
@@ -805,6 +810,11 @@ p:last-child {
   line-height: 2.2rem;
   padding: 0 1em;
   width: max-content;
+}
+
+/* The icons of the session end where the header does, as the language under them on a phone */
+#LoginStatusBox {
+  padding-right: 0;
 }
 
 #LoginStatusBox,
@@ -1318,13 +1328,42 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   pointer-events: none;
 }
 
-/* The switch of the theme: a sun in the light theme, a moon in the dark one, in the color of the text */
-#ThemeToggleBox {
+/* The switch of the theme, a sun in the light theme and a moon in the dark one, is a link as the icons
+   of the session: alone, right of the language, as tall as its selector */
+#ThemeToggleBox.order-3 {
   margin-left: 0.5em;
 }
 
-#ThemeToggle {
+#ThemeToggleBox.order-3 #ThemeToggle {
   height: 2.2rem;
   padding: 0 0.5em;
-  color: var(--gl-text);
+}
+
+/* The links of the session: icons in a row, set apart by the room between them, each as large as the
+   bar; a box left empty, as the home of the whistleblower, takes no room */
+#LoginStatusBox {
+  align-items: center;
+  gap: 0.25rem;
+}
+
+#LoginStatusBox > span:empty {
+  display: none;
+}
+
+#LoginStatusBox a,
+#LoginStatusBox #ThemeToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.2rem;
+  height: 2.2rem;
+}
+
+/* Among the links of the session, written as they are */
+#LoginStatusBox #ThemeToggle {
+  padding: 0;
+  border: 0;
+  font: inherit;
+  line-height: inherit;
+  vertical-align: baseline;
 }

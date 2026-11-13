@@ -1,4 +1,6 @@
-<div class="d-flex justify-content-end">
+<!-- Where the line does not hold them, as on a phone, the links of the session go up and the language
+     down -->
+<div class="d-flex flex-wrap-reverse justify-content-end">
   @if (appDataService.public.node.languages_enabled.length > 1) {
     <div id="LanguagePickerBox" class="order-2" [class.language-box]="appDataService.public.node.wizard_done" [class.language-box-extended]="!appDataService.public.node.wizard_done">
       <label id="language-picker-label" for="language-picker-select" class="visually-hidden">{{'Select your language' | translate}}</label>
@@ -11,22 +13,15 @@
       </ng-select>
     </div>
   }
-  <!-- The switch of the theme, right of the language -->
-  <div id="ThemeToggleBox" class="order-3">
-    <button id="ThemeToggle" type="button" class="btn btn-link"
-            (click)="themeService.toggle()"
-            [attr.aria-label]="(themeService.theme() === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme') | translate"
-            ngbTooltip="{{ (themeService.theme() === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme') | translate }}">
-      <!-- The icon tells the theme in use: the sun in the light theme, the moon in the dark one -->
-      @if (themeService.theme() === 'dark') {
-        <i class="fa-solid fa-moon" aria-hidden="true"></i>
-      } @else {
-        <i class="fa-solid fa-sun" aria-hidden="true"></i>
-      }
-    </button>
-  </div>
+  <!-- The language stands left of the icons: without a session the switch of the theme, with one the
+       links of the session, the logout last -->
+  @if (!utilsService.showUserStatusBox()) {
+    <div id="ThemeToggleBox" class="order-3">
+      <ng-container [ngTemplateOutlet]="themeToggle"></ng-container>
+    </div>
+  }
   @if (utilsService.showUserStatusBox()) {
-    <div id="LoginStatusBox">
+    <div id="LoginStatusBox" class="order-3 d-flex">
       @if (!preferences.dataModel.password_change_needed && !preferences.dataModel.require_two_factor) {
         <span id="HomeLinkBox">
           @if (authentication.session.role !== 'whistleblower') {
@@ -34,7 +29,6 @@
               <a id="HomepageLink" [href]="'#'+authentication.session.homepage" ngbTooltip="{{'Home' | translate }}" [attr.aria-label]="'Home' | translate">
                 <i class="fa-solid fa-house"></i>
               </a>
-              <span class="text-separator">|</span>
             </span>
           }
         </span>
@@ -43,32 +37,44 @@
             <a id="PreferencesLink" [href]="'#'+authentication.session.preferencespage" ngbTooltip="{{'Preferences' | translate}}" [attr.aria-label]="'Preferences' | translate">
               <i class="fa-solid fa-user"></i>
             </a>
-            <span class="text-separator">|</span>
           </span>
         }
+      }
+      <!-- With a session, the switch of the theme stands among its links, before the support -->
+      <span id="ThemeToggleBox">
+        <ng-container [ngTemplateOutlet]="themeToggle"></ng-container>
+      </span>
+      @if (!preferences.dataModel.password_change_needed && !preferences.dataModel.require_two_factor) {
         @if (authentication.session && authentication.session.role !== 'whistleblower') {
           <span id="SupportLinkBox">
             <a id="SupportLink" href="#" (click)="utilsService.openSupportModal($event)" ngbTooltip="{{'Request support' | translate}}" [attr.aria-label]="'Request support' | translate" (keydown.enter)="utilsService.openSupportModal($event)">
               <i class="fa-solid fa-life-ring"></i>
             </a>
-            <span class="text-separator">|</span>
           </span>
         }
       }
       <span id="LogoutLinkBox">
         <a id="LogoutLink" href="" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}" [attr.aria-label]="'Logout' | translate" (keydown.enter)="onLogout($event)">
-          <i class="pointer fa-solid fa-right-from-bracket"></i>
-          @if (authentication.session.role === 'whistleblower') {
-            <span>
-              <span></span>
-              <span>{{'Logout'|translate}}</span>
-            </span>
-          }
+          <i class="pointer fas fa-right-from-bracket"></i>
         </a>
       </span>
     </div>
   }
 </div>
+<!-- The switch of the theme: its icon tells the theme in use, the sun in the light theme and the moon
+     in the dark one -->
+<ng-template #themeToggle>
+  <button id="ThemeToggle" type="button" class="btn btn-link"
+          (click)="themeService.toggle()"
+          [attr.aria-label]="(themeService.theme() === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme') | translate"
+          ngbTooltip="{{ (themeService.theme() === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme') | translate }}">
+    @if (themeService.theme() === 'dark') {
+      <i class="fa-solid fa-moon" aria-hidden="true"></i>
+    } @else {
+      <i class="fa-solid fa-sun" aria-hidden="true"></i>
+    }
+  </button>
+</ng-template>
 @if (utilsService.showWBLoginBox()) {
   <div id="WhistleblowerLoginBox" class="ms-1 mb-1">
     <src-receipt ></src-receipt>
