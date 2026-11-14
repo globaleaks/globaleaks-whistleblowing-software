@@ -1,6 +1,6 @@
 import { config, library, dom } from '@fortawesome/fontawesome-svg-core';
 import * as solidIcons from '@fortawesome/free-solid-svg-icons';
-import { faGlobaleaks } from '@fortawesome/free-brands-svg-icons';
+import { faGlobaleaks, faTorBrowser } from '@fortawesome/free-brands-svg-icons';
 
 // disable auto CSS injection
 config.autoAddCss = false;
@@ -65,6 +65,8 @@ const icons = [
   solidIcons.faMicrophone,
   solidIcons.faMinus,
   solidIcons.faMoon,
+  solidIcons.faVolume,
+  solidIcons.faVolumeXmark,
   solidIcons.faNetworkWired,
   solidIcons.faPenToSquare,
   solidIcons.faPeopleArrows,
@@ -94,6 +96,7 @@ const icons = [
   solidIcons.faUsers,
   solidIcons.faXmark,
   faGlobaleaks,
+  faTorBrowser,
 ];
 
 // Register them all at once

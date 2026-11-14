@@ -45,8 +45,8 @@
           }
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoConnection">
-              <i class="fa-solid fa-network-wired"></i>
-              <span>{{'Tor'|translate}}</span>
+              <span ngbTooltip="{{'Tor'|translate}}"><i class="fa-brands fa-tor-browser" aria-hidden="true"></i></span>
+              <span class="visually-hidden">{{'Tor'|translate}}</span>
             </th>
           }
           <th class="TipInfoSubmissionStatus">
