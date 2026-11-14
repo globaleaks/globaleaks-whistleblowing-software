@@ -40,6 +40,8 @@ export class TipsComponent implements OnInit {
   private readonly tokenResourceService = inject(TokenResource);
 
   selectedTips: string[] = [];
+  // On a phone the headers that sort and filter are a panel shown on request
+  showListControls = false;
   index: number;
   date: { year: number; month: number };
 

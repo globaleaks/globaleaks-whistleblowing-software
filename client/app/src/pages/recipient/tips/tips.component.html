@@ -20,6 +20,10 @@
             </button>
           }
 
+          <button id="tip-action-sort-filter" type="button" class="btn btn-outline-secondary d-md-none" [class.active]="showListControls" (click)="showListControls = !showListControls" aria-controls="TipList" [attr.aria-expanded]="showListControls" [attr.aria-label]="'Filters' | translate" ngbTooltip="{{'Filters' | translate}}">
+            <i class="fa-solid fa-sliders" aria-hidden="true"></i>
+          </button>
+
           <button id="link-reload" type="button" (click)="reload()" ngbTooltip="{{'Refresh' | translate}}"
             class="btn btn-outline-secondary">
             <i class="fa-solid fa-arrows-rotate"></i>
@@ -28,112 +32,117 @@
       </div>
     </div>
   </div>
-  <div id="TipList" class="row mt-2">
+  <div id="TipList" class="row mt-2" [class.show-list-controls]="showListControls">
     <div class="col-md-12 table-responsive">
       <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
         <ng-template #header>
-          <tr>
-            <th scope="col">
+          <!-- On a phone the headers are a panel above the cards: each one still sorts and filters -->
+          <tr role="row">
+            <th scope="col" class="TipInfoSelect" role="columnheader">
               <input id="tip-action-select-all" type="checkbox" class="form-check-input" [checked]="selectedTips.length === RTips.dataModel.length" (change)="selectedTips.length === RTips.dataModel.length ? deselectAll() : selectAll()" [attr.aria-label]="'Select all' | translate">
             </th>
-            <th scope="col" appTableHeader [state]="table" [label]="'Important' | translate" icon="fa-star" [labelHidden]="true" sortBy="important"></th>
-            <th scope="col" appTableHeader [state]="table" [label]="'Reminder date' | translate" icon="fa-bell" [labelHidden]="true" sortBy="reminder_date"></th>
-            <th scope="col" appTableHeader class="TipInfoContext" [state]="table" [label]="'Channel' | translate" icon="fa-inbox" sortBy="context_name" filter="context_name" [options]="channelOptions"></th>
-            <th scope="col" appTableHeader class="TipInfoID" [state]="table" [label]="'ID' | translate" icon="fa-hashtag" [labelHidden]="true" sortBy="channel_progressive_sort_key"></th>
-            <th scope="col" appTableHeader class="TipInfoLabel" [state]="table" [label]="'Label' | translate" icon="fa-tag" sortBy="label"></th>
-            <th scope="col" appTableHeader class="TipInfoStatus" [state]="table" [label]="'Status' | translate" icon="fa-circle-dot" sortBy="submissionStatusStr" filter="submissionStatusStr" [options]="statusOptions"></th>
-            <th scope="col" appTableHeader class="TipInfoSubmissionDate" [state]="table" [label]="'Report date' | translate" icon="fa-clock" sortBy="creation_date" filter="creation_date"></th>
-            <th scope="col" appTableHeader class="TipInfoUpdateDate" [state]="table" [label]="'Last update' | translate" icon="fa-clock" sortBy="update_date" filter="update_date"></th>
-            <th scope="col" appTableHeader class="TipInfoExpirationDate" [state]="table" [label]="'Expiration date' | translate" icon="fa-hourglass" sortBy="expiration_date" filter="expiration_date"></th>
-            <th scope="col" appTableHeader class="TipInfoReadReceipt" [state]="table" [label]="'Read receipt' | translate" icon="fa-envelope-circle-check" [labelHidden]="true"></th>
-            <th scope="col" appTableHeader class="TipInfoIdentity" [state]="table" [label]="'Identity' | translate" icon="fa-user" [labelHidden]="true"></th>
-            <th scope="col" appTableHeader class="TipInfoRecipientCount" [state]="table" [label]="'Recipients' | translate" icon="fa-users" [labelHidden]="true" sortBy="receiver_count"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoImportant" [state]="table" [label]="'Important' | translate" icon="fa-star" [labelHidden]="true" sortBy="important"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoReminder" [state]="table" [label]="'Reminder date' | translate" icon="fa-bell" [labelHidden]="true" sortBy="reminder_date"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoContext" [state]="table" [label]="'Channel' | translate" icon="fa-inbox" sortBy="context_name" filter="context_name" [options]="channelOptions"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoID" [state]="table" [label]="'ID' | translate" icon="fa-hashtag" [labelHidden]="true" sortBy="channel_progressive_sort_key"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoLabel" [state]="table" [label]="'Label' | translate" icon="fa-tag" sortBy="label"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoStatus" [state]="table" [label]="'Status' | translate" icon="fa-circle-dot" sortBy="submissionStatusStr" filter="submissionStatusStr" [options]="statusOptions"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoSubmissionDate" [state]="table" [label]="'Report date' | translate" icon="fa-clock" sortBy="creation_date" filter="creation_date"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoUpdateDate" [state]="table" [label]="'Last update' | translate" icon="fa-clock" sortBy="update_date" filter="update_date"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoExpirationDate" [state]="table" [label]="'Expiration date' | translate" icon="fa-hourglass" sortBy="expiration_date" filter="expiration_date"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoLastAccess" [state]="table" [label]="'Read receipt' | translate" icon="fa-envelope-circle-check" [labelHidden]="true" sortBy="lastUpdateRead"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoIdentity" [state]="table" [label]="'Identity' | translate" icon="fa-user" [labelHidden]="true" sortBy="subscription"></th>
+            <th scope="col" role="columnheader" appTableHeader class="TipInfoRecipientCount" [state]="table" [label]="'Recipients' | translate" icon="fa-users" [labelHidden]="true" sortBy="receiver_count"></th>
             @if (appDataService.public.node.enable_scoring_system) {
-              <th scope="col" appTableHeader class="TipInfoScore" [state]="table" [label]="'Score' | translate" icon="fa-ranking-star" sortBy="score" filter="score" [options]="scoreOptions"></th>
+              <th scope="col" role="columnheader" appTableHeader class="TipInfoScore" [state]="table" [label]="'Score' | translate" icon="fa-ranking-star" sortBy="score" filter="score" [options]="scoreOptions"></th>
             }
           </tr>
         </ng-template>
         <ng-template #content let-tip="item" let-index="index">
-          <tr id="tip-{{index}}" [class.tip-action-open]="tip.accessible" [class.fw-bold]="tip.updated" [class.selectedTip]="isSelected(tip.id)" [class.disabled]="!tip.accessible" [class]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]" (click)="openTip($event, tip)" (keydown.enter)="openTip($event, tip)">
-            <td>
+          <tr id="tip-{{index}}" role="row" [class.tip-action-open]="tip.accessible" [class.fw-bold]="tip.updated" [class.selectedTip]="isSelected(tip.id)" [class.disabled]="!tip.accessible" [class]="['report-status-' + tip.status, 'report-substatus-' + tip.substatus]" (click)="openTip($event, tip)" (keydown.enter)="openTip($event, tip)">
+            <td class="TipInfoSelect" role="cell">
               <input type="checkbox" class="form-check-input" [checked]="isSelected(tip.id)" (change)="tipSwitch(tip.id)" [disabled]="!tip.accessible" [attr.aria-label]="('Select' | translate) + ' ' + ('Report' | translate) + ' ' + (tip.slug ? tip.slug + '-' : '') + tip.channel_progressive">
             </td>
-            <td>
+            <td class="TipInfoImportant" role="cell">
               @if (tip.important) {
-                <i class="fa-solid fa-star text-warning"></i>
+                <i class="fa-solid fa-star text-warning" aria-hidden="true"></i>
+                <span class="visually-hidden">{{'Important' | translate}}</span>
               }
-              <td>
-                @if (!utils.isNever(tip.reminder_date)) {
-                  <span [class.text-warning]="utils.isDatePassed(tip.reminder_date)"><i class="fa-solid fa-bell"></i></span>
+            </td>
+            <td class="TipInfoReminder" role="cell">
+              @if (!utils.isNever(tip.reminder_date)) {
+                <span [class.text-warning]="utils.isDatePassed(tip.reminder_date)"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                <span class="visually-hidden">{{'Reminder date' | translate}}</span>
+              }
+            </td>
+            <td class="TipInfoContext" role="cell" [attr.data-label]="'Channel' | translate"><span class="cell-truncated" [ngbTooltip]="tip.context_name">{{tip.context_name}}</span></td>
+            <td class="TipInfoID" role="cell">
+              @if (tip.accessible) {
+                <a [routerLink]="['/reports', tip.id]" [attr.aria-label]="('Open' | translate) + ' ' + ('Report' | translate) + ' ' + (tip.slug ? tip.slug + '-' : '') + tip.channel_progressive">{{tip.slug ? tip.slug + '-' : ''}}{{tip.channel_progressive}}</a>
+              } @else {
+                {{tip.slug ? tip.slug + '-' : ''}}{{tip.channel_progressive}}
+              }
+            </td>
+            <td class="TipInfoLabel" role="cell"><span class="cell-truncated" [ngbTooltip]="tip.label">{{tip.label}}</span></td>
+            <td class="TipInfoStatus" role="cell"><span class="cell-truncated" [ngbTooltip]="tip.submissionStatusStr">{{tip.submissionStatusStr}}</span></td>
+            <!-- The captions in data-label are read on a phone, where the cells are laid out as a card -->
+            <td class="TipInfoSubmissionDate" role="cell" [attr.data-label]="'Report date' | translate">{{tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            <td class="TipInfoUpdateDate" role="cell" [attr.data-label]="'Last update' | translate">{{tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
+            <td class="TipInfoExpirationDate" role="cell" [attr.data-label]="'Expiration date' | translate">
+              @if (!utils.isNever(tip.expiration_date)) {
+                <span>{{tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
+              }
+              @if (utils.isNever(tip.expiration_date)) {
+                <span>-</span>
+              }
+            </td>
+            <td class="TipInfoLastAccess" role="cell">
+              @if (tip.last_access >= tip.update_date) {
+                <span ngbTooltip="{{'The reporting person has already read the last update' | translate}} ({{tip.last_access | date:'dd-MM-yyyy HH:mm'}})"><i class="fa-solid fa-check"></i></span>
+              }
+              @if (tip.last_access < tip.update_date) {
+                <span ngbTooltip="{{'The reporting person has not read the last update yet' | translate}}"><i class="fa-solid fa-xmark"></i></span>
+              }
+            </td>
+            <td class="TipInfoIdentity" role="cell" [attr.data-label]="'Identity' | translate">
+              @switch (tip.subscription) {
+                @case (0) {
+                  <i class="fa-solid fa-xmark"></i>
                 }
-              </td>
-              <td class="TipInfoContext"><span class="cell-truncated" [ngbTooltip]="tip.context_name">{{tip.context_name}}</span></td>
-              <td class="TipInfoID">
-                @if (tip.accessible) {
-                  <a [routerLink]="['/reports', tip.id]" [attr.aria-label]="('Open' | translate) + ' ' + ('Report' | translate) + ' ' + (tip.slug ? tip.slug + '-' : '') + tip.channel_progressive">{{tip.slug ? tip.slug + '-' : ''}}{{tip.channel_progressive}}</a>
-                } @else {
-                  {{tip.slug ? tip.slug + '-' : ''}}{{tip.channel_progressive}}
+                @case (1) {
+                  <i class="fa-solid fa-check"></i>
                 }
-              </td>
-              <td class="TipInfoLabel"><span class="cell-truncated" [ngbTooltip]="tip.label">{{tip.label}}</span></td>
-              <td class="TipInfoStatus"><span class="cell-truncated" [ngbTooltip]="tip.submissionStatusStr">{{tip.submissionStatusStr}}</span></td>
-              <td class="TipInfoSubmissionDate">{{tip.creation_date | date:'dd-MM-yyyy HH:mm'}}</td>
-              <td class="TipInfoUpdateDate">{{tip.update_date | date:'dd-MM-yyyy HH:mm'}}</td>
-              <td class="TipInfoExpirationDate">
-                @if (!utils.isNever(tip.expiration_date)) {
-                  <span>{{tip.expiration_date | date:'dd-MM-yyyy HH:mm'}}</span>
+                @case (2) {
+                  @if (tip.data) {
+                    <span ngbTooltip="{{'Subscription date: ' + (tip.data.whistleblower_identity_date | date:'dd-MM-yyyy HH:mm')}}"><i class="fa-solid fa-check underline"></i></span>
+                  }
+                  @if (!tip.data) {
+                    <i class="fa-solid fa-check underline"></i>
+                  }
                 }
-                @if (utils.isNever(tip.expiration_date)) {
+              }
+            </td>
+            <td class="TipInfoRecipientCount" role="cell" [attr.data-label]="'Recipients' | translate">
+              <span [ngbTooltip]="tip.receiver_names" tooltipClass="receiver-tooltip">{{tip.receiver_count}}</span>
+            </td>
+            @if (appDataService.public.node.enable_scoring_system) {
+            <td class="TipInfoScore" role="cell" [attr.data-label]="'Score' | translate">
+              @switch (tip.score) {
+                @case (0) {
                   <span>-</span>
                 }
-              </td>
-              <td class="TipInfoLastAccess">
-                @if (tip.last_access >= tip.update_date) {
-                  <span ngbTooltip="{{'The reporting person has already read the last update' | translate}} ({{tip.last_access | date:'dd-MM-yyyy HH:mm'}})"><i class="fa-solid fa-check"></i></span>
+                @case (1) {
+                  <span class="badge bg-primary">{{ 'Low' | translate }}</span>
                 }
-                @if (tip.last_access < tip.update_date) {
-                  <span ngbTooltip="{{'The reporting person has not read the last update yet' | translate}}"><i class="fa-solid fa-xmark"></i></span>
+                @case (2) {
+                  <span class="badge bg-primary">{{ 'Medium' | translate }}</span>
                 }
-              </td>
-              <td class="TipInfoIdentity">
-                @switch (tip.subscription) {
-                  @case (0) {
-                    <i class="fa-solid fa-xmark"></i>
-                  }
-                  @case (1) {
-                    <i class="fa-solid fa-check"></i>
-                  }
-                  @case (2) {
-                    @if (tip.data) {
-                      <span ngbTooltip="{{'Subscription date: ' + (tip.data.whistleblower_identity_date | date:'dd-MM-yyyy HH:mm')}}"><i class="fa-solid fa-check underline"></i></span>
-                    }
-                    @if (!tip.data) {
-                      <i class="fa-solid fa-check underline"></i>
-                    }
-                  }
+                @case (3) {
+                  <span class="badge bg-primary">{{ 'High' | translate }}</span>
                 }
-              </td>
-              <td class="TipInfoRecipientCount">
-                <span [ngbTooltip]="tip.receiver_names" tooltipClass="receiver-tooltip">{{tip.receiver_count}}</span>
-              </td>
-              @if (appDataService.public.node.enable_scoring_system) {
-              <td class="TipInfoScore">
-                @switch (tip.score) {
-                  @case (0) {
-                    <span>-</span>
-                  }
-                  @case (1) {
-                    <span class="badge bg-primary">{{ 'Low' | translate }}</span>
-                  }
-                  @case (2) {
-                    <span class="badge bg-primary">{{ 'Medium' | translate }}</span>
-                  }
-                  @case (3) {
-                    <span class="badge bg-primary">{{ 'High' | translate }}</span>
-                  }
-                }
-              </td>
               }
+            </td>
+            }
           </tr>
         </ng-template>
       </app-paginated-interface>
