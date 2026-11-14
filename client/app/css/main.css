@@ -536,6 +536,203 @@ th:not(:first-child, :nth-last-child(-n+4)) {
   white-space: nowrap;
 }
 
+/*
+ * The list of the reports on a phone: every report is a card, the headers a bar of buttons above them
+ * that still sort and filter. The card reads from the top: the number with the star and the bell and
+ * the status at the right, then the label, the channel, the dates and the rest with their captions,
+ * and the read receipt at the bottom right.
+ */
+@media (width < 768px) {
+  #TipList .table-responsive,
+  #TipList table {
+    overflow: visible;
+  }
+
+  #TipList table,
+  #TipList thead,
+  #TipList tbody {
+    display: block;
+  }
+
+  /* The rows of the tables are 50px tall everywhere: a card and the bar take what they hold */
+  #TipList tr {
+    height: auto;
+  }
+
+  #TipList th,
+  #TipList td {
+    white-space: normal;
+  }
+
+  /* The headers, shown by the button of the toolbar: a panel with one under the other, in the order of
+     the columns */
+  #TipList thead {
+    display: none;
+  }
+
+  /* Above the cards, which come later and are positioned */
+  #TipList.show-list-controls thead {
+    position: relative;
+    z-index: 5;
+    display: block;
+  }
+
+  #TipList thead tr {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+    border: 1px solid var(--gl-border);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--gl-surface);
+  }
+
+  #TipList thead th {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border-bottom: 1px solid var(--gl-border);
+  }
+
+  #TipList thead th:last-child {
+    border-bottom: 0;
+  }
+
+  /* The names that the icons of the narrow columns keep for the screen readers are written here */
+  #TipList thead th > button > .visually-hidden {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    clip: auto !important;
+    white-space: normal !important;
+  }
+
+  /* The lists of the filters and the calendars open under their button as wide as the bar, so that
+     none goes past the edge of the screen */
+  #TipList thead th,
+  #TipList thead .dropdown-multi-select-container,
+  #TipList thead .ngb-datepicker-container,
+  #TipList thead .multiselect-dropdown {
+    position: static;
+  }
+
+  #TipList thead .dropdown-list,
+  #TipList thead src-date-selector {
+    left: 0;
+    right: 0;
+    z-index: 10;
+    width: auto;
+  }
+
+  #TipList thead th.TipInfoReadReceipt,
+  #TipList thead th.TipInfoIdentity {
+    display: none;
+  }
+
+  /* The cards */
+  #TipList tbody tr {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 1px solid var(--gl-border);
+    border-radius: var(--bs-border-radius-lg);
+    background-color: var(--gl-surface);
+  }
+
+  #TipList tbody td {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #TipList tbody td.TipInfoSelect {
+    position: absolute;
+    top: 0.75rem;
+    left: 1rem;
+  }
+
+  /* The first line: the number with the star and the bell, the status at the right */
+  #TipList tbody td.TipInfoID {
+    display: flex;
+    order: 1;
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+
+  #TipList tbody td.TipInfoID::before {
+    content: "#";
+  }
+
+  #TipList tbody td.TipInfoImportant,
+  #TipList tbody td.TipInfoReminder {
+    order: 2;
+  }
+
+  #TipList tbody td.TipInfoStatus {
+    order: 3;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  /* Then one under the other: the label, the channel, the dates and the rest with their captions */
+  #TipList tbody td.TipInfoLabel {
+    order: 4;
+    flex-basis: 100%;
+  }
+
+  #TipList tbody td.TipInfoContext {
+    display: flex;
+    align-items: baseline;
+  }
+
+  /* The caption keeps its width and the name of the channel, on its side, is the one cut short */
+  #TipList tbody td.TipInfoContext::before {
+    flex-shrink: 0;
+  }
+
+  #TipList tbody td.TipInfoContext .cell-truncated {
+    min-width: 0;
+  }
+
+  #TipList tbody td.TipInfoContext,
+  #TipList tbody td.TipInfoSubmissionDate,
+  #TipList tbody td.TipInfoUpdateDate,
+  #TipList tbody td.TipInfoExpirationDate,
+  #TipList tbody td.TipInfoIdentity,
+  #TipList tbody td.TipInfoRecipientCount,
+  #TipList tbody td.TipInfoScore {
+    order: 7;
+    flex-basis: 100%;
+  }
+
+  /* The read receipt closes the card at the bottom right, as the ticks of a message */
+  #TipList tbody td.TipInfoLastAccess {
+    position: absolute;
+    right: 1rem;
+    bottom: 0.75rem;
+  }
+
+  #TipList tbody td[data-label]::before {
+    content: attr(data-label) ":";
+    margin-right: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: normal;
+    color: var(--gl-text-secondary);
+  }
+
+  #TipList tbody .cell-truncated {
+    max-width: 100%;
+  }
+}
+
 @keyframes fade-inout {
   0%,
   100% {

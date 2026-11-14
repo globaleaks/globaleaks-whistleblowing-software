@@ -496,6 +496,9 @@ msgstr "Files attached by recipients"
 msgid "Fill the additional questionnaire"
 msgstr "Fill the additional questionnaire"
 
+msgid "Filters"
+msgstr "Filters"
+
 msgid "Fingerprint"
 msgstr "Fingerprint"
 
@@ -1651,6 +1654,15 @@ msgstr "please enter numbers only."
 msgid "seconds"
 msgstr "seconds"
 
+msgid "Switch to the light theme"
+msgstr "Switch to the light theme"
+
+msgid "Switch to the dark theme"
+msgstr "Switch to the dark theme"
+
+msgid "Colors"
+msgstr "Colors"
+
 msgid "Skip to content"
 msgstr "Skip to content"
 
@@ -1662,15 +1674,6 @@ msgstr "Main navigation"
 
 msgid "Copied to clipboard"
 msgstr "Copied to clipboard"
-
-msgid "Switch to the light theme"
-msgstr "Switch to the light theme"
-
-msgid "Switch to the dark theme"
-msgstr "Switch to the dark theme"
-
-msgid "Colors"
-msgstr "Colors"
 
 msgid "Select a reporting channel:"
 msgstr "Select a reporting channel:"

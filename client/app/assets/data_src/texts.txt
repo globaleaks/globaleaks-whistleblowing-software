@@ -156,6 +156,7 @@ Filename
 Files
 Files attached by recipients
 Fill the additional questionnaire
+Filters
 Fingerprint
 First
 Fiscal code
@@ -515,10 +516,10 @@ percentage
 please enter a valid email address.
 please enter numbers only.
 seconds
+Switch to the light theme
+Switch to the dark theme
+Colors
 Skip to content
 Toggle navigation
 Main navigation
 Copied to clipboard
-Switch to the light theme
-Switch to the dark theme
-Colors

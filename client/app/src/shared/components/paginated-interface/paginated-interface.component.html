@@ -33,11 +33,12 @@
 
 <!-- TABLE MODE -->
 @if (mode() === 'table' && header() && content(); as content) {
-  <table class="table table-striped w-100">
-    <thead>
+  <!-- The roles are written out so that the table stays one also where its rows are laid out as cards -->
+  <table class="table table-striped w-100" role="table">
+    <thead role="rowgroup">
       <ng-container [ngTemplateOutlet]="header()!"></ng-container>
     </thead>
-    <tbody>
+    <tbody role="rowgroup">
       @for (item of paginatedItems; track item; let i = $index) {
         <ng-container [ngTemplateOutlet]="content" [ngTemplateOutletContext]="{ item: item, index: i }"></ng-container>
       }

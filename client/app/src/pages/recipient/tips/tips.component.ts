@@ -53,6 +53,8 @@ export class TipsComponent implements OnInit {
   dropdownScoreData: { id: number; label: string; }[] = [];
   sortKey: keyof rtipResolverModel = 'creation_date';
   sortReverse = true;
+  // On a phone the headers that sort and filter are a bar shown on request
+  showListControls = false;
   channelDropdownVisible = false;
   statusDropdownVisible = false;
   scoreDropdownVisible = false;
