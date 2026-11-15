@@ -12,6 +12,8 @@ import {LanguagesSupported} from "@app/models/app/public-model";
 import {TitleService} from "@app/shared/services/title.service";
 import {Observable, forkJoin, of} from "rxjs";
 import {catchError, map} from "rxjs/operators";
+import {TranslateLoader} from "@ngx-translate/core";
+import {TranslationLoader, guessLanguage} from "@app/services/helper/translation-loader";
 
 @Injectable({
   providedIn: "root"
@@ -28,11 +30,17 @@ export class AppConfigService {
   private httpService = inject(HttpService);
   private appDataService = inject(AppDataService);
   private fieldUtilitiesService = inject(FieldUtilitiesService);
+  private readonly translationLoader = inject(TranslateLoader);
   private isRunning = false;
 
   public sidebar = "";
 
   constructor() {
+    // The texts start arriving together with the public data that confirms their language
+    if (this.translationLoader instanceof TranslationLoader) {
+      this.translationLoader.prefetch(guessLanguage());
+    }
+
     this.init();
   }
 

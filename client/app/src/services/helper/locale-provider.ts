@@ -172,6 +172,12 @@ export function localeToBcp47(code: string): string {
   return BCP47_OVERRIDES[code] ?? code.replace(/_/g, '-');
 }
 
+// Convert a BCP 47 language tag written by the backend back to the internal locale code.
+export function bcp47ToLocale(tag: string): string {
+  const override = Object.keys(BCP47_OVERRIDES).find(code => BCP47_OVERRIDES[code] === tag);
+  return override ?? tag.replace(/-/g, '_');
+}
+
 // Registering all locales using your original codes
 export function registerLocales(): void {
   registerLocaleData(localeAm, 'am', localeAmExtra);

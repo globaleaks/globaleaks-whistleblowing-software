@@ -34,7 +34,8 @@
 import '@app/icons';
 import { mockEngine } from "@app/services/helper/mocks";
 import { MarkdownRendererService } from '@app/services/helper/markdown.service';
-import { provideTranslateService } from "@ngx-translate/core";
+import { provideTranslateService, provideTranslateLoader } from "@ngx-translate/core";
+import { TranslationLoader } from "@app/services/helper/translation-loader";
 import { HTTP_INTERCEPTORS, withInterceptorsFromDi, provideHttpClient } from "@angular/common/http";
 import { appInterceptor, ErrorCatchingInterceptor, CompletedInterceptor } from "@app/services/root/app-interceptor.service";
 import { APP_BASE_HREF, LocationStrategy, HashLocationStrategy } from "@angular/common";
@@ -47,7 +48,6 @@ import { provideMarkdown, MARKED_OPTIONS } from "ngx-markdown";
 import { AppComponent } from "@app/pages/app/app.component";
 import { provideRouter } from "@angular/router";
 import { ApplicationRef, enableProdMode, provideZonelessChangeDetection } from '@angular/core';
-import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import Flow from "@flowjs/flow.js";
 
 enableProdMode();
@@ -67,7 +67,7 @@ bootstrapApplication(AppComponent, {
           }
         }),
         provideTranslateService({
-          loader: provideTranslateHttpLoader({prefix: "l10n/", suffix: ""}),
+          loader: provideTranslateLoader(TranslationLoader),
         }),
         { provide: APP_BASE_HREF, useValue: "/" },
         { provide: HTTP_INTERCEPTORS, useClass: appInterceptor, multi: true },
