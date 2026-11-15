@@ -222,6 +222,23 @@ Cypress.Commands.add("takeScreenshot", (filename: string, locator?: string) => {
     cy.injectAxe()
     cy.checkA11y(null, null, terminalLog, true);
 
+    // Font Awesome draws the icons into their <i> on a later frame: a modal photographed just
+    // after it opened came out without them. The capture waits for the icons of what it takes,
+    // for three seconds at most, so that an icon missing from the library does not stop the run
+    cy.wrap(null, {log: false}).then(() => new Cypress.Promise<void>((resolve) => {
+      const start = Date.now();
+      const check = () => {
+        const scope = (locator && doc.querySelector(locator)) || doc.body;
+        const pending = scope.querySelectorAll('i[class*="fa-"]:not(:has(svg))').length;
+        if (!pending || Date.now() - start > 3000) {
+          resolve();
+        } else {
+          setTimeout(check, 50);
+        }
+      };
+      check();
+    }));
+
     if (locator) {
       cy.viewport(1280, 1024);
       cy.wait(50);
