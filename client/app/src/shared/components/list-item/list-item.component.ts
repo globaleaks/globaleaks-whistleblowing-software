@@ -6,8 +6,9 @@ import {TranslatePipe} from "@ngx-translate/core";
  * Expandable item of an administrative list.
  *
  * The header shows the projected [title] on the left and the action buttons
- * on the right: Edit, Save and Cancel follow the editing state, Delete is
- * shown when the item is deletable, and any projected [actions] come last.
+ * on the right: a projected [toggle], the switch that enables or disables the
+ * item, comes first; then Edit, or Save and Cancel while editing, then any
+ * projected [actions]; Delete, when the item is deletable, is always the last.
  * The editor declared as <ng-template #body> is instantiated only while the
  * item is being edited, so the form controls of the closed items never exist.
  *
@@ -27,6 +28,7 @@ import {TranslatePipe} from "@ngx-translate/core";
         </span>
         <span class="col-md-{{ 12 - titleColumns() }} clearfix">
           <span class="float-end">
+            <ng-content select="[toggle]"></ng-content>
             @if (canEdit() && !editing()) {
               <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit" (click)="toggle()">
                 <span>{{ 'Edit' | translate }}</span>
@@ -40,12 +42,12 @@ import {TranslatePipe} from "@ngx-translate/core";
                 <span>{{ 'Cancel' | translate }}</span>
               </button>
             }
+            <ng-content select="[actions]"></ng-content>
             @if (canDelete()) {
               <button type="button" class="btn btn-sm btn-danger" data-action="delete" (click)="deleted.emit()">
                 <span>{{ 'Delete' | translate }}</span>
               </button>
             }
-            <ng-content select="[actions]"></ng-content>
           </span>
         </span>
       </div>
