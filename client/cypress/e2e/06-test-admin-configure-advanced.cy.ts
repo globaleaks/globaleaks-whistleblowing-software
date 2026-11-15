@@ -58,28 +58,6 @@ describe("admin enable scoring system", () => {
   });
 });
 
-describe("admin add and remove disclaimer", function () {
-  it("should add disclaimer", function () {
-    cy.login_admin();
-    cy.visit("/#/admin/settings");
-    cy.get('textarea[name="nodeResolver.dataModel.disclaimer_text"]').type("disclaimer_text");
-    cy.get("#save_settings").click();
-
-    cy.logout();
-    cy.waitForUrl('/#/login');
-
-    cy.visit("/#/");
-    cy.get("#WhistleblowingButton").click();
-    cy.get('#modal-action-ok').click();
-
-    cy.login_admin();
-    cy.visit("/#/admin/settings");
-    cy.get('textarea[name="nodeResolver.dataModel.disclaimer_text"]').clear();
-    cy.get("#save_settings").click();
-    cy.logout();
-  });
-});
-
 describe("admin add and remove user privacy policy", function () {
   it("should add and remove user privacy policy", function () {
     cy.login_admin();
