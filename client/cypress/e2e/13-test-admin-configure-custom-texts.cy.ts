@@ -24,9 +24,11 @@ describe("admin update custom texts (1)", () => {
   });
 });
 
+// The texts are customized in the default language of the site, the one of the run: the visitor is
+// shown that language, and not the one of the browser
 describe("users should see updates of custom texts (1)", () => {
   it("should test custom texts", () => {
-    cy.visit("/#/");
+    cy.visit(`/#/?lang=${Cypress.expose("language")}`);
     cy.get('#submissions_disabled').should('contain', 'Whistleblowing disabled');
   });
 });
@@ -43,7 +45,7 @@ describe("admin update custom texts (2)", () => {
 
 describe("users should see updates of custom texts (2)", () => {
   it("should test custom texts", () => {
-    cy.visit("/#/");
+    cy.visit(`/#/?lang=${Cypress.expose("language")}`);
     cy.get('#submissions_disabled').should('not.contain', 'Whistleblowing disabled');
   });
 });

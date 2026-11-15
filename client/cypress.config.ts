@@ -62,6 +62,12 @@ export default defineConfig({
           // not of the interface the manual describes, and they were showing up
           // along the right and the bottom edge of most images.
           launchOptions.args.push("--hide-scrollbars");
+          // The browser prefers the language of the run: the platform opens a new session in the
+          // language of the browser when it is enabled, and the pages photographed after the
+          // languages are configured were otherwise all in English
+          const browserLanguage = String(config.expose.language).replace(/_/g, "-");
+          launchOptions.args.push(`--lang=${browserLanguage}`);
+          launchOptions.args.push(`--accept-lang=${browserLanguage}`);
         }
         return launchOptions;
       });
