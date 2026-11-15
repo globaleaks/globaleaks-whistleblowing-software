@@ -2059,3 +2059,12 @@ msgstr "Isertaat: {Isertaat}"
 
 msgid "Reset password"
 msgstr "Isissutissaq inissiguk"
+
+msgid "Skip to content"
+msgstr "Imaanut ingerlaarit"
+
+msgid "Toggle navigation"
+msgstr "Sumiiffimmut nassataq ammaruk/matuguk"
+
+msgid "Main navigation"
+msgstr "Sumiiffimmut nassataq pingaarneq"

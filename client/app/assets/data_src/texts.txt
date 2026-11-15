@@ -514,3 +514,6 @@ percentage
 please enter a valid email address.
 please enter numbers only.
 seconds
+Skip to content
+Toggle navigation
+Main navigation

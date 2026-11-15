@@ -2132,3 +2132,12 @@ msgstr "Нууц үг: {Password}"
 
 msgid "Reset password"
 msgstr "Нууц үг тохируулах"
+
+msgid "Skip to content"
+msgstr "Агуулга руу шилжих"
+
+msgid "Toggle navigation"
+msgstr "Навигацийг нээх/хаах"
+
+msgid "Main navigation"
+msgstr "Үндсэн навигаци"

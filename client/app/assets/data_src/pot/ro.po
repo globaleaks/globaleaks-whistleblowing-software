@@ -2064,3 +2064,12 @@ msgstr "Parolă: {Password}"
 
 msgid "Reset password"
 msgstr "Setează parola"
+
+msgid "Skip to content"
+msgstr "Salt la conținut"
+
+msgid "Toggle navigation"
+msgstr "Comută navigarea"
+
+msgid "Main navigation"
+msgstr "Navigare principală"

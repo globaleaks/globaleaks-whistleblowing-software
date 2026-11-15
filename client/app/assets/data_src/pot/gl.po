@@ -2040,3 +2040,12 @@ msgstr "Contrasinal: {Password}"
 
 msgid "Reset password"
 msgstr "Establecer contrasinal"
+
+msgid "Skip to content"
+msgstr "Saltar ao contido"
+
+msgid "Toggle navigation"
+msgstr "Amosar ou agochar a navegación"
+
+msgid "Main navigation"
+msgstr "Navegación principal"

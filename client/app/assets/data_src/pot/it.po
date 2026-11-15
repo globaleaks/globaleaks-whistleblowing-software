@@ -2071,3 +2071,12 @@ msgstr "ore"
 
 msgid "minutes"
 msgstr "minuti"
+
+msgid "Skip to content"
+msgstr "Vai al contenuto"
+
+msgid "Toggle navigation"
+msgstr "Mostra o nascondi la navigazione"
+
+msgid "Main navigation"
+msgstr "Navigazione principale"

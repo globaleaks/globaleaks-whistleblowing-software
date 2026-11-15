@@ -2057,3 +2057,12 @@ msgstr "角色：{Role}"
 
 msgid "Password: {Password}"
 msgstr "密码：{Password}"
+
+msgid "Skip to content"
+msgstr "跳到内容"
+
+msgid "Toggle navigation"
+msgstr "切换导航"
+
+msgid "Main navigation"
+msgstr "主导航"

@@ -2080,3 +2080,12 @@ msgstr "Пароль: {Password}"
 
 msgid "Reset password"
 msgstr "Установка пароля"
+
+msgid "Skip to content"
+msgstr "Перейти к содержимому"
+
+msgid "Toggle navigation"
+msgstr "Переключить навигацию"
+
+msgid "Main navigation"
+msgstr "Основная навигация"

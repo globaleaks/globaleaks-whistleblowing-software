@@ -2128,3 +2128,12 @@ msgstr "Wachtwoord: {Password}"
 
 msgid "Reset password"
 msgstr "Wachtwoord instellen"
+
+msgid "Skip to content"
+msgstr "Naar de inhoud"
+
+msgid "Toggle navigation"
+msgstr "Navigatie in-/uitklappen"
+
+msgid "Main navigation"
+msgstr "Hoofdnavigatie"

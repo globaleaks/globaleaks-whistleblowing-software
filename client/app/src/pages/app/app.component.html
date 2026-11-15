@@ -38,7 +38,7 @@
               (click)="isNavCollapsed = !isNavCollapsed"
               aria-controls="Sidebar"
               [attr.aria-expanded]="!isNavCollapsed"
-              aria-label="Toggle navigation">
+              [attr.aria-label]="'Toggle navigation' | translate">
             <i class="fas fa-bars"></i>
           </button>
         }
@@ -47,7 +47,7 @@
           <div class="row">
             @if (appConfig.sidebar && showSidebar) {
               <div id="Sidebar" class="col-lg-2 col-md-4 col-sm-12">
-                <nav class="navbar navbar-expand-md p-0" role="navigation" aria-label="Main navigation">
+                <nav class="navbar navbar-expand-md p-0" role="navigation" [attr.aria-label]="'Main navigation' | translate">
                   <div class="collapse navbar-collapse" [ngbCollapse]="isNavCollapsed">
                     <div class="navbar-nav">
                       @if (appConfig.sidebar==='recipient-sidebar') {

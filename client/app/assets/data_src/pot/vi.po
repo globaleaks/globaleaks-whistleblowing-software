@@ -2058,3 +2058,12 @@ msgstr "Vai trò: {Role}"
 
 msgid "Password: {Password}"
 msgstr "Mật khẩu: {Password}"
+
+msgid "Skip to content"
+msgstr "Chuyển đến nội dung"
+
+msgid "Toggle navigation"
+msgstr "Bật/tắt điều hướng"
+
+msgid "Main navigation"
+msgstr "Điều hướng chính"

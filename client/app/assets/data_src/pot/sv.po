@@ -2072,3 +2072,12 @@ msgstr "Lösenord: {Password}"
 
 msgid "Reset password"
 msgstr "Ange lösenord"
+
+msgid "Skip to content"
+msgstr "Hoppa till innehållet"
+
+msgid "Toggle navigation"
+msgstr "Växla navigering"
+
+msgid "Main navigation"
+msgstr "Huvudnavigering"

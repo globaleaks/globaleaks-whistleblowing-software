@@ -2073,3 +2073,12 @@ msgstr "گذرواژه: {Password}"
 
 msgid "Reset password"
 msgstr "تنظیم گذرواژه"
+
+msgid "Skip to content"
+msgstr "رفتن به محتوا"
+
+msgid "Toggle navigation"
+msgstr "باز و بسته کردن ناوبری"
+
+msgid "Main navigation"
+msgstr "ناوبری اصلی"

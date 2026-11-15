@@ -2056,3 +2056,12 @@ msgstr "Гузарвожа: {Password}"
 
 msgid "Reset password"
 msgstr "Таъин кардани гузарвожа"
+
+msgid "Skip to content"
+msgstr "Гузариш ба мундариҷа"
+
+msgid "Toggle navigation"
+msgstr "Кушодан/пӯшидани навигатсия"
+
+msgid "Main navigation"
+msgstr "Навигатсияи асосӣ"

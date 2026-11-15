@@ -2053,3 +2053,12 @@ msgstr "neno la siri: {Password}"
 
 msgid "Reset password"
 msgstr "Weka nenosiri"
+
+msgid "Skip to content"
+msgstr "Ruka hadi maudhui"
+
+msgid "Toggle navigation"
+msgstr "Onyesha au ficha urambazaji"
+
+msgid "Main navigation"
+msgstr "Urambazaji mkuu"

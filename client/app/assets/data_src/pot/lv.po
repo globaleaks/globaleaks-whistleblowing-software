@@ -2052,3 +2052,12 @@ msgstr "Parole: {Password}"
 
 msgid "Reset password"
 msgstr "Iestatīt paroli"
+
+msgid "Skip to content"
+msgstr "Pāriet uz saturu"
+
+msgid "Toggle navigation"
+msgstr "Pārslēgt navigāciju"
+
+msgid "Main navigation"
+msgstr "Galvenā navigācija"

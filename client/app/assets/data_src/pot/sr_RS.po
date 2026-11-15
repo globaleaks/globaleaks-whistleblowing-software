@@ -2140,3 +2140,12 @@ msgstr "Лозинка: {Password}"
 
 msgid "Reset password"
 msgstr "Поставите лозинку"
+
+msgid "Skip to content"
+msgstr "Пређи на садржај"
+
+msgid "Toggle navigation"
+msgstr "Укључи/искључи навигацију"
+
+msgid "Main navigation"
+msgstr "Главна навигација"

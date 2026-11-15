@@ -2053,3 +2053,12 @@ msgstr "পাসওয়ার্ড: {Password}"
 
 msgid "Reset password"
 msgstr "পাসওয়ার্ড সেট করুন"
+
+msgid "Skip to content"
+msgstr "বিষয়বস্তুতে যান"
+
+msgid "Toggle navigation"
+msgstr "নেভিগেশন টগল করুন"
+
+msgid "Main navigation"
+msgstr "প্রধান নেভিগেশন"

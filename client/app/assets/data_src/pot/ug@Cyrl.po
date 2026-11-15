@@ -2048,3 +2048,12 @@ msgstr "Парол: {Password}"
 
 msgid "Reset password"
 msgstr "Парол сәпләш"
+
+msgid "Skip to content"
+msgstr "Мәзмунға атлаш"
+
+msgid "Toggle navigation"
+msgstr "Йол башлашни ечиш/йепиш"
+
+msgid "Main navigation"
+msgstr "Асасий йол башлаш"

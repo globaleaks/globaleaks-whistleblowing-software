@@ -2069,3 +2069,12 @@ msgstr "Κωδικός Πρόσβασης: {Password}"
 
 msgid "Reset password"
 msgstr "Καθορισμός κωδικού"
+
+msgid "Skip to content"
+msgstr "Μετάβαση στο περιεχόμενο"
+
+msgid "Toggle navigation"
+msgstr "Εναλλαγή πλοήγησης"
+
+msgid "Main navigation"
+msgstr "Κύρια πλοήγηση"

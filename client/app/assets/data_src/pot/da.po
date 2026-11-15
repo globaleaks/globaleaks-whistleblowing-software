@@ -2061,3 +2061,12 @@ msgstr "Adgangskode: {Password}"
 
 msgid "Reset password"
 msgstr "Sæt adgangskode"
+
+msgid "Skip to content"
+msgstr "Gå til indhold"
+
+msgid "Toggle navigation"
+msgstr "Vis/skjul navigation"
+
+msgid "Main navigation"
+msgstr "Hovednavigation"

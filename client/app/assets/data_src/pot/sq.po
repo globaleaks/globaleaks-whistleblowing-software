@@ -2058,3 +2058,12 @@ msgstr "Fjalëkalim: {Password}"
 
 msgid "Reset password"
 msgstr "Caktoni fjalëkalim"
+
+msgid "Skip to content"
+msgstr "Kalo te përmbajtja"
+
+msgid "Toggle navigation"
+msgstr "Shfaq/fshih navigimin"
+
+msgid "Main navigation"
+msgstr "Navigimi kryesor"

@@ -2100,3 +2100,12 @@ msgstr "Passwort: {Password}"
 
 msgid "Reset password"
 msgstr "Passwort festlegen"
+
+msgid "Skip to content"
+msgstr "Zum Inhalt springen"
+
+msgid "Toggle navigation"
+msgstr "Navigation umschalten"
+
+msgid "Main navigation"
+msgstr "Hauptnavigation"

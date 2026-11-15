@@ -2049,3 +2049,12 @@ msgstr "Passord: {Password}"
 
 msgid "Reset password"
 msgstr "Sett passord"
+
+msgid "Skip to content"
+msgstr "Gå til innholdet"
+
+msgid "Toggle navigation"
+msgstr "Vis/skjul navigasjon"
+
+msgid "Main navigation"
+msgstr "Hovednavigasjon"

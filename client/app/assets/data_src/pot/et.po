@@ -2047,3 +2047,12 @@ msgstr "Parool: {Password}"
 
 msgid "Reset password"
 msgstr "Määra parool"
+
+msgid "Skip to content"
+msgstr "Liigu sisu juurde"
+
+msgid "Toggle navigation"
+msgstr "Lülita navigeerimine"
+
+msgid "Main navigation"
+msgstr "Põhinavigeerimine"

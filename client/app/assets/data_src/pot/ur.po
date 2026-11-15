@@ -2060,3 +2060,12 @@ msgstr "پاس ورڈ: {Password}"
 
 msgid "Reset password"
 msgstr "Set password"
+
+msgid "Skip to content"
+msgstr "مواد پر جائیں"
+
+msgid "Toggle navigation"
+msgstr "نیویگیشن ٹوگل کریں"
+
+msgid "Main navigation"
+msgstr "مرکزی نیویگیشن"

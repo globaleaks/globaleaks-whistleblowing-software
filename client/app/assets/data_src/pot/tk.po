@@ -2052,3 +2052,12 @@ msgstr "Parol: {Password}"
 
 msgid "Reset password"
 msgstr "Paroly belläň"
+
+msgid "Skip to content"
+msgstr "Mazmuna geç"
+
+msgid "Toggle navigation"
+msgstr "Nawigasiýany aç/ýap"
+
+msgid "Main navigation"
+msgstr "Esasy nawigasiýa"

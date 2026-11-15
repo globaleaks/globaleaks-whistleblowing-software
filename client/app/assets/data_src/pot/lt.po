@@ -2050,3 +2050,12 @@ msgstr "Slaptažodis: {Password}"
 
 msgid "Reset password"
 msgstr "Nustatyti slaptažodį"
+
+msgid "Skip to content"
+msgstr "Pereiti prie turinio"
+
+msgid "Toggle navigation"
+msgstr "Perjungti naršymą"
+
+msgid "Main navigation"
+msgstr "Pagrindinė navigacija"

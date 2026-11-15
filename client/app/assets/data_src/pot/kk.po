@@ -2051,3 +2051,12 @@ msgstr "Құпиясөз: {Құпиясөз}"
 
 msgid "Reset password"
 msgstr "Құпиясөзді орнату"
+
+msgid "Skip to content"
+msgstr "Мазмұнға өту"
+
+msgid "Toggle navigation"
+msgstr "Навигацияны ашу/жабу"
+
+msgid "Main navigation"
+msgstr "Негізгі навигация"

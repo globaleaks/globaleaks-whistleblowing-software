@@ -2070,3 +2070,12 @@ msgstr "Hasło: {Password}"
 
 msgid "Reset password"
 msgstr "Ustaw hasło"
+
+msgid "Skip to content"
+msgstr "Przejdź do treści"
+
+msgid "Toggle navigation"
+msgstr "Przełącz nawigację"
+
+msgid "Main navigation"
+msgstr "Nawigacja główna"

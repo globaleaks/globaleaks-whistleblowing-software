@@ -2045,3 +2045,12 @@ msgstr "ລະຫັດຜ່ານ: {Password}"
 
 msgid "Reset password"
 msgstr "ຕັ້ງລະຫັດຜ່ານ"
+
+msgid "Skip to content"
+msgstr "ຂ້າມໄປຫາເນື້ອຫາ"
+
+msgid "Toggle navigation"
+msgstr "ເປີດ/ປິດການນຳທາງ"
+
+msgid "Main navigation"
+msgstr "ການນຳທາງຫຼັກ"

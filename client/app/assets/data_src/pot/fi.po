@@ -2061,3 +2061,12 @@ msgstr "tuntia"
 
 msgid "minutes"
 msgstr "minuuttia"
+
+msgid "Skip to content"
+msgstr "Siirry sisältöön"
+
+msgid "Toggle navigation"
+msgstr "Näytä tai piilota navigointi"
+
+msgid "Main navigation"
+msgstr "Päänavigointi"

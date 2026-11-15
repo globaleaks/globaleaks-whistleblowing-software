@@ -2061,3 +2061,12 @@ msgstr "Heslo: {Password}"
 
 msgid "Reset password"
 msgstr "Nastavit heslo"
+
+msgid "Skip to content"
+msgstr "Přejít na obsah"
+
+msgid "Toggle navigation"
+msgstr "Přepnout navigaci"
+
+msgid "Main navigation"
+msgstr "Hlavní navigace"

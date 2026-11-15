@@ -2037,3 +2037,12 @@ msgstr "பங்கு: {Role}"
 
 msgid "Password: {Password}"
 msgstr "கடவுச்சொல்: {Password}"
+
+msgid "Skip to content"
+msgstr "உள்ளடக்கத்திற்குச் செல்"
+
+msgid "Toggle navigation"
+msgstr "வழிசெலுத்தலை மாற்று"
+
+msgid "Main navigation"
+msgstr "முதன்மை வழிசெலுத்தல்"

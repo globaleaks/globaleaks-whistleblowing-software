@@ -2046,3 +2046,12 @@ msgstr "סיסמה: {Password}"
 
 msgid "Reset password"
 msgstr "קבע סיסמה"
+
+msgid "Skip to content"
+msgstr "דילוג לתוכן"
+
+msgid "Toggle navigation"
+msgstr "הצגה או הסתרה של הניווט"
+
+msgid "Main navigation"
+msgstr "ניווט ראשי"

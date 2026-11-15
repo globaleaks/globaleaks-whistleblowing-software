@@ -2049,3 +2049,12 @@ msgstr "پارول: {Password}"
 
 msgid "Reset password"
 msgstr "پارول سەپلەش"
+
+msgid "Skip to content"
+msgstr "مەزمۇنغا ئاتلاش"
+
+msgid "Toggle navigation"
+msgstr "يول باشلاشنى ئېچىش/يېپىش"
+
+msgid "Main navigation"
+msgstr "ئاساسىي يول باشلاش"

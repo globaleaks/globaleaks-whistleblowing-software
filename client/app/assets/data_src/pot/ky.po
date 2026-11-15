@@ -2050,3 +2050,12 @@ msgstr "Сырсөз: {Сырсөз}"
 
 msgid "Reset password"
 msgstr "Сыр сөз коюу"
+
+msgid "Skip to content"
+msgstr "Мазмунга өтүү"
+
+msgid "Toggle navigation"
+msgstr "Навигацияны ачуу/жабуу"
+
+msgid "Main navigation"
+msgstr "Негизги навигация"

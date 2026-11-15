@@ -2090,3 +2090,12 @@ msgstr "Palavra-passe: {Password}"
 
 msgid "Reset password"
 msgstr "Definir palavra-passe"
+
+msgid "Skip to content"
+msgstr "Pular para o conteúdo"
+
+msgid "Toggle navigation"
+msgstr "Alternar navegação"
+
+msgid "Main navigation"
+msgstr "Navegação principal"

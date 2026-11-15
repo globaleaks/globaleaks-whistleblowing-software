@@ -2048,3 +2048,12 @@ msgstr "پټ نوم: {Password}"
 
 msgid "Reset password"
 msgstr "د پټ نوم ورکول"
+
+msgid "Skip to content"
+msgstr "منځپانګې ته ورشئ"
+
+msgid "Toggle navigation"
+msgstr "د لارښوونې بدلول"
+
+msgid "Main navigation"
+msgstr "اصلي لارښوونه"

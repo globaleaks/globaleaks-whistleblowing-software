@@ -2052,3 +2052,12 @@ msgstr "パスワード: {Password}"
 
 msgid "Reset password"
 msgstr "パスワードを設定"
+
+msgid "Skip to content"
+msgstr "コンテンツへスキップ"
+
+msgid "Toggle navigation"
+msgstr "ナビゲーションの切り替え"
+
+msgid "Main navigation"
+msgstr "メインナビゲーション"

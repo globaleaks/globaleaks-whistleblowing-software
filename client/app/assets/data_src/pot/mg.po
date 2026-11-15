@@ -2054,3 +2054,12 @@ msgstr "Rôle : {Role}"
 
 msgid "Password: {Password}"
 msgstr "Mot de passe : {Password}"
+
+msgid "Skip to content"
+msgstr "Mankany amin'ny votoaty"
+
+msgid "Toggle navigation"
+msgstr "Asehoy na afeno ny fitetezana"
+
+msgid "Main navigation"
+msgstr "Fitetezana lehibe"

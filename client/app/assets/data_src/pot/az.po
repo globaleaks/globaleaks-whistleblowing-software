@@ -2054,3 +2054,12 @@ msgstr "Parol: {Password}"
 
 msgid "Reset password"
 msgstr "Şifrə təyin edin"
+
+msgid "Skip to content"
+msgstr "Məzmuna keç"
+
+msgid "Toggle navigation"
+msgstr "Naviqasiyanı aç/bağla"
+
+msgid "Main navigation"
+msgstr "Əsas naviqasiya"

@@ -2048,3 +2048,12 @@ msgstr "Пароль: {Password}"
 
 msgid "Reset password"
 msgstr "Серсүзе урнаштыру"
+
+msgid "Skip to content"
+msgstr "Эчтәлеккә күчү"
+
+msgid "Toggle navigation"
+msgstr "Навигацияне ачу/ябу"
+
+msgid "Main navigation"
+msgstr "Төп навигация"

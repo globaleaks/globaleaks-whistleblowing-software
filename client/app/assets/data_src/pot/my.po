@@ -2046,3 +2046,12 @@ msgstr "စကားဝှက် - {Password}"
 
 msgid "Reset password"
 msgstr "စကားဝှက် သတ်မှတ်ပါ"
+
+msgid "Skip to content"
+msgstr "အကြောင်းအရာသို့ ကျော်သွားရန်"
+
+msgid "Toggle navigation"
+msgstr "လမ်းညွှန်ကို ဖွင့်/ပိတ်ရန်"
+
+msgid "Main navigation"
+msgstr "ပင်မ လမ်းညွှန်"

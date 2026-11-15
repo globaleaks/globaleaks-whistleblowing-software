@@ -2101,3 +2101,12 @@ msgstr "كلمة السركلمة السر: {Password}"
 
 msgid "Reset password"
 msgstr "ضبط كلمة السر"
+
+msgid "Skip to content"
+msgstr "الانتقال إلى المحتوى"
+
+msgid "Toggle navigation"
+msgstr "تبديل التنقل"
+
+msgid "Main navigation"
+msgstr "التنقل الرئيسي"

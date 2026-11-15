@@ -2047,3 +2047,12 @@ msgstr "პაროლი: {Password}"
 
 msgid "Reset password"
 msgstr "პაროლის დაყენება"
+
+msgid "Skip to content"
+msgstr "შინაარსზე გადასვლა"
+
+msgid "Toggle navigation"
+msgstr "ნავიგაციის გადართვა"
+
+msgid "Main navigation"
+msgstr "მთავარი ნავიგაცია"

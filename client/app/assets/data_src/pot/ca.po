@@ -2068,3 +2068,12 @@ msgstr "Contrasenya: {Password}"
 
 msgid "Reset password"
 msgstr "Estableix la contrasenya"
+
+msgid "Skip to content"
+msgstr "Salta al contingut"
+
+msgid "Toggle navigation"
+msgstr "Mostra o amaga la navegació"
+
+msgid "Main navigation"
+msgstr "Navegació principal"

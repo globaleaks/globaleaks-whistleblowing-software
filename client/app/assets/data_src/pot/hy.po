@@ -2050,3 +2050,12 @@ msgstr "Գաղտնաբառ՝ {Password}"
 
 msgid "Reset password"
 msgstr "Սահմանել գաղտնաբառ"
+
+msgid "Skip to content"
+msgstr "Անցնել բովանդակությանը"
+
+msgid "Toggle navigation"
+msgstr "Բացել/փակել նավիգացիան"
+
+msgid "Main navigation"
+msgstr "Հիմնական նավիգացիա"

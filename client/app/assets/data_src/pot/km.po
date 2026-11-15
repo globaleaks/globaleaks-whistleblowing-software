@@ -2049,3 +2049,12 @@ msgstr "ពាក្យសម្ងាត់៖ {Password}"
 
 msgid "Reset password"
 msgstr "កំណត់ពាក្យសម្ងាត់"
+
+msgid "Skip to content"
+msgstr "រំលងទៅមាតិកា"
+
+msgid "Toggle navigation"
+msgstr "បិទ/បើកការរុករក"
+
+msgid "Main navigation"
+msgstr "ការរុករកមេ"

@@ -2074,3 +2074,12 @@ msgstr "Lozinka: {Password}"
 
 msgid "Reset password"
 msgstr "Postavite lozinku"
+
+msgid "Skip to content"
+msgstr "Preskoči na sadržaj"
+
+msgid "Toggle navigation"
+msgstr "Uključi/isključi navigaciju"
+
+msgid "Main navigation"
+msgstr "Glavna navigacija"

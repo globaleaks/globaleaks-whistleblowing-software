@@ -2048,3 +2048,12 @@ msgstr "གསང་ཡིག།: {Password}"
 
 msgid "Reset password"
 msgstr "གསང་ཡིག་སྒྲིག་བཀོད་བྱ།"
+
+msgid "Skip to content"
+msgstr "ནང་དོན་ལ་མཆོང་།"
+
+msgid "Toggle navigation"
+msgstr "ལམ་སྟོན་ཁ་ཕྱེ་བ་དང་ཁ་རྒྱག་པ།"
+
+msgid "Main navigation"
+msgstr "ལམ་སྟོན་གཙོ་བོ།"

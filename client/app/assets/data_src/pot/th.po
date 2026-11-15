@@ -2055,3 +2055,12 @@ msgstr "รหัสผ่าน: {Password}"
 
 msgid "Reset password"
 msgstr "ตั้งรหัสผ่าน"
+
+msgid "Skip to content"
+msgstr "ข้ามไปยังเนื้อหา"
+
+msgid "Toggle navigation"
+msgstr "เปิด/ปิดการนำทาง"
+
+msgid "Main navigation"
+msgstr "การนำทางหลัก"

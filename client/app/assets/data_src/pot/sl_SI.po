@@ -2048,3 +2048,12 @@ msgstr "Geslo: {Password}"
 
 msgid "Reset password"
 msgstr "Nastavi geslo"
+
+msgid "Skip to content"
+msgstr "Skoči na vsebino"
+
+msgid "Toggle navigation"
+msgstr "Preklopi navigacijo"
+
+msgid "Main navigation"
+msgstr "Glavna navigacija"

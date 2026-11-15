@@ -2049,3 +2049,12 @@ msgstr "Paroli: {Password}"
 
 msgid "Reset password"
 msgstr "Parol belgilash"
+
+msgid "Skip to content"
+msgstr "Tarkibga o'tish"
+
+msgid "Toggle navigation"
+msgstr "Navigatsiyani ochish/yopish"
+
+msgid "Main navigation"
+msgstr "Asosiy navigatsiya"

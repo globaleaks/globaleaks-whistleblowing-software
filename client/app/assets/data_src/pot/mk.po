@@ -2050,3 +2050,12 @@ msgstr "Лозинка: {Password}"
 
 msgid "Reset password"
 msgstr "Постави лозинка"
+
+msgid "Skip to content"
+msgstr "Скокни до содржината"
+
+msgid "Toggle navigation"
+msgstr "Вклучи/исклучи навигација"
+
+msgid "Main navigation"
+msgstr "Главна навигација"

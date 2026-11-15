@@ -2050,3 +2050,12 @@ msgstr "ޕާސްވޯޑް: {Password}"
 
 msgid "Reset password"
 msgstr "ޕާސްވާޑްއެއް ހިޔާރުކުރައްވާ"
+
+msgid "Skip to content"
+msgstr "ކޮންޓެންޓަށް ފުންމާލާ"
+
+msgid "Toggle navigation"
+msgstr "ނެވިގޭޝަން ބަދަލުކުރޭ"
+
+msgid "Main navigation"
+msgstr "މައި ނެވިގޭޝަން"

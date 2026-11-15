@@ -2044,3 +2044,12 @@ msgstr "የይለፍ ቃል፡-{Password}"
 
 msgid "Reset password"
 msgstr "የይለፍ ቃል ያዘጋጁ"
+
+msgid "Skip to content"
+msgstr "ወደ ይዘቱ ዝለል"
+
+msgid "Toggle navigation"
+msgstr "አሰሳን ቀያይር"
+
+msgid "Main navigation"
+msgstr "ዋና አሰሳ"

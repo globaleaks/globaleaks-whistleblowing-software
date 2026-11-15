@@ -2049,3 +2049,12 @@ msgstr "Парол: {Password}"
 
 msgid "Reset password"
 msgstr "Парол хlоттае"
+
+msgid "Skip to content"
+msgstr "Чулацам тӀе дехьа вала"
+
+msgid "Toggle navigation"
+msgstr "Навигаци схьаелла/дӀакъовла"
+
+msgid "Main navigation"
+msgstr "Коьрта навигаци"

@@ -2047,3 +2047,12 @@ msgstr "Kata laluan: {Password}"
 
 msgid "Reset password"
 msgstr "Tetapkan kata laluan"
+
+msgid "Skip to content"
+msgstr "Langkau ke kandungan"
+
+msgid "Toggle navigation"
+msgstr "Togol navigasi"
+
+msgid "Main navigation"
+msgstr "Navigasi utama"

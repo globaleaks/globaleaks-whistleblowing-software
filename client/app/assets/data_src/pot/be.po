@@ -2050,3 +2050,12 @@ msgstr "Пароль: {Password}"
 
 msgid "Reset password"
 msgstr "Задаць пароль"
+
+msgid "Skip to content"
+msgstr "Перайсці да зместу"
+
+msgid "Toggle navigation"
+msgstr "Пераключыць навігацыю"
+
+msgid "Main navigation"
+msgstr "Асноўная навігацыя"

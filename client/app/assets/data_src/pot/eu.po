@@ -2067,3 +2067,12 @@ msgstr "Pasahitza:{Password}"
 
 msgid "Reset password"
 msgstr "Berrezarri pasahitza"
+
+msgid "Skip to content"
+msgstr "Joan edukira"
+
+msgid "Toggle navigation"
+msgstr "Erakutsi edo ezkutatu nabigazioa"
+
+msgid "Main navigation"
+msgstr "Nabigazio nagusia"

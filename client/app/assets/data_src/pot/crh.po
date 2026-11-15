@@ -2047,3 +2047,12 @@ msgstr "Пароль: {Password}"
 
 msgid "Reset password"
 msgstr "Пароль бельгилемек"
+
+msgid "Skip to content"
+msgstr "Muhtevağa keç"
+
+msgid "Toggle navigation"
+msgstr "Naviğatsiyanı aç/qapat"
+
+msgid "Main navigation"
+msgstr "Esas naviğatsiya"

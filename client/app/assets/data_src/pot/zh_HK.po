@@ -2038,3 +2038,12 @@ msgstr "身份：{Role}"
 
 msgid "Password: {Password}"
 msgstr "密碼：{Password}"
+
+msgid "Skip to content"
+msgstr "跳至內容"
+
+msgid "Toggle navigation"
+msgstr "切換導覽"
+
+msgid "Main navigation"
+msgstr "主要導覽"

@@ -2101,3 +2101,12 @@ msgstr "Contraseña: {Password}"
 
 msgid "Reset password"
 msgstr "Establecer contraseña"
+
+msgid "Skip to content"
+msgstr "Saltar al contenido"
+
+msgid "Toggle navigation"
+msgstr "Mostrar u ocultar la navegación"
+
+msgid "Main navigation"
+msgstr "Navegación principal"

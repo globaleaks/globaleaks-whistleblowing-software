@@ -2183,3 +2183,12 @@ msgstr "óra"
 
 msgid "minutes"
 msgstr "perc"
+
+msgid "Skip to content"
+msgstr "Ugrás a tartalomra"
+
+msgid "Toggle navigation"
+msgstr "Navigáció be-/kikapcsolása"
+
+msgid "Main navigation"
+msgstr "Fő navigáció"

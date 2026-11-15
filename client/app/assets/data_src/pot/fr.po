@@ -2243,3 +2243,12 @@ msgstr "heures"
 
 msgid "minutes"
 msgstr "minutes"
+
+msgid "Skip to content"
+msgstr "Aller au contenu"
+
+msgid "Toggle navigation"
+msgstr "Afficher ou masquer la navigation"
+
+msgid "Main navigation"
+msgstr "Navigation principale"
