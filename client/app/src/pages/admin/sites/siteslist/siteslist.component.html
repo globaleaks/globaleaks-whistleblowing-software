@@ -64,58 +64,60 @@
           </div>
           <div class="form-group">
             <label>
-              <span data-translate>Name</span><span>: </span>
+              <span>{{ 'Name' | translate }}</span><span>: </span>
             </label>
             <span>{{tenant().signup.name}}</span>
           </div>
           <div class="form-group">
             <label>
-              <span data-translate>Surname</span><span>: </span>
+              <span>{{ 'Surname' | translate }}</span><span>: </span>
             </label>
             <span>{{tenant().signup.surname}}</span>
           </div>
           <div class="form-group">
             <label>
-              <span data-translate>Language</span><span>: </span>
+              <span>{{ 'Language' | translate }}</span><span>: </span>
             </label>
             <span>{{tenant().signup.language}}</span>
           </div>
           <div class="form-group">
             <label>
-              <span data-translate>Email address</span><span>: </span>
+              <span>{{ 'Email address' | translate }}</span><span>: </span>
             </label>
             <span>{{tenant().signup.email}}</span>
           </div>
           @if (tenant().signup.mode !== "demo") {
-            <div class="form-group" data-ng-if="tenant().signup.phone">
-              <label>
-                <span data-translate>Phone number</span><span>: </span>
-              </label>
-              <span>{{tenant().signup.phone}}</span>
-            </div>
-            <label data-translate>Organization</label>
+            @if (tenant().signup.phone) {
+              <div class="form-group">
+                <label>
+                  <span>{{ 'Phone number' | translate }}</span><span>: </span>
+                </label>
+                <span>{{tenant().signup.phone}}</span>
+              </div>
+            }
+            <label>{{ 'Organization' | translate }}</label>
             <div class="ms-4">
               <div class="form-group">
                 <label>
-                  <span data-translate>Name</span><span>: </span>
+                  <span>{{ 'Name' | translate }}</span><span>: </span>
                 </label>
                 <span>{{tenant().signup.organization_name}}</span>
               </div>
               <div class="form-group">
                 <label>
-                  <span data-translate>Address</span><span>: </span>
+                  <span>{{ 'Address' | translate }}</span><span>: </span>
                 </label>
                 <span>{{tenant().signup.organization_location}}</span>
               </div>
               <div class="form-group">
                 <label>
-                  <span data-translate>Fiscal code</span><span>: </span>
+                  <span>{{ 'Fiscal code' | translate }}</span><span>: </span>
                 </label>
                 <span>{{tenant().signup.organization_fiscal_code}}</span>
               </div>
               <div class="form-group">
                 <label>
-                  <span data-translate>Tax code</span><span>: </span>
+                  <span>{{ 'Tax code' | translate }}</span><span>: </span>
                 </label>
                 <span>{{tenant().signup.organization_vat_number}}</span>
               </div>
