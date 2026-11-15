@@ -36,7 +36,7 @@ This section is furtherly divided in:
 
    3. Languages
 
-   4. Text customization
+   4. Texts
 
    5. Advanced settings
 
@@ -59,9 +59,9 @@ In this section you could enable all the languages required by your project and 
 .. image:: ../../images/admin/site_settings_languages.png
    :align: center
 
-Text customization
-..................
-Here could be configured overrides for any of the texts of the platform and of their translation.
+Texts
+.....
+Here could be configured overrides for any of the texts of the platform, in each of the languages enabled: choose the language and the original text, then write the custom text that replaces it.
 
 .. image:: ../../images/admin/site_settings_text_customization.png
    :align: center

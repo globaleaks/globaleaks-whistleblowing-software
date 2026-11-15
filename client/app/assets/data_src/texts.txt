@@ -9,7 +9,6 @@ Access to the reporting person's identity has been requested to the custodian.
 Account recovery key
 Activities
 Add
-Add custom text
 Add multimedia content
 Add new question
 Add new questionnaire
@@ -90,7 +89,6 @@ Custom
 Custom privacy panel
 Custom support URL
 Custom text
-Custom translation
 Date
 Date of the request
 Date range
@@ -274,7 +272,6 @@ Opened
 Options
 Organization
 Original text
-Original translation
 Password
 Password change interval
 Password reset
@@ -417,10 +414,10 @@ Templates
 Terms of service
 Test the configuration
 Text
-Text customization
 Text shown after the user has selected the option.
 Text shown on top of the interface for selecting channels
 Text shown upon negative answer
+Texts
 Thank you.
 The answer is too short
 The chosen password is too weak. A valid password should be at least 12 characters long and contain a variety of characters including at least a lowercase character, a capital character, a number and a special character.

@@ -1331,6 +1331,9 @@ msgstr "Testo mostrato prima dell'interfaccia per selezionare il canale"
 msgid "Text shown upon negative answer"
 msgstr "Testo mostrato in caso di risposta negativa"
 
+msgid "Texts"
+msgstr "Testi"
+
 msgid "Thank you."
 msgstr "Grazie."
 

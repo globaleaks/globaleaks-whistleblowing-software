@@ -9,7 +9,7 @@
       </select>
     </div>
     <div class="form-group">
-      <label for="custom-text-selector">{{'Add custom text' | translate}}</label>
+      <label for="custom-text-selector">{{'Original text' | translate}}</label>
       <select id="custom-text-selector" class="form-select-custom" name="vars.text_to_customize" [(ngModel)]="vars.text_to_customize" (ngModelChange)="vars.custom_text = custom_texts[vars.text_to_customize] ? custom_texts[vars.text_to_customize] : default_texts[vars.text_to_customize]">
         @for (item of custom_texts_selector; track item) {
           <option [value]="item.key">{{item.value}}</option>
@@ -44,19 +44,19 @@
             <thead>
               <tr>
                 <th>{{'Original text' | translate}}</th>
-                <th>{{'Original translation' | translate}}</th>
-                <th>{{'Custom translation' | translate}}</th>
+                <th>{{'Custom text' | translate}}</th>
               </tr>
             </thead>
             <tbody>
               @for (item of custom_texts_keys; track item) {
                 <tr [class.bg-danger]="!default_texts[item]" ngbTooltip="{{!default_texts[item] ? 'This custom text is no longer displayed on the platform. The original text has either changed or been removed.' : '' | translate}}">
-                  <td class="preformatted">{{ item }}</td>
-                  <td class="preformatted">{{ default_texts[item] }}</td>
+                  <!-- The text the platform shows in the language; where it is gone, the one it came from -->
+                  <td class="preformatted">{{ default_texts[item] || item }}</td>
                   <td class="clearfix">
                     <span class="preformatted">{{ custom_texts[item] }}</span>
-                    <button type="button" class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item); updateCustomText(custom_texts,vars.language_to_customize)">
-                      <i class="fas fa-xmark"></i>
+                    <button type="button" class="deleteCustomTextButton float-end btn btn-sm btn-danger" (click)="deleteCustomText(custom_texts,item); updateCustomText(custom_texts,vars.language_to_customize)"
+                            [attr.aria-label]="'Delete' | translate" ngbTooltip="{{ 'Delete' | translate }}">
+                      <i class="fas fa-trash" aria-hidden="true"></i>
                     </button>
                   </td>
                 </tr>

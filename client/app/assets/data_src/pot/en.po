@@ -46,9 +46,6 @@ msgstr "Activities"
 msgid "Add"
 msgstr "Add"
 
-msgid "Add custom text"
-msgstr "Add custom text"
-
 msgid "Add multimedia content"
 msgstr "Add multimedia content"
 
@@ -292,9 +289,6 @@ msgstr "Custom support URL"
 
 msgid "Custom text"
 msgstr "Custom text"
-
-msgid "Custom translation"
-msgstr "Custom translation"
 
 msgid "Date"
 msgstr "Date"
@@ -873,9 +867,6 @@ msgstr "Organization"
 msgid "Original text"
 msgstr "Original text"
 
-msgid "Original translation"
-msgstr "Original translation"
-
 msgid "Password"
 msgstr "Password"
 
@@ -1302,9 +1293,6 @@ msgstr "Test the configuration"
 msgid "Text"
 msgstr "Text"
 
-msgid "Text customization"
-msgstr "Text customization"
-
 msgid "Text shown after the user has selected the option."
 msgstr "Text shown after the user has selected the option."
 
@@ -1313,6 +1301,9 @@ msgstr "Text shown on top of the interface for selecting channels"
 
 msgid "Text shown upon negative answer"
 msgstr "Text shown upon negative answer"
+
+msgid "Texts"
+msgstr "Texts"
 
 msgid "Thank you."
 msgstr "Thank you."
