@@ -243,7 +243,7 @@ export class AppConfigService {
   }
 
   reload() {
-    const url = this.router.url;
+    const url = this.utilsService.currentUrl();
     this.router.navigateByUrl('/blank', {skipLocationChange: true}).then(() => {
       this.localInitialization(() => {
         this.router.navigateByUrl(url);

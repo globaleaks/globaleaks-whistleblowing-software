@@ -64,7 +64,7 @@ export class TipOperationPostponeComponent implements OnInit {
   }
 
   reload() {
-    this.utils.reloadCurrentRoute();
+    this.args.reload();
   }
 
   cancel() {

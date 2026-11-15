@@ -75,7 +75,7 @@ export class TipOperationSetReminderComponent implements OnInit {
   }
 
   reload() {
-    this.utils.reloadCurrentRoute();
+    this.args.reload();
   }
 
   cancel() {

@@ -2,6 +2,7 @@ import {Injectable, OutputEmitterRef, inject} from "@angular/core";
 import Flow from "@flowjs/flow.js";
 import {TranslateService} from "@ngx-translate/core";
 import {ActivatedRoute, Router} from "@angular/router";
+import {Location} from "@angular/common";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {RequestSupportComponent} from "@app/shared/modals/request-support/request-support.component";
 import {HttpService} from "@app/shared/services/http.service";
@@ -50,6 +51,7 @@ export class UtilsService {
   private modalService = inject(NgbModal);
   private preferenceResolver = inject(PreferenceResolver);
   private router = inject(Router);
+  private location = inject(Location);
 
   supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
 
@@ -148,8 +150,17 @@ export class UtilsService {
     document.documentElement.scrollTop = 0;
   }
 
+  /**
+   * The address of the page shown. A reload passes through the blank page without leaving the
+   * address of the browser: one starting while another is on its way back must go back to the
+   * page, not to the blank one
+   */
+  currentUrl(): string {
+    return this.router.url === "/blank" ? this.location.path() : this.router.url;
+  }
+
   reloadCurrentRoute() {
-    const currentUrl = this.router.url;
+    const currentUrl = this.currentUrl();
     this.router.navigateByUrl("blank", {skipLocationChange: true, replaceUrl: true}).then(() => {
       this.router.navigate([currentUrl]).then();
     });
@@ -218,9 +229,9 @@ export class UtilsService {
   }
 
   reloadCurrentRouteFresh(removeQueryParam = false) {
-    let currentUrl = this.router.url;
+    let currentUrl = this.currentUrl();
     if (removeQueryParam) {
-      currentUrl = this.router.url.split("?")[0];
+      currentUrl = currentUrl.split("?")[0];
     }
 
     this.router.navigateByUrl("/blank", {skipLocationChange: true}).then(() => {

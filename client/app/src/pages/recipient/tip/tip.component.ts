@@ -356,6 +356,7 @@ export class TipComponent implements OnInit {
     modalRef.componentInstance.args = {
       tip: this.RTipService.tip,
       operation: "set_reminder",
+      reload: () => this.reload(),
       reminder_date: this.utils.getPostponeDate(tip_reminder),
       dateOptions: {
         minDate: new Date(this.tip.creation_date)
@@ -370,6 +371,7 @@ export class TipComponent implements OnInit {
     modalRef.componentInstance.args = {
       tip: this.RTipService.tip,
       operation: "postpone",
+      reload: () => this.reload(),
       expiration_date: this.utils.getPostponeDate(tip_timetolive),
       dateOptions: {
         minDate: this.utils.getMinPostponeDate(this.tip.expiration_date),
