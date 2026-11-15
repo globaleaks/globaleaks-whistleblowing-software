@@ -42,11 +42,8 @@ module.exports = tseslint.config(
       ...angular.configs.templateAccessibility,
     ],
     rules: {
-      // Reported, not enforced: the accessibility backlog of the templates
-      // is tracked through these warnings until it is worked off.
+      // Reported, not enforced: the labels of the templates are still to be tied to their controls.
       "@angular-eslint/template/label-has-associated-control": "warn",
-      "@angular-eslint/template/click-events-have-key-events": "warn",
-      "@angular-eslint/template/interactive-supports-focus": "warn",
     },
   }
 );

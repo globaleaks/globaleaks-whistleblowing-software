@@ -64,6 +64,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   private wbTipResolver = inject(WbTipResolver);
 
   showSidebar = true;
+  private announcedUrl = "";
   isNavCollapsed = true;
   showLoadingPanel = true;
   supportedBrowser = true;
@@ -87,8 +88,43 @@ export class AppComponent implements AfterViewInit, OnInit {
         ];
         const currentUrl = event.url;
         this.showSidebar = !excludedUrls.includes(currentUrl);
+        this.announceNavigation(event.urlAfterRedirects);
       }
     });
+  }
+
+  // After a change of page a screen reader is told the title of the new one, and the focus, when
+  // it was on something the change took away, goes to the content. Not on the first page, which
+  // the browser announces by itself, nor when a page is read again through the blank route.
+  private announceNavigation(url: string) {
+    if (url === "/blank" || url === this.announcedUrl) {
+      return;
+    }
+
+    const first = this.announcedUrl === "";
+    this.announcedUrl = url;
+    if (first) {
+      return;
+    }
+
+    setTimeout(() => {
+      const announcer = this.document.getElementById("RouteAnnouncer");
+      if (announcer) {
+        announcer.textContent = this.document.title;
+      }
+
+      const active = this.document.activeElement;
+      if (!active || active === this.document.body) {
+        this.document.getElementById("Content")?.focus({preventScroll: true});
+      }
+    });
+  }
+
+  // The link that skips to the content moves the focus there: as a plain anchor it would be a
+  // route for the router of the hash
+  skipToContent(event: Event) {
+    event.preventDefault();
+    this.document.getElementById("Content")?.focus();
   }
 
   ngOnInit() {

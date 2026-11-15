@@ -696,7 +696,10 @@ p:last-child {
   margin: 0;
 }
 
-#LogoBox{
+/* The logo is a link: a block as wide as the picture, so that the height and the margin under it hold */
+#LogoBox {
+  display: block;
+  width: fit-content;
   min-height: 5rem;
 }
 
@@ -903,6 +906,20 @@ input[type="email"] {
   cursor: pointer;
 }
 
+/* A button drawn as its content alone, the icon of a filter or the text it copies: a real button for
+   the keyboard and the screen readers, with none of the look of one. Without weight, so that the
+   class that draws the content wins */
+:where(.btn-plain) {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
 .edit {
   cursor: pointer;
 }
@@ -1019,6 +1036,14 @@ i.fa-solid.fa-chevron-right {
   top: auto;
   height: 1px;
   overflow: hidden;
+}
+
+/* The content takes the focus from the link that skips to it and after a change of page: the
+   container is not a control, and draws no ring, neither the one that :focus-visible imposes on
+   every element */
+#Content:focus,
+#Content:focus-visible {
+  outline: none !important;
 }
 
 #Skip a:focus {

@@ -67,20 +67,20 @@
                 @if (!contextResolver().show_receivers_in_alphabetical_order) {
                   <span>
                     @if (index !== 0) {
-                      <span (click)="moveUpReceiver(index)" ngbTooltip="{{'Move up' | translate}}" (keydown.enter)="moveUpReceiver(index)" tabindex="0" role="button">
+                      <button type="button" class="btn-plain" (click)="moveUpReceiver(index)" ngbTooltip="{{'Move up' | translate}}">
                         <i class="fas fa-chevron-up"></i>
-                      </span>
+                      </button>
                     }
                     @if (index !== contextResolver().receivers.length - 1) {
-                      <span (click)="moveDownReceiver(index)" ngbTooltip="{{'Move down' | translate}}" (keydown.enter)="moveDownReceiver(index)" tabindex="0" role="button">
+                      <button type="button" class="btn-plain" (click)="moveDownReceiver(index)" ngbTooltip="{{'Move down' | translate}}">
                         <i class="fas fa-chevron-down"></i>
-                      </span>
+                      </button>
                     }
                   </span>
                 }
-                <span (click)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById()[receiver])" ngbTooltip="{{'Remove' | translate}}" (keydown.enter)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById()[receiver])" tabindex="0" role="button">
+                <button type="button" class="btn-plain" (click)="contextResolver().receivers.splice(index, 1);receiverNotSelectedFilter(adminReceiversById()[receiver])" ngbTooltip="{{'Remove' | translate}}">
                   <i class="fas fa-xmark"></i>
-                </span>
+                </button>
                 <span>{{adminReceiversById()[receiver].name}}</span>
               </li>
             }
