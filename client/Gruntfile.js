@@ -377,7 +377,7 @@ module.exports = function(grunt) {
   }
 
   // Weblate instance configuration (safe to commit)
-  const weblateUrl = "https://localizationlab.weblate.cloud";
+  const weblateUrl = "https://translate.globaleaks.org";
   const weblateProject = "globaleaks";
   const weblateComponent = "stable";
   const weblateSourceLang = "en";
