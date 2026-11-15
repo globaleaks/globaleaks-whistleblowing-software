@@ -53,15 +53,17 @@ You can have one or multiple Recipients per Context, and also have one Recipient
 
 Customize the graphic layout
 ----------------------------
-Example 1: custom background
-............................
-This CSS example shows how to customize the Background Color of the application.
+Example 1: custom accent
+........................
+The colors of the interface are computed from the primary color chosen in the Colors settings, in the light and in the dark theme, and keep the contrast of the text accessible.
+A custom CSS should use the same colors, through the variables of the theme, rather than fixed ones.
+This CSS example draws a line in the accent color under the header.
 
 .. code-block:: css
 
-   body
+   #HeaderBox
    {
-      background-color: blue;
+      border-bottom: 4px solid var(--gl-accent);
    }
 
 Example 2: custom font

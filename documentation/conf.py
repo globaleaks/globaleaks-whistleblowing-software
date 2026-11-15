@@ -58,7 +58,10 @@ gettext_compact = 'sphinx'
 
 exclude_patterns = ['_build']
 show_authors = False
-pygments_style = 'sphinx'
+# The code is told apart by bold and italic alone: the colors of every other Pygments style fall
+# under 7:1 on the code surfaces of the palette, in the light or in the dark theme
+pygments_style = 'bw'
+pygments_dark_style = 'bw'
 
 html_theme = 'furo'
 html_baseurl = 'https://docs.globaleaks.org/'
