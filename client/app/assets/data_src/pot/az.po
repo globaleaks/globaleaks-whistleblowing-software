@@ -2063,3 +2063,6 @@ msgstr "Naviqasiyanı aç/bağla"
 
 msgid "Main navigation"
 msgstr "Əsas naviqasiya"
+
+msgid "Copied to clipboard"
+msgstr "Mübadilə buferinə kopyalandı"

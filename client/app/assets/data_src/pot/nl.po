@@ -2137,3 +2137,6 @@ msgstr "Navigatie in-/uitklappen"
 
 msgid "Main navigation"
 msgstr "Hoofdnavigatie"
+
+msgid "Copied to clipboard"
+msgstr "Gekopieerd naar het klembord"

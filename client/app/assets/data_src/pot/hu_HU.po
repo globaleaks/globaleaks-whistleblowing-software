@@ -2192,3 +2192,6 @@ msgstr "Navigáció be-/kikapcsolása"
 
 msgid "Main navigation"
 msgstr "Fő navigáció"
+
+msgid "Copied to clipboard"
+msgstr "Vágólapra másolva"

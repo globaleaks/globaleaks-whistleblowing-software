@@ -2064,3 +2064,6 @@ msgstr "เปิด/ปิดการนำทาง"
 
 msgid "Main navigation"
 msgstr "การนำทางหลัก"
+
+msgid "Copied to clipboard"
+msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว"

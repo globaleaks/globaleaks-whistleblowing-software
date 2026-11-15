@@ -2061,3 +2061,6 @@ msgstr "Pārslēgt navigāciju"
 
 msgid "Main navigation"
 msgstr "Galvenā navigācija"
+
+msgid "Copied to clipboard"
+msgstr "Nokopēts starpliktuvē"

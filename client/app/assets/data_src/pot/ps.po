@@ -2057,3 +2057,6 @@ msgstr "د لارښوونې بدلول"
 
 msgid "Main navigation"
 msgstr "اصلي لارښوونه"
+
+msgid "Copied to clipboard"
+msgstr "کلیپ بورډ ته کاپي شو"

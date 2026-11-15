@@ -2109,3 +2109,6 @@ msgstr "Navigation umschalten"
 
 msgid "Main navigation"
 msgstr "Hauptnavigation"
+
+msgid "Copied to clipboard"
+msgstr "In die Zwischenablage kopiert"

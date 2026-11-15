@@ -2081,3 +2081,6 @@ msgstr "Växla navigering"
 
 msgid "Main navigation"
 msgstr "Huvudnavigering"
+
+msgid "Copied to clipboard"
+msgstr "Kopierat till urklipp"

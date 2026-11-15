@@ -2056,3 +2056,6 @@ msgstr "Lülita navigeerimine"
 
 msgid "Main navigation"
 msgstr "Põhinavigeerimine"
+
+msgid "Copied to clipboard"
+msgstr "Kopeeritud lõikelauale"

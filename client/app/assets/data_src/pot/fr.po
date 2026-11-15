@@ -2252,3 +2252,6 @@ msgstr "Afficher ou masquer la navigation"
 
 msgid "Main navigation"
 msgstr "Navigation principale"
+
+msgid "Copied to clipboard"
+msgstr "Copié dans le presse-papiers"

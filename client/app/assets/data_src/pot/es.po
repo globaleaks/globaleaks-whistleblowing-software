@@ -2110,3 +2110,6 @@ msgstr "Mostrar u ocultar la navegación"
 
 msgid "Main navigation"
 msgstr "Navegación principal"
+
+msgid "Copied to clipboard"
+msgstr "Copiado al portapapeles"

@@ -2062,3 +2062,6 @@ msgstr "Onyesha au ficha urambazaji"
 
 msgid "Main navigation"
 msgstr "Urambazaji mkuu"
+
+msgid "Copied to clipboard"
+msgstr "Imenakiliwa kwenye ubao wa kunakili"

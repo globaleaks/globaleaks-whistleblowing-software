@@ -33,6 +33,7 @@
             "styles": [
               { "bundleName": "styles", "inject": true, "input": "node_modules/@fontsource-variable/inter/index.css" },
               { "bundleName": "styles", "inject": true, "input": "node_modules/@fortawesome/fontawesome-svg-core/styles.css" },
+              { "bundleName": "styles", "inject": true, "input": "node_modules/@angular/cdk/a11y-prebuilt.css" },
               { "bundleName": "styles", "inject": true, "input": "app/css/components/libs/bootstrap/bootstrap.scss" },
               { "bundleName": "styles", "inject": true, "input": "node_modules/ng-multiselect-dropdown/themes/ng-multiselect-dropdown.theme.scss" },
               { "bundleName": "styles", "inject": true, "input": "node_modules/@ng-select/ng-select/scss/ng-select.component.scss" },

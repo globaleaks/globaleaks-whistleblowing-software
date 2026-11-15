@@ -2078,3 +2078,6 @@ msgstr "Εναλλαγή πλοήγησης"
 
 msgid "Main navigation"
 msgstr "Κύρια πλοήγηση"
+
+msgid "Copied to clipboard"
+msgstr "Αντιγράφηκε στο πρόχειρο"

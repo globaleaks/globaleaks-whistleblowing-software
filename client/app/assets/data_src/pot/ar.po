@@ -2110,3 +2110,6 @@ msgstr "تبديل التنقل"
 
 msgid "Main navigation"
 msgstr "التنقل الرئيسي"
+
+msgid "Copied to clipboard"
+msgstr "تم النسخ إلى الحافظة"

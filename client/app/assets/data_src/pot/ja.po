@@ -2061,3 +2061,6 @@ msgstr "ナビゲーションの切り替え"
 
 msgid "Main navigation"
 msgstr "メインナビゲーション"
+
+msgid "Copied to clipboard"
+msgstr "クリップボードにコピーしました"

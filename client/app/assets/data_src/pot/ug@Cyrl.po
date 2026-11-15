@@ -2057,3 +2057,6 @@ msgstr "Йол башлашни ечиш/йепиш"
 
 msgid "Main navigation"
 msgstr "Асасий йол башлаш"
+
+msgid "Copied to clipboard"
+msgstr "Чаплаш тахтисиға көчүрүлди"

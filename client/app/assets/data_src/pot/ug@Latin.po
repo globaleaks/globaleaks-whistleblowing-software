@@ -2057,3 +2057,6 @@ msgstr "Yol bashlashni échish/yépish"
 
 msgid "Main navigation"
 msgstr "Asasiy yol bashlash"
+
+msgid "Copied to clipboard"
+msgstr "Chaplash taxtisigha köchürüldi"

@@ -2067,3 +2067,6 @@ msgstr "Prepnúť navigáciu"
 
 msgid "Main navigation"
 msgstr "Hlavná navigácia"
+
+msgid "Copied to clipboard"
+msgstr "Skopírované do schránky"

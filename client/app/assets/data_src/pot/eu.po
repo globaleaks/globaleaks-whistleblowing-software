@@ -2076,3 +2076,6 @@ msgstr "Erakutsi edo ezkutatu nabigazioa"
 
 msgid "Main navigation"
 msgstr "Nabigazio nagusia"
+
+msgid "Copied to clipboard"
+msgstr "Arbelean kopiatu da"

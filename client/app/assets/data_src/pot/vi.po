@@ -2067,3 +2067,6 @@ msgstr "Bật/tắt điều hướng"
 
 msgid "Main navigation"
 msgstr "Điều hướng chính"
+
+msgid "Copied to clipboard"
+msgstr "Đã sao chép vào bộ nhớ tạm"

@@ -2049,3 +2049,6 @@ msgstr "Amosar ou agochar a navegación"
 
 msgid "Main navigation"
 msgstr "Navegación principal"
+
+msgid "Copied to clipboard"
+msgstr "Copiado no portapapeis"

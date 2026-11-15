@@ -2056,3 +2056,6 @@ msgstr "Togol navigasi"
 
 msgid "Main navigation"
 msgstr "Navigasi utama"
+
+msgid "Copied to clipboard"
+msgstr "Disalin ke papan keratan"

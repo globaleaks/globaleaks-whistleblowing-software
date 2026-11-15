@@ -1,4 +1,5 @@
-import {AfterViewChecked, ChangeDetectorRef, Component, inject} from "@angular/core";
+import {AfterViewChecked, ChangeDetectorRef, Component, ElementRef, inject} from "@angular/core";
+import {LiveAnnouncer} from "@angular/cdk/a11y";
 import {AppDataService} from "@app/app-data.service";
 import {ErrorCodes} from "@app/models/app/error-code";
 
@@ -12,6 +13,8 @@ import {TranslatePipe} from "@ngx-translate/core";
 })
 export class MessageConsoleComponent implements AfterViewChecked {
   private cdr = inject(ChangeDetectorRef);
+  private element = inject(ElementRef);
+  private liveAnnouncer = inject(LiveAnnouncer);
   appDataService = inject(AppDataService);
 
   private timeoutId: any;
@@ -26,6 +29,11 @@ export class MessageConsoleComponent implements AfterViewChecked {
   ngAfterViewChecked(): void {
     if (!this.timeoutRunning && this.appDataService.errorCodes.code !== -1) {
       this.timeoutRunning = true;
+      // The error is read as soon as it is shown: it goes away by itself after a few seconds
+      const text = (this.element.nativeElement as HTMLElement).textContent?.replace(/[\s×]+/g, " ").trim();
+      if (text) {
+        this.liveAnnouncer.announce(text, "assertive");
+      }
       this.timeoutId = setTimeout(() => {
         this.dismissError();
         this.cdr.markForCheck();

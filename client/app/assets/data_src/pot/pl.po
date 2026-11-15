@@ -2079,3 +2079,6 @@ msgstr "Przełącz nawigację"
 
 msgid "Main navigation"
 msgstr "Nawigacja główna"
+
+msgid "Copied to clipboard"
+msgstr "Skopiowano do schowka"

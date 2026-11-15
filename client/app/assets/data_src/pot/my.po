@@ -2055,3 +2055,6 @@ msgstr "လမ်းညွှန်ကို ဖွင့်/ပိတ်ရန�
 
 msgid "Main navigation"
 msgstr "ပင်မ လမ်းညွှန်"
+
+msgid "Copied to clipboard"
+msgstr "ကလစ်ဘုတ်သို့ ကူးယူပြီးပါပြီ"

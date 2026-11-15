@@ -2082,3 +2082,6 @@ msgstr "Перемкнути навігацію"
 
 msgid "Main navigation"
 msgstr "Основна навігація"
+
+msgid "Copied to clipboard"
+msgstr "Скопійовано в буфер обміну"

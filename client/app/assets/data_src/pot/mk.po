@@ -2059,3 +2059,6 @@ msgstr "Вклучи/исклучи навигација"
 
 msgid "Main navigation"
 msgstr "Главна навигација"
+
+msgid "Copied to clipboard"
+msgstr "Копирано во меѓуспомнина"

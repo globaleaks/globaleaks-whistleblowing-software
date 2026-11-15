@@ -2058,3 +2058,6 @@ msgstr "Навигаци схьаелла/дӀакъовла"
 
 msgid "Main navigation"
 msgstr "Коьрта навигаци"
+
+msgid "Copied to clipboard"
+msgstr "Буфере копи йина"

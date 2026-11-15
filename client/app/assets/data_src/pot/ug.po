@@ -2058,3 +2058,6 @@ msgstr "يول باشلاشنى ئېچىش/يېپىش"
 
 msgid "Main navigation"
 msgstr "ئاساسىي يول باشلاش"
+
+msgid "Copied to clipboard"
+msgstr "چاپلاش تاختىسىغا كۆچۈرۈلدى"

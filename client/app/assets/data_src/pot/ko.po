@@ -2054,3 +2054,6 @@ msgstr "탐색 메뉴 전환"
 
 msgid "Main navigation"
 msgstr "주 탐색 메뉴"
+
+msgid "Copied to clipboard"
+msgstr "클립보드에 복사되었습니다"

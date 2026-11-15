@@ -9,6 +9,7 @@ import {TranslateService, TranslatePipe} from "@ngx-translate/core";
 import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
 import {BrowserCheckService} from "@app/shared/services/browser-check.service";
 import {DOCUMENT} from "@angular/common";
+import {LiveAnnouncer} from "@angular/cdk/a11y";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HeaderComponent} from "@app/shared/partials/header/header.component";
 import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
@@ -62,6 +63,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   private bodyDomObserver = inject(BodyDomObserverService);
   private TrustedTypesService = inject(TrustedTypesService);
   private wbTipResolver = inject(WbTipResolver);
+  private liveAnnouncer = inject(LiveAnnouncer);
 
   showSidebar = true;
   private announcedUrl = "";
@@ -108,10 +110,7 @@ export class AppComponent implements AfterViewInit, OnInit {
     }
 
     setTimeout(() => {
-      const announcer = this.document.getElementById("RouteAnnouncer");
-      if (announcer) {
-        announcer.textContent = this.document.title;
-      }
+      this.liveAnnouncer.announce(this.document.title, "polite");
 
       const active = this.document.activeElement;
       if (!active || active === this.document.body) {

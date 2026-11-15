@@ -2060,3 +2060,6 @@ msgstr "Навигацияны ашу/жабу"
 
 msgid "Main navigation"
 msgstr "Негізгі навигация"
+
+msgid "Copied to clipboard"
+msgstr "Алмасу буферіне көшірілді"

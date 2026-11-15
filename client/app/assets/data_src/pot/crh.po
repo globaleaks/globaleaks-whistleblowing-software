@@ -2056,3 +2056,6 @@ msgstr "Naviğatsiyanı aç/qapat"
 
 msgid "Main navigation"
 msgstr "Esas naviğatsiya"
+
+msgid "Copied to clipboard"
+msgstr "Almaşuv buferine kopiyalandı"

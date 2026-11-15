@@ -2080,3 +2080,6 @@ msgstr "Mostra o nascondi la navigazione"
 
 msgid "Main navigation"
 msgstr "Navigazione principale"
+
+msgid "Copied to clipboard"
+msgstr "Copiato negli appunti"

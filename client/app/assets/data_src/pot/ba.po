@@ -2057,3 +2057,6 @@ msgstr "Навигацияны асыу/ябыу"
 
 msgid "Main navigation"
 msgstr "Төп навигация"
+
+msgid "Copied to clipboard"
+msgstr "Алмашыу буферына күсерелде"

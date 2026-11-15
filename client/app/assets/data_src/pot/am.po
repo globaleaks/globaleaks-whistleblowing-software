@@ -2053,3 +2053,6 @@ msgstr "አሰሳን ቀያይር"
 
 msgid "Main navigation"
 msgstr "ዋና አሰሳ"
+
+msgid "Copied to clipboard"
+msgstr "ወደ ቅንጥብ ሰሌዳ ተቀድቷል"

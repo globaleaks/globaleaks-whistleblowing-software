@@ -2070,3 +2070,6 @@ msgstr "Vis/skjul navigation"
 
 msgid "Main navigation"
 msgstr "Hovednavigation"
+
+msgid "Copied to clipboard"
+msgstr "Kopieret til udklipsholderen"

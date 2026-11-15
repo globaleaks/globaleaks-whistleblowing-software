@@ -2055,3 +2055,6 @@ msgstr "הצגה או הסתרה של הניווט"
 
 msgid "Main navigation"
 msgstr "ניווט ראשי"
+
+msgid "Copied to clipboard"
+msgstr "הועתק ללוח"

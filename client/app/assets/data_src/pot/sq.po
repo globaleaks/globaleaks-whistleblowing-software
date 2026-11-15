@@ -2067,3 +2067,6 @@ msgstr "Shfaq/fshih navigimin"
 
 msgid "Main navigation"
 msgstr "Navigimi kryesor"
+
+msgid "Copied to clipboard"
+msgstr "U kopjua në kujtesën e fragmenteve"

@@ -2056,3 +2056,6 @@ msgstr "Укључи/искључи навигацију"
 
 msgid "Main navigation"
 msgstr "Главна навигација"
+
+msgid "Copied to clipboard"
+msgstr "Копирано у оставу"

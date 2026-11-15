@@ -2083,3 +2083,6 @@ msgstr "Uključi/isključi navigaciju"
 
 msgid "Main navigation"
 msgstr "Glavna navigacija"
+
+msgid "Copied to clipboard"
+msgstr "Kopirano u međuspremnik"

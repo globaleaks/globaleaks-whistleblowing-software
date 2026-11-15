@@ -2058,3 +2058,6 @@ msgstr "Vis/skjul navigasjon"
 
 msgid "Main navigation"
 msgstr "Hovednavigasjon"
+
+msgid "Copied to clipboard"
+msgstr "Kopiert til utklippstavlen"

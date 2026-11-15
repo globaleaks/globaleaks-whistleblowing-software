@@ -2058,3 +2058,6 @@ msgstr "Navigatsiyani ochish/yopish"
 
 msgid "Main navigation"
 msgstr "Asosiy navigatsiya"
+
+msgid "Copied to clipboard"
+msgstr "Buferga nusxalandi"

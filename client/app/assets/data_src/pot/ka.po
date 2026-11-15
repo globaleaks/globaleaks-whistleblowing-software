@@ -2056,3 +2056,6 @@ msgstr "ნავიგაციის გადართვა"
 
 msgid "Main navigation"
 msgstr "მთავარი ნავიგაცია"
+
+msgid "Copied to clipboard"
+msgstr "დაკოპირდა ბუფერში"

@@ -2067,3 +2067,6 @@ msgstr "Превключване на навигацията"
 
 msgid "Main navigation"
 msgstr "Основна навигация"
+
+msgid "Copied to clipboard"
+msgstr "Копирано в клипборда"

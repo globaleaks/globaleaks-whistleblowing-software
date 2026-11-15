@@ -31,6 +31,7 @@ import {AcceptAgreementComponent} from "@app/shared/modals/accept-agreement/acce
 import {WbFile} from "@app/models/app/shared-public-model";
 import {FileViewComponent} from "@app/shared/modals/file-view/file-view.component";
 import {CryptoService} from "@app/shared/services/crypto.service";
+import {LiveAnnouncer} from "@angular/cdk/a11y";
 const datetime_never = new Date(3000, 0, 1).getTime();
 
 // Every real HTTP status (100..599): used as flow.js permanentErrors so that chunk
@@ -52,6 +53,7 @@ export class UtilsService {
   private preferenceResolver = inject(PreferenceResolver);
   private router = inject(Router);
   private location = inject(Location);
+  private liveAnnouncer = inject(LiveAnnouncer);
 
   supportedViewTypes = ["application/pdf", "audio/mpeg", "image/gif", "image/jpeg", "image/png", "text/csv", "text/plain", "video/mp4"];
 
@@ -298,8 +300,11 @@ export class UtilsService {
     return ret;
   }
 
+  // The copy is told to a screen reader, which has no other sign of it than the tooltip
   copyToClipboard(data: string) {
-    navigator.clipboard.writeText(data);
+    navigator.clipboard.writeText(data).then(() => {
+      this.liveAnnouncer.announce(this.translateService.instant("Copied to clipboard"), "polite");
+    });
   }
 
   getSubmissionStatusText(status: string,substatus:string, submission_statuses: Status[]) {

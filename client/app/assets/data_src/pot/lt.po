@@ -2059,3 +2059,6 @@ msgstr "Perjungti naršymą"
 
 msgid "Main navigation"
 msgstr "Pagrindinė navigacija"
+
+msgid "Copied to clipboard"
+msgstr "Nukopijuota į iškarpinę"

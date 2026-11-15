@@ -1660,6 +1660,9 @@ msgstr "Toggle navigation"
 msgid "Main navigation"
 msgstr "Main navigation"
 
+msgid "Copied to clipboard"
+msgstr "Copied to clipboard"
+
 msgid "Select a reporting channel:"
 msgstr "Select a reporting channel:"
 

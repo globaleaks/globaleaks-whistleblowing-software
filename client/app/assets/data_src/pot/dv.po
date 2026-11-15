@@ -2059,3 +2059,6 @@ msgstr "ނެވިގޭޝަން ބަދަލުކުރޭ"
 
 msgid "Main navigation"
 msgstr "މައި ނެވިގޭޝަން"
+
+msgid "Copied to clipboard"
+msgstr "ކްލިޕްބޯޑަށް ކޮޕީކުރެވިއްޖެ"

@@ -2057,3 +2057,6 @@ msgstr "ལམ་སྟོན་ཁ་ཕྱེ་བ་དང་ཁ་རྒྱ
 
 msgid "Main navigation"
 msgstr "ལམ་སྟོན་གཙོ་བོ།"
+
+msgid "Copied to clipboard"
+msgstr "སྦྱར་སྡེར་དུ་འདྲ་བཤུས་བྱས་ཟིན།"

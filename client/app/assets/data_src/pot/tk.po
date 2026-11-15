@@ -2061,3 +2061,6 @@ msgstr "Nawigasiýany aç/ýap"
 
 msgid "Main navigation"
 msgstr "Esasy nawigasiýa"
+
+msgid "Copied to clipboard"
+msgstr "Bufere göçürildi"

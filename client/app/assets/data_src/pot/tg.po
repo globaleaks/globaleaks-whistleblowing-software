@@ -2065,3 +2065,6 @@ msgstr "Кушодан/пӯшидани навигатсия"
 
 msgid "Main navigation"
 msgstr "Навигатсияи асосӣ"
+
+msgid "Copied to clipboard"
+msgstr "Ба буфер нусхабардорӣ шуд"

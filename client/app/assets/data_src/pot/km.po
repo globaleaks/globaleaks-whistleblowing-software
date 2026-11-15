@@ -2058,3 +2058,6 @@ msgstr "បិទ/បើកការរុករក"
 
 msgid "Main navigation"
 msgstr "ការរុករកមេ"
+
+msgid "Copied to clipboard"
+msgstr "បានចម្លងទៅក្ដារតម្បៀតខ្ទាស់"

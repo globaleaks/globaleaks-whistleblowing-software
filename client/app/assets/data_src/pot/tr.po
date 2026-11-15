@@ -2085,3 +2085,6 @@ msgstr "Gezinmeyi aç/kapat"
 
 msgid "Main navigation"
 msgstr "Ana gezinme"
+
+msgid "Copied to clipboard"
+msgstr "Panoya kopyalandı"

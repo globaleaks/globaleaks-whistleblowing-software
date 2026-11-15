@@ -2069,3 +2069,6 @@ msgstr "نیویگیشن ٹوگل کریں"
 
 msgid "Main navigation"
 msgstr "مرکزی نیویگیشن"
+
+msgid "Copied to clipboard"
+msgstr "کلپ بورڈ پر کاپی ہو گیا"

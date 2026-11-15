@@ -2046,3 +2046,6 @@ msgstr "வழிசெலுத்தலை மாற்று"
 
 msgid "Main navigation"
 msgstr "முதன்மை வழிசெலுத்தல்"
+
+msgid "Copied to clipboard"
+msgstr "கிளிப்போர்டுக்கு நகலெடுக்கப்பட்டது"

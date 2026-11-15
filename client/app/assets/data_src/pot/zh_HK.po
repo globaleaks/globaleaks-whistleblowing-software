@@ -2047,3 +2047,6 @@ msgstr "切換導覽"
 
 msgid "Main navigation"
 msgstr "主要導覽"
+
+msgid "Copied to clipboard"
+msgstr "已複製到剪貼簿"

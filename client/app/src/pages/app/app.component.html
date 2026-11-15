@@ -8,7 +8,6 @@
 @if (supportedBrowser) {
   <div class="container-fluid d-flex flex-column h-100 px-0">
     <div id="Skip"><a href="#Content" (click)="skipToContent($event)">{{'Skip to content'|translate}}</a></div>
-    <div id="RouteAnnouncer" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
 
     @if (showLoadingPanel) {
       <div [attr.data-cy]="'page-loader-overlay'" id="PageOverlay">
@@ -30,7 +29,7 @@
         }
         <src-header></src-header>
 
-        <src-message-console id="MessagesConsoleBox" aria-live="assertive" aria-atomic="true"></src-message-console>
+        <src-message-console id="MessagesConsoleBox"></src-message-console>
 
         @if (appConfig.sidebar && showSidebar) {
           <button class="btn btn-link d-lg-none ms-2 my-2"

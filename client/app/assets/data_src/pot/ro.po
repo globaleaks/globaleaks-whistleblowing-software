@@ -2073,3 +2073,6 @@ msgstr "Comută navigarea"
 
 msgid "Main navigation"
 msgstr "Navigare principală"
+
+msgid "Copied to clipboard"
+msgstr "Copiat în clipboard"

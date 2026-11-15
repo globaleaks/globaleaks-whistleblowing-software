@@ -2063,3 +2063,6 @@ msgstr "Asehoy na afeno ny fitetezana"
 
 msgid "Main navigation"
 msgstr "Fitetezana lehibe"
+
+msgid "Copied to clipboard"
+msgstr "Voadika"

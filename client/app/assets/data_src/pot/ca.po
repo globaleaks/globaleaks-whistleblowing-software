@@ -2077,3 +2077,6 @@ msgstr "Mostra o amaga la navegació"
 
 msgid "Main navigation"
 msgstr "Navegació principal"
+
+msgid "Copied to clipboard"
+msgstr "S'ha copiat al porta-retalls"
