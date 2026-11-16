@@ -34,7 +34,11 @@
         <ng-template #header let-tip="item" let-index="index">
           <tr>
             <th>
-              <input id="tip-action-select-all" type="checkbox" class="form-check-input" [checked]="selectedTips.length === RTips.dataModel.length" (change)="selectedTips.length === RTips.dataModel.length ? deselectAll() : selectAll()" [attr.aria-label]="'Select all' | translate">
+              <!-- In the same box as the buttons of the other headers, so that it stands on their line; a box
+                   cannot go inside a button -->
+              <span class="btn btn-link p-0 border-0 align-baseline text-reset text-decoration-none d-inline-flex align-items-center">
+                <input id="tip-action-select-all" type="checkbox" class="form-check-input mt-0"[checked]="selectedTips.length === RTips.dataModel.length" (change)="selectedTips.length === RTips.dataModel.length ? deselectAll() : selectAll()" [attr.aria-label]="'Select all' | translate">
+              </span>
             </th>
             <th [attr.aria-sort]="ariaSort('important')">
               <button type="button" class="btn btn-link p-0 border-0 align-baseline text-reset text-decoration-none" (click)="sortBy('important')">
