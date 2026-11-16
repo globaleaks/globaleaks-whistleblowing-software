@@ -58,6 +58,20 @@ a:hover {
   text-align: center;
 }
 
+/* The arrows that move an item up and down stand one on the other, in the height of one button: each
+   is as tall as the 24px that a target next to another needs at least, and as wide as a finger */
+.btn-move {
+  vertical-align: middle;
+}
+
+.btn-move > .btn {
+  min-height: 1.5rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1;
+  font-size: 0.75rem;
+}
+
 /* Nothing moves when the system asks for less motion */
 @media (prefers-reduced-motion: reduce) {
   *,

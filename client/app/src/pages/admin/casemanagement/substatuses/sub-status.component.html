@@ -47,12 +47,14 @@
             <span class="substatusLabel">{{substatus.label}}</span>
           </ng-container>
           <ng-container actions>
-            <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-up" (click)="moveSsUp($event, index)" ngbTooltip="{{'Move up' | translate}}" [disabled]="first">
-              <i class="fa-solid fa-chevron-up"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-down" (click)="moveSsDown($event, index)" ngbTooltip="{{'Move down' | translate}}" [disabled]="last">
-              <i class="fa-solid fa-chevron-down"></i>
-            </button>
+            <span class="btn-group-vertical btn-move" role="group">
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-up" (click)="moveSsUp($event, index)" ngbTooltip="{{'Move up' | translate}}" [disabled]="first">
+                <i class="fa-solid fa-chevron-up"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-down" (click)="moveSsDown($event, index)" ngbTooltip="{{'Move down' | translate}}" [disabled]="last">
+                <i class="fa-solid fa-chevron-down"></i>
+              </button>
+            </span>
           </ng-container>
           <ng-template #body>
             <div ngForm="editStep">
