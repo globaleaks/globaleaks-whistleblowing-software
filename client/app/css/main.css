@@ -58,28 +58,26 @@ a:hover {
   text-align: center;
 }
 
-/* The arrows that move an item up and down stand one on the other, in the height of one button: each
-   is as tall as the 24px that a target next to another needs at least, and as wide as a finger */
-.btn-move {
+/* The arrows that move an item are as small as a target may be: 24 × 24 px, the least that one next
+   to another needs. Up and down stand one on the other, in the height of one button; left and right,
+   where there are, flank them in one group as tall as the pair, so that the four make a cross */
+.btn-move,
+.btn-move-pad {
   vertical-align: middle;
 }
 
-.btn-move > .btn {
+.btn-move > .btn,
+.btn-move-pad > .btn {
+  min-width: 1.5rem;
   min-height: 1.5rem;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding: 0;
   line-height: 1;
   font-size: 0.75rem;
 }
 
-/* The arrows that move a question left and right flank them as tall as the pair and half as wide:
-   the four make a cross in little more than the room of two buttons */
-.btn-move-side {
-  min-width: 1.5rem;
-  height: calc(3rem - 1px);
-  padding: 0;
-  font-size: 0.75rem;
-  vertical-align: middle;
+.btn-move .fa-chevron-up,
+.btn-move .fa-chevron-down {
+  margin: 0;
 }
 
 /* Nothing moves when the system asks for less motion */
