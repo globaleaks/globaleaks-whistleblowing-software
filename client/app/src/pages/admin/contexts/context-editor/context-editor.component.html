@@ -5,7 +5,7 @@
       <span class="badge bg-secondary">{{ 'Hidden' | translate }}</span>
     }
   </ng-container>
-  <ng-container actions>
+  <ng-container move>
     @if (!nodeResolver.dataModel.show_contexts_in_alphabetical_order) {
       <span class="btn-group-vertical btn-move" role="group">
         <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-up" (click)="moveUp($event, index())" ngbTooltip="{{'Move up' | translate}}" [disabled]="index() === 0">

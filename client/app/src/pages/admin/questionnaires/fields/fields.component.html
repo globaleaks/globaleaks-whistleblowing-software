@@ -68,22 +68,24 @@
         <i class="fa-solid fa-file-export"></i>
         <span>{{ 'Export' | translate }}</span>
       </button>
-      @if (field().step_id || field().fieldgroup_id) {
-        <button type="button" class="btn btn-sm btn-outline-secondary btn-move-side" data-action="move-left" (click)="moveLeftAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move left' | translate}}">
-          <i class="fa-solid fa-chevron-left"></i>
+    }
+  </ng-container>
+  <ng-container move>
+    @if (field().editable && (field().step_id || field().fieldgroup_id)) {
+      <button type="button" class="btn btn-sm btn-outline-secondary btn-move-side" data-action="move-left" (click)="moveLeftAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move left' | translate}}">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <span class="btn-group-vertical btn-move" role="group">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-up" (click)="moveUpAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
+          <i class="fa-solid fa-chevron-up"></i>
         </button>
-        <span class="btn-group-vertical btn-move" role="group">
-          <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-up" (click)="moveUpAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
-            <i class="fa-solid fa-chevron-up"></i>
-          </button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-down" (click)="moveDownAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-        </span>
-        <button type="button" class="btn btn-sm btn-outline-secondary btn-move-side" data-action="move-right" (click)="moveRightAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move right' | translate}}">
-          <i class="fa-solid fa-chevron-right"></i>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-down" (click)="moveDownAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
+          <i class="fa-solid fa-chevron-down"></i>
         </button>
-      }
+      </span>
+      <button type="button" class="btn btn-sm btn-outline-secondary btn-move-side" data-action="move-right" (click)="moveRightAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move right' | translate}}">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
     }
   </ng-container>
   <ng-template #body>

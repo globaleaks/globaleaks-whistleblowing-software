@@ -8,7 +8,8 @@ import {TranslatePipe} from "@ngx-translate/core";
  * The header shows the projected [title] on the left and the action buttons
  * on the right: a projected [toggle], the switch that enables or disables the
  * item, comes first; then Edit, or Save and Cancel while editing, then any
- * projected [actions]; Delete, when the item is deletable, is always the last.
+ * projected [actions]; then Delete, when the item is deletable; last the
+ * projected [move], the arrows that change the place of the item.
  * The editor declared as <ng-template #body> is instantiated only while the
  * item is being edited, so the form controls of the closed items never exist.
  *
@@ -34,27 +35,28 @@ import {TranslatePipe} from "@ngx-translate/core";
             <ng-content select="[toggle]"></ng-content>
             @if (canEdit() && !editing()) {
               <button type="button" class="btn btn-sm btn-outline-secondary" data-action="edit" (click)="toggle()">
-                <i class="fas fa-pen-to-square"></i>
+                <i class="fa-solid fa-pen-to-square"></i>
                 <span>{{ 'Edit' | translate }}</span>
               </button>
             }
             @if (editing()) {
               <button type="button" class="btn btn-sm btn-primary" data-action="save" [disabled]="saveDisabled()" (click)="onSave()">
-                <i class="fas fa-floppy-disk"></i>
+                <i class="fa-solid fa-floppy-disk"></i>
                 <span>{{ 'Save' | translate }}</span>
               </button>
               <button type="button" class="btn btn-sm btn-outline-secondary" data-action="cancel" (click)="onCancel()">
-                <i class="fas fa-xmark"></i>
+                <i class="fa-solid fa-xmark"></i>
                 <span>{{ 'Cancel' | translate }}</span>
               </button>
             }
             <ng-content select="[actions]"></ng-content>
             @if (canDelete()) {
               <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete" (click)="deleted.emit()">
-                <i class="fas fa-trash"></i>
+                <i class="fa-solid fa-trash"></i>
                 <span>{{ 'Delete' | translate }}</span>
               </button>
             }
+            <ng-content select="[move]"></ng-content>
           </span>
         </span>
       </div>

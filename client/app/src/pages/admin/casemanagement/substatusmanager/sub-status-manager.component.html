@@ -4,7 +4,7 @@
       <ng-container title>
         <span id="status-{{submissionsStatus().id}}">{{ submissionsStatus().label ? (submissionsStatus().label | translate) : '' }}</span>
       </ng-container>
-      <ng-container actions>
+      <ng-container move>
         <span class="btn-group-vertical btn-move" role="group">
           <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-up" (click)="moveUp($event, index())" ngbTooltip="{{'Move up' | translate}}" [attr.aria-label]="'Move up' | translate" [disabled]="!isMovable(index()) || !isMovable(index() - 1)">
             <i class="fa-solid fa-chevron-up"></i>

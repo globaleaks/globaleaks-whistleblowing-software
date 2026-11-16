@@ -3,7 +3,7 @@
     <span class="badge bg-primary">{{index() + 1}}</span>
     <span>{{step().label}}</span>
   </ng-container>
-  <ng-container actions>
+  <ng-container move>
     <span class="btn-group-vertical btn-move" role="group">
       <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-up" (click)="moveUp($event,index())" ngbTooltip="{{'Move up' | translate}}" [disabled]="index() === 0">
         <i class="fa-solid fa-chevron-up"></i>
@@ -75,7 +75,7 @@
         @for (trigger of step().triggered_by_options; track trigger) {
           <div class="nested">
             <button class="btn btn-sm btn-outline-danger" (click)="delTrigger(trigger)">
-              <i class="fas fa-xmark"></i>
+              <i class="fa-solid fa-xmark"></i>
             </button>
             <span>{{ parsedFields().fields_by_id[trigger.field].label }}</span>: <span>{{ parsedFields().options_by_id[trigger.option].label }}</span>
             @if (trigger.sufficient) {
