@@ -297,11 +297,19 @@ def decorator_rate_limit(f):
 
 
 def decorate_method(h, method):
+    """
+    The wrappers are built on the function as written, also when the method is inherited from a
+    handler already decorated: every class gets a single layer of checks, made of its own settings,
+    and never the checks of its parent wrapped once more in its own.
+    """
     roles = getattr(h, 'check_roles')
     if isinstance(roles, str):
         roles = {roles}
 
-    f = getattr(h, method)
+    original = getattr(h, method)
+    original = getattr(original, 'undecorated', original)
+
+    f = original
 
     if State.settings.enable_api_cache:
         if method == 'get':
@@ -317,5 +325,7 @@ def decorate_method(h, method):
 
     f = decorator_dpop(f)
     f = decorator_authentication(f, roles)
+
+    f.undecorated = original
 
     setattr(h, method, f)

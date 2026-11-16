@@ -18,6 +18,18 @@ class TestAPI(TestGL):
         yield tw(db_update_enabled_languages, 1, ['en', 'ar', 'it', 'pt_PT'], 'en')
         yield refresh_tenant_cache()
 
+    def test_every_method_of_a_handler_is_decorated_once(self):
+        for _, handler, _ in api.api_spec:
+            for method in ['delete', 'get', 'put', 'post']:
+                if not hasattr(handler, method):
+                    continue
+
+                # Written on the class itself, and so made of the checks the class declares
+                f = vars(handler).get(method)
+                self.assertIsNotNone(f, '%s.%s is not decorated' % (handler.__name__, method))
+                self.assertTrue(hasattr(f, 'undecorated'), '%s.%s is not decorated' % (handler.__name__, method))
+                self.assertFalse(hasattr(f.undecorated, 'undecorated'), '%s.%s is decorated twice' % (handler.__name__, method))
+
     def test_resolve_handler(self):
         testcases = [
             ('/api/public', api.public.PublicResource),

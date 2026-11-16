@@ -1191,7 +1191,7 @@ class TestHandler(TestGLWithPopulatedDB):
         # (APIResourceWrapper, invoked above) so that registry handlers are not
         # decorated twice; double decoration would run check_dpop twice and
         # reject the second pass as a jti replay.
-        if not getattr(handler_cls, '_decorated', False):
+        if '_decorated' not in vars(handler_cls):
             handler_cls._decorated = True
             for method in ['get', 'post', 'put', 'delete']:
                 if getattr(handler_cls, method, None) is not None:

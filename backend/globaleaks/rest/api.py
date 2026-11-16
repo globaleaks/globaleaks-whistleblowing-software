@@ -289,7 +289,9 @@ class APIResourceWrapper(Resource):
         self.static_routes = {}
 
         for prefix, handler, regexp in api_spec:
-            if not hasattr(handler, '_decorated'):
+            # The class is looked at on its own: a handler subclassing another one already
+            # decorated inherits its mark, and would otherwise be served with no checks at all
+            if '_decorated' not in vars(handler):
                 handler._decorated = True
                 for m in ['delete', 'get', 'put', 'post']:
                     # head and options method are intentionally not considered here
