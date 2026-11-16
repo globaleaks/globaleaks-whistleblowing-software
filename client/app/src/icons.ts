@@ -28,6 +28,7 @@ const icons = [
   solidIcons.faChevronUp,
   solidIcons.faCircleArrowLeft,
   solidIcons.faCircleArrowRight,
+  solidIcons.faCircleCheck,
   solidIcons.faCircleDot,
   solidIcons.faCircleExclamation,
   solidIcons.faCircleInfo,

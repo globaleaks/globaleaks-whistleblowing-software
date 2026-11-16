@@ -79,6 +79,10 @@ export class FieldsComponent implements OnInit {
       // The new options get their id from the backend: without it they could
       // not be chosen as trigger and a further save would recreate them
       field.options = updated.options;
+      // and the default is forgotten by the backend once its option is taken away
+      if ("attrs" in field && field.attrs.default && updated.attrs?.default) {
+        field.attrs.default.value = updated.attrs.default.value;
+      }
       this.updated.emit();
     });
   }
@@ -217,6 +221,28 @@ export class FieldsComponent implements OnInit {
     if (index !== -1) {
       this.field().options.splice(index, 1);
     }
+
+    // An option taken away is no longer the default
+    const attr = this.field().attrs.default;
+    if (attr && attr.value === option.id) {
+      attr.value = "";
+    }
+  }
+
+  isDefaultOption(option: Option): boolean {
+    return !!option.id && this.field().attrs.default?.value === option.id;
+  }
+
+  // Marking an option makes it the default in place of any other, marking it again leaves none:
+  // either is saved at once, as the moves of the question
+  flipDefaultOption(option: Option): void {
+    const attr = this.field().attrs.default;
+    if (!attr || !option.id) {
+      return;
+    }
+
+    attr.value = attr.value === option.id ? "" : option.id;
+    this.saveField(this.field());
   }
 
   moveOptionUp(idx: number): void {

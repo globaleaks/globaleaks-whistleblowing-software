@@ -430,6 +430,14 @@
                     <input id="field-option-label-{{option.id}}" class="form-control" name="option.label" [(ngModel)]="option.label" [attr.placeholder]="'Label' | translate" [placeholder]="'Label' | translate" type="text" [disabled]="!field().editable" required />
                   </div>
                   <div class="col-md-5">
+                    <!-- The option already chosen when the question appears: one at most, once it is saved -->
+                    @if ((field().type === 'selectbox' || field().type === 'multichoice') && field().attrs.default) {
+                      <span>
+                        <button type="button" class="btn btn-sm" name="option_default" [class.btn-primary]="isDefaultOption(option)" [class.btn-outline-secondary]="!isDefaultOption(option)" [disabled]="!option.id || !field().editable" (click)="flipDefaultOption(option)" [attr.aria-pressed]="isDefaultOption(option)" ngbTooltip="{{'Default' | translate}}" [attr.aria-label]="'Default' | translate">
+                          <i class="fa-solid fa-circle-check"></i>
+                        </button>
+                      </span>
+                    }
                     <span>
                       <button class="btn btn-sm" id="option_hint" [class.btn-primary]="option.hint1 || option.hint2" [class.btn-outline-secondary]="!(option.hint1 || option.hint2)" (click)="addOptionHintDialog(option)" ngbTooltip="{{'Hint' | translate}}">
                         <i class="fa-solid fa-circle-question"></i>

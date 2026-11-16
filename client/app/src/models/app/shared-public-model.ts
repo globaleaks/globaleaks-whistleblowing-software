@@ -46,6 +46,8 @@ export interface Attrs {
   max_time: LocalizedSetting;
   regexp: Regexp;
   display_alphabetically: DisplayAlphabetically;
+  // The id of the option already chosen when a selectbox or a multichoice appears, or none
+  default?: UnicodeSetting;
   text_shown_upon_negative_answer: LocalizedSetting;
   min_date: MinMaxDate;
   max_date: MinMaxDate;

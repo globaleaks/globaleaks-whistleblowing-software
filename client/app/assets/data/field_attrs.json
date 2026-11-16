@@ -13,10 +13,12 @@
     "display_alphabetically": {"type": "bool", "value": false}
  },
  "multichoice": {
-    "display_alphabetically": {"type": "bool", "value": false}
+    "display_alphabetically": {"type": "bool", "value": false},
+    "default": {"type": "unicode", "value": ""}
  },
  "selectbox": {
-    "display_alphabetically": {"type": "bool", "value": false}
+    "display_alphabetically": {"type": "bool", "value": false},
+    "default": {"type": "unicode", "value": ""}
  },
  "tos": {
     "text": {"type": "localized", "value": ""},

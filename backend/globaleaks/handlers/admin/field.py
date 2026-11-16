@@ -113,6 +113,24 @@ def db_update_fieldoptions(session, field_id, options, language):
            models.FieldOption,
            models.FieldOption.id.in_(ids))
 
+    db_reset_default_option(session, field_id, options_ids)
+
+
+def db_reset_default_option(session, field_id, options_ids):
+    """
+    Transaction to forget the default option of a field once it is no longer among its options
+
+    :param session: An ORM session
+    :param field_id: The field on which the options are set
+    :param options_ids: The IDs of the options the field keeps
+    """
+    attr = session.query(models.FieldAttr) \
+                  .filter(models.FieldAttr.field_id == field_id,
+                          models.FieldAttr.name == 'default').one_or_none()
+
+    if attr is not None and attr.value and attr.value not in options_ids:
+        attr.value = ''
+
 
 def db_update_fieldattr(session, field_id, attr_name, attr_dict, language):
     """

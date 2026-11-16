@@ -79,3 +79,13 @@ class TestQuestionnareDuplication(helpers.TestHandlerWithPopulatedDB):
         yield handler.post()
 
         yield self.test_model_count(models.Questionnaire, 3)
+
+    def test_remap_default_option(self):
+        # The default of a copied field names the copy of its option; one naming no option stays as it is
+        field = {'attrs': {'default': {'type': 'unicode', 'value': 'old'}}}
+        questionnaire._remap_default_option(field, {'old': 'new'})
+        self.assertEqual(field['attrs']['default']['value'], 'new')
+
+        field = {'attrs': {'default': {'type': 'unicode', 'value': ''}}}
+        questionnaire._remap_default_option(field, {'old': 'new'})
+        self.assertEqual(field['attrs']['default']['value'], '')

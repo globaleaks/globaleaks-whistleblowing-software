@@ -106,6 +106,30 @@ class TestFieldInstance(helpers.TestHandler):
         self.assertRaises(errors.InputValidationError, handler.put, field['id'])
 
     @inlineCallbacks
+    def test_put_forgets_the_default_option_taken_away(self):
+        """
+        The default of a selectbox names one of its options, and is forgotten once that option is taken away
+        """
+        values = helpers.get_dummy_field('selectbox')
+        values['instance'] = 'instance'
+        values['step_id'] = yield get_id_of_first_step_of_questionnaire('default')
+        field = yield create_field(1, values, 'en')
+
+        self.assertEqual(field['attrs']['default']['value'], '')
+
+        kept, taken = field['options']
+
+        field['attrs']['default']['value'] = taken['id']
+        handler = self.request(field, role='admin')
+        response = yield handler.put(field['id'])
+        self.assertEqual(response['attrs']['default']['value'], taken['id'])
+
+        response['options'] = [kept]
+        handler = self.request(response, role='admin')
+        response = yield handler.put(field['id'])
+        self.assertEqual(response['attrs']['default']['value'], '')
+
+    @inlineCallbacks
     def test_delete(self):
         """
         Create a new field, then attempt to delete it.

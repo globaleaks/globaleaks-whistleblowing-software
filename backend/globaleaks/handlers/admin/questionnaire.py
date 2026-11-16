@@ -89,6 +89,18 @@ def db_update_questionnaire(session, tid, questionnaire_id, request, language):
     return serialize_questionnaire(session, tid, questionnaire, language)
 
 
+def _remap_default_option(field, id_map):
+    """
+    Point the default option of a field to the copy of the option it named
+
+    :param field: The field whose options have just been given an identity of their own
+    :param id_map: The map from the identities of the source to the new ones
+    """
+    default = field.get('attrs', {}).get('default')
+    if default and default.get('value') in id_map:
+        default['value'] = id_map[default['value']]
+
+
 @transact
 def duplicate_questionnaire(session, tid, user_session, questionnaire_id, new_name):
     """
@@ -125,6 +137,8 @@ def duplicate_questionnaire(session, tid, user_session, questionnaire_id, new_na
                 new_option_id = uuid4()
                 id_map[option['id']] = new_option_id
                 option['id'] = new_option_id
+
+        _remap_default_option(field, id_map)
 
         # And now we need to keep going down the latter
         for attr in field['attrs'].values():

@@ -84,6 +84,16 @@ export class FieldUtilitiesService {
     return rows;
   }
 
+  // A question answered with one option starts from its default, while that is still one of its options
+  initialEntry(field: any): any {
+    const option = field.attrs?.default?.value;
+    if (["selectbox", "multichoice"].indexOf(field.type) > -1 && option && field.options.some((o: Option) => o.id === option)) {
+      return {value: option};
+    }
+
+    return {};
+  }
+
   updateAnswers(scope: any, parent: any, list: any, answers: any, partOfWhistleblowerIdentity: boolean) {
     let entry, option, i, j;
 
@@ -92,7 +102,7 @@ export class FieldUtilitiesService {
     list.forEach((field: any) => {
       if (this.isFieldTriggered(parent, field, scope.answers, scope.submission && scope.submission.submission.identity_provided, partOfWhistleblowerIdentity)) {
         if (!(field.id in answers)) {
-          answers[field.id] = [{}];
+          answers[field.id] = [this.initialEntry(field)];
         }
       } else {
         if (field.id in answers) {

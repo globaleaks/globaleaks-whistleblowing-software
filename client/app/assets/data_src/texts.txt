@@ -92,6 +92,7 @@ Custom text
 Date
 Date of the request
 Date range
+Default
 Default mail configuration in use. Please consider using a private mail server.
 Delete
 Denied
