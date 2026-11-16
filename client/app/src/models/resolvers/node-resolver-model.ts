@@ -7,7 +7,7 @@ export class nodeResolverModel {
   default_questionnaire: string;
   default_tip_timetolive: number;
   demo: boolean;
-  enable_onion: boolean;
+  onionservice_enable: boolean;
   description: string;
   disable_privacy_badge: boolean;
   disable_submissions: boolean;

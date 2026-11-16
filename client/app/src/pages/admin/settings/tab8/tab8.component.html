@@ -122,13 +122,15 @@
         <div>{{ 'The sites created with this setting enabled are automatically deleted 90 days after their creation.' | translate }}</div>
       </div>
     }
-    <div class="form-group">
-      <label>
-        <input class="form-check-input" name="enable_onion" [(ngModel)]="nodeResolver.dataModel.enable_onion" srcHeldByProfile="enable_onion" type="checkbox" />
-        <span>{{ 'Enable a dedicated Tor onion service' | translate }}</span>
-      </label>
-      <div>{{ 'The value is applied on the creation of a new site; the sites for which it is disabled are published as a subdomain of the onion service of the first site.' | translate }}</div>
-    </div>
+    @if (nodeResolver.dataModel.is_profile) {
+      <div class="form-group">
+        <label>
+          <input class="form-check-input" name="onionservice_enable" [(ngModel)]="nodeResolver.dataModel.onionservice_enable" srcHeldByProfile="onionservice_enable" type="checkbox" />
+          <span>{{ 'Enable a dedicated Tor onion service' | translate }}</span>
+        </label>
+        <div>{{ 'The value is applied on the creation of a new site; the sites for which it is disabled are published as a subdomain of the onion service of the first site.' | translate }}</div>
+      </div>
+    }
     <div class="form-group">
       <label for="homepage-input">{{ 'Home' | translate }}</label>
       <select id="homepage-input" name="node.dataModel.homepage" class="form-select" [(ngModel)]="nodeResolver.dataModel.homepage" srcHeldByProfile="homepage" required>

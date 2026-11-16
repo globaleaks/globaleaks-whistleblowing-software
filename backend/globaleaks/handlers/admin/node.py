@@ -100,6 +100,7 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
         'encryption_possible': tid == 1 or root_config.get_val('encryption'),
         'escrow': config.get_val('crypto_escrow_pub_key') != '',
         'logo': bool(logo),
+        'logo_dark': bool(logo_dark),
         # What the site may write, read from the very function that enforces it, so that the form
         # never offers a field the request would then drop; null when it may write everything
         'writable_keys': writable_keys if writable_keys is None else sorted(writable_keys),
@@ -186,6 +187,11 @@ def db_update_node(session, tid, user_session, request, language):
         for var in ['antivirus_enabled', 'antivirus_clamd_ip', 'antivirus_clamd_port',
                     'backup_enabled', 'backup_time', 'backup_period', 'backup_retention']:
             request.pop(var, None)
+
+    # A site publishes or withdraws its onion service from the network settings: here only a
+    # profile sets the value its sites inherit
+    if tid < DEFAULT_PROFILE_ID:
+        request.pop('onionservice_enable', None)
 
     # The brand color is kept in the form the clients compare it in
     if 'primary_color' in request:

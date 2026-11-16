@@ -271,7 +271,7 @@ AdminNodeDesc = {
     'support_escalation': support_escalation_regexp,
     'enable_scoring_system': bool,
     'enable_signup': bool,
-    'enable_onion': bool,
+    'onionservice_enable': bool,
     'default_tip_timetolive': int,
     'demo': bool,
     'signup_invite_only': bool,

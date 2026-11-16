@@ -101,6 +101,15 @@ class TestNodeInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(response['primary_color'], '#0978CF')
 
     @inlineCallbacks
+    def test_a_site_leaves_its_onion_service_to_the_network_settings(self):
+        self.dummy_node['onionservice_enable'] = False
+        handler = self.request(self.dummy_node, role='admin')
+        yield handler.put()
+
+        value = yield tw(db_get_config_variable, 1, 'onionservice_enable')
+        self.assertTrue(value)
+
+    @inlineCallbacks
     def test_the_primary_color_is_saved_in_uppercase(self):
         self.dummy_node['primary_color'] = '#2e7d32'
 

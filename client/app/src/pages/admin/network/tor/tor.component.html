@@ -17,7 +17,7 @@
         <div class="row">
           <div class="col-md-12">
             <div class="form-group">
-              <input id="onionservice-enable" class="form-check-input" [(ngModel)]="networkData.onionservice_enable" name="onionservice_enable" type="checkbox">
+              <input id="onionservice-enable" class="form-check-input" [(ngModel)]="networkData.onionservice_enable" srcHeldByProfile="onionservice_enable" name="onionservice_enable" type="checkbox">
               <label for="onionservice-enable">{{ 'Enable' | translate }}</label>
             </div>
             @if (nodeResolver.dataModel.root_tenant) {

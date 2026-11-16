@@ -311,10 +311,12 @@ def db_serialize_node(session, tid, language):
         if language not in languages:
             language = root_tenant_node.get_val('default_language')
 
-        # Tenants not exposing their own onion service are reachable as a
-        # subdomain of the onion service of the root tenant
-        if not node.get_val('enable_onion'):
-            ret['onionservice'] = ret['subdomain'] + '.' + root_tenant_node.get_val('onionservice')
+        # A site not publishing an onion service of its own is reached as a subdomain of the one
+        # of the first site, while that one is published
+        if not ret['onionservice'] and ret['subdomain'] and root_tenant_node.get_val('onionservice_enable'):
+            root_onionservice = root_tenant_node.get_val('onionservice')
+            if root_onionservice:
+                ret['onionservice'] = ret['subdomain'] + '.' + root_onionservice
 
     ret.update(ConfigL10NFactory(session, tid).serialize('public_node', language))
 

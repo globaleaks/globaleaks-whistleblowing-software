@@ -655,7 +655,7 @@ def initialize_config(session, tid, data):
 
     # The onion service is generated only where the profile enables it; the others are subdomains of
     # the root one
-    if db_get_profile_val(session, pid, 'enable_onion'):
+    if db_get_profile_val(session, pid, 'onionservice_enable'):
         variables['onionservice'], variables['tor_onion_key'] = generate_onion_service_v3()
 
     if tid == 1:

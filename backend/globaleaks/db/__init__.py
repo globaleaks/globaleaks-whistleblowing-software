@@ -393,20 +393,27 @@ def load_tenant_names(tid, root_tenant_cache):
     if tenant_cache.hostname and tenant_cache.reachable_via_web:
         tenant_cache.hostnames.append(tenant_cache.hostname.encode())
 
+    # A site withdrawing its onion service is reached as a subdomain of the one of the first site,
+    # while that one is published
+    if not tenant_cache.onionservice_enable:
+        tenant_cache.onionservice = ''
+
+    root_onionservice = root_tenant_cache.onionservice if root_tenant_cache.onionservice_enable else ''
+
     if tenant_cache.onionservice:
         tenant_cache.onionnames.append(tenant_cache.onionservice.encode())
 
     if tenant_cache.subdomain:
         State.tenant_subdomain_id_map[tenant_cache.subdomain] = tid
 
-        if not tenant_cache.onionservice and root_tenant_cache.onionservice:
-            tenant_cache.onionservice = tenant_cache.subdomain + '.' + root_tenant_cache.onionservice
+        if not tenant_cache.onionservice and root_onionservice:
+            tenant_cache.onionservice = tenant_cache.subdomain + '.' + root_onionservice
 
         if root_tenant_cache.rootdomain and tenant_cache.reachable_via_web:
             tenant_cache.hostnames.append(f'{tenant_cache.subdomain}.{root_tenant_cache.rootdomain}'.encode())
 
-        if root_tenant_cache.onionservice:
-            tenant_cache.onionnames.append(f'{tenant_cache.subdomain}.{root_tenant_cache.onionservice}'.encode())
+        if root_onionservice:
+            tenant_cache.onionnames.append(f'{tenant_cache.subdomain}.{root_onionservice}'.encode())
 
     State.tenant_hostname_id_map.update({h: tid for h in tenant_cache.hostnames + tenant_cache.onionnames})
 

@@ -514,7 +514,7 @@ class MockDict:
             'idp_issuer': '',
             'idp_client_id': '',
             'idp_provisioning': False,
-            'enable_onion': True,
+            'onionservice_enable': True,
             'default_tip_timetolive': 90,
             'demo': False,
             'signup_request_location': True,
@@ -1382,7 +1382,7 @@ class TestHandler(TestGLWithPopulatedDB):
         decorated twice; double decoration would run check_dpop twice and reject
         the second pass as a jti replay.
         """
-        if getattr(handler_cls, '_decorated', False):
+        if '_decorated' in vars(handler_cls):
             return
 
         handler_cls._decorated = True

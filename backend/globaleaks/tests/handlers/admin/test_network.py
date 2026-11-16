@@ -42,7 +42,7 @@ class TestNetworkInstance(helpers.TestHandlerWithPopulatedDB):
         original = yield handler.get()
 
         for enabled in [False, True]:
-            config = copy.deepcopy(self.dummyNetwork)
+            config = copy.deepcopy(self.dummy_network)
             config['onionservice_enable'] = enabled
             handler = self.request(config, role='admin')
             response = yield handler.put()
@@ -54,7 +54,7 @@ class TestNetworkInstance(helpers.TestHandlerWithPopulatedDB):
 
     @inlineCallbacks
     def test_toggle_is_tenant_scoped(self):
-        config = copy.deepcopy(self.dummyNetwork)
+        config = copy.deepcopy(self.dummy_network)
         config['onionservice_enable'] = False
         handler = self.request(config, tid=2, role='admin')
         response = yield handler.put()
@@ -75,7 +75,7 @@ class TestNetworkInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertFalse(response['onionservice_enable'])
         self.assertEqual(response['onionservice'], '')
 
-        config = copy.deepcopy(self.dummyNetwork)
+        config = copy.deepcopy(self.dummy_network)
         config['onionservice_enable'] = True
         response = yield self.request(config, role='admin').put()
         self.assertTrue(response['onionservice_enable'])
