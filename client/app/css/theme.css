@@ -50,10 +50,8 @@
   --gl-yellow: #FE3;
   --gl-red: #E30310;
   --gl-red-light: #FF8F90;
-}
 
-/* The light theme */
-:where(:root) {
+  /* The light theme */
   color-scheme: light;
 
   --gl-bg: var(--gl-white);
@@ -186,9 +184,8 @@
 
 /* The text on the subtle surfaces: black and the darkest blue in the light theme, the lightest
    steps in the dark one */
-:where(#FooterBox, .tos-text, .alert-primary, .alert-info, .alert-success,
-       .alert-secondary, .jumbotron, .drag-drop, .audio-box, .select-card.selected, .input-group-text,
-       .card-header, .bg-light) {
+:where(#FooterBox, .tos-text, .alert-secondary, .drag-drop:hover, .audio-box,
+       .select-card.selected, .input-group-text, .card-header) {
   --gl-text-secondary: var(--gl-subtle-text-secondary);
   --gl-link: var(--gl-subtle-link);
 }
@@ -287,11 +284,6 @@
   --bs-nav-tabs-link-active-border-color: var(--gl-border) var(--gl-border) var(--gl-bg);
 }
 
-.nav-pills {
-  --bs-nav-pills-link-active-color: var(--gl-on-button);
-  --bs-nav-pills-link-active-bg: var(--gl-button);
-}
-
 .progress {
   --bs-progress-bg: var(--gl-surface-subtle);
   --bs-progress-bar-bg: var(--gl-accent);
@@ -364,15 +356,16 @@ progress {
 }
 
 /* The brand button is the only one filled with a color: the others say what they do with the color
-   of their label and of their border, on the background. The secondary one is gray */
+   of their border, on the background, and all have the label in the color of the text. The border
+   of the secondary one is gray */
 .btn-outline-secondary {
-  --bs-btn-color: var(--gl-text-secondary);
+  --bs-btn-color: var(--gl-text);
   --bs-btn-bg: transparent;
   --bs-btn-border-color: var(--gl-border-input);
-  --bs-btn-hover-color: var(--gl-text-secondary);
+  --bs-btn-hover-color: var(--gl-text);
   --bs-btn-hover-bg: var(--gl-surface-subtle);
   --bs-btn-hover-border-color: var(--gl-border-input);
-  --bs-btn-active-color: var(--gl-text-secondary);
+  --bs-btn-active-color: var(--gl-text);
   --bs-btn-active-bg: var(--gl-surface-subtle);
   --bs-btn-active-border-color: var(--gl-text-secondary);
   --bs-btn-disabled-color: var(--gl-text-secondary);
@@ -405,8 +398,7 @@ progress {
   box-shadow: inset 0 0 0 1px var(--gl-danger);
 }
 
-.btn-outline-danger:active,
-.btn-check:checked + .btn-outline-danger {
+.btn-outline-danger:active {
   box-shadow: inset 0 0 0 2px var(--gl-danger);
 }
 
@@ -424,26 +416,7 @@ progress {
   --bs-alert-link-color: var(--gl-text);
 }
 
-.alert-warning {
-  --bs-alert-color: var(--gl-text);
-  --bs-alert-bg: color-mix(in srgb, var(--gl-warning) 20%, var(--gl-surface));
-  --bs-alert-border-color: var(--gl-warning);
-  --bs-alert-link-color: var(--gl-text);
-}
-
-.alert-primary,
-.alert-info,
-.alert-success {
-  --bs-alert-color: var(--gl-text);
-  --bs-alert-bg: var(--gl-surface-subtle);
-  --bs-alert-border-color: var(--gl-accent);
-  --bs-alert-link-color: var(--gl-link);
-}
-
-.text-primary,
-.text-info,
-.text-success,
-.link-primary {
+.text-primary {
   color: var(--gl-link) !important;
 }
 
@@ -453,8 +426,7 @@ progress {
 }
 
 :is(i, svg).text-danger,
-.text-danger :is(i, svg),
-.invalid-feedback :is(i, svg) {
+.text-danger :is(i, svg) {
   color: var(--gl-danger) !important;
 }
 
@@ -464,8 +436,7 @@ progress {
 }
 
 .text-muted,
-.text-secondary,
-.text-gray {
+.text-secondary {
   color: var(--gl-text-secondary) !important;
 }
 
@@ -477,10 +448,7 @@ progress {
   color: var(--gl-on-button) !important;
 }
 
-.bg-primary,
-.bg-info,
-.bg-success,
-.text-bg-primary {
+.bg-primary {
   color: var(--gl-on-button) !important;
   background-color: var(--gl-button) !important;
 }
@@ -502,17 +470,8 @@ progress {
   background-color: var(--gl-warning) !important;
 }
 
-.bg-light {
-  background-color: var(--gl-surface-subtle) !important;
-}
-
 .bg-white {
   background-color: var(--gl-surface) !important;
-}
-
-.bg-dark {
-  color: var(--gl-white);
-  background-color: var(--gl-band) !important;
 }
 
 /*
