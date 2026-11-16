@@ -5,7 +5,7 @@
         <span class="title">{{field().label|translate}}</span>
       }
       @if (field().hint) {
-        <span [ngbTooltip]="field().hint"><i class="fas fa-circle-question"></i></span>
+        <span [ngbTooltip]="field().hint"><i class="fa-solid fa-circle-question"></i></span>
       }
       @if (field().required) {
         <span class="text-danger sup" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
@@ -27,7 +27,7 @@
                 </span>
                 <span class="float-end">
                   <button type="button" class="btn-plain text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
-                    <i class="fas fa-xmark"></i>
+                    <i class="fa-solid fa-xmark"></i>
                   </button>
                 </span>
               </div>
@@ -38,7 +38,7 @@
         @if (field().multi_entry && field().type === 'fieldgroup') {
           <div class="float-end">
             <button class="btn btn-outline-secondary" [attr.aria-label]="'Add' | translate" (click)="addAnswerEntry(entries)">
-              <i class="fas fa-plus"></i>
+              <i class="fa-solid fa-plus"></i>
             </button>
           </div>
         }
@@ -52,7 +52,7 @@
       <legend class="title">{{field().label|translate}}</legend>
     }
     @if (field().hint) {
-      <span [ngbTooltip]="field().hint"><i class="fas fa-circle-question"></i></span>
+      <span [ngbTooltip]="field().hint"><i class="fa-solid fa-circle-question"></i></span>
     }
     @if (field().required) {
       <span class="text-danger sup" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
@@ -73,7 +73,7 @@
                 </span>
                 <span class="float-end">
                   <button type="button" class="btn-plain text-danger" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="'Remove' | translate" (click)="utilsService.deleteFromList(entries, entry)">
-                    <i class="fas fa-xmark"></i>
+                    <i class="fa-solid fa-xmark"></i>
                   </button>
                 </span>
               </div>
@@ -84,7 +84,7 @@
         @if (field().multi_entry && field().type === 'fieldgroup') {
           <div class="float-end">
             <button class="btn btn-outline-secondary" [attr.aria-label]="'Add' | translate" (click)="addAnswerEntry(entries)">
-              <i class="fas fa-plus"></i>
+              <i class="fa-solid fa-plus"></i>
             </button>
           </div>
         }

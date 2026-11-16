@@ -3,23 +3,23 @@
     <div class="row">
       <div class="col-md-6">
         <button class="btn" id="start_recording" [class.text-secondary]="!activeButton" [class.text-danger]="activeButton === 'record'" [disabled]="isRecording || uploads()[fileInput]?.files.length" (click)="triggerRecording(field().id)" aria-label="Record a voice message">
-          <i class="fas fa-microphone"></i>
+          <i class="fa-solid fa-microphone"></i>
         </button>
         @if (activeButton === 'record') {
           <button class="btn" id="stop_recording" (click)="onStop()" aria-label="Stop Recording">
-            <i class="fas fa-stop"></i>
+            <i class="fa-solid fa-stop"></i>
           </button>
         }
       </div>
       <div class="col-md-6 text-end">
         @if (activeButton === 'record') {
           <button class="btn text-danger" [class.blink]="activeButton === 'record'" aria-label="Recording Indicator">
-            <i class="fas fa-circle-dot"></i>
+            <i class="fa-solid fa-circle-dot"></i>
           </button>
         }
         @if (!isRecording && seconds) {
           <button class="btn text-danger" id="delete_recording" (click)="deleteRecording()" aria-label="Delete Recording">
-            <i class="fas fa-trash"></i>
+            <i class="fa-solid fa-trash"></i>
           </button>
         }
       </div>

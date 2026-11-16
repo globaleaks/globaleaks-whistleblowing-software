@@ -36,7 +36,7 @@
             <div id="SubmitBox">
               @if (identity_provided) {
                 <button id="SubmitButton" class="btn btn-primary float-end" (click)="provideIdentityInformation.emit({ param1: field().id, param2: answers() })" [disabled]="wbform.invalid" type="submit">
-                  <span id="SubmitIconOK"><i class="fas fa-check"></i></span>
+                  <span id="SubmitIconOK"><i class="fa-solid fa-check"></i></span>
                   <span>{{'Submit'|translate}}</span>
                 </button>
               }

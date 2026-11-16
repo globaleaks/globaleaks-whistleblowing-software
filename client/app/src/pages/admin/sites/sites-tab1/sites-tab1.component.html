@@ -1,7 +1,7 @@
 <app-paginated-interface [items]="tenants" [itemsPerPage]="20" [orderBy]="'id'">
   <ng-template #toolbar>
     <button class="btn btn-primary show-add-tenant-btn" type="button" (click)="toggleAddTenant()">
-      <i class="fas fa-plus"></i>
+      <i class="fa-solid fa-plus"></i>
       <span>{{'Add'|translate}}</span>
     </button>
   </ng-template>
@@ -28,7 +28,7 @@
             </div>
             <div class="form-group clearfix">
               <button id="add-btn" class="float-start btn btn-primary" [disabled]="newTenantForm.invalid" (click)="addTenant();toggleAddTenant()" type="button">
-                <i class="fas fa-plus"></i>
+                <i class="fa-solid fa-plus"></i>
                 <span>{{'Add'|translate}}</span>
               </button>
             </div>

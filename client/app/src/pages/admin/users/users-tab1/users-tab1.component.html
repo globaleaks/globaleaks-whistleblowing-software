@@ -1,7 +1,7 @@
 <app-paginated-interface [items]="usersData()" [filterField]="'name'" [orderBy]="'name'">
   <ng-template #toolbar>
     <button class="btn btn-primary show-add-user-btn" (click)="toggleAddUser()">
-      <i class="fas fa-plus"></i>
+      <i class="fa-solid fa-plus"></i>
       <span>{{ 'Add' | translate }}</span>
     </button>
   </ng-template>
@@ -55,7 +55,7 @@
           </div>
           <div class="form-group">
             <button id="add-btn" class="btn btn-primary" [disabled]="newUser.invalid" (click)="addUser(); toggleAddUser()" type="submit">
-              <i class="fas fa-plus"></i>
+              <i class="fa-solid fa-plus"></i>
               <span>{{ 'Add' | translate }}</span>
             </button>
           </div>

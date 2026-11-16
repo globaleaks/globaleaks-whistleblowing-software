@@ -8,17 +8,17 @@
     <label for="tip-reminder-date" class="visually-hidden">{{ 'Reminder date' | translate }}</label>
     <input id="tip-reminder-date" class="form-control" placeholder="yyyy-mm-dd" name="dp" [required]="true" (click)="d.toggle()" [(ngModel)]="args.reminder_date" ngbDatepicker #d="ngbDatepicker" />
     <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button" [attr.aria-label]="'Open' | translate">
-      <i class="fas fa-calendar"></i>
+      <i class="fa-solid fa-calendar"></i>
     </button>
   </div>
 </div>
 <div class="modal-footer">
   <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
-    <i class="fas fa-check" aria-hidden="true"></i>
+    <i class="fa-solid fa-check" aria-hidden="true"></i>
     <span>{{'Confirm' | translate}}</span>
   </button>
   <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-    <i class="fas fa-xmark" aria-hidden="true"></i>
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
     <span>{{'Cancel' | translate}}</span>
   </button>
   <button id="modal-action-disable" class="btn btn-danger" (click)="disableReminder()">

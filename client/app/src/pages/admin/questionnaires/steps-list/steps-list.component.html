@@ -5,10 +5,10 @@
   </ng-container>
   <ng-container actions>
     <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveUp($event,index())" ngbTooltip="{{'Move up' | translate}}" [disabled]="index() === 0">
-      <i class="fas fa-chevron-up"></i>
+      <i class="fa-solid fa-chevron-up"></i>
     </button>
     <button type="button" class="btn btn-sm btn-primary" data-action="move-down" (click)="moveDown($event,index())" ngbTooltip="{{'Move down' | translate}}" [disabled]="index() === questionnaire().steps.length - 1">
-      <i class="fas fa-chevron-down"></i>
+      <i class="fa-solid fa-chevron-down"></i>
     </button>
   </ng-container>
   <ng-template #body>
@@ -31,7 +31,7 @@
         <label>
           <span>{{ 'Trigger conditions' | translate }}</span>
           <button class="btn btn-sm btn-primary show-add-trigger-btn" (click)="toggleAddTrigger()">
-            <i class="fas fa-plus"></i>
+            <i class="fa-solid fa-plus"></i>
             <span>{{ 'Add' | translate }}</span>
           </button>
         </label>
@@ -64,7 +64,7 @@
             }
             <div class="form-group">
               <button id="add-step-btn" class="btn btn-primary" [disabled]="!new_trigger.field || !new_trigger.option" (click)="addTrigger()">
-                <i class="fas fa-plus"></i>
+                <i class="fa-solid fa-plus"></i>
                 <span>{{ 'Add' | translate }}</span>
               </button>
             </div>
@@ -73,7 +73,7 @@
         @for (trigger of step().triggered_by_options; track trigger) {
           <div class="nested">
             <button class="btn btn-sm btn-danger" (click)="delTrigger(trigger)">
-              <i class="fas fa-xmark"></i>
+              <i class="fa-solid fa-xmark"></i>
             </button>
             <span>{{ parsedFields.fields_by_id[trigger.field].label }}</span>: <span>{{ parsedFields.options_by_id[trigger.option].label }}</span>
             @if (trigger.sufficient) {

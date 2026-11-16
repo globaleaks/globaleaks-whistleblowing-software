@@ -44,19 +44,19 @@
   <div id="SubmissionButtons">
     @if (hasPreviousStep()) {
       <button id="PreviousStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.decrementStep(this)">
-        <i class="fas fa-circle-arrow-left"></i>
+        <i class="fa-solid fa-circle-arrow-left"></i>
         <span>{{'Previous'|translate}}</span>
       </button>
     }
     @if (hasNextStep()) {
       <button id="NextStepButton" class="btn btn-outline-secondary" (click)="whistleblowerSubmissionService.incrementStep(this)">
         <span>{{'Next'|translate}}</span>
-        <i class="fas fa-circle-arrow-right"></i>
+        <i class="fa-solid fa-circle-arrow-right"></i>
       </button>
     }
     @if (!hasNextStep()) {
       <button id="SubmitButton" class="btn btn-primary" [disabled]="done" (click)="completeSubmission()" type="submit">
-        <span id="SubmitIconOK"><i class="fas fa-check"></i></span>
+        <span id="SubmitIconOK"><i class="fa-solid fa-check"></i></span>
         <span>{{'Submit'|translate}}</span>
       </button>
     }

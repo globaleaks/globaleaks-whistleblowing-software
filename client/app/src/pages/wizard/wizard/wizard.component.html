@@ -11,7 +11,7 @@
       <div class="float-start">
         <button class="ButtonNext btn btn-primary" (click)="step = 2">
           <span>{{'Next'|translate}}</span>
-          <i class="fas fa-circle-arrow-right"></i>
+          <i class="fa-solid fa-circle-arrow-right"></i>
         </button>
       </div>
     </div>
@@ -34,12 +34,12 @@
       <br>
       <div class="float-start">
         <button class="ButtonPrevious btn btn-primary" (click)="step = 1">
-          <i class="fas fa-circle-arrow-left"></i>
+          <i class="fa-solid fa-circle-arrow-left"></i>
           <span>{{'Previous'|translate}}</span>
         </button>
         <button class="ButtonNext btn btn-primary" (click)="(validation.step2=true) && !wizardFormStep2.invalid && (step = 4)">
           <span>{{'Next'|translate}}</span>
-          <i class="fas fa-circle-arrow-right"></i>
+          <i class="fa-solid fa-circle-arrow-right"></i>
         </button>
       </div>
     </div>
@@ -55,12 +55,12 @@
       <br>
       <div class="float-start">
        <button class="ButtonPrevious btn btn-primary" (click)="step = 2">
-          <i class="fas fa-circle-arrow-left"></i>
+          <i class="fa-solid fa-circle-arrow-left"></i>
           <span>{{'Previous'|translate}}</span>
         </button>
         <button class="ButtonNext btn btn-primary" (click)="(validation.step3=true) && !wizardFormStep3.invalid && (step = 5)">
           <span>{{'Next'|translate}}</span>
-          <i class="fas fa-circle-arrow-right"></i>
+          <i class="fa-solid fa-circle-arrow-right"></i>
         </button>
       </div>
     </div>
@@ -144,12 +144,12 @@
       <br>
       <div class="float-start">
         <button class="ButtonPrevious btn btn-primary" (click)="step = 2">
-          <i class="fas fa-circle-arrow-left"></i>
+          <i class="fa-solid fa-circle-arrow-left"></i>
           <span>{{'Previous'|translate}}</span>
         </button>
         <button class="ButtonNext btn btn-primary" (click)="(validation.step4=true) && !(wizardFormStep4.invalid || (admin_password !== admin_check_password)) && (step = 5)">
           <span>{{'Next'|translate}}</span>
-          <i class="fas fa-circle-arrow-right"></i>
+          <i class="fa-solid fa-circle-arrow-right"></i>
         </button>
       </div>
     </div>
@@ -241,12 +241,12 @@
       <br>
       <div class="float-start">
         <button class="ButtonPrevious btn btn-primary" (click)="step = 4">
-          <i class="fas fa-circle-arrow-left"></i>
+          <i class="fa-solid fa-circle-arrow-left"></i>
           <span>{{'Previous'|translate}}</span>
         </button>
         <button class="ButtonNext btn btn-primary" (click)="(validation.step5 = true) && (wizard.skip_recipient_account_creation || (!wizardFormStep5.invalid && wizard.receiver_username !== wizard.admin_username && receiver_password === receiver_check_password)) && (step = 6)">
           <span>{{'Next'|translate}}</span>
-          <i class="fas fa-circle-arrow-right"></i>
+          <i class="fa-solid fa-circle-arrow-right"></i>
         </button>
       </div>
      </div>
@@ -275,12 +275,12 @@
       <br>
       <div class="float-start">
         <button class="ButtonPrevious btn btn-primary" (click)="step = 5">
-          <i class="fas fa-circle-arrow-left"></i>
+          <i class="fa-solid fa-circle-arrow-left"></i>
           <span>{{'Previous'|translate}}</span>
         </button>
         <button class="ButtonNext btn btn-primary" (click)="(validation.step6 = true) && !wizardFormStep6.invalid &&  complete()">
           <span>{{'Next'|translate}}</span>
-          <i class="fas fa-circle-arrow-right"></i>
+          <i class="fa-solid fa-circle-arrow-right"></i>
         </button>
       </div>
     </div>

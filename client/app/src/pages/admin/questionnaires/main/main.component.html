@@ -2,13 +2,13 @@
   <app-paginated-interface [items]="questionnairesData()" [filterField]="'name'" [orderBy]="'name'">
     <ng-template #toolbar>
       <button class="btn btn-primary show-add-questionnaire-btn" (click)="toggleAddQuestionnaire()">
-        <i class="fas fa-plus"></i>
+        <i class="fa-solid fa-plus"></i>
         <span>{{ 'Add' | translate }}</span>
       </button>
       <span>
         <input id="import-questionnaire-file" type="file" hidden #keyUploadInput (change)="importQuestionnaire(keyUploadInput.files)" />
         <button type="button" id="keyUpload" class="btn btn-outline-secondary" (click)="keyUploadInput.click()">
-          <i class="fas fa-upload" aria-hidden="true"></i>{{'Import' | translate}}
+          <i class="fa-solid fa-upload" aria-hidden="true"></i>{{'Import' | translate}}
         </button>
       </span>
     </ng-template>
@@ -27,7 +27,7 @@
             </div>
             <div class="form-group">
               <button id="add-questionnaire-btn" class="btn btn-primary" [disabled]="newQuestionnaire.invalid" (click)="addQuestionnaire(); toggleAddQuestionnaire()" type="button">
-                <i class="fas fa-plus"></i>
+                <i class="fa-solid fa-plus"></i>
                 <span>{{ 'Add' | translate }}</span>
               </button>
             </div>

@@ -8,23 +8,23 @@
     <label for="tip-postpone-date" class="visually-hidden">{{ 'Expiration date' | translate }}</label>
     <input id="tip-postpone-date" type="text" readonly class="form-control" placeholder="yyyy-mm-dd" name="dp" [required]="true" [minDate]="minDate" [maxDate]="maxDate" [(ngModel)]="args.expiration_date" ngbDatepicker #d="ngbDatepicker" (click)="d.toggle()" />
     <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button" [attr.aria-label]="'Open' | translate">
-      <i class="fas fa-calendar"></i>
+      <i class="fa-solid fa-calendar"></i>
     </button>
   </div>
 </div>
 <div class="modal-footer">
   @if (args.can_reset) {
     <button id="modal-action-reset" class="btn btn-outline-secondary" (click)="reset()">
-      <i class="fas fa-rotate-left" aria-hidden="true"></i>
+      <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
       <span>{{'Reset'|translate}}</span>
     </button>
   }
   <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
-    <i class="fas fa-check" aria-hidden="true"></i>
+    <i class="fa-solid fa-check" aria-hidden="true"></i>
     <span>{{'Yes'|translate}}</span>
   </button>
   <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-    <i class="fas fa-xmark" aria-hidden="true"></i>
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
     <span>{{'No'|translate}}</span>
   </button>
 </div>

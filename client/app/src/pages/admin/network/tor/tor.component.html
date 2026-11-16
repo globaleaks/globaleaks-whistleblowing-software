@@ -6,7 +6,7 @@
       <input id="tor-onionservice" name="onionservice" class="form-control" type="text" [value]="networkData.onionservice" disabled />
       <button class="btn btn-danger rounded-start-0 m-0" [disabled]="torOnionResetInProgress"
         (click)="resetOnionPrivateKey()">
-        <i class="fas fa-arrows-rotate"></i>
+        <i class="fa-solid fa-arrows-rotate"></i>
         <span>{{ 'Regenerate' | translate }}</span>
       </button>
     </div>
@@ -84,7 +84,7 @@
           <div class="col-md-6">
             <button class="btn btn-primary" [disabled]="adminNetForm.invalid"
               (click)="updateTor(networkData)" type="submit">
-              <i class="fas fa-check"></i>
+              <i class="fa-solid fa-check"></i>
               <span>{{ 'Save' | translate }}</span>
             </button>
           </div>

@@ -4,12 +4,12 @@
     <input #uploader id="projectImageLoader" (change)="onFileSelected(uploader.files)" type="file" flowButton [style.display]="'none'" [flowAttributes]="{ accept: 'image/*' }" />
     @if (!imageUploadModel[imageUploadModelAttr]) {
       <button type="button" class="btn btn-link p-0 change-picture-button text-primary" ngbTooltip="{{'Edit' | translate}}" [attr.aria-label]="'Edit' | translate" (click)="triggerFileInputClick()">
-        <i class="fas fa-pen-to-square" aria-hidden="true"></i>
+        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
       </button>
     }
     @if (imageUploadModel[imageUploadModelAttr] || imageUploadObj.files.length) {
       <button type="button" class="btn btn-link p-0 change-picture-button text-danger" ngbTooltip="{{'Delete' | translate}}" [attr.aria-label]="'Delete' | translate" (click)="deletePicture()">
-        <i class="fas fa-xmark" aria-hidden="true"></i>
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
       </button>
     }
     <div>

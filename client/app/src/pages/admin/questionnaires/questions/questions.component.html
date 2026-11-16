@@ -2,13 +2,13 @@
   <app-paginated-interface [items]="fields" [filterField]="'name'" [orderBy]="'label'">
     <ng-template #toolbar>
       <button class="btn btn-primary show-add-question-btn" (click)="toggleAddQuestion()">
-        <i class="fas fa-plus"></i>
+        <i class="fa-solid fa-plus"></i>
         <span>{{ 'Add' | translate }}</span>
       </button>
       <span>
         <input id="import-question-file" type="file" hidden #uploadInput (change)="importQuestion(uploadInput.files)" />
         <button type="button" class="btn btn-outline-secondary" (click)="uploadInput.click()">
-          <i class="fas fa-upload" aria-hidden="true"></i>{{'Import' | translate}}
+          <i class="fa-solid fa-upload" aria-hidden="true"></i>{{'Import' | translate}}
         </button>
       </span>
     </ng-template>

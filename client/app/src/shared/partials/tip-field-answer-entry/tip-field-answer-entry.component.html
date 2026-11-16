@@ -10,7 +10,7 @@
                   <div>
                     @if (entry()[option.id] === true) {
                       <div>
-                        <i class="fas fa-square-check"></i>
+                        <i class="fa-solid fa-square-check"></i>
                         <span>{{ option.label }}</span>
                       </div>
                     }
@@ -25,7 +25,7 @@
     @case ('voice') {
       @if (hasAudioFile(field().id)) {
         @if (!iframeUrl) {
-          <button class="ms-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'Listen' | translate" [attr.aria-label]="'Listen' | translate" (click)="loadAudioFile(field().id)" type="button"><i class="fas fa-play"></i></button>
+          <button class="ms-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'Listen' | translate" [attr.aria-label]="'Listen' | translate" (click)="loadAudioFile(field().id)" type="button"><i class="fa-solid fa-play"></i></button>
         } @else {
           <div class="audio-player-wrapper">
             <iframe #viewer id="{{'audio-file-' + field().id}}" class="audio-player-iframe" sandbox="allow-downloads allow-scripts" [src]="iframeUrl" ></iframe>
@@ -79,10 +79,10 @@
         @if (entry()['value']) {
           <span>
             @if (entry()['value'] === true) {
-              <i class="fas fa-square-check"></i>
+              <i class="fa-solid fa-square-check"></i>
             }
             @if (entry()['value'] === false) {
-              <i class="fas fa-square"></i>
+              <i class="fa-solid fa-square"></i>
             }
           </span>
         }
@@ -104,11 +104,11 @@
             <span>{{wbfile.name}}</span>
             @if (!maskService.isMasked(wbfile.ifile_id, tipService.tip)) {
               @if (utilsService.supportedViewTypes.includes(wbfile.type)) {
-                <button class="ms-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(wbfile)" type="button" [attr.aria-label]="'View' | translate"><i class="fas fa-eye"></i></button>
+                <button class="ms-2 btn btn-sm btn-primary tip-action-views-file" [ngbTooltip]="'View' | translate" (click)="utilsService.viewRFile(wbfile)" type="button" [attr.aria-label]="'View' | translate"><i class="fa-solid fa-eye"></i></button>
               }
-              <button class="ms-2 btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(wbfile)" type="button" [attr.aria-label]="'Download' | translate"><i class="fas fa-download"></i></button>
+              <button class="ms-2 btn btn-sm btn-primary tip-action-download-file" [ngbTooltip]="'Download' | translate" (click)="utilsService.downloadRFile(wbfile)" type="button" [attr.aria-label]="'Download' | translate"><i class="fa-solid fa-download"></i></button>
             } @else {
-              <span class="ms-2 btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
+              <span class="ms-2 btn btn-sm btn-primary"><i class="fa-solid fa-ban"></i></span>
             }
           </div>
         }
@@ -121,7 +121,7 @@
             <span class="preformatted">{{maskContent(field().id, entry()['index'], entry()['value'])}}</span>
             @if (redactMode() && (preferenceResolver.dataModel.can_mask_information || preferenceResolver.dataModel.can_redact_information)) {
               <button type="button" class="btn btn-sm float-end edit" id="edit-question" (click)="redactInformation('answer', field(), entry()['index'], entry()['value'])" ngbTooltip="{{'Mask' | translate}}" [attr.aria-label]="'Mask' | translate">
-                <i class="fas fa-eraser" aria-hidden="true"></i>
+                <i class="fa-solid fa-eraser" aria-hidden="true"></i>
               </button>
             }
           </span>

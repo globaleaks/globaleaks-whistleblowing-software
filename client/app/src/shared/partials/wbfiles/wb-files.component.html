@@ -14,7 +14,7 @@
 
       <span class="float-end">
         @if (isMasked()) {
-          <span class="btn btn-sm btn-primary"><i class="fas fa-ban"></i></span>
+          <span class="btn btn-sm btn-primary"><i class="fa-solid fa-ban"></i></span>
 
           @if (redactMode()) {
             <button
@@ -22,7 +22,7 @@
               class="tip-action-download-file download-button btn btn-sm btn-primary"
               (click)="downloadWBFile(wbFile())"
               [attr.aria-label]="'Download' | translate">
-              <i class="fas fa-download"></i>
+              <i class="fa-solid fa-download"></i>
             </button>
 
             @if (preferenceResolver.dataModel.can_mask_information) {
@@ -32,7 +32,7 @@
                 [ngbTooltip]="'Show' | translate"
                 (click)="redactFileOperation('full-unmask')"
                 [attr.aria-label]="'Show' | translate">
-                <i class="fas fa-eye"></i>
+                <i class="fa-solid fa-eye"></i>
               </button>
             }
 
@@ -43,7 +43,7 @@
                 [ngbTooltip]="'Delete' | translate"
                 (click)="redactFileOperation('redact')"
                 [attr.aria-label]="'Delete' | translate">
-                <i class="fas fa-trash"></i>
+                <i class="fa-solid fa-trash"></i>
               </button>
             }
           }
@@ -53,7 +53,7 @@
             class="tip-action-download-file download-button btn btn-sm btn-primary"
             (click)="downloadWBFile(wbFile())"
             [attr.aria-label]="'Download' | translate">
-            <i class="fas fa-download"></i>
+            <i class="fa-solid fa-download"></i>
           </button>
 
           @if (redactMode() && preferenceResolver.dataModel.can_mask_information) {
@@ -63,7 +63,7 @@
               [ngbTooltip]="'Mask' | translate"
               (click)="redactFileOperation('full-mask')"
               [attr.aria-label]="'Mask' | translate">
-              <i class="fas fa-eye-slash"></i>
+              <i class="fa-solid fa-eye-slash"></i>
             </button>
           }
         }

@@ -3,7 +3,7 @@
     <span class="col-md-8">
       <span>{{'Substatuses'|translate}}</span>
       <button type="button" class="btn btn-sm btn-primary" id="add-sub-status" (click)="toggleAddSubStatus()">
-        <i class="fas fa-plus"></i>
+        <i class="fa-solid fa-plus"></i>
         <span>{{'Add'|translate}}</span>
       </button>
     </span>
@@ -29,7 +29,7 @@
             <div class="col-md-12">
               <div class="form-group clearfix">
                 <button type="button" class="float-start btn btn-primary" id="add-submission-sub-status" [disabled]="newSubStatusList.invalid" (click)="addSubmissionSubStatus(); toggleAddSubStatus()">
-                  <i class="fas fa-plus"></i>
+                  <i class="fa-solid fa-plus"></i>
                   <span> Add</span>
                 </button>
               </div>
@@ -48,10 +48,10 @@
           </ng-container>
           <ng-container actions>
             <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveSsUp($event, index)" ngbTooltip="{{'Move up' | translate}}" [disabled]="first">
-              <i class="fas fa-chevron-up"></i>
+              <i class="fa-solid fa-chevron-up"></i>
             </button>
             <button type="button" class="btn btn-sm btn-primary" data-action="move-down" (click)="moveSsDown($event, index)" ngbTooltip="{{'Move down' | translate}}" [disabled]="last">
-              <i class="fas fa-chevron-down"></i>
+              <i class="fa-solid fa-chevron-down"></i>
             </button>
           </ng-container>
           <ng-template #body>

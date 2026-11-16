@@ -8,7 +8,7 @@
         </div>
         <div class="form-group">
           <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator().invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
-            <i class="fas fa-right-to-bracket"></i>
+            <i class="fa-solid fa-right-to-bracket"></i>
             <span>{{'Log in'|translate}}</span>
           </button>
           <span id="forgot-button">
@@ -35,7 +35,7 @@
             </div>
             <div class="form-group">
               <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || loginValidator().invalid" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword)" type="submit">
-                <i class="fas fa-right-to-bracket"></i>
+                <i class="fa-solid fa-right-to-bracket"></i>
                 <span>{{'Log in'|translate}}</span>
               </button>
               <span id="forgot-button">
@@ -55,7 +55,7 @@
       <input id="simple-login-2fa-code" class="form-control" name="authCode" [(ngModel)]="authentication.loginData.loginAuthCode" type="password" size="6" maxlength="6" required />
     </div>
     <button id="login-button" class="btn btn-primary" [disabled]="authentication.loginInProgress || authentication.loginData.loginAuthCode.length !== 6" (click)="authentication.login(0, authentication.loginData.loginUsername, authentication.loginData.loginPassword, authentication.loginData.loginAuthCode)" type="submit">
-      <i class="fas fa-right-to-bracket"></i>
+      <i class="fa-solid fa-right-to-bracket"></i>
       <span>{{'Log in'|translate}}</span>
     </button>
   </div>

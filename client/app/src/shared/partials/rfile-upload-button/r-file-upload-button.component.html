@@ -9,7 +9,7 @@
           <input [attr.id]="'customFile-' + fileInput" [name]="'input-' + fileInput" id="customFile-{{fileInput}}" [(ngModel)]="fileModel" #uploader type="file" flowButton [flow]="flow.flowJs" [style.display]="'none'" [required]="entry().required_status"/>
         }
         <button type="button" class="btn btn-sm btn-outline-secondary" (click)="selectFile()">
-          <i class="fas fa-upload" aria-hidden="true"></i>
+          <i class="fa-solid fa-upload" aria-hidden="true"></i>
           <span>{{'Upload'|translate}}</span>
         </button>
       <span class="mx-2">{{'Select a file or drag it here.'|translate}}</span>
@@ -47,7 +47,7 @@
     </div>
     @if (confirmButton && !formUploader()) {
       <button id="files-action-confirm" class="btn btn-sm btn-outline-secondary" (click)="onConfirmClick()">
-        <i class="fas fa-upload"></i>
+        <i class="fa-solid fa-upload"></i>
         <span>{{'Confirm'|translate}}</span>
       </button>
     }

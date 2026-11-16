@@ -17,7 +17,7 @@
             <div class="input-group">
               <input id="ReceiptCode" class="form-control text-center" type="text" maxlength="19" name="formatted_receipt" size="19" [(ngModel)]="receiptId" [readOnly]="appDataService.page !== 'tippage'">
               <button id="ReceiptButton" (click)="utilsService.copyToClipboard(receipt)" class="btn btn-primary m-0 rounded-start-0" type="button" ngbTooltip="{{'Copy to clipboard' | translate}}" [attr.aria-label]="'Copy to clipboard' | translate">
-                <i class="fas fa-copy"></i>
+                <i class="fa-solid fa-copy"></i>
               </button>
             </div>
           </div>

@@ -9,53 +9,53 @@
         <tr>
           @if (authenticationService.session?.role === 'receiver' || appDataService.public.contexts.length > 1) {
             <th class="TipInfoContext">
-              <i class="fas fa-inbox"></i>
+              <i class="fa-solid fa-inbox"></i>
               <span>{{'Channel'|translate}}</span>
             </th>
           }
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoID">
-              <i class="fas fa-hashtag" aria-hidden="true"></i>
+              <i class="fa-solid fa-hashtag" aria-hidden="true"></i>
               <span class="visually-hidden">{{'ID' | translate}}</span>
             </th>
           }
           <th class="TipInfoSubmissionDate">
-            <i class="fas fa-clock"></i>
+            <i class="fa-solid fa-clock"></i>
             <span>{{'Date'|translate}}</span>
           </th>
           <th class="TipInfoLastUpdate">
-            <i class="fas fa-clock"></i>
+            <i class="fa-solid fa-clock"></i>
             <span>{{'Last update'|translate}}</span>
           </th>
           <th class="TipInfoExpirationDate">
-            <i class="fas fa-hourglass"></i>
+            <i class="fa-solid fa-hourglass"></i>
             <span>{{'Expiration date'|translate}}</span>
           </th>
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoReminderDate">
-              <i class="fas fa-bell"></i>
+              <i class="fa-solid fa-bell"></i>
               <span>{{'Reminder date'|translate}}</span>
             </th>
           }
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoReadReceipt">
-              <i class="fas fa-envelope-circle-check" aria-hidden="true"></i>
+              <i class="fa-solid fa-envelope-circle-check" aria-hidden="true"></i>
               <span class="visually-hidden">{{'Read receipt' | translate}}</span>
             </th>
           }
           @if (authenticationService.session?.role === 'receiver') {
             <th class="TipInfoConnection">
-              <i class="fas fa-network-wired"></i>
+              <i class="fa-solid fa-network-wired"></i>
               <span>{{'Tor'|translate}}</span>
             </th>
           }
           <th class="TipInfoSubmissionStatus">
-            <i class="fas fa-circle-dot"></i>
+            <i class="fa-solid fa-circle-dot"></i>
             <span>{{'Status'|translate}}</span>
           </th>
           @if (authenticationService.session?.role === 'receiver' && appDataService.public.node.enable_scoring_system) {
             <th class="TipInfoScore">
-              <i class="fas fa-ranking-star"></i>
+              <i class="fa-solid fa-ranking-star"></i>
               <span>{{'Score'|translate}}</span>
             </th>
           }
@@ -95,22 +95,22 @@
                   <span>
                     <span>{{tipService().tip.reminder_date | date:'dd-MM-yyyy'}}</span>
                     @if (markReportStatus(tipService().tip.reminder_date)) {
-                      <i class="reminder fas fa-bell"></i>
+                      <i class="reminder fa-solid fa-bell"></i>
                     }
                   </span>
                 }
                 @if (utilsService.isNever(tipService().tip.reminder_date)) {
-                  <i class="fas fa-minus"></i>
+                  <i class="fa-solid fa-minus"></i>
                 }
               </td>
             }
             @if (authenticationService.session?.role === 'receiver') {
               <td class="TipInfoLastAccess">
                 @if (tipService().tip.last_access >= tipService().tip.update_date) {
-                  <span ngbTooltip="{{'The reporting person has already read the last update' | translate}} ({{tipService().tip.last_access | date:'dd-MM-yyyy HH:mm'}})"><i class="fas fa-check"></i></span>
+                  <span ngbTooltip="{{'The reporting person has already read the last update' | translate}} ({{tipService().tip.last_access | date:'dd-MM-yyyy HH:mm'}})"><i class="fa-solid fa-check"></i></span>
                 }
                 @if (tipService().tip.last_access < tipService().tip.update_date) {
-                  <i class="fas fa-xmark" ngbTooltip="{{'The reporting person has not read the last update yet' | translate}}">
+                  <i class="fa-solid fa-xmark" ngbTooltip="{{'The reporting person has not read the last update yet' | translate}}">
                   </i>
                 }
               </td>
@@ -118,10 +118,10 @@
             @if (authenticationService.session?.role === 'receiver') {
               <td class="TipInfoConnection">
                 @if (tipService().tip.tor) {
-                  <i class="fas fa-check"></i>
+                  <i class="fa-solid fa-check"></i>
                 }
                 @if (!tipService().tip.tor) {
-                  <i class="fas fa-xmark"></i>
+                  <i class="fa-solid fa-xmark"></i>
                 }
               </td>
             }

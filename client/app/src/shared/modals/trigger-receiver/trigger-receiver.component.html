@@ -15,7 +15,7 @@
           <li>
             <span class="action-btns">
               <button type="button" class="icon-action remove-entry-btn" (click)="removeReceiver(i)" ngbTooltip="{{'Remove' | translate}}" [attr.aria-label]="('Remove' | translate) + ': ' + ((admin_receivers_by_id()[user] || {}).name || '-')">
-                <i class="fas fa-xmark" aria-hidden="true"></i>
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
               </button>
             </span>
             <span>{{ (admin_receivers_by_id()[user] || {}).name || "-" }}</span>
@@ -27,15 +27,15 @@
 </div>
 <div class="modal-footer">
   <button id="modal-action-ok" class="btn btn-primary" (click)="confirm()">
-    <i class="fas fa-check" aria-hidden="true"></i>
+    <i class="fa-solid fa-check" aria-hidden="true"></i>
     <span>{{ 'Confirm' | translate }}</span>
   </button>
   <button id="modal-action-reset" class="btn btn-danger" (click)="resetRecipients()">
-    <i class="fas fa-check" aria-hidden="true"></i>
+    <i class="fa-solid fa-check" aria-hidden="true"></i>
     <span>{{ 'Reset' | translate }}</span>
   </button>
   <button id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
-    <i class="fas fa-xmark" aria-hidden="true"></i>
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
     <span>{{ 'Cancel' | translate }}</span>
   </button>
 </div>

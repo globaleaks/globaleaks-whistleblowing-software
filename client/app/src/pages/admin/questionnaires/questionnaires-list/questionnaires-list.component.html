@@ -2,11 +2,11 @@
   <ng-container title>{{ questionnaire().name }}</ng-container>
   <ng-container actions>
     <button type="button" class="downloadButton btn btn-sm btn-outline-secondary" data-action="export" (click)="exportQuestionnaire(questionnaire())">
-      <i class="fas fa-file-export"></i>
+      <i class="fa-solid fa-file-export"></i>
       <span>{{ 'Export' | translate }}</span>
     </button>
     <button type="button" class="btn btn-sm btn-outline-secondary" data-action="duplicate" (click)="duplicateQuestionnaire(questionnaire())">
-      <i class="fas fa-clone"></i>
+      <i class="fa-solid fa-clone"></i>
       <span>{{ 'Duplicate' | translate }}</span>
     </button>
   </ng-container>

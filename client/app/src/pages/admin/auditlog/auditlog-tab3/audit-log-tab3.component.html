@@ -1,7 +1,7 @@
 <app-paginated-interface [mode]="'table'" [items]="this.tips">
   <ng-template #header>
     <tr>
-      <th><i class="fas fa-hashtag" aria-hidden="true"></i><span class="visually-hidden">{{'ID' | translate}}</span></th>
+      <th><i class="fa-solid fa-hashtag" aria-hidden="true"></i><span class="visually-hidden">{{'ID' | translate}}</span></th>
       <th>{{'Date'|translate}}</th>
       <th>{{'Last update'|translate}}</th>
       <th>{{'Expiration date'|translate}}</th>
@@ -27,7 +27,7 @@
         <td></td>
       }
       <td>{{utilsService.getSubmissionStatusText(data.status,data.substatus,appDataService.submissionStatuses)}}</td>
-      <td>@if (data.tor) {<i class="fas fa-check"></i>} @else {<i class="fas fa-xmark"></i>}</td>
+      <td>@if (data.tor) {<i class="fa-solid fa-check"></i>} @else {<i class="fa-solid fa-xmark"></i>}</td>
       <td>{{data.comments}}</td>
       <td>{{data.files}}</td>
       <td>{{data.receiver_count}}</td>
@@ -35,4 +35,4 @@
     </tr>
   </ng-template>
 </app-paginated-interface>
-<div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"><i class="fas fa-download"></i><span>{{ 'Export' | translate }}</span></button></div>
+<div class="d-flex justify-content-end"><button class="btn btn-sm btn-link" type="button" (click)="exportAuditLog()"><i class="fa-solid fa-download"></i><span>{{ 'Export' | translate }}</span></button></div>
