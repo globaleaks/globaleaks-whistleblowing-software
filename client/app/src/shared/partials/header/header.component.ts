@@ -1,4 +1,4 @@
-import {Component, inject} from "@angular/core";
+import {Component, TemplateRef, inject, input} from "@angular/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {AppDataService} from "@app/app-data.service";
 import {ThemeService} from "@app/shared/theme/theme.service";
@@ -16,4 +16,7 @@ export class HeaderComponent {
   appConfig = inject(AppConfigService);
   appDataService = inject(AppDataService);
   protected themeService = inject(ThemeService);
+
+  // The sections of the role, which on a phone open from the menu of the session
+  readonly navItems = input<TemplateRef<unknown> | null>(null);
 }

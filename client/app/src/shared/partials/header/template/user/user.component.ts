@@ -1,4 +1,4 @@
-import {Component, inject} from "@angular/core";
+import {Component, HostListener, TemplateRef, inject, input, viewChild} from "@angular/core";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -12,7 +12,7 @@ import {FormsModule} from "@angular/forms";
 import {ReceiptComponent} from "../../../receipt/receipt.component";
 import {TranslatePipe} from "@ngx-translate/core";
 import {OrderByPipe} from "@app/shared/pipes/order-by.pipe";
-import {NgbDropdownModule, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
+import {NgbDropdown, NgbDropdownModule, NgbTooltipModule} from '@ng-bootstrap/ng-bootstrap';
 import {ThemeService} from "@app/shared/theme/theme.service";
 import {NgTemplateOutlet} from "@angular/common";
 
@@ -34,6 +34,10 @@ export class UserComponent {
   protected translationService = inject(TranslationService);
   protected themeService = inject(ThemeService);
   private router = inject(Router);
+
+  // On a phone the sections of the role, shown in the menu before the links of the session
+  readonly navItems = input<TemplateRef<unknown> | null>(null);
+  private readonly sessionMenu = viewChild<NgbDropdown>("sessionMenu");
 
   constructor() {
     this.onQueryParameterChangeListener();
@@ -85,6 +89,15 @@ export class UserComponent {
         }
       }
     });
+  }
+
+  // A section chosen in the menu closes it, also when it is the page already open: the dropdown would
+  // close on its own, but out of the sight of the rendering without zone
+  @HostListener('document:click', ['$event'])
+  closeSessionMenu(event: MouseEvent): void {
+    if ((event.target as Element | null)?.closest("#NavMenu a")) {
+      this.sessionMenu()?.close();
+    }
   }
 
   onLogout(event: Event) {

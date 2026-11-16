@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, HostListener, OnInit, Renderer2, inject} from "@angular/core";
+import {AfterViewInit, Component, HostListener, OnInit, Renderer2, inject, signal} from "@angular/core";
 import {RenderSchedulerService} from "@app/shared/services/render-scheduler.service";
 import {SessionActivityService} from "@app/services/helper/session-activity.service";
 import {AppConfigService} from "@app/services/root/app-config.service";
@@ -8,11 +8,10 @@ import {TrustedTypesService} from "@app/services/helper/trusted-types.service";
 import {TranslateService, TranslatePipe} from "@ngx-translate/core";
 import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
 import {BrowserCheckService} from "@app/shared/services/browser-check.service";
-import {DOCUMENT} from "@angular/common";
+import {DOCUMENT, NgTemplateOutlet} from "@angular/common";
 import {LiveAnnouncer} from "@angular/cdk/a11y";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {HeaderComponent} from "@app/shared/partials/header/header.component";
-import {NgbCollapse} from "@ng-bootstrap/ng-bootstrap";
 import {FooterComponent} from "@app/shared/partials/footer/footer.component";
 import {PrivacyBadgeComponent} from "@app/shared/partials/privacybadge/privacy-badge.component";
 import {DemoComponent} from "@app/shared/partials/demo/demo.component";
@@ -46,7 +45,7 @@ window.GL = {
     selector: "app-root",
     templateUrl: "./app.component.html",
     standalone: true,
-    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgbCollapse, RouterOutlet, TranslatePipe]
+    imports: [HeaderComponent, PrivacyBadgeComponent, AdminSidebarComponent, AnalystSidebarComponent, MessageConsoleComponent, DemoComponent, CustodianSidebarComponent, ReceiptSidebarComponent, FooterComponent, NgTemplateOutlet, RouterOutlet, TranslatePipe]
 })
 export class AppComponent implements AfterViewInit, OnInit {
   private renderScheduler = inject(RenderSchedulerService);
@@ -63,15 +62,22 @@ export class AppComponent implements AfterViewInit, OnInit {
   private bodyDomObserver = inject(BodyDomObserverService);
   private TrustedTypesService = inject(TrustedTypesService);
   private wbTipResolver = inject(WbTipResolver);
+  private liveAnnouncer = inject(LiveAnnouncer);
 
   showSidebar = true;
   private announcedUrl = "";
-  isNavCollapsed = true;
+  // On a phone the navigation is in the menu of the header, before the links of the session, and not a column
+  readonly isPhone = signal(false);
   showLoadingPanel = true;
   supportedBrowser = true;
   loading = false;
 
   constructor() {
+    const phone = this.document.defaultView?.matchMedia("(width < 768px)");
+    if (phone) {
+      this.isPhone.set(phone.matches);
+      phone.addEventListener("change", (event) => this.isPhone.set(event.matches));
+    }
     (window as any).scope = this.appDataService;
   }
 
@@ -89,8 +95,7 @@ export class AppComponent implements AfterViewInit, OnInit {
         ];
         const currentUrl = event.url;
         this.showSidebar = !excludedUrls.includes(currentUrl);
-        // The sidebar of a phone closes once a section of it is chosen
-        this.isNavCollapsed = true;
+        this.announceNavigation(event.urlAfterRedirects);
       }
     });
   }

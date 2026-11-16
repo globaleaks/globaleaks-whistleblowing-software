@@ -1529,6 +1529,34 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   width: max-content;
 }
 
+/* On a phone the same sections are the first items of the menu of the header, drawn as the links of
+   the session after them: as tall as a finger, in the weight of the menu, the one of the
+   current page in the color of the brand */
+#NavMenu .nav-items a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: var(--bs-dropdown-item-padding-y) var(--bs-dropdown-item-padding-x);
+  color: var(--bs-dropdown-link-color);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+#NavMenu .nav-items a:is(:hover, :focus) {
+  color: var(--bs-dropdown-link-hover-color);
+  background-color: var(--bs-dropdown-link-hover-bg);
+}
+
+#NavMenu .nav-items a.active {
+  color: var(--gl-link);
+  font-weight: bold;
+}
+
+#NavMenu .nav-items .fa-solid {
+  width: 1.25em;
+}
+
 /* The color chosen, in the button that opens the picker: a square of it beside its code */
 .primary-color-chip {
   display: inline-block;
@@ -1709,8 +1737,7 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   }
 
   #ThemeToggleBox.order-3 #ThemeToggle,
-  #SessionMenuButton,
-  #SidebarToggle {
+  #SessionMenuButton {
     min-width: 2.75rem;
     height: 2.75rem;
   }

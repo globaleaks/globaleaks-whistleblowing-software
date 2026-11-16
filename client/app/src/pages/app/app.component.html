@@ -27,40 +27,19 @@
             <src-privacybadge></src-privacybadge>
           </div>
         }
-        <src-header>
-          @if (appConfig.sidebar && showSidebar) {
-            <button id="SidebarToggle" class="btn btn-link d-lg-none"
-                type="button"
-                (click)="isNavCollapsed = !isNavCollapsed"
-                aria-controls="Sidebar"
-                [attr.aria-expanded]="!isNavCollapsed"
-                aria-label="Toggle navigation">
-              <i class="fas fa-bars" aria-hidden="true"></i>
-            </button>
-          }
-        </src-header>
+        <!-- On a phone the sections of the role open from the menu of the header, above the links of the session -->
+        <src-header [navItems]="appConfig.sidebar && showSidebar && isPhone() ? navItems : null"></src-header>
 
         <src-message-console id="MessagesConsoleBox"></src-message-console>
 
         <div id="ContentBox">
           <div class="row">
-            @if (appConfig.sidebar && showSidebar) {
+            @if (appConfig.sidebar && showSidebar && !isPhone()) {
               <div id="Sidebar" class="col-lg-2 col-md-4 col-sm-12">
                 <nav class="navbar navbar-expand-md p-0" role="navigation" [attr.aria-label]="'Main navigation' | translate">
-                  <div class="collapse navbar-collapse" [ngbCollapse]="isNavCollapsed">
+                  <div class="collapse navbar-collapse">
                     <div class="navbar-nav">
-                      @if (appConfig.sidebar==='recipient-sidebar') {
-                        <src-receipt-sidebar class="nav-items"></src-receipt-sidebar>
-                      }
-                      @if (appConfig.sidebar==='custodian-sidebar') {
-                        <src-custodian-sidebar class="nav-items"></src-custodian-sidebar>
-                      }
-                      @if (appConfig.sidebar==='analyst-sidebar') {
-                        <src-analyst-sidebar class="nav-items"></src-analyst-sidebar>
-                      }
-                      @if (appConfig.sidebar==='admin-sidebar') {
-                        <src-admin-sidebar class="nav-items"></src-admin-sidebar>
-                      }
+                      <ng-container [ngTemplateOutlet]="navItems"></ng-container>
                     </div>
                   </div>
                 </nav>
@@ -76,3 +55,19 @@
     }
   </div>
 }
+
+<!-- The sections of the sidebar of the role: in a column, or on a phone in the menu of the header -->
+<ng-template #navItems>
+  @if (appConfig.sidebar==='recipient-sidebar') {
+    <src-receipt-sidebar class="nav-items"></src-receipt-sidebar>
+  }
+  @if (appConfig.sidebar==='custodian-sidebar') {
+    <src-custodian-sidebar class="nav-items"></src-custodian-sidebar>
+  }
+  @if (appConfig.sidebar==='analyst-sidebar') {
+    <src-analyst-sidebar class="nav-items"></src-analyst-sidebar>
+  }
+  @if (appConfig.sidebar==='admin-sidebar') {
+    <src-admin-sidebar class="nav-items"></src-admin-sidebar>
+  }
+</ng-template>
