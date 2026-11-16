@@ -1736,10 +1736,13 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
     display: none;
   }
 
+  /* The buttons of the header are squares as large as a finger, with the icon, and the caret of a
+     menu, in the middle and no padding around them */
   #ThemeToggleBox.order-3 #ThemeToggle,
   #SessionMenuButton {
     min-width: 2.75rem;
     height: 2.75rem;
+    padding: 0;
   }
 
   #SessionMenuBox .dropdown-item {
