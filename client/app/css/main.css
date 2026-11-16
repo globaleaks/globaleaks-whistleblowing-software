@@ -26,6 +26,13 @@ a:hover {
   color: var(--gl-link);
 }
 
+/* An item of a menu is a link or a button alike: on the pointer and on the focus it keeps the weight
+   and the color of the menu, and does not become bold and blue as a link */
+a.dropdown-item:is(:hover, :focus) {
+  color: var(--bs-dropdown-link-hover-color);
+  font-weight: 400;
+}
+
 /* The ring of the focus is never removed: it stands 2px apart from the control, so that it is
    told apart also from a button of its own color, at 3:1 at least on the background (Brand_2 on
    white, Blue_2 on black). Bootstrap draws no ring of its own (bootstrap.scss) and removes the
