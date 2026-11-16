@@ -4,10 +4,10 @@
 
 .reveal {
   opacity: 0.3;
-  animation: fadeIn 0.3s forwards;
+  animation: fade-in 0.3s forwards;
 }
 
-@keyframes fadeIn {
+@keyframes fade-in {
   to {
     opacity: 1;
   }
@@ -572,6 +572,7 @@ p:last-child {
 
 #WhistleblowerLoginBox {
   width: fit-content;
+  padding: 1em;
 }
 
 #HeaderBox #WhistleblowerLoginBox {
@@ -742,10 +743,6 @@ p:last-child {
   color: #1d1f2a;
   background-color: #fff;
   border-radius: 5px;
-}
-
-#WhistleblowerLoginBox {
-  padding: 1em;
 }
 
 #MessagesConsoleBox {
