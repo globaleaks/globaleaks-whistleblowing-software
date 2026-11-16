@@ -26,7 +26,7 @@
     </div>
   }
   @if (utilsService.showUserStatusBox()) {
-    <div id="LoginStatusBox" class="order-3 d-none d-sm-flex">
+    <div id="LoginStatusBox" class="order-3 d-none d-md-flex">
       @if (!preferences.dataModel.password_change_needed && !preferences.dataModel.require_two_factor) {
         <span id="HomeLinkBox">
           @if (authentication.session.role !== 'whistleblower') {
@@ -60,13 +60,13 @@
       }
       <span id="LogoutLinkBox">
         <a id="LogoutLink" href="" (click)="onLogout($event)" ngbTooltip="{{'Logout' | translate}}" [attr.aria-label]="'Logout' | translate" (keydown.enter)="onLogout($event)">
-          <i class="pointer fas fa-right-from-bracket"></i>
+          <i class="pointer fa-solid fa-right-from-bracket"></i>
         </a>
       </span>
     </div>
     <!-- On a phone a single menu, each item named and as large as a finger: first the sections of the
          role, then the links of the session, without the home that the sections already hold -->
-    <div id="SessionMenuBox" class="order-3 d-sm-none" ngbDropdown #sessionMenu="ngbDropdown" placement="bottom-end">
+    <div id="SessionMenuBox" class="order-3 d-md-none" ngbDropdown #sessionMenu="ngbDropdown" placement="bottom-end">
       <button id="SessionMenuButton" type="button" class="btn btn-link" ngbDropdownToggle [attr.aria-label]="'Menu' | translate">
         <i class="fa-solid fa-bars" aria-hidden="true"></i>
       </button>
@@ -82,7 +82,7 @@
             <a ngbDropdownItem [href]="'#'+authentication.session.homepage"><i class="fa-solid fa-fw fa-house" aria-hidden="true"></i> {{'Home' | translate}}</a>
           }
           @if (authentication.session.role !== 'whistleblower' && !authentication.session.properties.management_session) {
-            <a ngbDropdownItem [href]="'#'+authentication.session.preferencespage"><i class="fas fa-fw fa-user" aria-hidden="true"></i> {{'Preferences' | translate}}</a>
+            <a ngbDropdownItem [href]="'#'+authentication.session.preferencespage"><i class="fa-solid fa-fw fa-user" aria-hidden="true"></i> {{'Preferences' | translate}}</a>
           }
         }
         <button ngbDropdownItem type="button" (click)="themeService.toggle()">
@@ -94,9 +94,9 @@
           {{ (themeService.theme() === 'dark' ? 'Switch to the light theme' : 'Switch to the dark theme') | translate }}
         </button>
         @if (!preferences.dataModel.password_change_needed && !preferences.dataModel.require_two_factor && authentication.session && authentication.session.role !== 'whistleblower') {
-          <button ngbDropdownItem type="button" (click)="utilsService.openSupportModal($event)"><i class="fas fa-fw fa-life-ring" aria-hidden="true"></i> {{'Request support' | translate}}</button>
+          <button ngbDropdownItem type="button" (click)="utilsService.openSupportModal($event)"><i class="fa-solid fa-fw fa-life-ring" aria-hidden="true"></i> {{'Request support' | translate}}</button>
         }
-        <button ngbDropdownItem type="button" (click)="onLogout($event)"><i class="fas fa-fw fa-right-from-bracket" aria-hidden="true"></i> {{'Logout' | translate}}</button>
+        <button ngbDropdownItem type="button" (click)="onLogout($event)"><i class="fa-solid fa-fw fa-right-from-bracket" aria-hidden="true"></i> {{'Logout' | translate}}</button>
       </div>
     </div>
   }

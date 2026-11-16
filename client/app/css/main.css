@@ -1672,7 +1672,7 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
 }
 
 /* Wider than a phone, the logo and the controls of the header have their middles on one line */
-@media (width >= 576px) {
+@media (width >= 768px) {
   #LogoBox {
     display: flex;
     align-items: center;
@@ -1690,7 +1690,7 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
  * the language told by the sign of the translation and the links of the session gathered in a menu.
  * Every control is as large as a finger (2.75rem, 44px).
  */
-@media (width < 576px) {
+@media (width < 768px) {
   #HeaderBox > .d-flex {
     flex-wrap: nowrap !important;
     align-items: flex-start;
