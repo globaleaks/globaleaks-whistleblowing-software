@@ -330,6 +330,10 @@ module.exports = function(grunt) {
     },
 
     shell: {
+      // The errors of the styles and of the code stop the build; the warnings are a backlog and do not
+      lint: {
+        command: "npx stylelint 'app/css/**/*.css' && npx eslint --quiet app/src"
+      },
       build: {
         command: "NG_BUILD_OPTIMIZE_CHUNKS=1 npx ng build --configuration=production"
       },
@@ -998,7 +1002,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask("package", ["fetchFonts", "copy:build", "webpack", "string-replace", "postcss", "copy:package"]);
 
-  grunt.registerTask("build", ["clean", "shell:build", "package", "shell:brotli_compress", "clean:tmp"]);
+  grunt.registerTask("build", ["shell:lint", "clean", "shell:build", "package", "shell:brotli_compress", "clean:tmp"]);
 
-  grunt.registerTask("build_and_instrument", ["clean", "shell:build", "shell:instrument", "package", "shell:brotli_compress", "clean:tmp"]);
+  grunt.registerTask("build_and_instrument", ["shell:lint", "clean", "shell:build", "shell:instrument", "package", "shell:brotli_compress", "clean:tmp"]);
 };

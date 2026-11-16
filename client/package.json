@@ -3,7 +3,7 @@
   "version": "5.0.101",
   "scripts": {
     "test": "npx cypress run --browser=chromium",
-    "eslint": "ng lint",
+    "eslint": "eslint app/src",
     "stylelint": "npx stylelint 'app/css/**/*.css'",
     "analyze": "ng build --configuration=production --stats-json && npx esbuild-visualizer --metadata=dist/stats.json --open=true"
   },
