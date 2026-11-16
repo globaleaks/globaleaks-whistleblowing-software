@@ -280,8 +280,13 @@ def db_serialize_node(session, tid, language):
     :return: The serialization of the public node configuration
     """
     languages = db_get_languages(session, tid)
-    ret = ConfigFactory(session, tid).serialize('public_node')
+    node = ConfigFactory(session, tid)
+    ret = node.serialize('public_node')
     ret.update(ConfigL10NFactory(session, tid).serialize('public_node', language))
+
+    # The address of an onion service withdrawn is not advertised
+    if not node.get_val('onionservice_enable'):
+        ret['onionservice'] = ''
 
     ret['start_time'] = State.start_time
     ret['root_tenant'] = tid == 1
@@ -302,8 +307,12 @@ def db_serialize_node(session, tid, language):
 
         root_tenant_l10n = ConfigL10NFactory(session, 1)
 
-        if ret['mode'] != 'default':
-            ret['onionservice'] = ret['subdomain'] + '.' + root_tenant_node.get_val('onionservice')
+        # A site not publishing an onion service of its own is reached as a subdomain of the one
+        # of the first site, while that one is published
+        if not ret['onionservice'] and ret['subdomain'] and root_tenant_node.get_val('onionservice_enable'):
+            root_onionservice = root_tenant_node.get_val('onionservice')
+            if root_onionservice:
+                ret['onionservice'] = ret['subdomain'] + '.' + root_onionservice
 
         if ret['mode'] not in ['default', 'demo']:
             ret['disable_privacy_badge'] = root_tenant_node.get_val('disable_privacy_badge')

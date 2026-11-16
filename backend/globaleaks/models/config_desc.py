@@ -94,6 +94,7 @@ ConfigDescriptor = {
     'mode': Unicode(default='default'),
     'name': Unicode(default='GLOBALEAKS'),
     'onionservice': Unicode(default=''),
+    'onionservice_enable': Bool(default=True),
     'password_change_period': Int(default=365),  # Days
     'pgp': Bool(default=False),
     'protected_users': List(),  # List of ids of users protected from deletion and password reset
@@ -193,6 +194,7 @@ ConfigFilters = {
         'mode',
         'name',
         'onionservice',
+        'onionservice_enable',
         'password_change_period',
         'pgp',
         'reachable_via_web',
@@ -309,6 +311,7 @@ ConfigFilters = {
         'https_custodian',
         'https_receiver',
         'https_whistleblower',
+        'onionservice_enable',
         'reachable_via_web',
         'ip_filter_admin',
         'ip_filter_admin_enable',

@@ -156,7 +156,10 @@ def initialize_config(session, tid, mode):
         # Initialization valid for secondary tenants
         variables['mode'] = mode
 
-    if mode == 'default':
+    # A site of its own is published on an onion service of its own; the others are reached as a
+    # subdomain of the one of the first site
+    variables['onionservice_enable'] = mode == 'default'
+    if variables['onionservice_enable']:
         variables['onionservice'], variables['tor_onion_key'] = generate_onion_service_v3()
 
     if mode == 'wbpa':

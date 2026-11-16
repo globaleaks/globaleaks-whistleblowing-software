@@ -15,5 +15,6 @@ export class networkResolverModel {
   ip_filter_analyst_enable: boolean;
   ip_filter_analyst: string;
   onionservice: string;
+  onionservice_enable: boolean;
   reachable_via_web: boolean;
 }

@@ -254,6 +254,7 @@ AdminNodeDesc = {
 }
 
 AdminNetworkDesc = {
+    'onionservice_enable': bool,
     'https_admin': bool,
     'https_analyst': bool,
     'https_custodian': bool,

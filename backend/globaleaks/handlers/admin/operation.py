@@ -369,7 +369,7 @@ class AdminOperationHandler(OperationHandler):
         self.check_root_or_management_session()
 
         if self.state.tor:
-            self.state.tor.unload_onion_service(self.request.tid)
+            yield self.state.tor.unload_onion_service(self.request.tid)
 
         hostname, key = generate_onion_service_v3()
         yield set_onion_service_info(self.request.tid, hostname, key)

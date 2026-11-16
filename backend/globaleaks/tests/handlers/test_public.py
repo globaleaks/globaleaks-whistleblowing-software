@@ -4,6 +4,8 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from globaleaks.handlers import public
 from globaleaks.handlers.admin.context import create_context
+from globaleaks.models.config import ConfigFactory
+from globaleaks.orm import tw
 from globaleaks.rest import requests
 from globaleaks.tests import helpers
 from twisted.internet.defer import inlineCallbacks
@@ -29,6 +31,19 @@ class TestPublicResource(HiddenContextMixin, helpers.TestHandlerWithPopulatedDB)
         response = yield handler.get()
 
         self._handler.validate_request(json.dumps(response, default=str), requests.PublicResourcesDesc)
+
+    @inlineCallbacks
+    def test_disabled_onion_service_is_not_advertised(self):
+        def update_and_serialize(session, enabled):
+            node = ConfigFactory(session, 1)
+            node.set_val('onionservice_enable', enabled)
+            return public.db_serialize_node(session, 1, 'en')
+
+        original = yield tw(public.db_serialize_node, 1, 'en')
+        response = yield tw(update_and_serialize, False)
+        self.assertEqual(response['onionservice'], '')
+        response = yield tw(update_and_serialize, True)
+        self.assertEqual(response['onionservice'], original['onionservice'])
 
     @inlineCallbacks
     def test_hidden_context_is_not_publicly_listed(self):

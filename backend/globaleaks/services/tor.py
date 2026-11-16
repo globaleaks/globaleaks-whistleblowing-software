@@ -43,7 +43,8 @@ class Tor(Service):
         return tor_conn.protocol.quit()
 
     def load_onion_service(self, tid, hostname, key):
-        if self.tor_conn is None:
+        # A site disabled or deleted meanwhile is not published
+        if self.tor_conn is None or tid not in State.tenants or not State.tenants[tid].cache.onionservice_enable:
             return None
 
         onion_service = None
@@ -63,6 +64,14 @@ class Tor(Service):
             if tid in State.tenants:
                 State.tenants[tid].ephs = onion_service
 
+            if tid not in State.tenants or not State.tenants[tid].cache.onionservice_enable:
+                if tid in State.tenants:
+                    return self.unload_onion_service(tid)
+                try:
+                    return onion_service.remove()
+                except AttributeError:
+                    return onion_service.remove_from_tor(self.tor_conn.protocol)
+
             log.err('Initialization of onion-service %s completed.', onion_service.hostname, tid=tid)
 
         try:
@@ -79,6 +88,12 @@ class Tor(Service):
             return
 
         for tid in self.state.tenants:
+            # The onion service of a disabled site is withdrawn; its key is kept, so that the
+            # same address comes back once the site is enabled again
+            if not self.state.tenants[tid].cache.onionservice_enable:
+                self.unload_onion_service(tid)
+                continue
+
             if self.state.tenants[tid].cache.tor_onion_key and not hasattr(self.state.tenants[tid], 'ephs'):
                 # Track that the onion service is starting
                 self.state.tenants[tid].ephs = False
@@ -89,11 +104,18 @@ class Tor(Service):
         if self.tor_conn is None:
             return
 
-        if hasattr(self.state.tenants[tid], 'ephs') and self.state.tenants[tid].ephs:
+        tenant = self.state.tenants.get(tid)
+        if tenant is not None and hasattr(tenant, 'ephs') and tenant.ephs and not getattr(tenant, 'onion_service_removing', False):
+            tenant.onion_service_removing = True
             try:
-                self.state.tenants[tid].ephs.remove()
-            except AttributeError:
-                yield self.state.tenants[tid].ephs.remove_from_tor(self.tor_conn.protocol)
+                try:
+                    yield tenant.ephs.remove()
+                except AttributeError:
+                    yield tenant.ephs.remove_from_tor(self.tor_conn.protocol)
+
+                del tenant.ephs
+            finally:
+                del tenant.onion_service_removing
 
     def operation(self):
         restart_deferred = Deferred()
@@ -104,6 +126,10 @@ class Tor(Service):
             self.tor_conn.protocol.on_disconnect = restart_deferred
 
             log.err('Successfully connected to Tor control port')
+
+            for tenant in self.state.tenants.values():
+                if hasattr(tenant, 'ephs'):
+                    del tenant.ephs
 
             self.load_all_onion_services()
 

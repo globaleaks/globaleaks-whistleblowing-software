@@ -5,6 +5,7 @@ from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_log, tw
 from globaleaks.rest import requests
 from globaleaks.utils.ip import parse_csv_ip_ranges_to_ip_networks
+from globaleaks.utils.onion import generate_onion_service_v3
 
 
 def db_admin_serialize_network(session, tid):
@@ -15,7 +16,13 @@ def db_admin_serialize_network(session, tid):
     :param tid: A tenant ID
     :return: Return the serialized configuration for the specified tenant
     """
-    return ConfigFactory(session, tid).serialize('admin_network')
+    node = ConfigFactory(session, tid)
+    ret = node.serialize('admin_network')
+
+    # A site holding no key publishes no onion service of its own, whatever the variable says
+    ret['onionservice_enable'] = ret['onionservice_enable'] and bool(node.get_val('tor_onion_key'))
+
+    return ret
 
 
 def db_update_network(session, tid, user_session, request):
@@ -33,7 +40,14 @@ def db_update_network(session, tid, user_session, request):
         if 'ip_filter_' + k in request and request['ip_filter_' + k + '_enable'] and request['ip_filter_' + k]:
             parse_csv_ip_ranges_to_ip_networks(request['ip_filter_' + k])
 
-    ConfigFactory(session, tid).update('admin_network', request)
+    node = ConfigFactory(session, tid)
+    node.update('admin_network', request)
+
+    # A site enabled the first time is given the key of its onion service then
+    if node.get_val('onionservice_enable') and not node.get_val('tor_onion_key'):
+        onionservice, key = generate_onion_service_v3()
+        node.set_val('onionservice', onionservice)
+        node.set_val('tor_onion_key', key)
 
     db_log(session, tid=tid, type='update_network', user_id=user_session.user_id)
 

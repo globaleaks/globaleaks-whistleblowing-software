@@ -451,6 +451,7 @@ class MockDict:
 
         self.dummyNetwork = {
             'anonymize_outgoing_connections': True,
+            'onionservice_enable': True,
             'hostname': 'globaleaks.org',
             'https_admin': True,
             'https_analyst': True,
