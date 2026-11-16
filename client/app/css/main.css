@@ -72,6 +72,16 @@ a:hover {
   font-size: 0.75rem;
 }
 
+/* The arrows that move a question left and right flank them as tall as the pair and half as wide:
+   the four make a cross in little more than the room of two buttons */
+.btn-move-side {
+  min-width: 1.5rem;
+  height: calc(3rem - 1px);
+  padding: 0;
+  font-size: 0.75rem;
+  vertical-align: middle;
+}
+
 /* Nothing moves when the system asks for less motion */
 @media (prefers-reduced-motion: reduce) {
   *,
