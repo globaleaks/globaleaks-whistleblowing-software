@@ -17,7 +17,7 @@ export class SubmissionService {
   mandatory_receivers = 0;
   optional_receivers = 0;
   selected_receivers: Record<string, boolean> = {};
-  override_receivers: string[] = [];
+  override_receivers: string[] | null = null;
   blocked = false;
   uploads: Record<string, any>;
   private readonly sharedData: Flow[] = [];
@@ -65,7 +65,7 @@ export class SubmissionService {
   submit() {
     this.submission.receivers = [];
 
-    if (this.override_receivers.length) {
+    if (this.override_receivers !== null) {
       this.submission.receivers = this.override_receivers;
     } else {
       for (const key in this.selected_receivers) {

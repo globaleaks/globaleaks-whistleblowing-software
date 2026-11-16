@@ -2694,3 +2694,9 @@ msgstr "Role: {Role}"
 
 msgid "Password: {Password}"
 msgstr "Password: {Password}"
+
+msgid "Replacement"
+msgstr "Replacement"
+
+msgid "Removal"
+msgstr "Removal"

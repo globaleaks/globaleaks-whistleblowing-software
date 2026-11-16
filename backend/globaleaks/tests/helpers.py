@@ -309,6 +309,7 @@ def get_dummy_fieldoption_list():
             'score_points': 100,
             'score_type': 'none',
             'trigger_receiver': [],
+            'trigger_receiver_mode': 'replacement',
             'hint1': '',
             'hint2': '',
             'block_submission': False
@@ -322,6 +323,7 @@ def get_dummy_fieldoption_list():
             'trigger_field': '',
             'trigger_step': '',
             'trigger_receiver': [],
+            'trigger_receiver_mode': 'replacement',
             'hint1': '',
             'hint2': '',
             'block_submission': False

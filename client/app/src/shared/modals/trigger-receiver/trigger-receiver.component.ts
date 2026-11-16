@@ -31,6 +31,7 @@ export class TriggerReceiverComponent implements OnInit {
 
   ngOnInit(): void {
     this.selected = {value: [], name: ""};
+    this.arg.trigger_receiver_mode ??= "replacement";
   }
 
   confirm() {

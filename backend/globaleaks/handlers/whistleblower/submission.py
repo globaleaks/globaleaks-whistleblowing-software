@@ -541,42 +541,37 @@ def db_clear_disabled_answers(steps, answers, identity_provided):
     return answers
 
 
-def evaluate_receivers_override(steps, answers):
+def evaluate_receivers_override(steps, answers, receivers=None):
     """
-    Server-side port of the recipients override computed by the client in
-    FieldUtilitiesService.updateAnswers: traverse the enabled fields in schema
-    order and return the recipients triggered by the last answer that triggers
-    any, or None when no override is triggered.
-
-    A checkbox accepts more than one answer at a time: the recipients it
-    triggers are the ones of every box ticked, taken together. The fields
-    answered with a single option contribute that option alone, so the same sum
-    leaves them unchanged, and the last field answering with a trigger keeps
-    replacing the previous one.
-
-    A triggered override replaces the recipients selection entirely, taking
-    precedence over the context configuration including mandatory recipients;
-    replicating the client algorithm exactly ensures that the selection the
-    client would have submitted is the only one the backend accepts.
-
-    The answers are expected to be already reconciled with the trigger logic
-    (see db_clear_disabled_answers), so a disabled field carries no selected
-    option and cannot contribute an override; iterating in schema order then
-    yields the same "last answer wins" precedence as the client (only
-    fieldgroups have children, and they never carry scorable/override options).
+    Apply selected recipient triggers in questionnaire order to the channel recipients.
+    Within each answer, replacements are combined first, followed by additions and
+    removals. Missing modes retain the existing replacement behavior. Return None
+    when no trigger applies; an empty list means all recipients were removed.
     """
     override = None
 
     for field, entry in iterate_answers(steps, answers):
-        triggered = []
+        triggered = {'replacement': [], 'addition': [], 'removal': []}
 
         for option in evaluate_selected_options(field, entry):
+            mode = option.get('trigger_receiver_mode', 'replacement')
             for receiver in option.get('trigger_receiver') or []:
-                if receiver not in triggered:
-                    triggered.append(receiver)
+                if receiver not in triggered[mode]:
+                    triggered[mode].append(receiver)
 
-        if triggered:
-            override = triggered
+        if not any(triggered.values()):
+            continue
+
+        if triggered['replacement']:
+            override = triggered['replacement']
+        elif override is None:
+            override = list(receivers or [])
+
+        for receiver in triggered['addition']:
+            if receiver not in override:
+                override.append(receiver)
+
+        override = [receiver for receiver in override if receiver not in triggered['removal']]
 
     return override
 
@@ -596,12 +591,6 @@ def db_validate_submission_receivers(session, context, steps, answers, requested
       context when select_all_receivers is set, otherwise only the recipients
       flagged as forcefully selected.
     """
-    override = evaluate_receivers_override(steps, answers)
-    if override is not None:
-        if requested_receivers != set(override):
-            raise errors.InputValidationError("The selected recipients do not match the recipients triggered by the answers")
-        return
-
     context_receivers = set()
     mandatory_receivers = set()
 
@@ -613,6 +602,12 @@ def db_validate_submission_receivers(session, context, steps, answers, requested
         context_receivers.add(receiver_id)
         if forcefully_selected:
             mandatory_receivers.add(receiver_id)
+
+    override = evaluate_receivers_override(steps, answers, sorted(context_receivers))
+    if override is not None:
+        if requested_receivers != set(override):
+            raise errors.InputValidationError("The selected recipients do not match the recipients triggered by the answers")
+        return
 
     if not context.allow_recipients_selection:
         # Mirror the client: with selection disabled the recipients are the ones

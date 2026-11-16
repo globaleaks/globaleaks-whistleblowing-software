@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 
 from globaleaks.models import config_desc
 from globaleaks.models.enums import EnumFieldAttrType, EnumFieldInstance, \
-    EnumFieldOptionScoreType, EnumExchangeType, EnumStateFile, \
+    EnumFieldOptionScoreType, EnumFieldOptionReceiverMode, EnumExchangeType, EnumStateFile, \
     EnumSupportRequestStatus, EnumUserRole, EnumUserStatus, EnumVisibility
 from globaleaks.models.properties import JSON, Boolean, CheckConstraint, \
     Column, DateTime, Enum, ForeignKeyConstraint, Integer, UnicodeText, \
@@ -560,8 +560,9 @@ class _FieldOption(Model):
     score_type = Column(Enum(EnumFieldOptionScoreType), default='addition', nullable=False)
     block_submission = Column(Boolean, default=False, nullable=False)
     trigger_receiver = Column(JSON, default=list, nullable=False)
+    trigger_receiver_mode = Column(Enum(EnumFieldOptionReceiverMode), default='replacement', nullable=False)
 
-    unicode_keys = ['field_id']
+    unicode_keys = ['field_id', 'trigger_receiver_mode']
     bool_keys = ['block_submission']
     int_keys = ['order', 'score_points']
     json_keys = ['trigger_receiver']

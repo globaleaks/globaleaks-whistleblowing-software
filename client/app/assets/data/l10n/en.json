@@ -598,6 +598,8 @@
   "Metric": "Metric",
   "Minimum date": "Minimum date",
   "Mode": "Mode",
+  "Removal": "Removal",
+  "Replacement": "Replacement",
   "No results found": "No results found",
   "Number of backups to keep": "Number of backups to keep",
   "Number of days before sending a report expiration alert": "Number of days before sending a report expiration alert",

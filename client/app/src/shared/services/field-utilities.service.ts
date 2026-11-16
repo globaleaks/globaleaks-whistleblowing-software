@@ -138,11 +138,7 @@ export class FieldUtilitiesService {
         }
 
         if (["checkbox", "selectbox", "multichoice"].indexOf(field.type) > -1) {
-          // A checkbox accepts more than one answer at a time: the recipients
-          // it triggers are the ones of every box ticked, taken together. The
-          // fields answered with a single option contribute that option alone,
-          // so the same sum leaves them unchanged.
-          const triggered: string[] = [];
+          const triggered: Record<"replacement" | "addition" | "removal", string[]> = {replacement: [], addition: [], removal: []};
 
           for (j = 0; j < field.options.length; j++) {
             option = field.options[j];
@@ -162,16 +158,20 @@ export class FieldUtilitiesService {
                 scope.block_submission = true;
               }
 
+              const mode: "replacement" | "addition" | "removal" = option.trigger_receiver_mode || "replacement";
               for (const receiver of option.trigger_receiver) {
-                if (triggered.indexOf(receiver) === -1) {
-                  triggered.push(receiver);
+                if (triggered[mode].indexOf(receiver) === -1) {
+                  triggered[mode].push(receiver);
                 }
               }
             }
           }
 
-          if (scope.submission && triggered.length) {
-            scope.submission.override_receivers = triggered;
+          if (scope.submission && Object.values(triggered).some(receivers => receivers.length)) {
+            let receivers: string[] = triggered["replacement"].length ? triggered["replacement"] :
+              (scope.submission.override_receivers ?? [...scope.submission.context.receivers]);
+            receivers = [...new Set([...receivers, ...triggered["addition"]])];
+            scope.submission.override_receivers = receivers.filter(receiver => !triggered["removal"].includes(receiver));
           }
         }
       }
@@ -186,7 +186,7 @@ export class FieldUtilitiesService {
     }
 
     if (scope.submission) {
-      scope.submission.override_receivers = [];
+      scope.submission.override_receivers = null;
     }
 
     scope.questionnaire.steps.forEach((step: any) => {

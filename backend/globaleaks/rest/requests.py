@@ -43,6 +43,7 @@ homepage_regexp = r'^/(submission|signup)?$'
 support_escalation_regexp = r'^(none|admins|all)$'
 whistleblowing_destination_regexp = r'^/(submission|login)$'
 support_status_regexp = r'^(new|opened|closed)$'
+trigger_receiver_mode_regexp = r'^(replacement|addition|removal)$'
 
 field_instance_regexp = (r'^('
                          'instance|'
@@ -379,6 +380,7 @@ AdminFieldOptionDesc = {
     'order': int,
     'score_type': str,
     'score_points': int,
+    'trigger_receiver_mode': trigger_receiver_mode_regexp,
     'trigger_receiver': list
 }
 

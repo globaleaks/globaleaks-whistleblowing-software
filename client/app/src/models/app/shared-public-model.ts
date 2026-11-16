@@ -123,6 +123,7 @@ export interface Option {
   score_points: number;
   score_type: string;
   trigger_receiver: string[];
+  trigger_receiver_mode?: "replacement" | "addition" | "removal";
   hint1: string;
   hint2: string;
   label: string;

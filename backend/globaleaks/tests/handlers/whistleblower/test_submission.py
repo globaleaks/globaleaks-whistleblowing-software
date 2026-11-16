@@ -302,6 +302,40 @@ class TestReceiversOverrideEvaluation(unittest.TestCase):
                  'f-c': [{'value': 'opt-c-trigger'}]}
         self.assertEqual(self.override_for(steps, legit), ['r1'])
 
+    def test_addition_retains_channel_recipients_without_duplicates(self):
+        steps = trigger_steps(['r1', 'r3'])
+        steps[0]['children'][0]['options'][0]['trigger_receiver_mode'] = 'addition'
+        answers = {'f-select': [{'value': 'opt-trigger'}]}
+        receivers = ['r1', 'r2']
+        self.assertEqual(submission.evaluate_receivers_override(steps, answers, receivers), ['r1', 'r2', 'r3'])
+        self.assertEqual(receivers, ['r1', 'r2'])
+
+    def test_removal_can_remove_all_channel_recipients(self):
+        steps = trigger_steps(['r1', 'r2'])
+        steps[0]['children'][0]['options'][0]['trigger_receiver_mode'] = 'removal'
+        answers = {'f-select': [{'value': 'opt-trigger'}]}
+        self.assertEqual(submission.evaluate_receivers_override(steps, answers, ['r1', 'r2']), [])
+
+    def test_mixed_checkbox_modes_apply_replacement_addition_then_removal(self):
+        steps = checkbox_trigger_steps()
+        options = steps[0]['children'][0]['options']
+        options[1]['trigger_receiver_mode'] = 'addition'
+        options[2]['trigger_receiver_mode'] = 'removal'
+        answers = {'f-check': [{'opt-c1': True, 'opt-c2': True, 'opt-c3': True}]}
+        self.assertEqual(submission.evaluate_receivers_override(steps, answers, ['r5']), ['r1', 'r2'])
+
+    def test_addition_after_replacement_builds_on_replacement(self):
+        steps = trigger_steps(['r1'], ['r2'])
+        steps[0]['children'][1]['options'][0]['trigger_receiver_mode'] = 'addition'
+        answers = {'f-select': [{'value': 'opt-trigger'}], 'f-select-2': [{'value': 'opt-trigger-2'}]}
+        self.assertEqual(submission.evaluate_receivers_override(steps, answers, ['r3']), ['r1', 'r2'])
+
+    def test_disabled_removal_is_ignored(self):
+        steps = gated_trigger_steps(['r1'])
+        steps[0]['children'][1]['options'][0]['trigger_receiver_mode'] = 'removal'
+        answers = {'f-gate': [{'value': 'opt-other'}], 'f-gated': [{'value': 'opt-gated-trigger'}]}
+        self.assertIsNone(self.override_for(steps, answers))
+
     def test_evaluation_does_not_mutate_answers(self):
         # The reconciliation works on a copy: the original answers, still needed
         # for storage, must be left untouched.
@@ -831,6 +865,30 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
 
         # An empty selection, omitting the mandatory recipient, is rejected
         yield self.assertFailure(validate_submission_receivers(self.dummy_context['id'], [], {}, set()),
+                                 errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_removal_trigger_is_enforced_by_the_backend(self):
+        steps = trigger_steps([self.dummy_receiver_1['id']])
+        steps[0]['children'][0]['options'][0]['trigger_receiver_mode'] = 'removal'
+        answers = {'f-select': [{'value': 'opt-trigger'}]}
+        yield validate_submission_receivers(self.dummy_context['id'], steps, answers,
+                                            {self.dummy_receiver_2['id']})
+        yield self.assertFailure(validate_submission_receivers(self.dummy_context['id'], steps, answers,
+                                                               {self.dummy_receiver_1['id'], self.dummy_receiver_2['id']}),
+                                 errors.InputValidationError)
+
+    @inlineCallbacks
+    def test_addition_trigger_is_enforced_by_the_backend(self):
+        steps = trigger_steps([self.dummy_receiver_2['id']])
+        steps[0]['children'][0]['options'][0]['trigger_receiver_mode'] = 'addition'
+        answers = {'f-select': [{'value': 'opt-trigger'}]}
+        # Triggers start from the channel set even when manual selection is allowed.
+        yield set_context_selection_policy(self.dummy_context['id'], True)
+        yield validate_submission_receivers(self.dummy_context['id'], steps, answers,
+                                            {self.dummy_receiver_1['id'], self.dummy_receiver_2['id']})
+        yield self.assertFailure(validate_submission_receivers(self.dummy_context['id'], steps, answers,
+                                                               {self.dummy_receiver_2['id']}),
                                  errors.InputValidationError)
 
     @inlineCallbacks

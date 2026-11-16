@@ -51,6 +51,26 @@ class TestFieldCreate(helpers.TestHandler):
         self.assertNotEqual(response.get('options'), None)
 
     @inlineCallbacks
+    def test_recipient_trigger_modes_are_saved_and_serialized(self):
+        for mode in ['replacement', 'addition', 'removal']:
+            values = helpers.get_dummy_field()
+            values['instance'] = 'instance'
+            values['step_id'] = yield get_id_of_first_step_of_questionnaire('default')
+            values['options'][0]['trigger_receiver_mode'] = mode
+            response = yield self.request(values, role='admin').post()
+            self.assertEqual(response['options'][0]['trigger_receiver_mode'], mode)
+            public_field = yield serialize_field_with_templates(1, response['id'])
+            self.assertEqual(public_field['options'][0]['trigger_receiver_mode'], mode)
+
+    @inlineCallbacks
+    def test_invalid_recipient_trigger_mode_is_rejected(self):
+        values = helpers.get_dummy_field()
+        values['instance'] = 'instance'
+        values['step_id'] = yield get_id_of_first_step_of_questionnaire('default')
+        values['options'][0]['trigger_receiver_mode'] = 'invalid'
+        yield self.assertFailure(create_field(1, values, 'en'), errors.InputValidationError)
+
+    @inlineCallbacks
     def test_post_create_from_template(self):
         """
         Attempt to create a new field from template via post request

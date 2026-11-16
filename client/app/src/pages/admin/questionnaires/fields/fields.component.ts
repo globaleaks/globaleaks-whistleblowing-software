@@ -189,7 +189,7 @@ export class FieldsComponent implements OnInit {
   }
 
   addOption(): void {
-    const new_option = {
+    const new_option: Option = {
       id: "",
       label: "",
       hint1: "",
@@ -198,6 +198,7 @@ export class FieldsComponent implements OnInit {
       score_points: 0,
       score_type: "none",
       trigger_receiver: [],
+      trigger_receiver_mode: "replacement",
       order: 0,
     };
 
@@ -334,7 +335,7 @@ export class FieldsComponent implements OnInit {
         if (option) {
           option.label = label;
         } else {
-          options.push({id: "", label: label, hint1: "", hint2: "", block_submission: false, score_points: 0, score_type: "none", trigger_receiver: [], order: currentOrder++});
+          options.push({id: "", label: label, hint1: "", hint2: "", block_submission: false, score_points: 0, score_type: "none", trigger_receiver: [], trigger_receiver_mode: "replacement", order: currentOrder++});
         }
       });
 

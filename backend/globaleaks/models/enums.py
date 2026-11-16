@@ -35,6 +35,12 @@ class EnumFieldOptionScoreType(_Enum):
     multiplier = 2
 
 
+class EnumFieldOptionReceiverMode(_Enum):
+    replacement = 0
+    addition = 1
+    removal = 2
+
+
 class EnumVisibility(_Enum):
     public = 0
     internal = 1

@@ -68,6 +68,9 @@ def db_update_fieldoption(session, field_id, fieldoption_id, option_dict, langua
     :param idx: The order index with reference to the other options set
     :return: The serialized descriptor of the option
     """
+    if option_dict.get('trigger_receiver_mode', 'replacement') not in ['replacement', 'addition', 'removal']:
+        raise errors.InputValidationError('Invalid recipient trigger mode')
+
     option_dict['fieldoption_id'] = fieldoption_id
     option_dict['field_id'] = field_id
     option_dict['idx'] = idx

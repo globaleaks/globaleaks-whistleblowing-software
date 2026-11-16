@@ -364,7 +364,8 @@ def serialize_field_option(option, language, include_scoring=True):
         'id': option.id,
         'order': option.order,
         'block_submission': option.block_submission,
-        'trigger_receiver': option.trigger_receiver
+        'trigger_receiver': option.trigger_receiver,
+        'trigger_receiver_mode': option.trigger_receiver_mode
     }
 
     if include_scoring:

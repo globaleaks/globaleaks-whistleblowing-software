@@ -3,6 +3,14 @@
   <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
 </div>
 <div class="modal-body">
+  <div class="form-group">
+    <label for="trigger-receiver-mode">{{ 'Mode' | translate }}</label>
+    <select id="trigger-receiver-mode" class="form-select" name="trigger_receiver_mode" [(ngModel)]="arg.trigger_receiver_mode">
+      <option value="replacement">{{ 'Replacement' | translate }}</option>
+      <option value="addition">{{ 'Addition' | translate }}</option>
+      <option value="removal">{{ 'Removal' | translate }}</option>
+    </select>
+  </div>
   <label for="trigger-receiver-select">{{ 'Recipients' | translate }}</label>
   <ng-select id="trigger-receiver-select" [items]="userData() | filter: 'role': 'receiver'" [attr.data-cy]="'receiver_selection'" [(ngModel)]="selected.value" [virtualScroll]="true" [placeholder]="'Search' | translate" bindValue="name" (change)="addReceiver($event)" [ariaLabel]="'Recipients' | translate">
     <ng-template ng-label-tmp let-item="item">{{ item.name }}</ng-template>
