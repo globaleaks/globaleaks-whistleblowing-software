@@ -187,6 +187,7 @@ export class TipsComponent implements OnInit {
       tip.context = this.appDataService.contexts_by_id[tip.context_id];
       tip.context_name = tip.context?.name ?? '';
       tip.submissionStatusStr = this.utils.getSubmissionStatusText(tip.status, tip.substatus, this.appDataService.submissionStatuses);
+      tip.lastUpdateRead = tip.last_access >= tip.update_date;
       if (!uniqueKeys.includes(tip.submissionStatusStr)) {
         uniqueKeys.push(tip.submissionStatusStr);
         this.dropdownStatusData.push({id: this.dropdownStatusData.length + 1, label: tip.submissionStatusStr});
