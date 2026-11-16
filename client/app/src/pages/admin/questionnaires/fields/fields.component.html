@@ -75,10 +75,10 @@
         <button type="button" class="btn btn-sm btn-primary" data-action="move-right" (click)="moveRightAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move right' | translate}}">
           <i class="fa-solid fa-chevron-right"></i>
         </button>
-        <button type="button" class="btn btn-sm btn-primary" data-action="move-up" (click)="moveUpAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-up" (click)="moveUpAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move up' | translate}}">
           <i class="fa-solid fa-chevron-up"></i>
         </button>
-        <button type="button" class="btn btn-sm btn-primary" data-action="move-down" (click)="moveDownAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-action="move-down" (click)="moveDownAndSave(field()); $event.stopPropagation();" ngbTooltip="{{'Move down' | translate}}">
           <i class="fa-solid fa-chevron-down"></i>
         </button>
       }
@@ -478,10 +478,10 @@
                     <button name="delOption" class="btn btn-sm btn-outline-danger" (click)="delOption(option)">
                       <i class="fas fa-xmark"></i>
                     </button>
-                    <button [disabled]="i === 0" class="btn btn-sm btn-primary" (click)="moveOptionUp(i);" ngbTooltip="{{'Move up' | translate}}">
+                    <button [disabled]="i === 0" class="btn btn-sm btn-outline-secondary" (click)="moveOptionUp(i);" ngbTooltip="{{'Move up' | translate}}">
                       <i class="fa-solid fa-chevron-up"></i>
                     </button>
-                    <button [disabled]="i === field().options.length - 1" class="btn btn-sm btn-primary" (click)="moveOptionDown(i);" ngbTooltip="{{'Move down' | translate}}">
+                    <button [disabled]="i === field().options.length - 1" class="btn btn-sm btn-outline-secondary" (click)="moveOptionDown(i);" ngbTooltip="{{'Move down' | translate}}">
                       <i class="fa-solid fa-chevron-down"></i>
                     </button>
                   </div>
