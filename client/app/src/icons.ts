@@ -61,6 +61,8 @@ const icons = [
   solidIcons.faMagnifyingGlass,
   solidIcons.faMicrophone,
   solidIcons.faMinus,
+  solidIcons.faVolume,
+  solidIcons.faVolumeXmark,
   solidIcons.faNetworkWired,
   solidIcons.faPenToSquare,
   solidIcons.faPeopleArrows,

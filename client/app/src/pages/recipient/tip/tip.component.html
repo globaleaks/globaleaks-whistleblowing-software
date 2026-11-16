@@ -22,14 +22,14 @@
               <button id="tip-action-notify" type="button" (click)="tipNotify(true)"
                 ngbTooltip="{{'Turn on email notifications' | translate}}"
                 class="btn btn-outline-secondary active" [attr.aria-label]="'Turn on email notifications' | translate">
-                <i class="fas fa-volume-mute"></i>
+                <i class="fas fa-volume-xmark"></i>
               </button>
             }
             @if (!tip || tip.enable_notifications) {
               <button id="tip-action-silence" type="button" (click)="tipNotify(false)"
                 ngbTooltip="{{'Silence email notifications' | translate}}"
                 class="btn btn-outline-secondary" [attr.aria-label]="'Silence email notifications' | translate">
-                <i class="fas fa-volume-down"></i>
+                <i class="fas fa-volume"></i>
               </button>
             }
 
@@ -76,12 +76,12 @@
                 }
                 @if (tip.status !== 'closed') {
                   <button id="tip-action-change-status" class="dropdown-item" type="button" (click)="openModalChangeState()" [attr.aria-label]="'Change status' | translate">
-                    <i class="fas fa-dot-circle me-2"></i>{{'Change status' | translate}}
+                    <i class="fas fa-circle-dot me-2"></i>{{'Change status' | translate}}
                   </button>
                 }
                 @if (tip.status === 'closed') {
                   <button id="tip-action-reopen" class="dropdown-item" type="button" (click)="openModalReopen()" [attr.aria-label]="'Reopen' | translate">
-                    <i class="fas fa-dot-circle me-2"></i>{{'Reopen' | translate}}
+                    <i class="fas fa-circle-dot me-2"></i>{{'Reopen' | translate}}
                   </button>
                 }
                 @if (preferencesService.dataModel.can_delete_submission) {
