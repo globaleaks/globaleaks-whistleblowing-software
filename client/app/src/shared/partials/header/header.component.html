@@ -4,7 +4,8 @@
       <div id="LogoRow" class="d-flex align-items-center gap-2 mb-3">
         <!-- A link to the home page: named by the title of the site, or by the page it opens where the site has none -->
         <a id="LogoBox" href="/" (click)="$event.preventDefault(); appConfig.setHomepage()">
-          <img class="img-fluid" [alt]="appDataService.projectTitle" [src]="themeService.theme() === 'dark' ? 's/logo-dark' : 's/logo'" />
+          <!-- A logo of the site made for the light theme stands in the dark one on a light ground -->
+          <img class="img-fluid" [class.logo-on-light]="themeService.theme() === 'dark' && appDataService.public.node.logo && !appDataService.public.node.logo_dark" [alt]="appDataService.projectTitle" [src]="themeService.theme() === 'dark' ? 's/logo-dark' : 's/logo'" />
         </a>
       </div>
       <div id="TitleBox">

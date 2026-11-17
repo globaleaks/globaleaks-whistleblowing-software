@@ -28,6 +28,9 @@ export class Tab1Component {
   protected appDataService = inject(AppDataService);
   protected authenticationService = inject(AuthenticationService);
   private utilsService = inject(UtilsService);
+  // The tab of the logo shown: the one of the light theme, which serves the dark one too until this has
+  // a logo of its own, or the one of the dark theme
+  logoTab: "light" | "dark" = "light";
 
   protected readonly Constants = Constants;
   readonly contentForm = input.required<NgForm>();

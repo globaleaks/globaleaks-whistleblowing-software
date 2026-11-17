@@ -72,6 +72,7 @@ export class nodeResolverModel {
   css: string[];
   favicon: string[];
   logo: string[];
+  logo_dark: boolean;
   script: string[];
   onionservice: string;
   user_privacy_policy_url: string;

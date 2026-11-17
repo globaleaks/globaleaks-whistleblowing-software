@@ -64,7 +64,9 @@ export class Node {
   script: boolean;
   css: string[];
   favicon: string[];
-  logo: string[];
+  // Whether the site has a logo of its own, and one for the dark theme
+  logo: boolean;
+  logo_dark: boolean;
   footer_privacy_policy: string;
   user_privacy_policy_text: string;
   user_privacy_policy_url: string;

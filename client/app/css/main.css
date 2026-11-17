@@ -453,6 +453,34 @@ h6 {
   left: 1rem;
 }
 
+/* The logos of the site are previewed on the ground of the header of their theme, whatever the
+   theme of the page: the one of the light theme on white, the one of the dark theme on black */
+.logo-themes .logo-image,
+.logo-themes .logo-image-empty {
+  background-color: var(--gl-white);
+}
+
+.logo-themes .logo-dark-upload .logo-image,
+.logo-themes .logo-dark-upload .logo-image-empty {
+  background-color: var(--gl-black);
+}
+
+/* The tabs of the logos: the icons of the themes side by side; the moon is dim while the dark
+   theme has no logo of its own */
+.logo-themes .nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.logo-themes .nav-link.logo-tab-unset:not(.active) {
+  opacity: 0.5;
+}
+
+.logo-themes .nav-tabs {
+  margin-bottom: 0.5rem;
+}
+
 .image-thumbnail {
   height: 10rem;
   width: 10rem;
@@ -542,6 +570,12 @@ h6 {
   max-height: 5rem;
   max-width: 20rem;
   margin: 0;
+}
+
+/* A logo of the site made for the light theme, in the dark one: on a white ground, with the same size
+   it has in the light theme */
+#LogoBox img.logo-on-light {
+  background-color: var(--gl-white);
 }
 
 #Toolbar {
