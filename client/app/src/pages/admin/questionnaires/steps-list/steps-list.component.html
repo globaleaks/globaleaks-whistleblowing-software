@@ -40,7 +40,7 @@
             <div class="form-group">
               <label for="step-trigger-field-{{step().id}}" class="visually-hidden">{{ 'Trigger field' | translate }}</label>
               <select id="step-trigger-field-{{step().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.field" required>
-                @for (field of parsedFields.fields; track field) {
+                @for (field of parsedFields().fields; track field) {
                   <option [value]="field.id">{{ field.label }}
                   </option>
                 }
@@ -50,7 +50,7 @@
               <div class="form-group">
                 <label for="step-trigger-option-{{step().id}}" class="visually-hidden">{{ 'Trigger option' | translate }}</label>
                 <select id="step-trigger-option-{{step().id}}" name="type" class="form-select-custom" [(ngModel)]="new_trigger.option" required>
-                  @for (option of parsedFields.fields_by_id[new_trigger.field].options; track option) {
+                  @for (option of parsedFields().fields_by_id[new_trigger.field].options; track option) {
                     <option [value]="option.id">{{ option.label }}</option>
                   }
                 </select>
@@ -75,7 +75,7 @@
             <button class="btn btn-sm btn-danger" (click)="delTrigger(trigger)">
               <i class="fa-solid fa-xmark"></i>
             </button>
-            <span>{{ parsedFields.fields_by_id[trigger.field].label }}</span>: <span>{{ parsedFields.options_by_id[trigger.option].label }}</span>
+            <span>{{ parsedFields().fields_by_id[trigger.field].label }}</span>: <span>{{ parsedFields().options_by_id[trigger.option].label }}</span>
             @if (trigger.sufficient) {
               <span>({{ 'Sufficient' | translate }})</span>
             }
@@ -83,6 +83,6 @@
         }
       </div>
     </div>
-    <src-step [step]="step()" [parsedFields]="parsedFields" (updated)="recompute()"></src-step>
+    <src-step [step]="step()" [parsedFields]="parsedFields()" (updated)="updated.emit()"></src-step>
   </ng-template>
 </src-list-item>

@@ -1,9 +1,8 @@
-import {Component, OnInit, inject, input, output} from "@angular/core";
+import {Component, inject, input, output} from "@angular/core";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {UtilsService} from "@app/shared/services/utils.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
-import {FieldUtilitiesService} from "@app/shared/services/field-utilities.service";
 import {HttpService} from "@app/shared/services/http.service";
 import {Observable} from "rxjs";
 import {Step, questionnaireResolverModel} from "@app/models/resolvers/questionnaire-model";
@@ -21,10 +20,9 @@ import {TranslatePipe} from "@ngx-translate/core";
     standalone: true,
     imports: [FormsModule, NgbTooltipModule, StepComponent, TranslatePipe, ListItemComponent]
 })
-export class StepsListComponent implements OnInit {
+export class StepsListComponent {
   private utilsService = inject(UtilsService);
   private modalService = inject(NgbModal);
-  private fieldUtilities = inject(FieldUtilitiesService);
   protected nodeResolver = inject(NodeResolver);
   private httpService = inject(HttpService);
 
@@ -33,26 +31,16 @@ export class StepsListComponent implements OnInit {
   readonly questionnaire = input.required<questionnaireResolverModel>();
   readonly index = input.required<number>();
   readonly deleted = output<string>();
+  // The questions of the whole questionnaire that can trigger, shared by its steps
+  readonly parsedFields = input.required<ParsedFields>();
+  readonly updated = output<void>();
   editing = false;
   showAddTrigger = false;
-  parsedFields: ParsedFields;
   new_trigger: { field: string; option: string; sufficient: boolean } = {
     field: "",
     option: "",
     sufficient: true,
   };
-
-  ngOnInit(): void {
-    this.recompute();
-  }
-
-  recompute(): void {
-    this.parsedFields = this.fieldUtilities.parseQuestionnaire(this.questionnaire(), {
-      fields: [],
-      fields_by_id: {},
-      options_by_id: {}
-    });
-  }
 
   swap($event: Event, index: number, n: number): void {
     this.utilsService.swap($event, index, n, this.questionnaire())
