@@ -2,22 +2,21 @@
   <div id="projectImageLoader" class="image-upload">
     <ng-container #flowAdvanced="flow" flowDrop [flowConfig]="flowConfig"></ng-container>
     <input #uploader id="projectImageLoader" (change)="onFileSelected(uploader.files)" type="file" flowButton [style.display]="'none'" [flowAttributes]="{ accept: 'image/*' }" />
-    @if (!imageUploadModel[imageUploadModelAttr]) {
-      <button type="button" class="btn btn-link p-0 change-picture-button text-primary" ngbTooltip="{{'Edit' | translate}}" [attr.aria-label]="'Edit' | translate" (click)="triggerFileInputClick()">
-        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
-      </button>
-    }
-    @if (imageUploadModel[imageUploadModelAttr] || imageUploadObj.files.length) {
-      <button type="button" class="btn btn-link p-0 change-picture-button text-danger" ngbTooltip="{{'Delete' | translate}}" [attr.aria-label]="'Delete' | translate" (click)="deletePicture()">
-        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-      </button>
-    }
-    <div>
+    <!-- The pencil, at the top left, loads a picture also in place of the one there is; the cross, at
+         the top right while there is a picture, takes it away -->
+    <div class="image-upload-frame">
       @if (filemodel) {
         <img class="logo-image" alt="image" src="s/{{imageUploadId}}?timestamp={{getCurrentTimestamp()}}" />
-      }
-      @if (!filemodel) {
+      } @else {
         <div class="logo-image-empty"></div>
+      }
+      <button type="button" class="btn btn-link change-picture-button edit-picture-button text-primary" ngbTooltip="{{'Edit' | translate}}" [attr.aria-label]="'Edit' | translate" (click)="triggerFileInputClick()">
+        <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+      </button>
+      @if (imageUploadModel[imageUploadModelAttr] || imageUploadObj.files.length) {
+        <button type="button" class="btn btn-link change-picture-button delete-picture-button text-danger" ngbTooltip="{{'Delete' | translate}}" [attr.aria-label]="'Delete' | translate" (click)="deletePicture()">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
       }
     </div>
   </div>

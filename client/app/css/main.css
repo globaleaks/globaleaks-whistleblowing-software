@@ -418,7 +418,7 @@ h6 {
   height: auto;
   max-width: 20.4rem;
   max-height: 10rem;
-  padding: 10px 10px 20px;
+  padding: 10px;
   object-fit: contain;
   border-radius: 5px;
 }
@@ -445,12 +445,44 @@ h6 {
   margin: 0 auto;
 }
 
+/* The buttons stand on the picture, or on its empty frame, as bare icons in its corners: the pencil
+   at the top left, the cross at the top right. Each button keeps the size of a finger, with its icon
+   in the corner of it that is the corner of the picture */
+.image-upload-frame {
+  position: relative;
+  display: inline-block;
+}
+
 .image-upload .change-picture-button {
   position: absolute;
-  bottom: 1rem;
-  text-align: center;
+  top: 0;
   z-index: 10;
-  left: 1rem;
+  display: inline-flex;
+  align-items: flex-start;
+  margin: 1em;
+  padding: 0;
+  line-height: 1;
+}
+
+/* Each icon on a small round ground, white in the light theme and black in the dark one, nearly
+   opaque, so that it stands out on any picture */
+.image-upload .change-picture-button svg {
+  box-sizing: content-box;
+  width: 1em;
+  height: 1em;
+  padding: 0.3rem;
+  border-radius: 50%;
+  background-color: color-mix(in srgb, var(--gl-surface) 90%, transparent);
+}
+
+.image-upload .edit-picture-button {
+  left: 0;
+  justify-content: flex-start;
+}
+
+.image-upload .delete-picture-button {
+  right: 0;
+  justify-content: flex-end;
 }
 
 /* The logos of the site are previewed on the ground of the header of their theme, whatever the
