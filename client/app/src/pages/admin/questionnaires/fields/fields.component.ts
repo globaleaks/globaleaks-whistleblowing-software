@@ -333,6 +333,12 @@ export class FieldsComponent implements OnInit {
     return field?.attrs?.input_validation?.value === 'custom';
   }
 
+  // A question deleted inside a group leaves the list of the group, as the ones of a step leave theirs
+  onDelete(id: string) {
+    this.field().children = (this.field().children as Field[]).filter(child => child.id !== id);
+    this.onUpdate();
+  }
+
   onUpdate() {
     this.children = [...this.field().children];
     this.updated.emit();

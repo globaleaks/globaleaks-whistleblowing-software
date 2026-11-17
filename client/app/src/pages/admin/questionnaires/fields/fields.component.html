@@ -529,7 +529,7 @@
               <div>
                 <div id="field-{{index}}" class="fieldBox">
                   <form #editField="ngForm">
-                    <src-fields [editField]="editField" type="'field'" [field]="childField" [fields]="children" [parsedFields]="parsedFields()" (updated)="onUpdate()"></src-fields>
+                    <src-fields [editField]="editField" type="'field'" [field]="childField" [fields]="children" [parsedFields]="parsedFields()" (updated)="onUpdate()" (deleted)="onDelete($event)"></src-fields>
                   </form>
                 </div>
               </div>
