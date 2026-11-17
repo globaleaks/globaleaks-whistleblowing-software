@@ -19,6 +19,7 @@ export class DateRangeSelectorComponent {
     fromDate: NgbDate | null;
     toDate: NgbDate | null;
 } | null>();
+  readonly closed = output<void>();
   fromDate: NgbDate | null = null;
   toDate: NgbDate | null = null;
 

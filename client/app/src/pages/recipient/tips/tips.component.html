@@ -186,7 +186,7 @@
               <span class="ngb-datepicker-container ms-1">
                 <button type="button" class="btn-plain" id="tip-action-filter-report-date" [class.calendar-active]="reportDateFilter" (click)="reportDatePicker=!reportDatePicker;lastUpdatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fa-solid fa-calendar"></i></button>
                 <div [hidden]="!reportDatePicker">
-                  <src-date-selector class="position-absolute d-block" [currentDates]="reportDateModel" (emitDateSelection)="onReportFilterChange($event)"></src-date-selector>
+                  <src-date-selector class="position-absolute d-block" [currentDates]="reportDateModel" (emitDateSelection)="onReportFilterChange($event)" (closed)="reportDatePicker=false"></src-date-selector>
                 </div>
               </span>
             </th>
@@ -210,7 +210,7 @@
               <span class="ngb-datepicker-container ms-1">
                 <button type="button" class="btn-plain" [class.calendar-active]="updateDateFilter" (click)="lastUpdatePicker=!lastUpdatePicker;reportDatePicker=false;expirationDatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fa-solid fa-calendar"></i></button>
                 <div [hidden]="!lastUpdatePicker">
-                  <src-date-selector class="position-absolute d-block" [currentDates]="updateDateModel" (emitDateSelection)="onUpdateFilterChange($event)"></src-date-selector>
+                  <src-date-selector class="position-absolute d-block" [currentDates]="updateDateModel" (emitDateSelection)="onUpdateFilterChange($event)" (closed)="lastUpdatePicker=false"></src-date-selector>
                 </div>
               </span>
             </th>
@@ -234,7 +234,7 @@
               <span class="ngb-datepicker-container ms-1">
                 <button type="button" class="btn-plain" [class.calendar-active]="expiryDateFilter" (click)="expirationDatePicker=!expirationDatePicker;reportDatePicker=false;lastUpdatePicker=false;statusDropdownVisible=false;channelDropdownVisible=false;scoreDropdownVisible=false;"><i class="fa-solid fa-calendar"></i></button>
                 <div [hidden]="!expirationDatePicker">
-                  <src-date-selector class="position-absolute d-block" [currentDates]="expiryDateModel" (emitDateSelection)="onExpiryFilterChange($event)"></src-date-selector>
+                  <src-date-selector class="position-absolute d-block" [currentDates]="expiryDateModel" (emitDateSelection)="onExpiryFilterChange($event)" (closed)="expirationDatePicker=false"></src-date-selector>
                 </div>
               </span>
             </th>
