@@ -335,6 +335,7 @@ ConfigFilters = {
         'languages_enabled',
         'languages_supported',
         'logo',
+        'logo_dark',
         'name',
         'presentation',
         'whistleblowing_button',

@@ -4,6 +4,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from globaleaks.handlers import public
 from globaleaks.handlers.admin.context import create_context
+from globaleaks.handlers.admin.file import db_add_file
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import tw
 from globaleaks.rest import requests
@@ -38,6 +39,34 @@ class TestPublicResource(HiddenContextMixin, helpers.TestHandlerWithPopulatedDB)
         response = yield handler.get()
 
         self.assertEqual(response['node']['primary_color'], '#0978CF')
+
+    @inlineCallbacks
+    def test_the_public_node_tells_which_logos_the_site_has(self):
+        response = yield tw(public.db_serialize_node, 1, 'en')
+        self.assertFalse(response['logo'])
+        self.assertFalse(response['logo_dark'])
+
+        yield tw(db_add_file, 1, '00000000-0000-4000-8000-00000000001a', 'logo')
+        response = yield tw(public.db_serialize_node, 1, 'en')
+        self.assertTrue(response['logo'])
+        self.assertFalse(response['logo_dark'])
+
+        yield tw(db_add_file, 1, '00000000-0000-4000-8000-00000000001b', 'logo-dark')
+        response = yield tw(public.db_serialize_node, 1, 'en')
+        self.assertTrue(response['logo_dark'])
+
+    @inlineCallbacks
+    def test_disabled_onion_service_is_not_advertised(self):
+        def update_and_serialize(session, enabled):
+            node = ConfigFactory(session, 1)
+            node.set_val('onionservice_enable', enabled)
+            return public.db_serialize_node(session, 1, 'en')
+
+        original = yield tw(public.db_serialize_node, 1, 'en')
+        response = yield tw(update_and_serialize, False)
+        self.assertEqual(response['onionservice'], '')
+        response = yield tw(update_and_serialize, True)
+        self.assertEqual(response['onionservice'], original['onionservice'])
 
     @inlineCallbacks
     def test_hidden_context_is_not_publicly_listed(self):

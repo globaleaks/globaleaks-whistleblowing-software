@@ -321,6 +321,15 @@ def db_serialize_node(session, tid, language):
             ret['whistleblowing_button'] = root_tenant_l10n.get_val('whistleblowing_button', language)
             ret['disclaimer_text'] = root_tenant_l10n.get_val('disclaimer_text', language)
 
+    # Whether the site shows a logo of its own and one for the dark theme, looked up as the files
+    # are served: on the site, else on the first site. A logo of its own without one for the dark
+    # theme is shown in the dark theme too, and the client sets it on a light ground.
+    tids = [tid] if tid == 1 else [tid, 1]
+    names = {name for name, in session.query(models.File.name).filter(models.File.tid.in_(tids),
+                                                                         models.File.name.in_(['logo', 'logo-dark']))}
+    ret['logo'] = 'logo' in names
+    ret['logo_dark'] = 'logo-dark' in names
+
     return ret
 
 

@@ -60,6 +60,7 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
     ret = config.serialize(config_desc)
 
     logo = session.query(models.File.id).filter(models.File.tid == tid, models.File.name == 'logo').one_or_none()
+    logo_dark = session.query(models.File.id).filter(models.File.tid == tid, models.File.name == 'logo-dark').one_or_none()
 
     ret.update({
         'changelog': read_file('/usr/share/globaleaks/CHANGELOG'),
@@ -70,7 +71,8 @@ def db_admin_serialize_node(session, tid, language, config_desc='node'):
         'https_possible': tid == 1 or root_config.get_val('reachable_via_web'),
         'encryption_possible': tid == 1 or root_config.get_val('encryption'),
         'escrow': config.get_val('crypto_escrow_pub_key') != '',
-        'logo': True if logo else False
+        'logo': True if logo else False,
+        'logo_dark': True if logo_dark else False
     })
 
     if 'version' in ret:

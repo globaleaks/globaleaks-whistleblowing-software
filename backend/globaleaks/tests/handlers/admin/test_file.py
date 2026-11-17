@@ -8,6 +8,7 @@ files = [
     {'handler': 'css', 'name': 'file.css'},
     {'handler': 'script', 'name': 'file.js'},
     {'handler': 'logo', 'name': 'file.png'},
+    {'handler': 'logo-dark', 'name': 'file.png'},
     {'handler': 'favicon', 'name': 'file.ico'},
     {'handler': 'custom', 'name': 'file.txt'},
 ]
@@ -22,7 +23,7 @@ class TestFileInstance(helpers.TestHandler):
     def test_post_prevent_unauthorized_admin_uploads(self):
         for f in files:
             handler = self.request({}, role='admin', attachment=self.get_dummy_attachment(f['name']))
-            if f['handler'] == 'logo':
+            if f['handler'] in ['logo', 'logo-dark']:
                 yield handler.post(f['handler'])
             else:
                 yield self.assertFailure(handler.post(f['handler']), errors.InvalidAuthentication)
@@ -46,10 +47,10 @@ class TestFileInstance(helpers.TestHandler):
             yield self.assertFailure(handler.post(f['handler']), errors.InvalidAuthentication)
 
     @inlineCallbacks
-    def test_post_enable_authorized_recipients_to_upload_the_logo_and_only_it(self):
+    def test_post_enable_authorized_recipients_to_upload_the_logos_and_only_them(self):
         for f in files:
             handler = self.request({}, role='receiver', permissions={'can_edit_general_settings': True}, attachment=self.get_dummy_attachment(f['name']))
-            if f['handler'] == 'logo':
+            if f['handler'] in ['logo', 'logo-dark']:
                 yield handler.post(f['handler'])
             else:
                 yield self.assertFailure(handler.post(f['handler']), errors.InvalidAuthentication)
@@ -83,4 +84,4 @@ class TestFileCollection(helpers.TestHandler):
         handler = self.request(role='admin', permissions=permissions)
         response = yield handler.get()
 
-        self.assertEqual(len(response), 5)
+        self.assertEqual(len(response), len(files))

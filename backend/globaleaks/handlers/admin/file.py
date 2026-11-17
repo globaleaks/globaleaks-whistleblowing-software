@@ -13,7 +13,7 @@ from globaleaks.utils.fs import directory_traversal_check
 from globaleaks.utils.utility import uuid4, is_uuid4
 
 
-special_files = ['css', 'favicon', 'logo', 'script']
+special_files = ['css', 'favicon', 'logo', 'logo-dark', 'script']
 
 
 @transact
@@ -112,13 +112,13 @@ class FileInstance(BaseHandler):
 
     def permission_check(self, name):
         if self.session.role == 'admin':
-            if name not in ['logo'] and \
+            if name not in ['logo', 'logo-dark'] and \
                not re.match(requests.uuid_regexp, name) and \
                not self.session.has_permission('can_upload_files'):
                 raise errors.InvalidAuthentication
 
         else:
-            if name not in ['logo'] or \
+            if name not in ['logo', 'logo-dark'] or \
                     not self.session.has_permission('can_edit_general_settings'):
                 raise errors.InvalidAuthentication
 
@@ -130,7 +130,7 @@ class FileInstance(BaseHandler):
             self.allowed_mimetypes = ['text/css']
         elif name == 'favicon':
             self.allowed_mimetypes = ['image/vnd.microsoft.icon']
-        elif name == 'logo' or re.match(requests.uuid_regexp, name):
+        elif name in ['logo', 'logo-dark'] or re.match(requests.uuid_regexp, name):
             self.allowed_mimetypes = ['image/gif', 'image/jpeg', 'image/png', 'image/webp']
         elif name == 'script':
             self.allowed_mimetypes = ['text/javascript']
