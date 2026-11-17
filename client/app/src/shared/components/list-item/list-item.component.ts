@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, contentChild, input, model, output, TemplateRef} from "@angular/core";
+import {Component, contentChild, input, model, output, TemplateRef} from "@angular/core";
 import {NgTemplateOutlet} from "@angular/common";
 import {TranslatePipe} from "@ngx-translate/core";
 
@@ -14,12 +14,15 @@ import {TranslatePipe} from "@ngx-translate/core";
  *
  * The buttons carry no id, since the item is repeated in a list: tests reach
  * them through the row container and the data-action attribute.
+ *
+ * The item is checked with the default strategy: the editor drawn inside it
+ * shows data the parent changes in place, often on the answer of a request,
+ * and the rendering pass that follows every answer has to reach it.
  */
 @Component({
   selector: "src-list-item",
   standalone: true,
   imports: [NgTemplateOutlet, TranslatePipe],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="config-item">
       <div class="editorHeader row">
