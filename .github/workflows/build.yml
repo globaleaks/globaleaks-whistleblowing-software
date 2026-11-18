@@ -194,6 +194,11 @@ jobs:
           npx cypress verify
           echo "Cypress dependencies installed successfully"
 
+      - name: Run client unit tests
+        run: |
+          cd client
+          npm run test:unit
+
       - name: Run Cypress tests and Lighthouse audits
         run: |
           cd client
