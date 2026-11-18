@@ -13,15 +13,22 @@
             </div>
             <div>
               <a class="btn btn-sm btn-primary" href="https://www.torproject.org/download/" target="_blank">
-                <i class="fas fa-download"></i><span>{{'Download the Tor Browser'|translate}}</span>
+                <i class="fa-solid fa-download"></i><span>{{'Download the Tor Browser'|translate}}</span>
               </a>
             </div>
             @if (appDataService.public.node.onionservice) {
               <div>
-                <span>
+                <span id="OnionAddressLabel">
                   {{'Then, copy and paste the following address into the Tor Browser:'|translate}}
                 </span>
-                <button type="button" (click)="utilsService.copyToClipboard(appDataService.public.node.onionservice); utilsService.stopPropagation($event)" class="btn-plain onion-address" ngbTooltip="{{'Copy to clipboard' | translate}}">{{appDataService.public.node.onionservice}}</button>
+                <!-- The address and the button that copies it: inline with the text on a large screen, a field
+                     on a phone (main.css). A click on either copies the address -->
+                <span class="onion-address" ngbTooltip="{{'Copy to clipboard' | translate}}">
+                  <input type="text" readonly spellcheck="false" autocomplete="off" aria-labelledby="OnionAddressLabel" [value]="appDataService.public.node.onionservice" (click)="utilsService.copyToClipboard(appDataService.public.node.onionservice); utilsService.stopPropagation($event)" />
+                  <button type="button" class="btn" [attr.aria-label]="'Copy to clipboard' | translate" (click)="utilsService.copyToClipboard(appDataService.public.node.onionservice); utilsService.stopPropagation($event)">
+                    <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                  </button>
+                </span>
               </div>
             }
           </div>

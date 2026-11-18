@@ -43,7 +43,7 @@ a.dropdown-item:is(:hover, :focus) {
 }
 
 /* The links inside a running text are underlined: the color does not tell them alone */
-:where(p, dd, .alert, .form-text, .card-text, .tos-text, .preformatted) a:not(.btn) {
+:where(p, dd, .alert, .tos-text, .preformatted) a:not(.btn) {
   text-decoration: underline;
 }
 
@@ -99,14 +99,57 @@ a.dropdown-item:is(:hover, :focus) {
   }
 }
 
+/* The onion address is one text, in a field of its own that is read and selected whole, next to the
+   button that copies it. On a large screen the field is drawn as the text around it, as wide as the
+   62 characters of the address, and the button as its icon alone; on a phone it is a field that
+   scrolls on one line, next to a button of the brand. Its characters are of one width, to be checked
+   one by one */
 .onion-address {
-  color: var(--gl-link);
-  font-weight: bold;
-  word-break: break-all;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  vertical-align: middle;
 }
 
-.onion-address:hover {
+.onion-address input {
+  width: 62ch;
+  min-width: 0;
+  padding: 0;
+  font-family: monospace;
+  font-weight: bold;
   color: var(--gl-link);
+  cursor: pointer;
+  background: none;
+  border: 0;
+}
+
+.onion-address .btn {
+  color: var(--gl-link);
+}
+
+@media (width < 768px) {
+  .onion-address {
+    display: flex;
+    margin-top: 0.5rem;
+  }
+
+  .onion-address input {
+    flex: 1 1 auto;
+    width: auto;
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    font-weight: normal;
+    color: var(--gl-text);
+    background-color: var(--gl-surface);
+    border: 1px solid var(--gl-border-input);
+    border-radius: var(--bs-border-radius) 0 0 var(--bs-border-radius);
+  }
+
+  .onion-address .btn {
+    color: var(--gl-on-button);
+    background-color: var(--gl-button);
+    border-radius: 0 var(--bs-border-radius) var(--bs-border-radius) 0;
+  }
 }
 
 #FooterBox {
@@ -219,11 +262,6 @@ table tr td {
   white-space: nowrap;
 }
 
-
-.filter-selected {
-  color: var(--gl-link);
-}
-
 .full button {
   background: var(--gl-surface-subtle);
   color: var(--gl-link);
@@ -330,10 +368,6 @@ h6 {
 
 .mt-auto {
   margin-top: auto;
-}
-
-.mb-auto {
-  margin-bottom: auto;
 }
 
 #sidebar a {
@@ -701,6 +735,7 @@ th:not(:first-child, :nth-last-child(-n+4)) {
     height: auto !important;
     margin: 0 !important;
     overflow: visible !important;
+    /* stylelint-disable-next-line property-no-deprecated -- the .visually-hidden of Bootstrap hides by clip, which only clip undoes */
     clip: auto !important;
     white-space: normal !important;
   }
@@ -720,11 +755,6 @@ th:not(:first-child, :nth-last-child(-n+4)) {
     right: 0;
     z-index: 10;
     width: auto;
-  }
-
-  #TipList thead th.TipInfoReadReceipt,
-  #TipList thead th.TipInfoIdentity {
-    display: none;
   }
 
   /* The cards */
@@ -855,18 +885,6 @@ th:not(:first-child, :nth-last-child(-n+4)) {
   padding: 0.5em;
   display: flex;
   flex-direction: column;
-}
-
-.audio-player {
-  background: var(--gl-surface-subtle);
-  border-radius: 50px;
-  margin: 1em;
-  border: 1px solid var(--gl-border-input);
-  max-width: 90%
-}
-
-.audio-player-wrapper[disabled] .audio-player{
-  opacity: 0.5;
 }
 
 textarea.form-control {
@@ -1072,19 +1090,10 @@ p:last-child {
   min-width: 0;
 }
 
-.fadeInOut {
-  opacity: 0;
-}
-
-
 #TitleBox {
   font-size: 1.6rem;
   font-weight: bold;
   margin: 0;
-}
-
-#LoginStatusBox {
-  font-weight: 700;
 }
 
 .col-auto {
@@ -1111,9 +1120,13 @@ p:last-child {
   width: max-content;
 }
 
-/* The icons of the session end where the header does, as the language under them on a phone */
+/* The links of the session: bold, icons in a row set apart by the room between them, ending where the
+   header does, as the language under them on a phone */
 #LoginStatusBox {
+  font-weight: 700;
   padding-right: 0;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 #LoginStatusBox,
@@ -1157,11 +1170,6 @@ p:last-child {
   list-style-type: none;
   overflow: auto;
   max-height: 8rem;
-}
-
-text.axis-workweek,
-text.axis-worktime {
-  fill: var(--gl-text);
 }
 
 .tos-text {
@@ -1304,27 +1312,8 @@ input[type="password"]:not(:placeholder-shown),
   display: grid;
 }
 
-.jumbotron {
-  padding: 2rem 1rem;
-  margin-bottom: 2rem;
-  background-color: var(--gl-surface-subtle);
-  border: 1px solid var(--gl-surface-subtle-border);
-  border-radius: 0.3rem;
-}
-
-@media (width >= 576px) {
-  .jumbotron {
-    padding: 4rem 2rem;
-  }
-}
-
-.navbar-toggler {
-  --bs-navbar-toggler-border-color: none;
-  --bs-navbar-toggler-border-radius: none;
-}
-
-.navbar-toggler:focus {
-  box-shadow: none;
+[role='button'] {
+  cursor: pointer;
 }
 
 /* A button drawn as its content alone, the icon of a filter or the text it copies: a real button for
@@ -1410,15 +1399,15 @@ i.fa-solid.fa-chevron-right {
   animation: blink 1s 5;
 }
 
-.was-validated .form-check-input:valid ~ .form-check-label, .form-check-input.is-valid ~ .form-check-label {
+.was-validated .form-check-input:valid ~ .form-check-label {
   color: var(--gl-link);
 }
 
-.was-validated .form-check-input:valid, .form-check-input.is-valid {
+.was-validated .form-check-input:valid {
   border-color: var(--gl-button);
 }
 
-.was-validated .form-check-input:valid:checked, .form-check-input.is-valid:checked {
+.was-validated .form-check-input:valid:checked {
   background-color: var(--gl-button);
 }
 
@@ -1436,7 +1425,7 @@ i.fa-solid.fa-chevron-right {
   pointer-events: none;
 }
 
-.mask-btn:first-child:active, :not(.btn-check)+.btn:active {
+:not(.btn-check)+.btn:active {
   border-color: var(--gl-bg);
 }
 
@@ -1471,16 +1460,6 @@ i.fa-solid.fa-chevron-right {
 
 .underline {
   text-decoration: underline;
-}
-
-.gly-spin {
-  animation: gly-spin 2s infinite linear;
-  text-shadow: var(--gl-link) 1px 0 5px;
-}
-
-@keyframes gly-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(359deg); }
 }
 
 body .dropdown-visible > div.multiselect-dropdown > div.dropdown-list {
@@ -1666,13 +1645,8 @@ body .dropdown-visible > div.multiselect-dropdown > div > span.dropdown-btn {
   padding: 0 0.5em;
 }
 
-/* The links of the session: icons in a row, set apart by the room between them, each as large as the
-   bar; a box left empty, as the home of the whistleblower, takes no room */
-#LoginStatusBox {
-  align-items: center;
-  gap: 0.25rem;
-}
-
+/* The links of the session, each as large as the bar; a box left empty, as the home of the
+   whistleblower, takes no room */
 #LoginStatusBox > span:empty {
   display: none;
 }
