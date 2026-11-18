@@ -2694,3 +2694,9 @@ msgstr "Role: {Role}"
 
 msgid "Password: {Password}"
 msgstr "Password: {Password}"
+
+msgid "View whistleblower identity"
+msgstr "View whistleblower identity"
+
+msgid "Request whistleblower identity"
+msgstr "Request whistleblower identity"

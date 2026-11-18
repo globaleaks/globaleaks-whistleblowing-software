@@ -1475,9 +1475,16 @@ def create_identityaccessrequest(session, tid, user_session, itip_id, request):
 
     user, rtip, itip = db_access_rtip(session, tid, user_id, itip_id)
 
+    custodians_list = session.query(models.User).filter(models.User.tid == tid,
+                                                       models.User.role == 'custodian',
+                                                       models.User.enabled.is_(True)).all()
+    if not user.has_permission('can_view_whistleblower_identity') or \
+            (custodians_list and not user.has_permission('can_request_whistleblower_identity')):
+        raise errors.ForbiddenOperation
+
     # An authorization to access the whistleblower identity is granted at the
     # report level and is definitive: once any request has been authorized the
-    # identity is disclosed to every recipient of the report, so a further
+    # identity is disclosed to recipients allowed to view it, so a further
     # request must not be accepted. Allowing one would let a later pending
     # request re-hide an identity that was already, irrevocably, released.
     if session.query(models.IdentityAccessRequest) \
@@ -1498,7 +1505,7 @@ def create_identityaccessrequest(session, tid, user_session, itip_id, request):
     db_log(session, tid=tid, type='request_identity_access', user_id=user_id, object_id=itip.id)
 
     custodians = 0
-    for custodian in session.query(models.User).filter(models.User.tid == tid, models.User.role == 'custodian', models.User.enabled == True):
+    for custodian in custodians_list:
         iarc = models.IdentityAccessRequestCustodian()
         iarc.identityaccessrequest_id = iar.id
         iarc.custodian_id = custodian.id
@@ -1917,6 +1924,19 @@ class WhistleblowerFileDownload(BaseHandler):
                                             models.ReceiverTip.id == models.WhistleblowerFile.receivertip_id,
                                             models.InternalFile.id == models.WhistleblowerFile.internalfile_id,
                                             models.WhistleblowerFile.id == file_id))
+
+        # Identity attachments follow the same authorization as the identity data.
+        questionnaires = [{'steps': archived.schema} for archived in session.query(models.ArchivedSchema)
+                          .join(models.InternalTipAnswers,
+                                models.InternalTipAnswers.questionnaire_hash == models.ArchivedSchema.hash)
+                          .filter(models.InternalTipAnswers.internaltip_id == rtip.internaltip_id)]
+        identity_files = serializers.get_identity_files(questionnaires)
+        if ifile.reference_id[:36] in identity_files:
+            authorized = session.query(models.IdentityAccessRequest).filter(
+                models.IdentityAccessRequest.internaltip_id == rtip.internaltip_id,
+                models.IdentityAccessRequest.reply == 'authorized').count()
+            if not user.has_permission('can_view_whistleblower_identity') or not authorized:
+                raise errors.ForbiddenOperation
 
         antivirus_enabled = db_get_config_variable(session, tid, 'antivirus_enabled')
         recheck_needed = prepare_file_download(ifile, antivirus_enabled)

@@ -72,6 +72,8 @@ user_permissions = ObjectDict({
     'can_send_communications': False,
     'can_change_status': True,
     'can_change_label': True,
+    'can_view_whistleblower_identity': True,
+    'can_request_whistleblower_identity': True,
     'can_configure_statistical_report_templates': False
 })
 

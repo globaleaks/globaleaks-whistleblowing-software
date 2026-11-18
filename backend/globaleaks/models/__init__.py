@@ -43,6 +43,8 @@ user_permissions = admin_permissions + [
     'can_send_communications',
     'can_change_status',
     'can_change_label',
+    'can_view_whistleblower_identity',
+    'can_request_whistleblower_identity',
     'can_configure_statistical_report_templates'
 ]
 

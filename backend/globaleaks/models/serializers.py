@@ -17,19 +17,16 @@ from globaleaks.handlers.public import serialize_questionnaire
 def get_identity_files(data):
     ids = []
 
-    def extract_from_children(children):
+    def extract_from_children(children, part_of_identity=False):
         for child in children:
-            if child.get('type') in ['fileupload', 'voice']:
+            identity = part_of_identity or child.get('template_id') == 'whistleblower_identity'
+            if identity and child.get('type') in ['fileupload', 'voice']:
                 ids.append(child.get('id'))
-            elif child.get('type') == 'fieldgroup':
-                extract_from_children(child.get('children', []))
+            extract_from_children(child.get('children', []), identity)
 
     for questionnaire in data:
         for step in questionnaire.get('steps', []):
-            for child in step.get('children', []):
-                if child.get('template_id') == 'whistleblower_identity':
-                    extract_from_children(child.get('children', []))
-                    return ids
+            extract_from_children(step.get('children', []))
 
     return ids
 
@@ -442,9 +439,10 @@ def _serialize_wbfiles(session, ret, rtip):
     if 'whistleblower_identity' in ret['data']:
         ret['data']['whistleblower_identity_provided'] = True
 
-    if 'iar' not in ret or ret['iar']['reply'] in ('denied', 'pending'):
-        if 'data' in ret and 'whistleblower_identity' in ret['data']:
-            del ret['data']['whistleblower_identity']
+    if not ret['can_view_whistleblower_identity'] or 'iar' not in ret or ret['iar']['reply'] in ('denied', 'pending'):
+        for key in list(ret['data']):
+            if key == 'whistleblower_identity' or key.startswith('whistleblower_identity_hash_'):
+                del ret['data'][key]
 
         denied_identity_files = get_identity_files(ret.get('questionnaires', []))
 
@@ -548,6 +546,9 @@ def serialize_rtip(session, itip, rtip, language):
     ret['rtip_id'] = rtip.id
     ret['progressive'] = itip.progressive
     ret['receiver_id'] = user_id
+    ret['can_view_whistleblower_identity'] = bool(viewer and viewer.has_permission('can_view_whistleblower_identity'))
+    ret['can_request_whistleblower_identity'] = bool(ret['can_view_whistleblower_identity'] and
+                                                    viewer.has_permission('can_request_whistleblower_identity'))
     ret['custodian'] = State.tenants[itip.tid].cache['custodian']
     ret['important'] = itip.important
     ret['label'] = itip.label

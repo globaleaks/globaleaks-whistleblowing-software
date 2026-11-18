@@ -50,6 +50,8 @@ export class RecieverTipData {
   internaltip_id: string;
   receiver_id: string;
   custodian: boolean;
+  can_view_whistleblower_identity: boolean;
+  can_request_whistleblower_identity: boolean;
   important: boolean;
   label: string;
   enable_notifications: boolean;

@@ -23,6 +23,8 @@ export class UserProfile {
     can_send_communications: boolean;
     can_change_status: boolean;
     can_change_label: boolean;
+    can_view_whistleblower_identity: boolean;
+    can_request_whistleblower_identity: boolean;
     can_mask_information: boolean;
     can_redact_information: boolean;
     can_upload_files: boolean;

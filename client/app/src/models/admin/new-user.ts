@@ -17,6 +17,8 @@ export class NewUserPermissions {
   can_send_communications = false;
   can_change_status = true;
   can_change_label = true;
+  can_view_whistleblower_identity = true;
+  can_request_whistleblower_identity = true;
   can_mask_information = true;
   can_redact_information = false;
   can_configure_statistical_report_templates = false;

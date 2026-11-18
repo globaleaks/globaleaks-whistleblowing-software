@@ -212,7 +212,7 @@
                   <div class="permission-group-items">
                     @for (perm of group.permissions; track perm.key) {
                       <div class="form-group">
-                        <input id="user-permission-{{perm.key}}" class="form-check-input" [name]="perm.key" [(ngModel)]="user().profile.permissions[perm.key]" type="checkbox" [disabled]="user().id !== user().profile_id" />
+                        <input id="user-permission-{{perm.key}}" class="form-check-input" [name]="perm.key" [(ngModel)]="user().profile.permissions[perm.key]" (ngModelChange)="perm.key === 'can_view_whistleblower_identity' && !$event ? user().profile.permissions.can_request_whistleblower_identity = false : null" type="checkbox" [disabled]="user().id !== user().profile_id || (perm.key === 'can_request_whistleblower_identity' && !user().profile.permissions.can_view_whistleblower_identity)" />
                         <label for="user-permission-{{perm.key}}" [class.text-gray]="user().id !== user().profile_id">{{ perm.label | translate }}</label>
                       </div>
                     }

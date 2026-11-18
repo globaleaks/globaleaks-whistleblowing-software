@@ -50,7 +50,7 @@
             }
             @if (!tipService.tip.iar || tipService.tip.iar.reply === 'denied') {
               <div>
-                @if (tipService.tip.custodian) {
+                @if (tipService.tip.custodian && tipService.tip.can_request_whistleblower_identity) {
                   <button class="btn btn-sm btn-primary" id="identity_access_request" (click)="fileIdentityAccessRequest()">{{"Request access to the reporting person's identity" | translate}}</button>
                 }
                 @if (!tipService.tip.custodian) {

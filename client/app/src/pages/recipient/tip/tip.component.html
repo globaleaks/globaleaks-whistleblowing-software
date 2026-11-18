@@ -193,7 +193,7 @@
       <div [class.col-md-12]="!(tip && tip.identity_provided)" [class.col-md-6]="(tip && tip.identity_provided)">
         <src-tip-questionnaire-answers id="ReportAnswers" [tipService]="RTipService" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"></src-tip-questionnaire-answers>
       </div>
-      @if (tip && tip.identity_provided) {
+      @if (tip && tip.identity_provided && tip.can_view_whistleblower_identity) {
         <div class="col-md-6">
           <src-whistleblower-identity-receiver id="Identity" [redactOperationTitle]="redactOperationTitle" [redactMode]="redactMode"></src-whistleblower-identity-receiver>
         </div>

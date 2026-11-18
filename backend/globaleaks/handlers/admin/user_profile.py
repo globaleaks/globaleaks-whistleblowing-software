@@ -236,6 +236,9 @@ def sync_contexts(session, profile, request, sync_users=True):
 def sync_permissions(session, profile, request):
     permissions = request['permissions']
 
+    if permissions.get('can_request_whistleblower_identity') and not permissions.get('can_view_whistleblower_identity'):
+        raise errors.InputValidationError('Requesting whistleblower identity requires permission to view it')
+
     permissions = [perm for perm, value in permissions.items() if value and perm in user_permissions]
 
     current_permissions = {p.permission for p in profile.permissions}

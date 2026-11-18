@@ -36,6 +36,8 @@ export const ADMIN_PERMISSION_KEYS: PermissionKey[] = ADMIN_AREAS.map(area => ar
 // The recipient permissions, labelled by the noun of what they control rather
 // than a sentence
 export const RECIPIENT_PERMISSIONS: PermissionItem[] = [
+  {key: "can_view_whistleblower_identity", label: "View whistleblower identity"},
+  {key: "can_request_whistleblower_identity", label: "Request whistleblower identity"},
   {key: "can_mask_information", label: "Mask information"},
   {key: "can_redact_information", label: "Redact information"},
   {key: "can_delete_submission", label: "Delete reports"},
