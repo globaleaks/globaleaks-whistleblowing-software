@@ -153,12 +153,12 @@ Please note that you can set an expiration date at least 90 days onward from the
 
 Mask a report (optional)
 ~~~~~~~~~~~~~~~~~~~~~~~~
-Based on your user priviledges, you can mask or redact selected information in the report by clicking on the “Mask” option.
+Based on your user privileges, you can mask or delete selected information in the report by clicking on the option “Mask” of the report menu.
 
 .. image:: ../../images/recipient/menu_actions_option_mask.png
    :align: center
 
-You will then be able to select the specific information per each question you would like to mask.
+Each answer, comment and file of the report then offers its own button to mask or delete it.
 
 .. image:: ../../images/recipient/report_with_masking_enabled_questionnaire_detail.png
    :align: center
@@ -175,9 +175,18 @@ You will then be able to select the specific information per each question you w
 .. image:: ../../images/recipient/report_after_masking.png
    :align: center
 
-You can discard the operation by clicking the [:fa:`circle-xmark`] icon.
+The button of a text opens a box with its content: select the information and apply to it one of the operations:
 
-Masked information can be unmasked following the same procedure. Once masked the selected information, you can redact it by selecting the Redact option in the box and then selecting the specific masked information you would like to redact. Please note that redacted information will no longer be available to any recipient and cannot be restored.
+- **Mask** hides the selected information from the other users who access the report;
+- **Show** makes visible again the selected information that was masked;
+- **Delete** deletes the selected information permanently. Users allowed only to delete can delete information that was already masked and saved; users allowed to both mask and delete can delete any information.
+
+The [:fa:`eye`] button shows or hides the masked information within the box, to review it while working.
+The operations take effect only when you click “Save”; “Cancel” discards them.
+
+The files offer the same operations through their buttons: [:fa:`eye-slash`] masks the whole file, [:fa:`eye`] shows it again and [:fa:`trash`] deletes it.
+
+Please note that deleted information will no longer be available to any recipient and cannot be restored.
 
 Change the status of a report
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
