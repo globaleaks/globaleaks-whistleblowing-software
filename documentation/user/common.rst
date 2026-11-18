@@ -20,6 +20,11 @@ You can login by accessing the /#/login page and filling your username and passw
 
 You will be then asked to insert a 2FA code using your TOTP Authenticator app to complete the authentication process. You might not be prompted to insert a 2FA code if it is disabled on your account.
 
+Switch between the light and the dark theme
+-------------------------------------------
+The platform follows the theme of your browser or operating system, light or dark.
+You can switch to the other theme for the current session with the button in the header, whose icon tells the theme in use: [:fa:`sun`] in the light theme and [:fa:`moon`] in the dark one; on a phone the switch is in the menu of the session. The choice lasts until the browser tab is closed.
+
 Configure your preferences
 --------------------------
 After login you can access your preferences by clicking the  [:fa:`solid user`] icon in the login status bar. On this page you can:
