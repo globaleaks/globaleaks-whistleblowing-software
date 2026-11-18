@@ -1,5 +1,4 @@
 # Handlers dealing with platform authentication
-import json
 from datetime import timedelta
 from sqlalchemy import exists, func, or_, and_
 
@@ -250,7 +249,7 @@ class AuthTypeHandler(BaseHandler):
     check_roles = 'any'
 
     def post(self):
-        username = json.loads(self.request.content.read())['username']
+        username = self.validate_request(self.request.content.read(), {'username': str})['username']
         return get_auth_type(self.request.tid, username)
 
 

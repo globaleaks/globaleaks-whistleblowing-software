@@ -40,6 +40,35 @@ class TestBaseHandler(helpers.TestHandlerWithPopulatedDB):
                                                  identifier=b'atlimit')
         self.assertIsNone(handler.process_file_upload())
 
+    def test_process_file_upload_rejects_malformed_requests(self):
+        # A malformed upload is answered with a validation error, not with an
+        # unexpected exception (a 500 and an exception email).
+        malformed = [
+            {b'flowTotalChunks': None},
+            {b'file': None},
+            {b'flowTotalSize': [b'1', b'1']},
+            {b'flowTotalSize': [b'abc']},
+            {b'flowTotalSize': [b'-1']},
+            {b'flowChunkNumber': [b'x']},
+            {b'flowChunkNumber': [b'0']},
+            {b'flowChunkNumber': [b'3']},
+            {b'flowIdentifier': [b'']},
+            {b'flowIdentifier': [b'\xff']},
+            {b'flowFilename': [b'\xff']},
+        ]
+
+        for change in malformed:
+            handler = self.request(handler_cls=BaseHandlerMock)
+            args = self._upload_args(total_size=1, identifier=b'malformed')
+            for key, value in change.items():
+                if value is None:
+                    del args[key]
+                else:
+                    args[key] = value
+
+            handler.request.args = args
+            self.assertRaises(InputValidationError, handler.process_file_upload)
+
     def test_content_disposition_plain_name(self):
         # A token-only ASCII name is emitted unquoted, with no filename*.
         self.assertEqual(content_disposition_attachment('normal.pdf'),
@@ -95,6 +124,25 @@ class TestBaseHandler(helpers.TestHandlerWithPopulatedDB):
         self.assertFalse(BaseHandler.validate_type(False, str))
         self.assertFalse(BaseHandler.validate_type({}, list))
         self.assertFalse(BaseHandler.validate_type(True, dict))
+
+    def test_validate_type_wrong_container(self):
+        # A value of the wrong JSON type fails the validation instead of raising
+        self.assertFalse(BaseHandler.validate_type(['true'], bool))
+        self.assertFalse(BaseHandler.validate_type(1, r'\w+'))
+        self.assertFalse(BaseHandler.validate_type('abc', [str]))
+        self.assertFalse(BaseHandler.validate_type({'a': 'b'}, [str]))
+
+    def test_validate_request_wrong_container(self):
+        for request, template in [([], {'spam': str}),
+                                  ('"ham"', {'spam': str}),
+                                  ('1', {'spam': str}),
+                                  ({'spam': 'ham'}, [str]),
+                                  ('"ham"', [str]),
+                                  ({'spam': ['true']}, {'spam': bool}),
+                                  ({'spam': 1}, {'spam': r'\w+'}),
+                                  ({'spam': 'ham'}, {'spam': [str]})]:
+            self.assertRaises(InputValidationError,
+                              BaseHandler.validate_request, request, template)
 
     def test_validate_python_type_valid(self):
         self.assertTrue(BaseHandler.validate_python_type('foca', str))

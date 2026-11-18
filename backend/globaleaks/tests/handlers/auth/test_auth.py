@@ -47,6 +47,11 @@ class TestAuthTypeHandler(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(response['salt'], helpers.VALID_SALT)
 
 
+    def test_malformed_request(self):
+        for body in [{}, {'username': 1}, ['receiver1']]:
+            handler = self.request(body)
+            self.assertRaises(errors.InputValidationError, handler.post)
+
 class TestAuthTypeHandlerWithServersideHashing(helpers.TestHandlerWithPopulatedDB):
     _handler = auth.AuthTypeHandler
     clientside_hashing = False
