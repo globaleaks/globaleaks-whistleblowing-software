@@ -62,18 +62,19 @@ export class SubmissionService {
     this.submission.context_id = context_id;
   }
 
-  submit() {
-    this.submission.receivers = [];
+  getSelectedReceivers(): string[] {
+    return this.override_receivers.length ? this.override_receivers : Object.keys(this.selected_receivers);
+  }
 
-    if (this.override_receivers.length) {
-      this.submission.receivers = this.override_receivers;
-    } else {
-      for (const key in this.selected_receivers) {
-        if (Object.prototype.hasOwnProperty.call(this.selected_receivers, key)) {
-          this.submission.receivers.push(key);
-        }
-      }
-    }
+  getEffectiveReceivers(): string[] {
+    const receivers = this.getSelectedReceivers();
+    const supplementary = receivers.length === 0 ? this.context.supplementary_receivers_if_none :
+      (receivers.length === 1 ? this.context.supplementary_receivers_if_single : []);
+    return [...new Set([...receivers, ...(supplementary || [])])];
+  }
+
+  submit() {
+    this.submission.receivers = this.getSelectedReceivers();
 
     if (!this.submission.identity_provided) {
       this.submission.identity_provided = false;

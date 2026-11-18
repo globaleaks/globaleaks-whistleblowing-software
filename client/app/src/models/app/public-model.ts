@@ -116,6 +116,8 @@ export interface Context {
   order: number;
   tip_timetolive: number;
   select_all_receivers: boolean;
+  supplementary_receivers_if_none: string[];
+  supplementary_receivers_if_single: string[];
   maximum_selectable_receivers: number;
   allow_recipients_selection: boolean;
   enable_comments: boolean;

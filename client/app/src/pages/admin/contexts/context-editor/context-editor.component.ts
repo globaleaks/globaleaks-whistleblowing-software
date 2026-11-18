@@ -85,6 +85,27 @@ export class ContextEditorComponent implements OnInit {
   // account
   readonly profilesData = computed<SelectableEntry[]>(() => this.selectablesResolver.dataModel.user_profiles);
   readonly profilesById = computed<Record<string, SelectableEntry>>(() => this.utilsService.array_to_map(this.profilesData()));
+  readonly receiversData = computed<SelectionEntry[]>(() => this.selectablesResolver.dataModel.users
+    .filter(user => user.role === "receiver")
+    .map(user => ({id: user.id, label: user.name})));
+
+  supplementaryReceivers(key: "supplementary_receivers_if_none" | "supplementary_receivers_if_single"): SelectionEntry[] {
+    return (this.contextResolver()[key] || []).map(id =>
+      this.receiversData().find(receiver => receiver.id === id) || {id, label: "-"});
+  }
+
+  addSupplementaryReceiver(key: "supplementary_receivers_if_none" | "supplementary_receivers_if_single", id: string): void {
+    const context = this.contextResolver();
+    context[key] ??= [];
+    if (!context[key].includes(id)) {
+      context[key].push(id);
+    }
+  }
+
+  removeSupplementaryReceiver(key: "supplementary_receivers_if_none" | "supplementary_receivers_if_single", index: number): void {
+    this.contextResolver()[key].splice(index, 1);
+  }
+
   nodeData: nodeResolverModel;
   selected = {value: []};
 

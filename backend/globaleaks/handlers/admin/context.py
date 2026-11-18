@@ -128,6 +128,8 @@ def admin_serialize_context(session, context, language):
         'tip_timetolive': context.tip_timetolive,
         'tip_reminder': context.tip_reminder,
         'select_all_receivers': context.select_all_receivers,
+        'supplementary_receivers_if_none': context.supplementary_receivers_if_none,
+        'supplementary_receivers_if_single': context.supplementary_receivers_if_single,
         'maximum_selectable_receivers': context.maximum_selectable_receivers,
         'allow_recipients_selection': context.allow_recipients_selection,
         'score_threshold_medium': context.score_threshold_medium,
@@ -327,6 +329,23 @@ def check_context_questionnaire_association(session, tid, request):
         raise errors.InputValidationError("Invalid additional questionnaire reference")
 
 
+def check_context_supplementary_receivers(session, tid, request):
+    """
+    A channel names supplementary recipients from its own tenant only.
+    """
+    requested = set(request.get('supplementary_receivers_if_none') or []) | \
+                set(request.get('supplementary_receivers_if_single') or [])
+    if not requested:
+        return
+
+    valid_ids = {user.id for user in session.query(models.User)
+                                          .filter(models.User.tid == tid,
+                                                  models.User.role == 'receiver',
+                                                  models.User.id.in_(requested))}
+    if requested - valid_ids:
+        raise errors.InputValidationError("Invalid supplementary recipient reference")
+
+
 def fill_context_request(tid, request, language):
     """
     An utility function for correcting requests for context configuration
@@ -365,6 +384,7 @@ def db_create_context(session, tid, user_session, request, language):
     request = fill_context_request(tid, request, language)
 
     check_context_questionnaire_association(session, tid, request)
+    check_context_supplementary_receivers(session, tid, request)
 
     context = db_add(session, models.Context, request)
 
@@ -410,6 +430,11 @@ def db_update_exchange_channel(session, tid, context, request, language):
     fill_localized_keys(request, ['name'], language)
 
     check_context_questionnaire_association(session, tid, request)
+    check_context_supplementary_receivers(session, tid, request)
+
+    for key in ['supplementary_receivers_if_none', 'supplementary_receivers_if_single']:
+        if key in request:
+            setattr(context, key, request[key])
 
     context.name = request['name']
     context.questionnaire_id = request.get('questionnaire_id') or 'default'
@@ -434,6 +459,7 @@ def db_update_context(session, tid, context, request, language):
     request = fill_context_request(tid, request, language)
 
     check_context_questionnaire_association(session, tid, request)
+    check_context_supplementary_receivers(session, tid, request)
 
     context.update(request)
 

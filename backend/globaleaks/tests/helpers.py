@@ -381,6 +381,8 @@ class MockDict:
             'questionnaire_id': 'test',
             'additional_questionnaire_id': '',
             'select_all_receivers': True,
+            'supplementary_receivers_if_none': [],
+            'supplementary_receivers_if_single': [],
             'tip_timetolive': 20,
             'tip_reminder': 0,
             'maximum_selectable_receivers': 0,

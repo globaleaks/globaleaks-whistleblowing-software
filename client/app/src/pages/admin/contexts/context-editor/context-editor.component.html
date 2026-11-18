@@ -148,6 +148,24 @@
             @if (showAdvancedSettings) {
               <div class="row">
                 <div class="col-md-6">
+                  <src-selection-editor
+                    [label]="'Supplementary recipients if no recipient is selected'"
+                    [options]="receiversData()"
+                    [selected]="supplementaryReceivers('supplementary_receivers_if_none')"
+                    [selectableDefault]="false"
+                    [locked]="!canConfigure()"
+                    (entryAdded)="addSupplementaryReceiver('supplementary_receivers_if_none', $event)"
+                    (entryRemoved)="removeSupplementaryReceiver('supplementary_receivers_if_none', $event.index)">
+                  </src-selection-editor>
+                  <src-selection-editor
+                    [label]="'Supplementary recipients if only one recipient is selected'"
+                    [options]="receiversData()"
+                    [selected]="supplementaryReceivers('supplementary_receivers_if_single')"
+                    [selectableDefault]="false"
+                    [locked]="!canConfigure()"
+                    (entryAdded)="addSupplementaryReceiver('supplementary_receivers_if_single', $event)"
+                    (entryRemoved)="removeSupplementaryReceiver('supplementary_receivers_if_single', $event.index)">
+                  </src-selection-editor>
                   <div class="form-group">
                     <label class="inline-checkbox">
                       <input class="form-check-input" type="checkbox" name="contextResolver.show_steps_navigation_interface" [(ngModel)]="contextResolver().show_steps_navigation_interface" />

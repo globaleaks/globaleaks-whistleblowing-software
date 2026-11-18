@@ -168,9 +168,17 @@ def db_prepare_contexts_serialization(session, contexts):
     :param contexts: The list of context for which preparing the serialization
     :return: The set of retrieved objects necessary for optimizing the serialization
     """
-    data = {'imgs': {}, 'receivers': {}}
+    data = {'imgs': {}, 'receivers': {}, 'supplementary_receivers': {}}
 
     contexts_ids = [c.id for c in contexts]
+
+    supplementary_ids = {receiver for context in contexts
+                         for receiver in context.supplementary_receivers_if_none + context.supplementary_receivers_if_single}
+    if supplementary_ids:
+        for user in session.query(models.User).filter(models.User.id.in_(supplementary_ids),
+                                                     models.User.role == 'receiver',
+                                                     models.User.enabled.is_(True)):
+            data['supplementary_receivers'].setdefault(user.tid, set()).add(user.id)
 
     if contexts_ids:
         for o in session.query(models.File).filter(models.File.name.in_(contexts_ids)):
@@ -334,6 +342,10 @@ def serialize_context(session, context, language, data=None):
         'tip_timetolive': context.tip_timetolive,
         'tip_reminder': context.tip_reminder,
         'select_all_receivers': context.select_all_receivers,
+        'supplementary_receivers_if_none': [r for r in context.supplementary_receivers_if_none
+                                           if r in data['supplementary_receivers'].get(context.tid, set())],
+        'supplementary_receivers_if_single': [r for r in context.supplementary_receivers_if_single
+                                             if r in data['supplementary_receivers'].get(context.tid, set())],
         'maximum_selectable_receivers': context.maximum_selectable_receivers,
         'allow_recipients_selection': context.allow_recipients_selection,
         'score_threshold_medium': context.score_threshold_medium,

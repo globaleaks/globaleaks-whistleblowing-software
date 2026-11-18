@@ -370,6 +370,8 @@ class _Context(Model):
     allow_recipients_selection = Column(Boolean, default=False, nullable=False)
     maximum_selectable_receivers = Column(Integer, default=0, nullable=False)
     select_all_receivers = Column(Boolean, default=True, nullable=False)
+    supplementary_receivers_if_none = Column(JSON, default=list, nullable=False)
+    supplementary_receivers_if_single = Column(JSON, default=list, nullable=False)
     tip_timetolive = Column(Integer, default=90, nullable=False)
     tip_reminder = Column(Integer, default=0, nullable=False)
     name = Column(JSON, default=dict, nullable=False)
@@ -431,7 +433,15 @@ class _Context(Model):
         'provide_access_code'
     ]
 
+    json_keys = ['supplementary_receivers_if_none', 'supplementary_receivers_if_single']
+
     list_keys = ['receivers', 'profiles', 'additional_questionnaires']
+
+    def dict(self, language=None):
+        ret = super().dict(language)
+        for key in self.json_keys:
+            ret[key] = getattr(self, key) or []
+        return ret
 
     @declared_attr
     def __table_args__(self):

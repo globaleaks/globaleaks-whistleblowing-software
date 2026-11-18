@@ -13,6 +13,8 @@ export class contextResolverModel {
   tip_timetolive: number;
   tip_reminder: number;
   select_all_receivers: boolean;
+  supplementary_receivers_if_none: string[];
+  supplementary_receivers_if_single: string[];
   maximum_selectable_receivers: number;
   allow_recipients_selection: boolean;
   score_threshold_medium: number;

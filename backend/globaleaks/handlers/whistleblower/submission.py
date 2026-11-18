@@ -581,6 +581,25 @@ def evaluate_receivers_override(steps, answers):
     return override
 
 
+def db_add_supplementary_receivers(session, context, receivers):
+    receivers = set(receivers)
+    if not receivers:
+        supplementary = context.supplementary_receivers_if_none
+    elif len(receivers) == 1:
+        supplementary = context.supplementary_receivers_if_single
+    else:
+        return receivers
+
+    if supplementary:
+        receivers.update(user.id for user in session.query(models.User)
+                                                 .filter(models.User.tid == context.tid,
+                                                         models.User.role == 'receiver',
+                                                         models.User.enabled.is_(True),
+                                                         models.User.id.in_(supplementary)))
+
+    return receivers
+
+
 def db_validate_submission_receivers(session, context, steps, answers, requested_receivers):
     """
     Enforce server-side the recipients selection policy configured on the
@@ -972,9 +991,10 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     questionnaire_hash = db_archive_questionnaire_schema(session, steps)
 
     db_validate_submission_receivers(session, context, steps, enabled_answers, set(request['receivers']))
+    receiver_ids = db_add_supplementary_receivers(session, context, request['receivers'])
 
     receivers = []
-    for r in session.query(models.User).filter(models.User.tid == tid, models.User.id.in_(request['receivers']), models.User.role == 'receiver'):
+    for r in session.query(models.User).filter(models.User.tid == tid, models.User.id.in_(receiver_ids), models.User.role == 'receiver'):
         if crypto_is_available:
             if r.crypto_pub_key:
                 # This is the regular condition of systems setup on Globaleaks 4

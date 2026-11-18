@@ -14,6 +14,8 @@ export class NewContext {
   provide_access_code = false;
   show_steps_navigation_interface = true;
   select_all_receivers = true;
+  supplementary_receivers_if_none: string[] = [];
+  supplementary_receivers_if_single: string[] = [];
   maximum_selectable_receivers = 0;
   questionnaire_id = "";
   additional_questionnaire_id = "";

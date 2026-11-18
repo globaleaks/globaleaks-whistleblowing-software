@@ -208,7 +208,7 @@ export class SubmissionComponent implements OnInit {
   };
 
   areReceiversSelected() {
-    return Object.keys(this.submission.selected_receivers).length > 0 || Object.keys(this.submission.override_receivers).length > 0;
+    return !!this.submission.context && this.submission.getEffectiveReceivers().length > 0;
   };
 
   hasNextStep() {

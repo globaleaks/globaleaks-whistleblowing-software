@@ -2694,3 +2694,9 @@ msgstr "Role: {Role}"
 
 msgid "Password: {Password}"
 msgstr "Password: {Password}"
+
+msgid "Supplementary recipients if no recipient is selected"
+msgstr "Supplementary recipients if no recipient is selected"
+
+msgid "Supplementary recipients if only one recipient is selected"
+msgstr "Supplementary recipients if only one recipient is selected"
