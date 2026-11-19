@@ -20,6 +20,8 @@ import {
 import {DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 
+type InlineField = "name" | "public_name" | "mail_address";
+
 @Component({
     selector: "src-preference-tab1",
     templateUrl: "./preference-tab1.component.html",
@@ -41,9 +43,8 @@ export class PreferenceTab1Component implements OnInit {
 
   protected readonly Constants = Constants;
 
-  editingName: boolean;
-  editingPublicName: boolean;
-  editingEmailAddress: boolean;
+  editing: Record<InlineField, boolean> = {name: false, public_name: false, mail_address: false};
+  draft: Record<InlineField, string> = {name: "", public_name: "", mail_address: ""};
   languageModel = "";
   role = "";
   readonly uploaderInput = viewChild<ElementRef<HTMLInputElement>>('uploader');
@@ -61,17 +62,30 @@ export class PreferenceTab1Component implements OnInit {
     }, 150);
   }
 
-  toggleNameEditing() {
-    this.editingName = !this.editingName;
-  };
+  startEditing(field: InlineField) {
+    this.draft[field] = this.preferenceResolver.dataModel[field];
+    this.editing[field] = true;
+  }
 
-  togglePublicNameEditing() {
-    this.editingPublicName = !this.editingPublicName;
-  };
+  cancelEditing(field: InlineField) {
+    this.editing[field] = false;
+  }
 
-  toggleEmailAddressEditing() {
-    this.editingEmailAddress = !this.editingEmailAddress;
-  };
+  saveField(field: InlineField) {
+    const request = {...this.preferenceResolver.dataModel, [field]: this.draft[field]};
+    this.httpService.updatePreferenceResource(JSON.stringify(request)).subscribe(
+      {
+        next: (user) => {
+          const dataModel = this.preferenceResolver.dataModel;
+          dataModel.name = user.name;
+          dataModel.public_name = user.public_name;
+          dataModel.mail_address = user.mail_address;
+          dataModel.change_email_address = user.change_email_address;
+          this.editing[field] = false;
+        }
+      }
+    );
+  }
 
   toggle2FA(event: Event) {
     if (!this.preferenceResolver.dataModel.two_factor) {

@@ -18,55 +18,71 @@
         <div id="Name">
           <label for="pref-name-input">
             <span>{{'Name'|translate}}</span>: </label>
-            @if (!editingName) {
-              <span>
-                <span>{{preferenceResolver.dataModel.name}}</span>
-                @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
-                  <button class="btn btn-sm btn-outline-secondary" (click)="toggleNameEditing(); $event.stopPropagation();">
-                    <span>{{'Edit'|translate}}</span>
-                  </button>
-                }
-              </span>
-            }
-            @if (editingName) {
-              <input id="pref-name-input" class="form-control" name="name" [(ngModel)]="preferenceResolver.dataModel.name" type="text" required />
+            @if (editing.name) {
+              <div class="input-group input-group-sm inline-edit">
+                <input id="pref-name-input" class="form-control" name="name" #nameInput="ngModel" [(ngModel)]="draft.name" type="text" required (keydown.enter)="saveField('name'); $event.preventDefault();" (keydown.escape)="cancelEditing('name')" />
+                <button id="pref-name-save" type="button" class="btn btn-primary" (click)="saveField('name')" [disabled]="nameInput.invalid">
+                  <i class="fa-solid fa-check" aria-hidden="true"></i>
+                  <span>{{'Save'|translate}}</span>
+                </button>
+                <button id="pref-name-cancel" type="button" class="btn btn-outline-secondary" (click)="cancelEditing('name')" [attr.aria-label]="'Cancel'|translate" [title]="'Cancel'|translate">
+                  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+              </div>
+            } @else {
+              <span>{{preferenceResolver.dataModel.name}}</span>
+              @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
+                <button id="pref-name-edit" type="button" class="btn btn-sm btn-link" (click)="startEditing('name')" [attr.aria-label]="'Edit'|translate" [title]="'Edit'|translate">
+                  <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                </button>
+              }
             }
           </div>
           <div id="PublicName">
             <label for="pref-public-name-input">
               <span>{{'Public name'|translate}}</span>: </label>
-              @if (!editingPublicName) {
-                <span>
-                  <span>{{preferenceResolver.dataModel.public_name}}</span>
-                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
-                    <button class="btn btn-sm btn-outline-secondary" (click)="togglePublicNameEditing(); $event.stopPropagation();">
-                      <span>{{'Edit'|translate}}</span>
-                    </button>
-                  }
-                </span>
-              }
-              @if (editingPublicName) {
-                <input id="pref-public-name-input" class="form-control" name="public_name" [(ngModel)]="preferenceResolver.dataModel.public_name" type="text" required />
+              @if (editing.public_name) {
+                <div class="input-group input-group-sm inline-edit">
+                  <input id="pref-public-name-input" class="form-control" name="public_name" #publicNameInput="ngModel" [(ngModel)]="draft.public_name" type="text" required (keydown.enter)="saveField('public_name'); $event.preventDefault();" (keydown.escape)="cancelEditing('public_name')" />
+                  <button id="pref-public-name-save" type="button" class="btn btn-primary" (click)="saveField('public_name')" [disabled]="publicNameInput.invalid">
+                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                    <span>{{'Save'|translate}}</span>
+                  </button>
+                  <button id="pref-public-name-cancel" type="button" class="btn btn-outline-secondary" (click)="cancelEditing('public_name')" [attr.aria-label]="'Cancel'|translate" [title]="'Cancel'|translate">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                  </button>
+                </div>
+              } @else {
+                <span>{{preferenceResolver.dataModel.public_name}}</span>
+                @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
+                  <button id="pref-public-name-edit" type="button" class="btn btn-sm btn-link" (click)="startEditing('public_name')" [attr.aria-label]="'Edit'|translate" [title]="'Edit'|translate">
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+                  </button>
+                }
               }
             </div>
             <div id="EmailAddress">
               <label for="pref-email-input">
                 <span>{{'Email address'|translate}}</span>: </label>
-                <div>
-                  @if (!editingEmailAddress) {
-                    <span>{{preferenceResolver.dataModel.mail_address}}</span>
-                  }
-                  <button class="btn btn-sm btn-outline-secondary" (click)="toggleEmailAddressEditing(); $event.stopPropagation();">
-                    <span>{{'Edit'|translate}}</span>
+                @if (editing.mail_address) {
+                  <div class="input-group input-group-sm inline-edit">
+                    <input id="pref-email-input" class="form-control" name="mail_address" #emailInput="ngModel" [(ngModel)]="draft.mail_address" [pattern]="Constants.emailRegexp" type="email" [class.is-invalid]="emailInput.errors?.['pattern']" (keydown.enter)="saveField('mail_address'); $event.preventDefault();" (keydown.escape)="cancelEditing('mail_address')" />
+                    <button id="pref-email-save" type="button" class="btn btn-primary" (click)="saveField('mail_address')" [disabled]="emailInput.invalid">
+                      <i class="fa-solid fa-check" aria-hidden="true"></i>
+                      <span>{{'Save'|translate}}</span>
+                    </button>
+                    <button id="pref-email-cancel" type="button" class="btn btn-outline-secondary" (click)="cancelEditing('mail_address')" [attr.aria-label]="'Cancel'|translate" [title]="'Cancel'|translate">
+                      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                } @else {
+                  <span>{{preferenceResolver.dataModel.mail_address}}</span>
+                  <button id="pref-email-edit" type="button" class="btn btn-sm btn-link" (click)="startEditing('mail_address')" [attr.aria-label]="'Edit'|translate" [title]="'Edit'|translate">
+                    <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
                   </button>
-                </div>
+                }
               </div>
-              @if (editingEmailAddress) {
-                <div>
-                  <input id="pref-email-input" class="form-control" name="mail_address" [(ngModel)]="preferenceResolver.dataModel.mail_address" [pattern]="Constants.emailRegexp" type="email" [class.is-invalid]="preferenceForm.form.get('mail_address')?.errors?.['pattern']"/>
-                </div>
-              }
-              @if (!editingEmailAddress && preferenceResolver.dataModel.change_email_address) {
+              @if (!editing.mail_address && preferenceResolver.dataModel.change_email_address) {
                 <div class="alert alert-secondary mt-2">
                   <div>{{'Validation of email address change in progress.'|translate}}</div>
                   <div>{{'Please check your inbox for further instructions.'|translate}}</div>
