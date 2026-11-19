@@ -1,3 +1,4 @@
+from nacl.encoding import Base64Encoder
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
@@ -10,6 +11,7 @@ from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.sessions import Sessions
 from globaleaks.tests import helpers
+from globaleaks.utils.crypto import GCE
 
 
 class TestSessionRevocationOnUpdate(helpers.TestInstanceHandler):
@@ -264,3 +266,108 @@ class TestGrantEnforcement(helpers.TestHandlerWithPopulatedDB):
         request['pgp_key_remove'] = False
         request['send_activation_link'] = False
         return request
+
+
+class TestUserCloning(helpers.TestHandlerWithPopulatedDB):
+    _handler = user.UserCloning
+
+    @inlineCallbacks
+    def setUp(self):
+        yield helpers.TestHandlerWithPopulatedDB.setUp(self)
+        yield self.perform_full_submission_actions()
+        yield self.set_source_profile()
+
+    @transact
+    def set_source_profile(self, session):
+        source = session.query(models.User).filter(models.User.id == self.dummy_receiver_1['id']).one()
+        source.readonly = True
+        source.forcefully_selected = True
+
+        option = session.query(models.FieldOption) \
+                        .filter(models.FieldOption.field_id == models.Field.id,
+                                models.Field.tid == 1).first()
+        option.trigger_receiver = [source.id]
+
+    @transact
+    def get_clone(self, session, user_id):
+        clone = session.query(models.User).filter(models.User.id == user_id).one()
+        source = session.query(models.User).filter(models.User.id == self.dummy_receiver_1['id']).one()
+
+        def contexts(uid):
+            return sorted(x[0] for x in session.query(models.ReceiverContext.context_id)
+                                               .filter(models.ReceiverContext.receiver_id == uid))
+
+        triggered = [o.id for o in session.query(models.FieldOption) if user_id in o.trigger_receiver]
+
+        rtips = {}
+        for rtip in session.query(models.ReceiverTip) \
+                           .filter(models.ReceiverTip.receiver_id.in_([source.id, clone.id])):
+            rtips.setdefault(rtip.receiver_id, {})[rtip.internaltip_id] = rtip.crypto_tip_prv_key
+
+        return {
+            'role': (clone.role, source.role),
+            'shared_profile': source.profile_id != source.id,
+            'profile_id': (clone.profile_id, source.profile_id),
+            'permissions': (sorted(clone.permissions_list), sorted(source.permissions_list)),
+            'settings': ([getattr(clone, k) for k in user.CLONED_USER_KEYS],
+                         [getattr(source, k) for k in user.CLONED_USER_KEYS]),
+            'contexts': (contexts(clone.id), contexts(source.id)),
+            'triggered': triggered,
+            'escrow_bkp1_key': clone.crypto_escrow_bkp1_key,
+            'rtips': (rtips.get(clone.id, {}), rtips.get(source.id, {}))
+        }
+
+    def clone_request(self, reports):
+        return {
+            'user_id': self.dummy_receiver_1['id'],
+            'username': 'clone',
+            'name': 'Clone',
+            'mail_address': 'clone@example.org',
+            'send_activation_link': False,
+            'reports': reports
+        }
+
+    @inlineCallbacks
+    def test_clone_takes_role_profile_channels_and_triggers(self):
+        handler = self.request(self.clone_request(False), role='admin')
+        response = yield handler.post()
+
+        clone = yield self.get_clone(response['id'])
+        self.assertEqual(response['name'], 'Clone')
+        self.assertEqual(clone['role'][0], clone['role'][1])
+        self.assertEqual(clone['permissions'][0], clone['permissions'][1])
+        self.assertEqual(clone['settings'][0], clone['settings'][1])
+        if clone['shared_profile']:
+            self.assertEqual(clone['profile_id'][0], clone['profile_id'][1])
+        else:
+            self.assertEqual(clone['profile_id'][0], response['id'])
+        self.assertTrue(clone['contexts'][1])
+        self.assertEqual(clone['contexts'][0], clone['contexts'][1])
+        self.assertEqual(len(clone['triggered']), 1)
+        self.assertEqual(clone['rtips'][0], {})
+
+    @inlineCallbacks
+    def test_clone_with_reports_reaches_the_reports_of_the_source(self):
+        handler = self.request(self.clone_request(True), role='admin')
+        response = yield handler.post()
+
+        clone = yield self.get_clone(response['id'])
+        clone_rtips, source_rtips = clone['rtips']
+        self.assertTrue(source_rtips)
+        self.assertEqual(set(clone_rtips), set(source_rtips))
+
+        # The clone opens the reports with its own key, recovered here through the escrow
+        clone_cc = GCE.asymmetric_decrypt(helpers.ESCROW_PRV_KEY, Base64Encoder.decode(clone['escrow_bkp1_key']))
+        for itip_id, key in source_rtips.items():
+            self.assertEqual(GCE.asymmetric_decrypt(clone_cc, Base64Encoder.decode(clone_rtips[itip_id])),
+                             GCE.asymmetric_decrypt(helpers.USER_PRV_KEY, Base64Encoder.decode(key)))
+
+    @inlineCallbacks
+    def test_clone_with_reports_requires_escrow(self):
+        handler = self.request(self.clone_request(True), role='admin')
+        handler.session.ek = False
+        yield self.assertFailure(handler.post(), errors.ForbiddenOperation)
+
+        handler = self.request(self.clone_request(False), role='admin')
+        handler.session.ek = False
+        yield handler.post()

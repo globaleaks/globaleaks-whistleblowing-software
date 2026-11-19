@@ -539,6 +539,10 @@ export class HttpService {
     return this.httpClient.post<User>("api/admin/users", param);
   }
 
+  requestCloneAdminUser(param: { user_id: string, username: string, name: string, mail_address: string, send_activation_link: boolean, reports: boolean }): Observable<User> {
+    return this.httpClient.post<User>("api/admin/users/clone", param);
+  }
+
   requestUpdateAdminUser(id: string, param: User): Observable<User> {
     return this.httpClient.put<User>("api/admin/users/" + id, param);
   }

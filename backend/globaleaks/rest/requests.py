@@ -185,6 +185,15 @@ AdminUserDesc = {
     'send_activation_link': bool
 }
 
+AdminUserCloneDesc = {
+    'user_id': uuid_regexp,
+    'username': str,
+    'name': str,
+    'mail_address': email_regexp,
+    'send_activation_link': bool,
+    'reports': bool
+}
+
 AdminUserDeleteDesc = {
     'total_reports': int,
     'exclusive_reports': int,

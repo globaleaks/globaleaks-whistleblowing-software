@@ -1,11 +1,12 @@
 import copy
 import json
+from types import SimpleNamespace
 from nacl.encoding import Base64Encoder
 from sqlalchemy import func
 from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
-from globaleaks.handlers.admin.operation import set_tmp_key
+from globaleaks.handlers.admin.operation import db_get_session_escrow_key, set_tmp_key
 from globaleaks.handlers.admin.user_profile import db_attach_user_to_profile_contexts, db_create_user_profile, db_detach_user_from_profile_contexts, db_enforce_administrable, db_enforce_assignable_profile, db_enforce_grantable, sync_permissions
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.handlers.support import db_reconcile_support_user_access, \
@@ -247,6 +248,122 @@ def db_create_user(session, tid, user_session, request, language, defer_password
     db_escrow_key(session, tid, user, cc)
 
     return user
+
+
+# The settings a clone takes from the user it is made from; the permissions come with the profile
+CLONED_USER_KEYS = ['language',
+                    'notification',
+                    'forcefully_selected',
+                    'readonly']
+
+
+def db_clone_user(session, tid, user_session, user_id, request, language):
+    """
+    Transaction for creating a new user with the role, the profile, the channels and the
+    questionnaire triggers of an existing one and, on request, access to its reports
+
+    :param session: An ORM session
+    :param tid: A tenant ID
+    :param user_session: The session of the user performing the operation
+    :param user_id: The ID of the user to clone
+    :param request: The request data
+    :param language: The language of the request
+    :return: The created user
+    """
+    # Imported here: the handlers of the reports reach back to this module through the authentication
+    from globaleaks.handlers.recipient.rtip import db_grant_tip_access  # noqa: PLC0415
+
+    source = db_get_user(session, tid, user_id)
+    shared_profile = source.profile_id != source.id
+
+    db_enforce_grantable(user_session, dict.fromkeys(source.permissions_list, True), [source.role])
+
+    if shared_profile:
+        db_enforce_assignable_profile(session, tid, user_session, source.profile_id, source.role)
+
+    rtips = []
+    source_cc = None
+    if request['reports']:
+        # The keys of the reports are reachable only through the key escrow
+        if not user_session.ek:
+            raise errors.ForbiddenOperation
+
+        rtips = session.query(models.ReceiverTip, models.InternalTip) \
+                       .filter(models.ReceiverTip.receiver_id == source.id,
+                               models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                               models.InternalTip.tid == tid).all()
+
+        if any(itip.crypto_tip_pub_key for _, itip in rtips):
+            bkp_key = source.crypto_escrow_bkp1_key if user_session.user_tid == 1 else source.crypto_escrow_bkp2_key
+            if not bkp_key:
+                raise errors.ForbiddenOperation
+
+            source_cc = GCE.asymmetric_decrypt(db_get_session_escrow_key(session, user_session),
+                                               Base64Encoder.decode(bkp_key))
+
+    user_request = {
+        'username': request['username'],
+        'name': request['name'],
+        'description': '',
+        'public_name': '',
+        'role': source.role,
+        'mail_address': request['mail_address'],
+        'pgp_key_public': '',
+        'pgp_key_remove': False,
+        'profile_id': source.profile_id if shared_profile else 'none',
+        'send_activation_link': request['send_activation_link']
+    }
+
+    for key in CLONED_USER_KEYS:
+        user_request[key] = getattr(source, key)
+
+    user = db_create_user(session, tid, user_session, user_request, language)
+
+    if not shared_profile:
+        session.flush()
+        sync_permissions(session, user.profile, {'permissions': dict.fromkeys(source.permissions_list, True)})
+
+    for rc in session.query(models.ReceiverContext).filter(models.ReceiverContext.receiver_id == source.id).all():
+        if session.query(models.ReceiverContext) \
+                  .filter(models.ReceiverContext.context_id == rc.context_id,
+                          models.ReceiverContext.receiver_id == user.id).count():
+            continue
+
+        order = session.query(func.max(models.ReceiverContext.order)) \
+                       .filter(models.ReceiverContext.context_id == rc.context_id).scalar()
+
+        session.add(models.ReceiverContext({'context_id': rc.context_id,
+                                            'receiver_id': user.id,
+                                            'order': order + 1}))
+
+    for option in session.query(models.FieldOption) \
+                         .filter(models.FieldOption.field_id == models.Field.id,
+                                 models.Field.tid == tid).all():
+        if source.id in (option.trigger_receiver or []):
+            option.trigger_receiver = option.trigger_receiver + [user.id]
+
+    db_log(session, tid=tid, type='clone_user', user_id=user_session.user_id, object_id=user.id,
+           data={'user_id': source.id})
+
+    session.flush()
+
+    source_session = SimpleNamespace(cc=source_cc)
+    for rtip, itip in rtips:
+        if itip.crypto_tip_pub_key and not user.crypto_pub_key:
+            raise errors.ForbiddenOperation
+
+        _, new_rtip = db_grant_tip_access(session, tid, source_session, itip, rtip, user.id)
+        if new_rtip:
+            db_log(session, tid=tid, type='grant_access', user_id=user_session.user_id, object_id=itip.id,
+                   data={'recipient_id': user.id})
+
+    return user
+
+
+@transact
+def clone_user(session, tid, user_session, user_id, request, language):
+    user = db_clone_user(session, tid, user_session, user_id, request, language)
+    return serialize_user(session, user, language)
 
 
 def db_get_user_stats(session, tid, user_id):
@@ -616,3 +733,22 @@ class UserStats(BaseHandler):
         Retrieve statistics about a user's report access.
         """
         return tw(db_get_user_stats, self.request.tid, user_id)
+
+
+class UserCloning(BaseHandler):
+    check_roles = 'admin'
+    require_permission = 'can_manage_users'
+    invalidate_cache = True
+
+    def post(self):
+        """
+        Create a new user as a clone of an existing one
+        """
+        request = self.validate_request(self.request.content.read(),
+                                        requests.AdminUserCloneDesc)
+
+        return clone_user(self.request.tid,
+                          self.session,
+                          request['user_id'],
+                          request,
+                          self.request.language)

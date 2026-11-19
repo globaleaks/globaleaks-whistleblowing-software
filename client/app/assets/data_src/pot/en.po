@@ -241,6 +241,9 @@ msgstr "Checkbox label"
 msgid "City"
 msgstr "City"
 
+msgid "Clone"
+msgstr "Clone"
+
 msgid "Close"
 msgstr "Close"
 

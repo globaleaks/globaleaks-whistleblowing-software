@@ -83,7 +83,7 @@
   </ng-template>
   <ng-template #content let-item="item" let-index="index">
     <form id="user-{{index}}" class="userList" name="editUser" #editUser="ngForm" novalidate>
-      <src-user-editor [user]="item" [editUser]="editUser" [index]="index" [users]="usersData()" [profiles]="profiles()" [expanded]="item.id === focusUserId" (deleted)="onDelete($event)"></src-user-editor>
+      <src-user-editor [user]="item" [editUser]="editUser" [index]="index" [users]="usersData()" [profiles]="profiles()" [expanded]="item.id === focusUserId" (deleted)="onDelete($event)" (cloned)="getResolver()"></src-user-editor>
     </form>
   </ng-template>
 </app-paginated-interface>

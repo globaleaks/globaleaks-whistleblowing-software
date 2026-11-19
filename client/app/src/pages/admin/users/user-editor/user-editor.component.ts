@@ -8,6 +8,7 @@ import {Constants} from "@app/shared/constants/constants";
 import {DeleteConfirmationComponent} from "@app/shared/modals/delete-confirmation/delete-confirmation.component";
 import {PermissionGroup, buildPermissionGroups} from "@app/pages/admin/users/permissions";
 import {PasswordSetComponent} from "@app/shared/modals/password-set/password-set.component";
+import {UserCloneComponent} from "@app/shared/modals/user-clone/user-clone.component";
 import {NodeResolver} from "@app/shared/resolvers/node.resolver";
 import {PreferenceResolver} from "@app/shared/resolvers/preference.resolver";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -45,6 +46,7 @@ export class UserEditorComponent implements OnInit {
   // A link pointing at this user opens its card and brings it into view
   readonly expanded = input(false);
   readonly deleted = output<string>();
+  readonly cloned = output<void>();
   readonly uploaderInput = viewChild<ElementRef>("uploader");
   editing = false;
   filteredProfiles: UserProfile[];
@@ -147,6 +149,12 @@ export class UserEditorComponent implements OnInit {
         }
       }
     });
+  }
+
+  cloneUser(user: User) {
+    const modalRef = this.modalService.open(UserCloneComponent, {backdrop: "static", keyboard: false, ariaLabelledBy: "modal-title"});
+    modalRef.componentInstance.user = user;
+    modalRef.closed.subscribe(() => this.cloned.emit());
   }
 
   deleteUser(user: User, statsChanged = false) {

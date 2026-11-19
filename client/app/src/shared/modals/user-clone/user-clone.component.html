@@ -1,0 +1,58 @@
+<div class="modal-header">
+  <h5 id="modal-title" class="modal-title">{{ 'Clone' | translate }}: {{ user.name }}</h5>
+  <button type="button" class="btn-close" (click)="cancel()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
+</div>
+<div class="modal-body" ngForm #cloneForm="ngForm">
+  <div class="form-group">
+    <label for="clone-user-role">{{ 'Role' | translate }}</label>
+    <select id="clone-user-role" name="role" class="form-select-custom" [ngModel]="user.role" disabled>
+      <option value="admin">{{ 'Admin' | translate }}</option>
+      <option value="analyst">{{ 'Analyst' | translate }}</option>
+      <option value="custodian">{{ 'Custodian' | translate }}</option>
+      <option value="receiver">{{ 'Recipient' | translate }}</option>
+    </select>
+  </div>
+  @if (user.role !== 'receiver' || !nodeResolver.dataModel.simplified_login) {
+    <div class="form-group">
+      <label for="clone-user-username">{{ 'Username' | translate }}</label>
+      <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+      <input id="clone-user-username" class="form-control" name="username" [(ngModel)]="clone.username" type="text" required />
+    </div>
+  }
+  <div class="form-group">
+    <label for="clone-user-name">{{ 'Name' | translate }}</label>
+    <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+    <input id="clone-user-name" class="form-control" name="name" [(ngModel)]="clone.name" type="text" required />
+  </div>
+  <div class="form-group">
+    <label for="clone-user-email">{{ 'Email address' | translate }}</label>
+    <span class="text-danger" ngbTooltip="{{'This field is mandatory' | translate}}">*</span>
+    <input id="clone-user-email" class="form-control" name="email" [(ngModel)]="clone.email" #email="ngModel" [pattern]="Constants.emailRegexp" [class.is-invalid]="email.invalid && (email.dirty || email.touched)" type="email" required />
+    @if (email.errors?.['pattern'] && (email.dirty || email.touched)) {
+      <div class="text-danger">{{ 'Invalid email address' | translate }}</div>
+    }
+  </div>
+  @if (user.role === 'receiver') {
+    <div class="form-group">
+      <label for="clone-user-reports">{{ 'Reports' | translate }}</label>
+      <select id="clone-user-reports" name="reports" class="form-select-custom" [(ngModel)]="clone.reports" [disabled]="!canGrantReports">
+        <option [ngValue]="false">{{ 'No' | translate }}</option>
+        <option [ngValue]="true">{{ 'Yes' | translate }}</option>
+      </select>
+    </div>
+  }
+  <div class="form-group">
+    <input id="clone-user-send-activation-link" class="form-check-input" name="send_activation_link" [(ngModel)]="clone.send_activation_link" type="checkbox" />
+    <label for="clone-user-send-activation-link">{{ 'Send activation link' | translate }}</label>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" id="modal-action-ok" class="btn btn-primary" [disabled]="cloneForm.invalid" (click)="confirm()">
+    <i class="fa-solid fa-clone" aria-hidden="true"></i>
+    <span>{{ 'Clone' | translate }}</span>
+  </button>
+  <button type="button" id="modal-action-cancel" class="btn btn-outline-secondary" (click)="cancel()">
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    <span>{{ 'Cancel' | translate }}</span>
+  </button>
+</div>

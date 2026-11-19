@@ -11,6 +11,12 @@
       </span>
     }
   </ng-container>
+  <ng-container actions>
+    <button type="button" class="btn btn-sm btn-outline-secondary" data-action="clone" (click)="cloneUser(user())">
+      <i class="fa-solid fa-clone" aria-hidden="true"></i>
+      <span>{{ 'Clone' | translate }}</span>
+    </button>
+  </ng-container>
   <ng-template #body>
       <div class="row">
         <div class="col-md-6">

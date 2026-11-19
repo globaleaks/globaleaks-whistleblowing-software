@@ -316,6 +316,32 @@ describe("globaleaks process", function () {
     cy.logout();
   });
 
+  it("should clone a recipient with access to its reports", function () {
+    cy.login_admin();
+    cy.openAdminUsers();
+
+    cy.get(".userList").its("length").then(count => {
+      cy.contains(".userList", "Recipient").find("[data-action='clone']").click();
+
+      // Reports: No by default, open to the change for an administrator with the key escrow
+      cy.get("#clone-user-reports").should("not.be.disabled").find("option").first().should("be.selected");
+      cy.get("#clone-user-username").type("RecipientClone");
+      cy.get("#clone-user-name").type("RecipientClone");
+      cy.get("#clone-user-email").type("globaleaks-receiver-clone@mailinator.com");
+      cy.get("#clone-user-reports").select(1);
+      cy.get("#modal-action-ok").click();
+
+      cy.get(".userList").should("have.length", count + 1);
+      cy.contains(".userList", "RecipientClone").find("[data-action='delete']").click();
+      cy.get("#modal-action-ok").click();
+      cy.get("[name='secret']").should("be.visible").clear().type(Cypress.expose("user_password"));
+      cy.get("#confirm").click();
+      cy.get(".userList").should("have.length", count);
+    });
+
+    cy.logout();
+  });
+
   it("should update default channel", () => {
     cy.login_admin();
     cy.visit("/#/admin/channels");

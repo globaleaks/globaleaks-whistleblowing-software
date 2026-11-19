@@ -73,6 +73,7 @@ Check your inbox to activate it.
 Checkbox
 Checkbox label
 City
+Clone
 Close
 Closed
 Collapse
