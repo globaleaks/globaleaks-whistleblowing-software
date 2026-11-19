@@ -56,11 +56,9 @@
                   @if (!editingEmailAddress) {
                     <span>{{preferenceResolver.dataModel.mail_address}}</span>
                   }
-                  @if (authenticationService.session.role === 'admin' || preferenceResolver.dataModel.can_edit_general_settings) {
-                    <button class="btn btn-sm btn-outline-secondary" (click)="toggleEmailAddressEditing(); $event.stopPropagation();">
-                      <span>{{'Edit'|translate}}</span>
-                    </button>
-                  }
+                  <button class="btn btn-sm btn-outline-secondary" (click)="toggleEmailAddressEditing(); $event.stopPropagation();">
+                    <span>{{'Edit'|translate}}</span>
+                  </button>
                 </div>
               </div>
               @if (editingEmailAddress) {

@@ -143,32 +143,32 @@ def db_user_update_user(session, tid, user_session, request):
         user.name = request['name']
         user.public_name = request['public_name'] or request['name']
 
-        # If the email address changes, send a validation email
-        if request['mail_address'] != user.mail_address:
+    # If the email address changes, send a validation email
+    if request['mail_address'] != user.mail_address:
 
-            # Allow up to 3 changes within an hour
-            if State.RateLimit.check(b"email_validations_per_hour_per_user:" + user.id.encode(), 3, 3600) > 0:
-                raise errors.ForbiddenOperation
+        # Allow up to 3 changes within an hour
+        if State.RateLimit.check(b"email_validations_per_hour_per_user:" + user.id.encode(), 3, 3600) > 0:
+            raise errors.ForbiddenOperation
 
-            token = generateRandomKey()
-            user.change_email_address = request['mail_address']
-            user.change_email_date = datetime_now()
-            user.change_email_token = sha256(token).decode()
+        token = generateRandomKey()
+        user.change_email_address = request['mail_address']
+        user.change_email_date = datetime_now()
+        user.change_email_token = sha256(token).decode()
 
-            user_desc = user_serialize_user(session, user, user.language)
+        user_desc = user_serialize_user(session, user, user.language)
 
-            user_desc['mail_address'] = request['mail_address']
+        user_desc['mail_address'] = request['mail_address']
 
-            template_vars = {
-                'type': 'email_validation',
-                'user': user_desc,
-                'new_email_address': request['mail_address'],
-                'validation_token': token,
-                'node': db_admin_serialize_node(session, tid, user.language),
-                'notification': db_get_notification(session, tid, user.language)
-            }
+        template_vars = {
+            'type': 'email_validation',
+            'user': user_desc,
+            'new_email_address': request['mail_address'],
+            'validation_token': token,
+            'node': db_admin_serialize_node(session, tid, user.language),
+            'notification': db_get_notification(session, tid, user.language)
+        }
 
-            State.format_and_send_mail(session, tid, user_desc['mail_address'], template_vars)
+        State.format_and_send_mail(session, tid, user_desc['mail_address'], template_vars)
 
     parse_pgp_options(user, request)
 

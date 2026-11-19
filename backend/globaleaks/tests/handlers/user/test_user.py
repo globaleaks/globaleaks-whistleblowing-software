@@ -76,6 +76,18 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
         self.assertEqual(response['name'], 'Test Name')
 
     @inlineCallbacks
+    def test_change_name_without_permission(self):
+        handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
+
+        response = yield handler.get()
+        name = response['name']
+        response['name'] = "Test Name"
+        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
+
+        response = yield handler.put()
+        self.assertEqual(response['name'], name)
+
+    @inlineCallbacks
     def test_start_email_change_process(self):
         handler = self.request(user_id=self.dummyReceiver_1['id'], role='receiver')
 
@@ -83,8 +95,7 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
         email = "change1@test.com"
         response['mail_address'] = email
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver',
-                               permissions={'can_edit_general_settings': True})
+        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
         response = yield handler.put()
 
         self.assertNotEqual(response['mail_address'], email)
@@ -92,8 +103,7 @@ class TestUserInstance(helpers.TestHandlerWithPopulatedDB):
 
         email = "change2@test.com"
         response['mail_address'] = email
-        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver',
-                               permissions={'can_edit_general_settings': True})
+        handler = self.request(response, user_id=self.dummyReceiver_1['id'], role='receiver')
         response = yield handler.put()
 
         self.assertEqual(response['change_email_address'], email)
