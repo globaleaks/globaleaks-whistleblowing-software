@@ -46,7 +46,6 @@ Authorization
 Authorize
 Authorize access to the reporting person's identity
 Authorized
-Auto-renewal
 Automatic configuration
 Available disk space
 Before proceeding please read carefully the documentation at:
@@ -287,7 +286,6 @@ Please note that all the associated data will be permanently deleted.
 Please select your account:
 Preferences
 Presentation
-Preview
 Previous
 Print
 Privacy Policy
@@ -475,7 +473,6 @@ Use the first site for administrative purposes only
 User
 Username
 Users
-Using automatic HTTPS configuration will handle the entire process of requesting, enabling and renewing certificates from the Let's Encrypt Certificate Authority.
 Valid until:
 Validation of email address change in progress.
 Value

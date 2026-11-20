@@ -15,11 +15,6 @@
           </span>
         }
       </div>
-      @if (tlsConfig().acme) {
-        <div>
-          <span>{{'Auto - renewal'|translate}}</span>: <span>{{'Enabled'|translate}}</span>
-        </div>
-      }
     </div>
     <div class="hostname">
       @if (tlsConfig().enabled) {

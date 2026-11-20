@@ -2,11 +2,8 @@
 <div class="row">
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header">{{ 'Automatic configuration' | translate }}</div>
+            <div class="card-header">{{ 'Automatic configuration' | translate }} (Let's Encrypt)</div>
             <div class="card-body">
-                <p>
-                    {{ 'Using automatic HTTPS configuration will handle the entire process of requesting, enabling and renewing certificates from the Let\'s Encrypt Certificate Authority.' | translate }}{{ 'The platform must be reachable through a public IP address and the selected hostname must have a DNS record referencing that address.' | translate }}
-                </p>
                 <button id="HTTPSAutoMode" class="btn btn-primary" type="submit" (click)="setupAcme()">{{ 'Proceed' | translate }}</button>
             </div>
         </div>
