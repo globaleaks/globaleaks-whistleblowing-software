@@ -41,7 +41,7 @@ from twisted.scripts._twistd_unix import UnixApplicationRunner as TwistedApplica
 
 from globaleaks import __version__, DATABASE_VERSION
 from globaleaks.rest.cache import Cache
-from globaleaks.settings import Settings
+from globaleaks.settings import SeedSpecification, Settings
 from globaleaks.state import State, mail_exception_handler
 
 
@@ -74,6 +74,10 @@ parser.add_option("-k", "--test-kdf", action='store_true',
 parser.add_option("-m", "--migrate-only", action='store_true',
     help="run only db and data migration scripts [default: False]",
     dest="migrate_only", default=False)
+
+parser.add_option("-s", "--seed", action='store_true',
+    help="seed a fresh database using the GlobaLeaks seed specification",
+    dest="seed", default=False)
 
 parser.add_option("-o", "--orm-debug", action='store_true',
     help="enable ORM debugging [default: False]",
@@ -108,6 +112,8 @@ if os.geteuid() == 0:
 
 
 Settings.load_cmdline_options(options)
+if options.seed:
+    Settings.seed_specification = SeedSpecification()
 
 
 # A certificate that cannot be served stops the start: falling back on the

@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 
 from globaleaks.orm import make_db_uri, set_db_uri, enable_orm_debug
 from globaleaks.utils.singleton import Singleton
@@ -12,6 +13,19 @@ possible_client_paths = [
 ]
 
 
+@dataclass(frozen=True)
+class SeedSpecification:
+    """Default dataset size used whenever database seeding is enabled."""
+    tenant_count: int = 1
+    submissions_per_tenant: int = 1000
+
+    def __post_init__(self):
+        if self.tenant_count < 1:
+            raise ValueError('Seed specification requires at least one tenant')
+        if self.submissions_per_tenant < 0:
+            raise ValueError('Seed specification requires a non-negative report count')
+
+
 class SettingsClass(metaclass=Singleton):
     def __init__(self):
         # daemonize the process
@@ -19,6 +33,7 @@ class SettingsClass(metaclass=Singleton):
 
         # migrate only
         self.migrate_only = False
+        self.seed_specification = None
 
         self.bind_address = '::'
         self.bind_remote_ports = [8080, 8443]

@@ -1,5 +1,6 @@
 #   backend
 #   *******
+import os
 import sys
 import traceback
 
@@ -77,6 +78,7 @@ class Service(service.Service):
 
     def deferred_start(self):
         try:
+            database_was_present = os.path.exists(self.state.settings.db_file_path)
             ret = update_db()
 
             if ret == -1 or self.state.settings.migrate_only:
@@ -87,6 +89,15 @@ class Service(service.Service):
             if ret == 0:
                 create_db()
                 initialize_db()
+
+            if self.state.settings.seed_specification:
+                if database_was_present or ret != 0:
+                    raise RuntimeError('Seeding refused: --seed requires a fresh working directory')
+                from globaleaks.db.seeding import seed_database  # noqa: PLC0415
+                seed_database(
+                    self.state.settings.seed_specification.tenant_count,
+                    self.state.settings.seed_specification.submissions_per_tenant,
+                )
 
             # The limits on the callers protect a site in production; in development mode the callers
             # are the tests, which come faster than any threshold allows
