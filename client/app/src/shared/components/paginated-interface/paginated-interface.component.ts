@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, contentChild, inject, input, model, OnChanges, SimpleChanges, TemplateRef} from '@angular/core';
+import {AfterViewInit, Component, contentChild, inject, input, model, output, OnChanges, SimpleChanges, TemplateRef} from '@angular/core';
 import {NgTemplateOutlet} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -51,7 +51,15 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   readonly addForm = contentChild<TemplateRef<unknown>>('addForm');
 
   searchText = '';
-  currentPage = 1;
+  readonly currentPage = model(1);
+  readonly serverSide = input(false);
+  readonly totalItems = input(0);
+  readonly stateChange = output<{
+    type: 'page' | 'search' | 'filter';
+    page: number;
+    search: string;
+    filterEnabled: boolean;
+  }>();
   filteredItems: T[] = [];
   paginatedItems: T[] = [];
 
@@ -72,7 +80,9 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['items'] || changes['filter'] || changes['orderBy'] || changes['orderDesc'] || changes['focusItemId']) {
       // A shorter list may no longer hold the page in view
-      this.currentPage = 1;
+      if (!this.serverSide()) {
+        this.currentPage.set(1);
+      }
       this.update();
     }
   }
@@ -85,6 +95,11 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
 
   update(): void {
     this.filteredItems = [...this.items()];
+    if (this.serverSide()) {
+      this.scopedCount = this.totalItems();
+      this.paginatedItems = [...this.items()];
+      return;
+    }
 
     // Apply optional filter object
     if (this.filter()) {
@@ -137,28 +152,53 @@ export class PaginatedInterfaceComponent<T> implements AfterViewInit, OnChanges 
     if (focusItemId && focusItemId !== this.focusedItemId) {
       const position = this.filteredItems.findIndex(item => String((item as any).id) === focusItemId);
       if (position !== -1) {
-        this.currentPage = Math.floor(position / this.itemsPerPage()) + 1;
+        this.currentPage.set(Math.floor(position / this.itemsPerPage()) + 1);
         this.focusedItemId = focusItemId;
       }
     }
 
     // Ensure current page is valid
     const maxPage = Math.max(Math.ceil(this.filteredItems.length / this.itemsPerPage()), 1);
-    if (this.currentPage > maxPage) {
-      this.currentPage = maxPage;
+    if (this.currentPage() > maxPage) {
+      this.currentPage.set(maxPage);
     }
-    if (this.currentPage < 1) {
-      this.currentPage = 1;
+    if (this.currentPage() < 1) {
+      this.currentPage.set(1);
     }
 
     // Pagination
-    const start = (this.currentPage - 1) * this.itemsPerPage();
-    const end = this.currentPage * this.itemsPerPage();
+    const start = (this.currentPage() - 1) * this.itemsPerPage();
+    const end = this.currentPage() * this.itemsPerPage();
     this.paginatedItems = [...this.filteredItems.slice(start, end)];
   }
 
   onSearchUpdate(): void {
-    this.currentPage = 1;
+    this.currentPage.set(1);
+    if (this.serverSide()) {
+      this.emitState('search');
+      return;
+    }
     this.update();
+  }
+
+  onFilterChange(): void {
+    this.currentPage.set(1);
+    if (this.serverSide()) {
+      this.emitState('filter');
+      return;
+    }
+    this.update();
+  }
+
+  onPageChange(): void {
+    if (this.serverSide()) {
+      this.emitState('page');
+      return;
+    }
+    this.update();
+  }
+
+  private emitState(type: 'page' | 'search' | 'filter'): void {
+    this.stateChange.emit({type, page: this.currentPage(), search: this.searchText, filterEnabled: this.filterOptEnabled()});
   }
 }

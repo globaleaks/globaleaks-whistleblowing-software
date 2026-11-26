@@ -456,7 +456,7 @@ class TestPermissionEnforcement(helpers.TestHandler):
         # The walk found what it was supposed to: a change that emptied
         # api_spec, or that stopped declaring permissions altogether, would
         # otherwise leave this test green over nothing
-        self.assertEqual(exercised, 100)
+        self.assertEqual(exercised, 103)
 
 
 class TestPublicSurface(TestGL):

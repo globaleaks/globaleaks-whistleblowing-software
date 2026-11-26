@@ -1,4 +1,7 @@
-import {Component, HostListener, OnInit, inject} from "@angular/core";
+import {SearchDashboardComponent} from "@app/shared/components/search-dashboard/search-dashboard.component";
+import {SearchDashboardConfigComponent} from "@app/pages/admin/casemanagement/search-dashboard/search-dashboard.component";
+import {SearchFilter, SearchQuery, emptySearchQuery} from "@app/models/search/search-query";
+import {Component, HostListener, OnDestroy, OnInit, TemplateRef, viewChild, inject} from "@angular/core";
 import {TranslatePipe} from "@ngx-translate/core";
 import {AppConfigService} from "@app/services/root/app-config.service";
 import {NgbModal, NgbTooltipModule} from "@ng-bootstrap/ng-bootstrap";
@@ -9,9 +12,9 @@ import {UtilsService} from "@app/shared/services/utils.service";
 import {TranslateService} from "@ngx-translate/core";
 import {TokenResource} from "@app/shared/services/token-resource.service";
 import {Router, RouterLink} from "@angular/router";
-import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
+import {RecipientReportsRequest, rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
-import {concatMap, delay, from, tap} from "rxjs";
+import {concatMap, delay, from, map, Observable, Subscription, tap, timer, switchMap} from "rxjs";
 import {formatDate, DatePipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {PaginatedInterfaceComponent} from "@app/shared/components/paginated-interface/paginated-interface.component";
@@ -20,13 +23,22 @@ import {TableFilterOption, TableState} from "@app/shared/components/table/table-
 import {HttpService} from "@app/shared/services/http.service";
 import {InsertReportComponent} from "@app/shared/modals/insert-report/insert-report.component";
 
+const COLUMN_FIELDS: Record<string, string> = {context_name: "context_id", submissionStatusStr: "status", score: "score"};
+const DATE_FIELDS = ["creation_date", "update_date", "expiration_date"];
+
 @Component({
     selector: "src-tips",
     templateUrl: "./tips.component.html",
     standalone: true,
-    imports: [TranslatePipe, DatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TableHeaderComponent]
+    imports: [SearchDashboardComponent, SearchDashboardConfigComponent, TranslatePipe, DatePipe, FormsModule, NgbTooltipModule, PaginatedInterfaceComponent, RouterLink, TableHeaderComponent]
 })
-export class TipsComponent implements OnInit {
+export class TipsComponent implements OnInit, OnDestroy {
+  readonly reportSearchDashboard = viewChild(SearchDashboardComponent);
+  searchQuery: SearchQuery = emptySearchQuery();
+  private searchSubscription?: Subscription;
+  private searchDebounceSubscription?: Subscription;
+  private reportSearch = "";
+  private unreadOnly = false;
   protected authenticationService = inject(AuthenticationService);
   protected httpService = inject(HttpService);
   private readonly appConfigServices = inject(AppConfigService);
@@ -40,6 +52,7 @@ export class TipsComponent implements OnInit {
   private readonly tokenResourceService = inject(TokenResource);
 
   selectedTips: string[] = [];
+  private selectableCount = 0;
   // On a phone the headers that sort and filter are a panel shown on request
   showListControls = false;
   index: number;
@@ -50,6 +63,8 @@ export class TipsComponent implements OnInit {
   scoreOptions: TableFilterOption[] = [];
 
   readonly table = new TableState<rtipResolverModel>({
+    serverSide: true,
+    onChange: field => this.onTableChange(field),
     orderBy: "creation_date",
     orderDesc: true,
     filters: {
@@ -75,17 +90,124 @@ export class TipsComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.searchSubscription?.unsubscribe();
+    this.searchDebounceSubscription?.unsubscribe();
+  }
+
+  openSearchConfiguration(content: TemplateRef<unknown>) {
+    this.modalService.open(content, {size: "xl", scrollable: true});
+  }
+
+  refreshSearchDashboard() {
+    this.reportSearchDashboard()?.loadTabs();
+  }
+
+  onSearchQueryChange(query: SearchQuery) {
+    this.searchQuery = query;
+    for (const [column, field] of Object.entries(COLUMN_FIELDS)) {
+      const options = this.columnOptions(column);
+      const values = new Set(query.filters
+        .filter(item => this.isColumnFilter(item, field, "in"))
+        .flatMap(item => Array.isArray(item.value) ? item.value : [item.value]));
+      this.table.selections[column] = Array.from(values, value =>
+        options.find(option => String(option.id) === String(value)) ?? {id: value, label: String(value)});
+    }
+    for (const field of DATE_FIELDS) {
+      const filter = query.filters.find(item => this.isColumnFilter(item, field, "between"));
+      this.table.ranges[field] = filter ? filter.value as [number, number] : null;
+    }
+    this.scheduleReportLoad();
+  }
+
+  private isColumnFilter(filter: SearchFilter, field: string, operator: SearchFilter["operator"]): boolean {
+    return filter.field === field && filter.operator === operator && !filter.negated;
+  }
+
+  private onTableChange(column?: string) {
+    if (!column) {
+      this.loadReports(1);
+      return;
+    }
+    const field = COLUMN_FIELDS[column] || column;
+    const select = this.table.filters[column]?.type === "select";
+    const operator = select ? "in" : "between";
+    const previous = this.searchQuery.filters.find(item => this.isColumnFilter(item, field, operator));
+    const value = select ? (this.table.selections[column] || []).map(item => item.id) : this.table.ranges[column];
+    const filters = this.searchQuery.filters.filter(item => !this.isColumnFilter(item, field, operator));
+    if (value?.length) {
+      filters.push({
+        id: previous?.id || field,
+        field,
+        operator,
+        value,
+        label: previous?.label || field,
+        negated: false
+      });
+    }
+    this.searchQuery = {...this.searchQuery, filters};
+    this.scheduleReportLoad();
+  }
+
+  onReportListStateChange(state: {type: 'page' | 'search' | 'filter'; page: number; search: string; filterEnabled: boolean}) {
+    this.reportSearch = state.search;
+    this.unreadOnly = state.filterEnabled;
+    if (state.type === 'search') {
+      this.scheduleReportLoad();
+    } else if (state.type === 'filter') {
+      this.deselectAll();
+      this.loadReports(1);
+    } else {
+      this.loadReports(state.page);
+    }
+  }
+
+  private scheduleReportLoad() {
+    this.searchDebounceSubscription?.unsubscribe();
+    this.searchDebounceSubscription = timer(250).subscribe(() => {
+      this.deselectAll();
+      this.loadReports(1);
+    });
+  }
+
+  private reportsRequest(page: number, paginate = true): RecipientReportsRequest {
+    return {page, search: this.reportSearch, unread: this.unreadOnly, sort: this.table.orderBy,
+      descending: this.table.orderDesc, query: structuredClone(this.searchQuery), paginate};
+  }
+
+  private loadReports(page: number) {
+    this.searchDebounceSubscription?.unsubscribe();
+    this.searchSubscription?.unsubscribe();
+    this.searchSubscription = this.RTips.load(this.reportsRequest(page)).pipe(
+      switchMap(() => this.appConfigServices.loadContexts(this.RTips.dataModel.map(tip => tip.context_id)))
+    ).subscribe(() => {
+      this.processTips();
+      this.table.setItems(this.RTips.dataModel);
+    });
+  }
+
+  private loadAllReports(): Observable<rtipResolverModel[]> {
+    return this.httpService.searchRecipientReports(this.reportsRequest(1, false)).pipe(
+      switchMap(response => this.appConfigServices.loadContexts(response.reports.map(tip => tip.context_id)).pipe(
+        map(() => this.decorateTips(response.reports))
+      ))
+    );
+  }
+
+  get allSelected(): boolean {
+    return this.selectableCount > 0 && this.selectedTips.length === this.selectableCount;
+  }
+
   selectAll() {
-    this.selectedTips = [];
-    this.table.result.forEach(tip => {
-      if (tip.accessible) {
-      this.selectedTips.push(tip.id);
-      }
+    this.loadAllReports().subscribe(reports => {
+      this.selectedTips = reports.filter(tip => tip.accessible).map(tip => tip.id);
+      this.selectableCount = this.selectedTips.length;
     });
   }
 
   deselectAll() {
     this.selectedTips = [];
+    this.selectableCount = 0;
   }
 
   filterNewOrUpdated = (obj: { updated?: boolean }) => !!obj.updated;
@@ -118,7 +240,8 @@ export class TipsComponent implements OnInit {
   }
 
   reload() {
-    this.RTips.reload();
+    this.deselectAll();
+    this.loadReports(this.RTips.request.page);
   }
 
   tipSwitch(id: string): void {
@@ -162,12 +285,23 @@ export class TipsComponent implements OnInit {
   }
 
   processTips() {
-    const statuses = new Set<string>();
-    const channels = new Set<string>();
-    const scores = new Set<number>();
+    this.decorateTips(this.RTips.dataModel);
+    this.channelOptions = Object.values(this.appDataService.contexts_by_id as Record<string, {id: string; name: string}>)
+      .map(context => ({id: context.id, label: context.name}));
+    this.statusOptions = this.appDataService.submissionStatuses
+      .map(status => ({id: status.id, label: status.label ? this.translateService.instant(status.label) : ""}));
+    this.scoreOptions = [0, 1, 2, 3].map(score => ({id: score, label: this.maskScore(score)}));
+  }
+
+  private columnOptions(column: string): TableFilterOption[] {
+    return ({context_name: this.channelOptions, submissionStatusStr: this.statusOptions, score: this.scoreOptions} as
+      Record<string, TableFilterOption[]>)[column] ?? [];
+  }
+
+  private decorateTips(tips: rtipResolverModel[]): rtipResolverModel[] {
     const receiverMap = new Map(this.appDataService.public.receivers.map(r => [r.id, r.name || ""]));
 
-    for (const tip of this.RTips.dataModel) {
+    for (const tip of tips) {
       tip.context = this.appDataService.contexts_by_id[tip.context_id];
       tip.context_name = tip.context?.name ?? tip.context_name ?? '';
       // A request reports the outcome of the request itself and not the
@@ -175,19 +309,10 @@ export class TipsComponent implements OnInit {
       tip.submissionStatusStr = tip.type === "request" && (tip.allow_transmission || tip.status === "closed") ?
         this.translateService.instant(tip.allow_transmission ? "Authorized" : "Denied") :
         this.utils.getSubmissionStatusText(tip.status, tip.substatus, this.appDataService.submissionStatuses);
-
-      statuses.add(tip.submissionStatusStr);
-      channels.add(tip.context_name);
-      scores.add(tip.score);
       tip.lastUpdateRead = tip.last_access >= tip.update_date;
       tip.receiver_names = tip.receiver_ids.map(id => receiverMap.get(id) || "").filter(Boolean).join("\n");
     }
-
-    // The options are matched on the value held by the report, not on their
-    // label: the label follows the language of the interface, the value does not
-    this.statusOptions = Array.from(statuses, status => ({id: status, label: status}));
-    this.channelOptions = Array.from(channels, channel => ({id: channel, label: channel}));
-    this.scoreOptions = Array.from(scores, score => ({id: score, label: this.maskScore(score)}));
+    return tips;
   }
 
   maskScore(score: number) {
@@ -214,12 +339,16 @@ export class TipsComponent implements OnInit {
 
 
   exportToCsv(): void {
-    this.utils.generateCSV('reports', this.getDataCsv());
+    this.loadAllReports().subscribe(reports => {
+      if (this.searchQuery.filters.length || this.searchQuery.negated) {
+        this.httpService.auditSearchExport(this.searchQuery, reports.length).subscribe();
+      }
+      this.utils.generateCSV('reports', this.getDataCsv(reports));
+    });
   }
 
-  getDataCsv(): any[] {
-    const output = [...this.table.result];
-    return output.map(tip => ({
+  getDataCsv(reports: rtipResolverModel[]): any[] {
+    return reports.map(tip => ({
       id: tip.id,
       progressive: tip.channel_progressive,
       important: tip.important,

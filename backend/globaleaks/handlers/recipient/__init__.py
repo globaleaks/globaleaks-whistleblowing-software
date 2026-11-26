@@ -20,7 +20,8 @@ from globaleaks.orm import db_log, transact
 from globaleaks.rest import requests, errors
 from globaleaks.utils.crypto import GCE
 from globaleaks.utils.utility import datetime_never
-from globaleaks.handlers.exchange import db_get_presented_context_id
+from globaleaks.handlers.exchange import db_exchange_enabled
+from globaleaks.handlers.recipient.search_dashboard import search_reports
 
 
 def _db_context_info(session, context_id, language, context_cache):
@@ -48,7 +49,7 @@ def _db_context_info(session, context_id, language, context_cache):
     return context_cache[context_id]
 
 
-def _db_receiver_ids_by_itip(session):
+def _db_receiver_ids_by_itip(session, report_ids):
     """
     Return the recipients that have access to each report
     """
@@ -58,7 +59,8 @@ def _db_receiver_ids_by_itip(session):
                                               models.ReceiverTip.receiver_id) \
                                        .filter(models.User.id == models.ReceiverTip.receiver_id,
                                                models.User.tid == models.InternalTip.tid,
-                                               models.InternalTip.id == models.ReceiverTip.internaltip_id):
+                                               models.InternalTip.id == models.ReceiverTip.internaltip_id,
+                                               models.ReceiverTip.internaltip_id.in_(report_ids)):
         receiver_ids_by_itip.setdefault(itip_id, []).append(receiver_id)
 
     return receiver_ids_by_itip
@@ -108,12 +110,12 @@ def _db_listed_reports(session, tid, user_id, updated_after, updated_before):
                   .group_by(models.ReceiverTip.id)
 
 
-def _listed_answers(user_key, rtip, itip, itip_answers, label, accessible):
+def _listed_answers(user_key, rtip, itip, itip_answers, label, accessible, include_answers=True):
     """
     Return the answers and the label of a report as listed: decrypted by the key of the recipient
     that holds it, dropped when it holds none
     """
-    answers = itip_answers.answers
+    answers = itip_answers.answers if include_answers else {}
 
     if itip.crypto_tip_pub_key and accessible and rtip.crypto_tip_prv_key:
         tip_key = GCE.asymmetric_decrypt(user_key, Base64Encoder.decode(rtip.crypto_tip_prv_key))
@@ -121,11 +123,12 @@ def _listed_answers(user_key, rtip, itip, itip_answers, label, accessible):
         if label:
             label = GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(label.encode())).decode()
 
-        answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())
-        index_answers(answers)
+        if include_answers:
+            answers = json.loads(GCE.asymmetric_decrypt(tip_key, Base64Encoder.decode(answers.encode())).decode())
+            index_answers(answers)
     elif itip.crypto_tip_pub_key:
         # remove useless and unusable crypted data
-        answers = ""
+        answers = "" if include_answers else {}
         label = ""
 
     return answers, label
@@ -179,8 +182,55 @@ def _number_reports_by_channel(session, ret, language, context_cache):
             report['channel_progressive_sort_key'] = f'{context_order:08d}-{index:08d}'
 
 
-@transact
-def get_receivertips(session, tid, user_session, language, args=None):
+def _db_presented_context_ids(session, tid, listed_rows):
+    """
+    Return the channel each listed report is presented on, resolving the
+    channels of the exchanges once for the whole list
+    """
+    contexts = {itip.id: itip.context_id for _, itip, _, _ in listed_rows}
+    foreign_ids = {itip.id for _, itip, _, _ in listed_rows if not itip.is_owned_by(tid)}
+    if not foreign_ids:
+        return contexts
+
+    exchange_ids = {}
+    for report_id, value in session.query(models.InternalTipData.internaltip_id,
+                                          models.InternalTipData.value) \
+            .filter(models.InternalTipData.internaltip_id.in_(foreign_ids),
+                    models.InternalTipData.key.in_(['request', 'transmitted_from'])) \
+            .order_by(models.InternalTipData.internaltip_id, models.InternalTipData.key):
+        exchange_id = value.get('exchange_id') if isinstance(value, dict) else None
+        if exchange_id:
+            exchange_ids.setdefault(report_id, exchange_id)
+
+    if not exchange_ids:
+        return contexts
+
+    exchanges = {exchange.id: exchange for exchange in session.query(models.Exchange)
+                 .filter(models.Exchange.id.in_(set(exchange_ids.values())))}
+    channel_ids = {exchange.channel for exchange in exchanges.values() if exchange.channel}
+    if not channel_ids:
+        return contexts
+
+    channels = session.query(models.Context).filter(
+        models.Context.tid == tid,
+        or_(models.Context.id.in_(channel_ids), models.Context.template_id.in_(channel_ids))
+    ).all()
+    channel_by_id = {channel.id: channel for channel in channels}
+    channel_by_template = {}
+    for channel in channels:
+        channel_by_template.setdefault(channel.template_id, channel)
+
+    for report_id, exchange_id in exchange_ids.items():
+        exchange = exchanges.get(exchange_id)
+        if exchange is None:
+            continue
+        channel = channel_by_id.get(exchange.channel) or channel_by_template.get(exchange.channel)
+        if channel is not None:
+            contexts[report_id] = channel.id
+    return contexts
+
+
+def db_get_receivertips(session, tid, user_session, language, args=None, include_answers=True):
     """
     Return list of submissions received by the specified receiver
 
@@ -188,6 +238,7 @@ def get_receivertips(session, tid, user_session, language, args=None):
     :param tid: The tenant ID
     :param user_session: The user session
     :param language: The language to be used during data serialization
+    :param include_answers: Whether to decrypt and list the answers
     :return: A list of submissions descriptors
     """
     user_id = user_session.user_id
@@ -197,14 +248,34 @@ def get_receivertips(session, tid, user_session, language, args=None):
     updated_after = datetime.fromtimestamp(int(args.get(b'updated_after', [b'0'])[0]))
     updated_before = datetime.fromtimestamp(int(args.get(b'updated_before', [b'32503680000'])[0]))
 
-    receiver_ids_by_itip = _db_receiver_ids_by_itip(session)
+    listed_rows = _db_listed_reports(session, tid, user_id, updated_after, updated_before).all()
+    report_ids = {itip.id for _, itip, _, _ in listed_rows}
+    receiver_ids_by_itip = _db_receiver_ids_by_itip(session, report_ids) if report_ids else {}
+    presented_context_ids = _db_presented_context_ids(session, tid, listed_rows)
+
+    communicable_candidates = {itip.id for _, itip, _, _ in listed_rows
+                               if itip.type == 'submission' and itip.tid == tid}
+    reports_with_origin = set()
+    if communicable_candidates:
+        communication_enabled = db_exchange_enabled(session, 'communication', tid)
+        reports_with_origin = {
+            report_id for report_id, origin_type in session.query(
+                models.InternalTipTransmission.transmitting_internaltip_id,
+                models.InternalTip.type
+            ).join(models.InternalTip,
+                   models.InternalTip.id == models.InternalTipTransmission.internaltip_id)
+             .filter(models.InternalTipTransmission.transmitting_internaltip_id.in_(communicable_candidates))
+             if origin_type != 'request'
+        }
+    else:
+        communication_enabled = False
 
     dict_ret = dict()
     can_transmit = globaleaks.handlers.exchange.db_can_transmit(session, tid)
 
     context_cache = {}
 
-    for rtip, itip, itip_answers, data in _db_listed_reports(session, tid, user_id, updated_after, updated_before):
+    for rtip, itip, itip_answers, data in listed_rows:
         label = itip.label
         important = itip.important
         reminder_date = itip.reminder_date
@@ -217,12 +288,13 @@ def get_receivertips(session, tid, user_session, language, args=None):
 
         # The report of an exchange is presented to the recipients of each of
         # the two sites on the channel their own site knows it by
-        context_id = db_get_presented_context_id(session, tid, itip)
+        context_id = presented_context_ids[itip.id]
 
         accessible = rtip.receiver_id == user_id
-        answers, label = _listed_answers(user_key, rtip, itip, itip_answers, label, accessible)
+        answers, label = _listed_answers(user_key, rtip, itip, itip_answers, label, accessible, include_answers)
 
-        can_communicate = globaleaks.handlers.exchange.db_can_communicate_report(session, tid, itip)
+        can_communicate = communication_enabled and itip.id in communicable_candidates and \
+            itip.id not in reports_with_origin
 
         receiver_count = len(receiver_ids_by_itip.get(itip.id, []))
         if itip.type == 'request' and tid != itip.tid:
@@ -260,13 +332,19 @@ def get_receivertips(session, tid, user_session, language, args=None):
                 'accessible': accessible
             }
 
-    _db_redact_listed_answers(session, user_id, dict_ret)
+    if include_answers:
+        _db_redact_listed_answers(session, user_id, dict_ret)
 
     ret = list(dict_ret.values())
 
     _number_reports_by_channel(session, ret, language, context_cache)
 
     return ret
+
+
+@transact
+def get_receivertips(session, tid, user_session, language, args=None):
+    return db_get_receivertips(session, tid, user_session, language, args)
 
 
 def db_grant_tips_access(session, tid, user_session, tips, receiver_id, log_data):
@@ -347,6 +425,10 @@ class TipsCollection(BaseHandler):
     Handler dealing with submissions fetch
     """
     check_roles = {'receiver', 'transmitter'}
+
+    def post(self):
+        request = self.validate_request(self.request.content.read(), requests.SearchDashboardQueryDesc)
+        return search_reports(self.request.tid, self.session, self.request.language, request)
 
     def get(self):
         return get_receivertips(self.request.tid,

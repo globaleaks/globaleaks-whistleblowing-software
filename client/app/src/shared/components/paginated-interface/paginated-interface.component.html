@@ -8,7 +8,7 @@
           <ng-container [ngTemplateOutlet]="toolbar()!"></ng-container>
         }
       </div>
-      @if (scopedCount) {
+      @if (serverSide() || scopedCount) {
         <div class="col-auto">
           <app-search-input
             [(value)]="searchText"
@@ -21,7 +21,7 @@
       <div class="row mt-2">
         <div class="col">
           <div class="form-check m-0 d-flex align-items-center justify-content-end">
-            <input class="form-check-input mt-0" type="checkbox" id="filterOpt" [(ngModel)]="filterOptEnabled" (ngModelChange)="update()" />
+            <input class="form-check-input mt-0" type="checkbox" id="filterOpt" [(ngModel)]="filterOptEnabled" (ngModelChange)="onFilterChange()" />
             <label class="form-check-label ms-2 mb-0" for="filterOpt">{{ filterOptLabel() }}</label>
           </div>
         </div>
@@ -64,5 +64,6 @@
   [items]="filteredItems"
   [(currentPage)]="currentPage"
   [itemsPerPage]="itemsPerPage()"
-  (currentPageChange)="update()">
+  [collectionSize]="serverSide() ? totalItems() : undefined"
+  (currentPageChange)="onPageChange()">
 </app-pagination>

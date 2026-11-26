@@ -1,4 +1,4 @@
-import {Component, input, model, ChangeDetectionStrategy} from '@angular/core';
+import {Component, computed, input, model, ChangeDetectionStrategy} from '@angular/core';
 import {TranslatePipe} from "@ngx-translate/core";
 import {
   NgbPagination,
@@ -32,6 +32,9 @@ export class PaginationComponent {
 
   /** Items per page (default 20) */
   readonly itemsPerPage = input(20);
+
+  readonly collectionSize = input<number>();
+  readonly itemCount = computed(() => this.collectionSize() ?? this.items().length);
 
   /** Emits when page changes */
   onPageChange(page: number) {

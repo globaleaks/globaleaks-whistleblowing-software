@@ -1,4 +1,4 @@
-@if (items().length > itemsPerPage()) {
+@if (itemCount() > itemsPerPage()) {
 <div class="text-center">
   <ngb-pagination
     dir="ltr"
@@ -6,7 +6,7 @@
     [(page)]="currentPage"
     (pageChange)="onPageChange($event)"
     [pageSize]="itemsPerPage()"
-    [collectionSize]="items().length">
+    [collectionSize]="itemCount()">
 
     <ng-template ngbPaginationFirst>
       <span ngbTooltip="{{ 'First' | translate }}">

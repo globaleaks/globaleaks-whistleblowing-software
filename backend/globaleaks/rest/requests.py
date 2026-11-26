@@ -239,6 +239,19 @@ OpsDesc = {
     'args': dict,
 }
 
+SearchDashboardDesc = {'tabs': [dict]}
+SearchDashboardQueryDesc = {
+    'page': int,
+    'search': str,
+    'unread': bool,
+    'sort': str,
+    'descending': bool,
+    'query': dict,
+    'paginate': bool,
+}
+SearchDashboardSuggestionDesc = {'field': str, 'operator': str, 'value': str}
+SearchExportAuditDesc = {'filter_types': [str], 'result_count': int}
+
 TipOpsDesc = {
     'operation': tip_operation_regexp,
     'args': dict

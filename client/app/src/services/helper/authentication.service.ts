@@ -104,7 +104,7 @@ export class AuthenticationService {
     }
   };
 
-  private getTenantBasePath(): string {
+  getTenantBasePath(): string {
     const path = window.location.pathname || "";
     const match = path.match(/^\/t\/[^/]+/);
     return match ? match[0] : "";

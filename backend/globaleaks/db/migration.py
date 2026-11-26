@@ -44,7 +44,8 @@ tables_since = {
     'UserProfile': 71,
     'UserProfileContext': 71,
     'UserProfilePermission': 71,
-    'UserProfileRole': 71
+    'UserProfileRole': 71,
+    'SearchDashboardTab': 73
 }
 
 

@@ -37,13 +37,14 @@ import {redirectResolverModel} from "@app/models/resolvers/redirect-resolver-mod
 import {WbTipData} from "@app/models/whistleblower/wb-tip-data";
 import {auditlogResolverModel} from "@app/models/resolvers/auditlog-resolver-model";
 import {Selectables} from "@app/models/app/selectables";
-import {rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
+import {RecipientReportsPage, RecipientReportsRequest, rtipResolverModel} from "@app/models/resolvers/rtips-resolver-model";
 import {IarData} from "@app/models/receiver/iar-data";
 import {statusResolverModel} from "@app/models/resolvers/status-resolver-model";
 import {statisticsResolverModel} from "@app/models/resolvers/statistics-resolver-model";
 import {metricCatalogResolverModel} from "@app/models/resolvers/metric-catalog-resolver-model";
 import {statisticalTemplateResolverModel} from "@app/models/resolvers/statistical-template-resolver-model";
 import {statisticalReportResolverModel} from "@app/models/resolvers/statistical-report-resolver-model";
+import {SearchDashboardState, SearchDashboardTab, SearchFilter} from "@app/models/search/search-query";
 import {RedactionData} from "@app/models/component-model/redaction";
 import {FlowFile} from "@flowjs/flow.js";
 import {
@@ -416,8 +417,37 @@ export class HttpService {
     return this.httpClient.put<questionnaireResolverModel>("api/admin/questionnaires/" + id, param);
   }
 
-  receiverTipResource(): Observable<rtipResolverModel[]> {
-    return this.httpClient.get<rtipResolverModel[]>("api/recipient/rtips");
+  searchRecipientReports(request: RecipientReportsRequest): Observable<RecipientReportsPage> {
+    return this.httpClient.post<RecipientReportsPage>("api/recipient/rtips", request);
+  }
+
+  getRecipientDashboard(): Observable<SearchDashboardState> {
+    return this.httpClient.get<SearchDashboardState>("api/recipient/search-dashboard");
+  }
+
+  saveRecipientTabs(tabs: SearchDashboardTab[]): Observable<SearchDashboardState> {
+    return this.httpClient.put<SearchDashboardState>("api/recipient/search-dashboard", {tabs});
+  }
+
+  getAdminSearchTabs(): Observable<{tabs: SearchDashboardTab[]}> {
+    return this.httpClient.get<{tabs: SearchDashboardTab[]}>("api/admin/search-dashboard");
+  }
+
+  saveAdminSearchTabs(tabs: SearchDashboardTab[]): Observable<{tabs: SearchDashboardTab[]}> {
+    return this.httpClient.put<{tabs: SearchDashboardTab[]}>("api/admin/search-dashboard", {tabs});
+  }
+
+  getSearchSuggestions(recipient: boolean, field: string, operator: string, value: string): Observable<{
+    suggestions: string[]; exists: boolean; verifiable: boolean
+  }> {
+    const url = recipient ? "api/recipient/search-dashboard/suggestions" : "api/admin/search-dashboard/suggestions";
+    return this.httpClient.post<{suggestions: string[]; exists: boolean; verifiable: boolean}>(url, {field, operator, value});
+  }
+
+  auditSearchExport(query: {filters: SearchFilter[]}, resultCount: number): Observable<void> {
+    return this.httpClient.post<void>("api/recipient/search/export-audit", {
+      filter_types: query.filters.map(filter => filter.field), result_count: resultCount
+    });
   }
 
   requestStatisticsResource(filters?: {

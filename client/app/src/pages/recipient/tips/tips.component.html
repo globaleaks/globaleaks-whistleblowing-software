@@ -32,14 +32,36 @@
       </div>
     </div>
   </div>
+  <ng-template #searchConfiguration let-modal>
+    <div class="modal-header">
+      <h2 class="modal-title h5">{{ "Configure search" | translate }}</h2>
+      <button type="button" class="btn-close" (click)="modal.dismiss()" [attr.aria-label]="'Close' | translate"><i class="fa-solid fa-circle-xmark" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+      <src-search-dashboard-config [recipient]="true" (tabsChange)="refreshSearchDashboard()"></src-search-dashboard-config>
+    </div>
+  </ng-template>
+  <div class="d-flex">
+    <button id="tip-action-configure-search" type="button" (click)="openSearchConfiguration(searchConfiguration)"
+      ngbTooltip="{{'Configure search' | translate}}" class="btn"
+      [attr.aria-label]="'Configure search' | translate">
+      <i class="fa-solid fa-gear"></i>
+    </button>
+    <src-search-dashboard #reportSearchDashboard
+      [query]="searchQuery"
+      (queryChange)="onSearchQueryChange($event)">
+    </src-search-dashboard>
+  </div>
   <div id="TipList" class="row mt-2" [class.show-list-controls]="showListControls">
     <div class="col-md-12 table-responsive">
-      <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated">
+      <app-paginated-interface [mode]="'table'" [hoverRows]="true" [items]="table.result" [orderBy]="table.orderBy" [orderDesc]="table.orderDesc" [filterOptLabel]="'Show only unread' | translate" [filterOptFn]="filterNewOrUpdated"
+        [serverSide]="true" [totalItems]="RTips.total" [currentPage]="RTips.request.page"
+        (stateChange)="onReportListStateChange($event)">
         <ng-template #header>
           <!-- On a phone the headers are a panel above the cards: each one still sorts and filters -->
           <tr role="row">
             <th scope="col" class="TipInfoSelect" role="columnheader">
-              <input id="tip-action-select-all" type="checkbox" class="form-check-input" [checked]="selectedTips.length === RTips.dataModel.length" (change)="selectedTips.length === RTips.dataModel.length ? deselectAll() : selectAll()" [attr.aria-label]="'Select all' | translate">
+              <input id="tip-action-select-all" type="checkbox" class="form-check-input" [checked]="allSelected" (change)="allSelected ? deselectAll() : selectAll()" [attr.aria-label]="'Select all' | translate">
             </th>
             <th scope="col" role="columnheader" appTableHeader class="TipInfoImportant" [state]="table" [label]="'Important' | translate" icon="fa-star" [labelHidden]="true" sortBy="important"></th>
             <th scope="col" role="columnheader" appTableHeader class="TipInfoReminder" [state]="table" [label]="'Reminder date' | translate" icon="fa-bell" [labelHidden]="true" sortBy="reminder_date"></th>

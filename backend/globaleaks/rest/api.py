@@ -91,6 +91,9 @@ api_spec = [
     ('/api/user/validate/email', user.validate_email.EmailValidation, r'/api/user/validate/email/(.+)'),
 
     # Receiver Handlers
+    ('/api/recipient/search-dashboard', recipient.search_dashboard.RecipientDashboard),
+    ('/api/recipient/search-dashboard/suggestions', recipient.search_dashboard.RecipientSearchSuggestions),
+    ('/api/recipient/search/export-audit', recipient.search_dashboard.SearchExportAudit),
     ('/api/recipient/rtips', recipient.TipsCollection),
     ('/api/recipient/rtips', recipient.rtip.RTipInstance, r'/api/recipient/rtips/' + uuid_regexp),
     ('/api/recipient/rtips', recipient.rtip.ReportAuditLog, r'/api/recipient/rtips/' + uuid_regexp + r'/auditlog'),
@@ -140,6 +143,8 @@ api_spec = [
     ('/api/analyst/metrics', analyst.MetricCatalog),
 
     # Admin Handlers
+    ('/api/admin/search-dashboard', recipient.search_dashboard.AdminDashboard),
+    ('/api/admin/search-dashboard/suggestions', recipient.search_dashboard.AdminSearchSuggestions),
     ('/api/admin/node', admin.node.NodeInstance),
     ('/api/admin/network', admin.network.NetworkInstance),
     ('/api/admin/support', support.AdminSupportRequests),

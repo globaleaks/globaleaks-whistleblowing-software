@@ -15,6 +15,8 @@ export interface TableStateOptions<T> {
   orderBy: keyof T;
   orderDesc?: boolean;
   filters?: Record<string, TableFilter<T>>;
+  onChange?: (field?: string) => void;
+  serverSide?: boolean;
 }
 
 /**
@@ -39,8 +41,12 @@ export class TableState<T> {
   result: T[] = [];
 
   private items: T[] = [];
+  private readonly onChange?: (field?: string) => void;
+  private readonly serverSide: boolean;
 
   constructor(options: TableStateOptions<T>) {
+    this.onChange = options.onChange;
+    this.serverSide = options.serverSide || false;
     this.orderBy = options.orderBy;
     this.orderDesc = options.orderDesc || false;
     this.filters = options.filters || {};
@@ -57,7 +63,7 @@ export class TableState<T> {
   }
 
   refresh(): void {
-    this.result = this.items.filter(item => this.matches(item));
+    this.result = this.serverSide ? [...this.items] : this.items.filter(item => this.matches(item));
   }
 
   toggleSort(field: keyof T): void {
@@ -67,6 +73,7 @@ export class TableState<T> {
       this.orderBy = field;
       this.orderDesc = false;
     }
+    this.onChange?.();
   }
 
   toggleFilter(key: string): void {
@@ -80,6 +87,7 @@ export class TableState<T> {
   setSelection(key: string, selection: TableFilterOption[]): void {
     this.selections[key] = selection || [];
     this.refresh();
+    this.onChange?.(key);
   }
 
   setRange(key: string, range: { fromDate: string | null; toDate: string | null }): void {
@@ -92,6 +100,7 @@ export class TableState<T> {
     }
 
     this.refresh();
+    this.onChange?.(key);
   }
 
   private matches(item: T): boolean {

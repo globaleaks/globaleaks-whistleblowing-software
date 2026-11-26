@@ -893,7 +893,7 @@ def redact_answers(answers, redactions, depth=0):
         for answer in answers[key]:
             if 'value' in answer:
                 for redaction in redactions:
-                    if key == redaction.reference_id and answer['index'] == redaction.entry:
+                    if key == redaction.reference_id and answer.get('index') == redaction.entry:
                         answer['value'] = redact_content(answer['value'], redaction.temporary_redaction, '0x2591')
             else:
                 redact_answers(answer, redactions, depth + 1)
