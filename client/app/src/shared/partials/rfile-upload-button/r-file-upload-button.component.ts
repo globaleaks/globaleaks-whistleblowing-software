@@ -4,7 +4,7 @@ import {FlowConfig, Transfer, NgxFlowModule} from "@flowjs/ngx-flow";
 import {AppDataService} from "@app/app-data.service";
 import {ControlContainer, FormsModule, NgForm} from "@angular/forms";
 import {Subscription} from "rxjs";
-import {FlowOptions} from "@flowjs/flow.js";
+import {FlowFile, FlowOptions} from "@flowjs/flow.js";
 import {Field} from "@app/models/resolvers/field-template-model";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {UtilsService} from "@app/shared/services/utils.service";
@@ -73,6 +73,8 @@ export class RFileUploadButtonComponent implements AfterViewInit, OnInit, OnDest
   }
 
   ngAfterViewInit() {
+    this.flow().flowJs.on("fileError", (_file: FlowFile, message: string) => this.utilsService.onFlowError(message));
+
     this.autoUploadSubscription = this.flow().transfers$.subscribe((event,) => {
       this.confirmButton = false;
       this.showError = false;

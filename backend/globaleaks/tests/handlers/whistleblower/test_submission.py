@@ -9,7 +9,7 @@ from globaleaks import models
 from globaleaks.handlers import auth
 from globaleaks.handlers.whistleblower import submission, wbtip
 from globaleaks.jobs import delivery
-from globaleaks.orm import transact
+from globaleaks.orm import transact, tw
 from globaleaks.rest import errors
 from globaleaks.models.config import db_set_config_variable
 from globaleaks.tests import helpers
@@ -766,6 +766,19 @@ class TestSubmission(helpers.TestHandlerWithPopulatedDB):
         handler = self.request(self.submission_desc, role='whistleblower')
         self.emulate_file_upload(handler.session, 3)
         yield handler.post()
+
+    @inlineCallbacks
+    def test_create_submission_rejected_when_max_submissions_reached(self):
+        yield self.create_submission(None)
+        count = yield tw(lambda session: session.query(models.InternalTip).filter(models.InternalTip.tid == 1).count())
+        yield tw(db_set_config_variable, 1, 'max_submissions', count)
+
+        self.submission_desc = yield self.get_dummy_submission(self.dummy_context['id'])
+        handler = self.request(self.submission_desc, role='whistleblower')
+        yield self.assertFailure(handler.post(), errors.TenantLimitExceeded)
+
+        yield tw(db_set_config_variable, 1, 'max_submissions', count + 1)
+        yield self.create_submission(None)
 
     @inlineCallbacks
     def test_create_submission_with_no_recipients(self):

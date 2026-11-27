@@ -258,6 +258,8 @@ def db_get_tenant_list(session, language='en'):
             continue
 
         tenant_dict = serializers.serialize_tenant(session, t, configs[t.id])
+        for var in ['max_disk_space', 'max_submissions']:
+            tenant_dict.setdefault(var, 0)
         tenant_dict['contexts'] = contexts.get(t.id, [])
         tenant_dict['questionnaires'] = questionnaires.get(t.id, [])
 
@@ -519,7 +521,7 @@ def wizard(session, tid, hostname, request):
 
 
 @transact
-def update(session, tid, request, language):
+def update(session, tid, request, language, limits=None):
     root_tenant_config = config.ConfigFactory(session, 1)
 
     t = db_get(session, models.Tenant, models.Tenant.id == tid)
@@ -548,6 +550,10 @@ def update(session, tid, request, language):
 
     for var in ['name', 'subdomain']:
         db_set_config_variable(session, tid, var, request[var])
+
+    if limits and 1 < tid < DEFAULT_PROFILE_ID:
+        for var in ['max_disk_space', 'max_submissions']:
+            db_set_config_variable(session, tid, var, max(int(limits[var]), 0))
 
     return serializers.serialize_tenant(session, t)
 
@@ -874,10 +880,15 @@ class TenantInstance(BaseHandler):
         """
         Update the specified tenant.
         """
-        request = self.validate_request(self.request.content.read(),
-                                        requests.AdminTenantDesc)
+        raw_content = self.request.content.read()
+        content = json.loads(raw_content)
+        request = self.validate_request(raw_content, requests.AdminTenantDesc)
 
-        return update(int(tid), request, self.request.language)
+        limits = None
+        if 'max_disk_space' in content and 'max_submissions' in content:
+            limits = self.validate_request(content, requests.AdminTenantLimitsDesc)
+
+        return update(int(tid), request, self.request.language, limits)
 
     @inlineCallbacks
     def delete(self, tid):

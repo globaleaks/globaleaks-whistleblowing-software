@@ -1,13 +1,22 @@
 # Handler dealing with submissions file uploads and subsequent submissions attachments
 
 from nacl.encoding import Base64Encoder
+from twisted.internet.defer import inlineCallbacks
 
 from globaleaks import models
 from globaleaks.handlers.base import BaseHandler
 from globaleaks.models import serializers
 from globaleaks.orm import db_log, transact
+from globaleaks.rest import errors
 from globaleaks.utils.crypto import GCE
+from globaleaks.transactions import db_check_disk_space_limit
+from globaleaks.utils.fs import srm
 from globaleaks.utils.utility import datetime_now
+
+
+@transact
+def check_disk_space_limit(session, tid, size):
+    db_check_disk_space_limit(session, tid, size)
 
 
 @transact
@@ -21,6 +30,8 @@ def register_ifile_on_db(session, tid, internaltip_id, uploaded_file):
     :param uploaded_file: A file to be attached
     :return: A descriptor of the file
     """
+    db_check_disk_space_limit(session, tid, int(uploaded_file['size']))
+
     now = datetime_now()
 
     itip = session.query(models.InternalTip) \
@@ -62,7 +73,23 @@ class SubmissionAttachment(BaseHandler):
     check_roles = 'whistleblower'
     upload_handler = True
 
+    def discard_upload(self):
+        self.state.TempUploadFiles.pop(self.uploaded_file['id'], None)
+        try:
+            srm(self.uploaded_file['body'].filepath)
+        except OSError:
+            pass
+
+    @inlineCallbacks
     def post(self):
+        size = sum(int(f['size']) for f in self.session.files) + int(self.uploaded_file['size'])
+
+        try:
+            yield check_disk_space_limit(self.request.tid, size)
+        except errors.TenantLimitExceeded:
+            self.discard_upload()
+            raise
+
         self.uploaded_file['submission'] = True
         self.session.files.append(self.uploaded_file)
 
@@ -74,7 +101,12 @@ class PostSubmissionAttachment(SubmissionAttachment):
     check_roles = 'whistleblower'
     upload_handler = True
 
+    @inlineCallbacks
     def post(self):
         self.uploaded_file['submission'] = False
 
-        return register_ifile_on_db(self.request.tid, self.session.user_id, self.uploaded_file)
+        try:
+            return (yield register_ifile_on_db(self.request.tid, self.session.user_id, self.uploaded_file))
+        except errors.TenantLimitExceeded:
+            self.discard_upload()
+            raise

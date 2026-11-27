@@ -1,11 +1,15 @@
 """
 ORM Transactions definitions.
 """
+import os
+
 from nacl.encoding import Base64Encoder
 
 from globaleaks import models
 from globaleaks.models.config import ConfigFactory
 from globaleaks.orm import db_add, db_get
+from globaleaks.rest import errors
+from globaleaks.settings import Settings
 from globaleaks.utils.crypto import GCE
 
 
@@ -105,3 +109,43 @@ def db_schedule_email(session, tid, address, subject, body, secondary_smtp=False
                     'tid': tid,
                     'secondary_smtp': secondary_smtp,
                   })
+
+
+def db_get_tenant_limit(session, tid, var_name):
+    try:
+        return max(int(ConfigFactory(session, tid).get_val(var_name)), 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def db_get_attachments_usage(session, tid):
+    usage = 0
+
+    for ifile_id, size, crypto_tip_pub_key in session.query(models.InternalFile.id,
+                                                            models.InternalFile.size,
+                                                            models.InternalTip.crypto_tip_pub_key) \
+                                                     .filter(models.InternalFile.internaltip_id == models.InternalTip.id,
+                                                             models.InternalTip.tid == tid):
+        if not crypto_tip_pub_key and str(size).isdigit():
+            usage += int(size)
+            continue
+
+        for path in (Settings.attachments_path, Settings.tmp_path):
+            filepath = os.path.join(path, ifile_id)
+            if os.path.isfile(filepath):
+                usage += os.path.getsize(filepath)
+                break
+
+    return usage
+
+
+def db_check_submissions_limit(session, tid):
+    limit = db_get_tenant_limit(session, tid, 'max_submissions')
+    if limit and session.query(models.InternalTip).filter(models.InternalTip.tid == tid).count() >= limit:
+        raise errors.TenantLimitExceeded('max_submissions')
+
+
+def db_check_disk_space_limit(session, tid, size):
+    limit = db_get_tenant_limit(session, tid, 'max_disk_space')
+    if limit and db_get_attachments_usage(session, tid) + size > limit * 1024 * 1024:
+        raise errors.TenantLimitExceeded('max_disk_space')

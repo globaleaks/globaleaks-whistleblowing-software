@@ -28,6 +28,7 @@ import {Field} from "@app/models/resolvers/field-template-model";
 import {Option} from "@app/models/whistleblower/wb-tip-data";
 import {Status} from "@app/models/app/public-model";
 import {AppDataService} from "@app/app-data.service";
+import {ErrorCodes} from "@app/models/app/error-code";
 import {AuthenticationService} from "@app/services/helper/authentication.service";
 import {FlowFile, FlowOptions} from "@flowjs/flow.js";
 import {AcceptAgreementComponent} from "@app/shared/modals/accept-agreement/accept-agreement.component";
@@ -978,7 +979,20 @@ export class UtilsService {
   }
 
   public getFlowInstance(overrides: Partial<FlowOptions> = {}): Flow {
-    return new Flow(this.getFlowOptions(overrides));
+    const flow = new Flow(this.getFlowOptions(overrides));
+    flow.on("fileError", (_file: FlowFile, message: string) => this.onFlowError(message));
+    return flow;
+  }
+
+  public onFlowError(message: string) {
+    try {
+      const error = JSON.parse(message);
+      if (error && error["error_code"]) {
+        this.appDataService.errorCodes = new ErrorCodes(error["error_message"], error["error_code"], error["arguments"]);
+      }
+    } catch {
+      return;
+    }
   }
 
   getRoleDisplayName(role: any): any {

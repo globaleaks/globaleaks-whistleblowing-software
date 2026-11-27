@@ -13,4 +13,6 @@ export class tenantResolverModel {
   contexts: any[];
   questionnaires: any[];
   in_use?: boolean;
+  max_submissions?: number;
+  max_disk_space?: number;
 }

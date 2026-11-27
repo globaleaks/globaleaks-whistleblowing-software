@@ -53,6 +53,15 @@
             <span>{{'The upload request exceeds the size limit'|translate}}</span>
           </div>
         }
+        @case (21) {
+          <div>
+            @if (appDataService.errorCodes.arguments && appDataService.errorCodes.arguments[0] === 'max_disk_space') {
+              <span>{{'The site has reached the maximum disk space available for attachments'|translate}}</span>
+            } @else {
+              <span>{{'The site has reached the maximum number of reports it can receive'|translate}}</span>
+            }
+          </div>
+        }
         @case (17) {
           <div>
             <span>{{'A user with this username already exists'|translate}}</span>

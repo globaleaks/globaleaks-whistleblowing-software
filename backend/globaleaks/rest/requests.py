@@ -99,6 +99,11 @@ AdminTenantDesc = {
     'profile': profile_regexp,
 }
 
+AdminTenantLimitsDesc = {
+    'max_submissions': int,
+    'max_disk_space': int
+}
+
 AdminExchangeConfigDesc = {
     'questionnaire': key_regexp_or_empty,
     'request_questionnaire': key_regexp_or_empty

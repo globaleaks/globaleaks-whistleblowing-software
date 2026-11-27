@@ -52,6 +52,16 @@
             <label for="tenant-subdomain-{{tenant().id}}">{{'Subdomain'|translate}}</label>
             <input id="tenant-subdomain-{{tenant().id}}" name="subdomain" class="form-control" [(ngModel)]="tenant().subdomain" type="text" maxlength="40" required>
           </div>
+          <div class="form-group">
+            <label for="tenant-max-submissions-{{tenant().id}}">{{'Maximum number of reports'|translate}}</label>
+            <input id="tenant-max-submissions-{{tenant().id}}" name="max_submissions" class="form-control" [(ngModel)]="tenant().max_submissions" type="number" min="0" step="1" required>
+            <small class="form-text text-muted">{{'0 means unlimited'|translate}}</small>
+          </div>
+          <div class="form-group">
+            <label for="tenant-max-disk-space-{{tenant().id}}">{{'Maximum disk space (MB)'|translate}}</label>
+            <input id="tenant-max-disk-space-{{tenant().id}}" name="max_disk_space" class="form-control" [(ngModel)]="tenant().max_disk_space" type="number" min="0" step="1" required>
+            <small class="form-text text-muted">{{'0 means unlimited'|translate}}</small>
+          </div>
           @if (profileName && tenant().active) {
             <div class="form-group site-profile">
               <span class="form-label">

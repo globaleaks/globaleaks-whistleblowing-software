@@ -74,7 +74,12 @@ export class SiteslistComponent implements OnInit {
   // The update does not move a site between profiles, and the backend ignores the field: the
   // request carries it only because it is validated, and the site keeps showing the one it uses
   private updateRequest(): tenantResolverModel {
-    return {...this.tenant(), profile: this.tenant().profile || "default"};
+    return {
+      ...this.tenant(),
+      profile: this.tenant().profile || "default",
+      max_submissions: Math.max(0, Math.floor(Number(this.tenant().max_submissions) || 0)),
+      max_disk_space: Math.max(0, Math.floor(Number(this.tenant().max_disk_space) || 0))
+    };
   }
 
   // The confirmation states what the deletion carries away; if the statistics changed meanwhile the

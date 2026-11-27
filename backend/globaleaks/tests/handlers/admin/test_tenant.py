@@ -163,6 +163,33 @@ class TestTenantInstance(helpers.TestHandlerWithPopulatedDB):
         return self.handler.put(4)
 
     @inlineCallbacks
+    def test_put_sets_the_resource_limits(self):
+        desc = get_dummy_tenant_desc()
+        desc.update({'profile': 'default', 'max_submissions': 5, 'max_disk_space': -3})
+        ret = yield self.request(desc, role='admin').put(4)
+
+        self.assertEqual(ret['max_submissions'], 5)
+        self.assertEqual(ret['max_disk_space'], 0)
+
+    @inlineCallbacks
+    def test_put_without_limits_leaves_them_untouched(self):
+        desc = get_dummy_tenant_desc()
+        desc.update({'profile': 'default', 'max_submissions': 7, 'max_disk_space': 9})
+        yield self.request(desc, role='admin').put(4)
+
+        desc = get_dummy_tenant_desc()
+        desc['profile'] = 'default'
+        yield self.request(desc, role='admin').put(4)
+
+        self.assertEqual((yield tw(db_get_config_variable, 4, 'max_submissions')), 7)
+        self.assertEqual((yield tw(db_get_config_variable, 4, 'max_disk_space')), 9)
+
+    def test_put_rejects_invalid_limits(self):
+        desc = get_dummy_tenant_desc()
+        desc.update({'profile': 'default', 'max_submissions': 'many', 'max_disk_space': 0})
+        self.assertRaises(errors.InputValidationError, self.request(desc, role='admin').put, 4)
+
+    @inlineCallbacks
     def test_put_rejects_duplicate_subdomain(self):
         # Tenant 4 must not be able to take the subdomain owned by tenant 2
         handler = self.request(get_dummy_tenant_desc('tenant-2'), role='admin')

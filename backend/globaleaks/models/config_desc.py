@@ -125,6 +125,8 @@ ConfigDescriptor = {
     'log_accesses_of_internal_users': Bool(default=True),
     'log_level': Unicode(default='ERROR'),
     'maximum_filesize': Int(default=30),
+    'max_disk_space': Int(default=0),
+    'max_submissions': Int(default=0),
     'name': Unicode(default='GLOBALEAKS'),
     'onionservice': Unicode(default=''),
     'onionservice_enable': Bool(default=True),
@@ -573,7 +575,8 @@ ConfigFilters = {
         'idp_client_id',
         'idp_provisioning',
         'default_user_profile',
-
+        'max_disk_space',
+        'max_submissions'
     ]
 }
 

@@ -18,7 +18,7 @@ from globaleaks.handlers.base import BaseHandler
 from globaleaks.orm import db_get, db_log, transact
 from globaleaks.rest import errors, requests
 from globaleaks.state import State
-from globaleaks.transactions import db_escrow_key, db_stat_key
+from globaleaks.transactions import db_check_submissions_limit, db_escrow_key, db_stat_key
 from globaleaks.utils.crypto import sha256, sha512, GCE
 from globaleaks.utils.json import JSONEncoder
 from globaleaks.utils.utility import get_expiration, datetime_null, parse_iso8601
@@ -846,6 +846,8 @@ def db_create_submission(session, tid, request, user_session, client_using_tor, 
     # have been administratively disabled or stopped by the low-disk lockout.
     if not State.accept_submissions or State.tenants[tid].cache['disable_submissions']:
         raise errors.SubmissionDisabled
+
+    db_check_submissions_limit(session, tid)
 
     encryption = db_get(session, models.Config, (models.Config.tid == tid, models.Config.var_name == 'encryption'))
 

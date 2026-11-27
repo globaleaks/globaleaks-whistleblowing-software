@@ -171,6 +171,15 @@ class SubmissionDisabled(GLException):
     status_code = 503  # Service not available
 
 
+class TenantLimitExceeded(GLException):
+    reason = "The site has reached a resource limit"
+    error_code = 21
+    status_code = 403
+
+    def __init__(self, limit):
+        self.arguments = [limit]
+
+
 class DuplicateUserError(GLException):
     reason = "A user with this username already exists"
     error_code = 17
